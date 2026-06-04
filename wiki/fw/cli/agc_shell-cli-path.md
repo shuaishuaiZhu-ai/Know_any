@@ -2,7 +2,7 @@
 type: analysis
 title: "agc_shell CLI 输入输出路径与 cp master 卡顿分析"
 created: 2026-05-14
-updated: 2026-05-14
+updated: 2026-06-04
 tags:
   - fw
   - cp-master
@@ -25,7 +25,7 @@ source:
 
 源码主入口：`/home/shuaishuai.zhu/fw/test/framework/shell/agc_shell.c`
 
-本地临时拷贝：`C:\tmp\fw_agc_shell.c`
+本次复核：2026-06-04，远端分支 `zss/CliOptimize`，HEAD `541207a`。
 
 ## 必须记住的路径
 
@@ -52,7 +52,7 @@ UART interrupt
 |---|---|---|---|
 | UART ISR | `aigc_sdk/grace/drivers/usart/drv_usart.c:655-693` | `drv_usart_irq_handler()` | RX FIFO 非空时调用 `pdev->dev.rx_indicate(&pdev->dev, 1)`，一次通知 1 字节。 |
 | 设备回调注册 | `rtthread/components/drivers/core/device.c:445-453` | `rt_device_set_rx_indicate()` | 把 `agc_shell_rx_ind` 注册为 console 设备 RX 回调。 |
-| shell 设备绑定 | `test/framework/shell/agc_shell.c:320-353` | `agc_shell_set_device()` | 打开 console device，使用 `RT_DEVICE_FLAG_INT_RX`，并设置 RX callback。 |
+| shell 设备绑定 | `test/framework/shell/agc_shell.c:325-353` | `agc_shell_set_device()` | 打开 console device，使用 `RT_DEVICE_FLAG_INT_RX`，并设置 RX callback。 |
 | RX callback | `test/framework/shell/agc_shell.c:280-318` | `agc_shell_rx_ind()` | 从 device 读数据，写入 shell ringbuffer，然后 `rt_sem_release(&shell->rx_sem)`。 |
 | IPC 唤醒 | `rtthread/src/ipc.c:433-480` | `rt_sem_release()` | 如果有线程等在 semaphore 上，resume 该线程并触发 `rt_schedule()`。 |
 | 线程恢复 | `rtthread/src/thread.c:754-787` | `rt_thread_resume()` | 从 suspend list 移除线程，再插入 ready queue。 |
@@ -60,9 +60,9 @@ UART interrupt
 | 调度选择 | `rtthread/src/scheduler.c:194-240` | `rt_schedule()` | 从最高 ready 优先级队列头部选出下一个线程。 |
 | shell 阻塞读字符 | `test/framework/shell/agc_shell.c:109-127` | `agc_shell_getchar()` | ringbuffer 空时 `rt_sem_take(..., RT_WAITING_FOREVER)` 阻塞；非空时取 1 字节。 |
 | shell 解析字符 | `test/framework/shell/agc_shell.c:130-179` | `agc_shell_parse()` | 每次返回一个有效字符或控制键。 |
-| shell 主循环 | `test/framework/shell/agc_shell.c:546-590` | `agc_shell_thread_entry()` | 每轮只处理 `agc_shell_parse()` 返回的一个字符。 |
-| 普通字符回显 | `test/framework/shell/agc_shell.c:500-544` | `agc_shell_ctrl_default()` | 正常字符写入当前行，并通过 `rt_kprintf("%c", ch)` 同步回显。 |
-| 回车执行命令 | `test/framework/shell/agc_shell.c:468-498` | `agc_shell_ctrl_enter()` | 换行、执行命令、更新历史、重绘 prompt。 |
+| shell 主循环 | `test/framework/shell/agc_shell.c:551-594` | `agc_shell_thread_entry()` | 每轮只处理 `agc_shell_parse()` 返回的一个字符。 |
+| 普通字符回显 | `test/framework/shell/agc_shell.c:505-549` | `agc_shell_ctrl_default()` | 正常字符写入当前行，并通过 `rt_kprintf("%c", ch)` 同步回显。 |
+| 回车执行命令 | `test/framework/shell/agc_shell.c:473-500` | `agc_shell_ctrl_enter()` | 换行、执行命令、更新历史、重绘 prompt。 |
 | 命令解析执行 | `test/framework/shell/agc_shell.c:196-252` | `agc_shell_exec()` | 拆 `argv`，无条件 `agc_shell_dump_argv()`，再调用 `agc_cli_cmd()`。 |
 | console 输出 | `rtthread/src/kservice.c:1164-1195` | `rt_kprintf()` | 格式化到静态 buffer，再 `rt_device_write()` 到 console。 |
 | UART 写 | `aigc_sdk/grace/drivers/usart/drv_usart.c:500-509` | `drv_usart_write()` | 逐字节调用 `drv_usart_send_data()`。 |
@@ -78,7 +78,7 @@ UART interrupt
 #define AGCSH_THREAD_TICK          (2)
 ```
 
-线程创建在 `agc_shell.c:613-644`：
+线程创建在 `agc_shell.c:618-648`：
 
 ```c
 rt_thread_init(&shell->thread, "agc_shell",
@@ -95,7 +95,7 @@ rt_thread_startup(&shell->thread);
 
 - `agc_shell` 是 priority 20。
 - RX 输入由 semaphore 驱动，没输入时阻塞。
-- ringbuffer 大小只有 64 字节。
+- ringbuffer 大小是 128 字节，也就是 `AGCSH_INPUT_BUFFER_SIZE`。
 - 主循环每次只处理一个 `agc_shell_parse()` 返回值。
 
 ## 字符输入为什么容易被放大成卡顿
@@ -130,6 +130,59 @@ rt_sem_release(&shell->rx_sem);
 
 如果后台线程持续占 ready 队列，或者 UART 输出被后台 log 占住，每个字符都会受到影响。
 
+## CLI 删除和 ringbuffer 的关系
+
+结论先写清楚：shell 输入路径里的 ringbuffer 不是“当前命令行字符串”。它只是一个原始按键 FIFO。普通字符、回车、方向键 escape sequence、Backspace/Delete 都会先作为 byte stream 进入 `shell->input_buff`。真正的命令行字符串保存在 `this_line`，也就是 `shell->cmd_history[shell->current_history]`。
+
+![agc_shell 输入数据归属](../../../_attachments/fw/cli/agc_shell-cli-path/line-editing/agc-shell-buffer-ownership.png)
+
+> 图解源文件：[`agc-shell-buffer-ownership.svg`](../../../_attachments/fw/cli/agc_shell-cli-path/line-editing/agc-shell-buffer-ownership.svg)。这张图把 `input_buff`、`this_line` 和回车后临时 `argv` 的职责分开：ringbuffer 只传递事件，当前行状态由 `this_line + line_position + line_curpos` 维护。
+
+### 按 Backspace 时到底发生了什么
+
+如果终端发送的是 Backspace/Delete，RX 层确实会把一个 byte 写进 ringbuffer：常见值是 `0x08` 或 `0x7f`。但这个 byte 只是“删除事件”，不是删除后的字符串，也不会回头删除 ringbuffer 中前一个已经写入的 byte。
+
+实际路径是：
+
+1. `agc_shell_rx_ind()` 从 USART device 读到 raw byte，调用 `rt_ringbuffer_put(&shell->input_buff, input_buf, read_size)`。
+2. `agc_shell_getchar()` 从 `input_buff` FIFO 取 1 byte。
+3. `agc_shell_parse()` 把 `0x08/0x7f` 映射成 `AGCSH_CTRL_CHAR_BLKSPACE`。
+4. `agc_shell_thread_entry()` 分发到 `agc_shell_ctrl_blkspace()`。
+5. `agc_shell_ctrl_blkspace()` 修改 `this_line`、`line_position`、`line_curpos`，并用 `rt_kprintf()` 重绘终端显示。
+
+![Backspace/Delete 路径](../../../_attachments/fw/cli/agc_shell-cli-path/line-editing/agc-shell-backspace-flow.png)
+
+> 图解源文件：[`agc-shell-backspace-flow.svg`](../../../_attachments/fw/cli/agc_shell-cli-path/line-editing/agc-shell-backspace-flow.svg)。这里的关键点是：`0x7f` 被 put 到 ringbuffer 后，只是在 shell 线程中触发 `ctrl_blkspace`；删除动作发生在 `this_line`，不是发生在 ringbuffer。
+
+以 `agc` 删除一个 `c` 后继续输入为例：
+
+```text
+raw key stream:  a  g  c  0x7f  d
+
+consume 'a'   -> this_line = "a",   position = 1, curpos = 1
+consume 'g'   -> this_line = "ag",  position = 2, curpos = 2
+consume 'c'   -> this_line = "agc", position = 3, curpos = 3
+consume 0x7f  -> this_line = "ag",  position = 2, curpos = 2
+consume 'd'   -> this_line = "agd", position = 3, curpos = 3
+```
+
+所以“删除是 put 一个吗？”更准确的说法是：Backspace 这个按键事件会被 put 到 `input_buff`；但删除不是把某个“删除字符”写进命令字符串，而是 shell 消费这个事件后，对 `this_line` 做数组修改。
+
+### ringbuffer 中字符串如何存储和取出
+
+`input_buff` 中没有“字符串”这个概念，也不会自动存 `\0` 结尾。它按 FIFO 保存 raw bytes：写入端是 `rt_ringbuffer_put()`，读取端是 `rt_ringbuffer_get()`。如果写入的是 `a g c 0x7f d`，读取也按这个顺序一个 byte 一个 byte 取出来。
+
+当前行字符串是在 `agc_shell_ctrl_default()` 和 `agc_shell_ctrl_blkspace()` 里维护的：
+
+- 普通字符追加时，写 `this_line[line_curpos] = ch`，再写 `this_line[line_curpos + 1] = '\0'`。
+- 普通字符插入到中间时，先 `rt_memmove()` 把光标后的内容右移一格，再把新字符写到 `line_curpos`。
+- Backspace 删除尾部时，`line_position--`、`line_curpos--`，然后写 `this_line[line_position] = '\0'`。
+- Backspace 删除中间字符时，先把光标前移，再用 `rt_memmove(&this_line[line_curpos], &this_line[line_curpos + 1], ...)` 把右侧内容左移，最后补 `\0`。
+- 回车时，`agc_shell_cmd_strip()` 修剪当前行；`agc_shell_exec()` 再把命令拷贝到 `cmd_line_temp`，把空格/Tab 改成 `\0`，让 `argv[]` 指向每个参数片段。
+
+![this_line 保存、删除和组装命令](../../../_attachments/fw/cli/agc_shell-cli-path/line-editing/agc-shell-line-buffer-edit.png)
+
+> 图解源文件：[`agc-shell-line-buffer-edit.svg`](../../../_attachments/fw/cli/agc_shell-cli-path/line-editing/agc-shell-line-buffer-edit.svg)。上半部分对应 `agc -> Backspace -> d` 的尾部删除；下半部分对应光标位于中间时的 `memmove` 插入/删除，以及回车后 `argv` 的临时组装。
 ## rt_sem_release 不等于 shell 立即执行
 
 `rt_sem_release()` 的关键逻辑：

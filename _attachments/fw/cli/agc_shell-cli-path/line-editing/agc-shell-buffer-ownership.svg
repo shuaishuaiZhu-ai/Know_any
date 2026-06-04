@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="agc_shell 输入数据归属：ringbuffer 不是命令行字符串">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L8,4 L0,8 Z" fill="#52647a"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1280" height="720" fill="#f6f8fb"/>
+<text x="640" y="44" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#111827">agc_shell 输入数据归属：ringbuffer 不是命令行字符串</text>
+<g>
+<rect x="54" y="110" width="250" height="138" rx="8" fill="#fffaf1" stroke="#b87923" stroke-width="2"/>
+<text x="72" y="146" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">输入来源</text>
+<text x="72" y="176" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART RX interrupt</text>
+<text x="72" y="199" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">或 agc_shell_press_keys()</text>
+<text x="72" y="222" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">产生原始按键字节</text>
+</g>
+<g>
+<rect x="382" y="86" width="350" height="176" rx="8" fill="#eff6ff" stroke="#2f65a7" stroke-width="2"/>
+<text x="400" y="122" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">input_buff ringbuffer</text>
+<text x="400" y="152" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">rt_ringbuffer_put/get FIFO</text>
+<text x="400" y="175" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">只保存原始 byte stream</text>
+<text x="400" y="198" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">示例：a g c 0x7f d</text>
+<text x="400" y="221" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">没有字符串边界和 NUL</text>
+</g>
+<g>
+<rect x="832" y="110" width="300" height="138" rx="8" fill="#f3f7f0" stroke="#557c3e" stroke-width="2"/>
+<text x="850" y="146" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">shell 线程解析</text>
+<text x="850" y="176" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">getchar() 取 1 byte</text>
+<text x="850" y="199" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">parse() 转控制键</text>
+<text x="850" y="222" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">thread_entry 分发 handler</text>
+</g>
+<g>
+<rect x="340" y="370" width="430" height="176" rx="8" fill="#ffffff" stroke="#2f4858" stroke-width="2"/>
+<text x="358" y="406" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">this_line 当前命令行</text>
+<text x="358" y="436" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">cmd_history[current_history]</text>
+<text x="358" y="459" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">普通 C 字符串，靠 NUL 结尾</text>
+<text x="358" y="482" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">line_position = 当前长度</text>
+<text x="358" y="505" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">line_curpos = 当前光标</text>
+</g>
+<g>
+<rect x="850" y="370" width="300" height="148" rx="8" fill="#f8f3ff" stroke="#7556a8" stroke-width="2"/>
+<text x="868" y="406" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">回车后临时 argv</text>
+<text x="868" y="436" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">cmd_strip() 去空格</text>
+<text x="868" y="459" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">exec() 拷贝到 temp</text>
+<text x="868" y="482" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">空格改成 NUL 后 argv 指向 temp</text>
+</g>
+<g>
+<rect x="58" y="376" width="244" height="132" rx="8" fill="#fff2f2" stroke="#b45353" stroke-width="2"/>
+<text x="76" y="412" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">Backspace 的关键点</text>
+<text x="76" y="442" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">0x08/0x7f 也会进 ringbuffer</text>
+<text x="76" y="465" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">它是一个事件 byte</text>
+<text x="76" y="488" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">删除发生在 this_line</text>
+</g>
+<polyline points="304,179 382,179" fill="none" stroke="#52647a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="732,179 832,179" fill="none" stroke="#52647a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="982,248 982,326 770,370" fill="none" stroke="#52647a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="770,456 850,456" fill="none" stroke="#52647a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="302,442 340,442" fill="none" stroke="#b45353" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="557" y="306" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#52647a">ringbuffer 被消费后不保留当前行状态</text>
+</svg>

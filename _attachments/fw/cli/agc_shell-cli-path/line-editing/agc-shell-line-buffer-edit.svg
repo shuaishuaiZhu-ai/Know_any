@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="820" viewBox="0 0 1320 820" role="img" aria-label="this_line 如何保存、删除和重新组装命令">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L8,4 L0,8 Z" fill="#52647a"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1320" height="820" fill="#f6f8fb"/>
+<text x="660" y="44" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#111827">this_line 如何保存、删除和重新组装命令</text>
+<text x="86" y="104" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#223047">尾部删除：输入 agc，再删 c，继续输入 d</text>
+<g>
+<rect x="68" y="130" width="270" height="136" rx="8" fill="#eff6ff" stroke="#2f65a7" stroke-width="2"/>
+<text x="86" y="166" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">A. 输入 agc 后</text>
+<text x="86" y="196" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">this_line[0..3] = a g c NUL</text>
+<text x="86" y="219" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">line_position = 3</text>
+<text x="86" y="242" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">line_curpos = 3</text>
+</g>
+<g>
+<rect x="84" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="112" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">a</text>
+<rect x="148" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="176" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">g</text>
+<rect x="212" y="286" width="56" height="42" rx="5" fill="#ffe7cc" stroke="#c86b16" stroke-width="1.5"/>
+<text x="240" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">c</text>
+<rect x="276" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="304" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">NUL</text>
+</g>
+<g>
+<rect x="448" y="130" width="280" height="136" rx="8" fill="#fff2f2" stroke="#b45353" stroke-width="2"/>
+<text x="466" y="166" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">B. Backspace 尾删</text>
+<text x="466" y="196" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">先 curpos-- / position--</text>
+<text x="466" y="219" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">当前位置改成 NUL</text>
+<text x="466" y="242" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">kprintf 退格、空格、退格</text>
+</g>
+<g>
+<rect x="456" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="484" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">a</text>
+<rect x="520" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="548" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">g</text>
+<rect x="584" y="286" width="56" height="42" rx="5" fill="#ffe7cc" stroke="#c86b16" stroke-width="1.5"/>
+<text x="612" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">NUL</text>
+<rect x="648" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="676" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047"></text>
+</g>
+<g>
+<rect x="838" y="130" width="284" height="136" rx="8" fill="#eef6f2" stroke="#3a7c62" stroke-width="2"/>
+<text x="856" y="166" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">C. 再输入 d</text>
+<text x="856" y="196" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">ctrl_default 写 this_line[2]</text>
+<text x="856" y="219" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">this_line[3] = NUL</text>
+<text x="856" y="242" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">显示结果变成 agd</text>
+</g>
+<g>
+<rect x="846" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="874" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">a</text>
+<rect x="910" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="938" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">g</text>
+<rect x="974" y="286" width="56" height="42" rx="5" fill="#ffe7cc" stroke="#c86b16" stroke-width="1.5"/>
+<text x="1002" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">d</text>
+<rect x="1038" y="286" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="1066" y="313" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">NUL</text>
+</g>
+<polyline points="338,192 448,192" fill="none" stroke="#b45353" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="728,192 838,192" fill="none" stroke="#3a7c62" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="86" y="452" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#223047">中间编辑：光标不在尾部时，用 memmove 维护连续字符串</text>
+<g>
+<rect x="68" y="482" width="304" height="132" rx="8" fill="#f8f3ff" stroke="#7556a8" stroke-width="2"/>
+<text x="86" y="518" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">插入普通字符</text>
+<text x="86" y="548" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">curpos &lt; position</text>
+<text x="86" y="571" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">memmove 尾部内容右移一格</text>
+<text x="86" y="594" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">当前位置写新字符</text>
+</g>
+<g>
+<rect x="88" y="648" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="116" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">a</text>
+<rect x="152" y="648" width="56" height="42" rx="5" fill="#ffe7cc" stroke="#c86b16" stroke-width="1.5"/>
+<text x="180" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">|</text>
+<rect x="216" y="648" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="244" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">g</text>
+<rect x="280" y="648" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="308" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">c</text>
+<rect x="344" y="648" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="372" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">NUL</text>
+</g>
+<g>
+<rect x="472" y="482" width="324" height="132" rx="8" fill="#fffaf1" stroke="#b87923" stroke-width="2"/>
+<text x="490" y="518" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">删除中间字符</text>
+<text x="490" y="548" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">Backspace 后 curpos--</text>
+<text x="490" y="571" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">memmove 让右侧内容左移</text>
+<text x="490" y="594" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">尾部补 NUL，再重绘尾串</text>
+</g>
+<g>
+<rect x="488" y="648" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="516" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">a</text>
+<rect x="552" y="648" width="56" height="42" rx="5" fill="#ffe7cc" stroke="#c86b16" stroke-width="1.5"/>
+<text x="580" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">c</text>
+<rect x="616" y="648" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="644" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047">NUL</text>
+<rect x="680" y="648" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="708" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047"></text>
+<rect x="744" y="648" width="56" height="42" rx="5" fill="#f8fbff" stroke="#8391a5" stroke-width="1.5"/>
+<text x="772" y="675" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#223047"></text>
+</g>
+<g>
+<rect x="914" y="482" width="300" height="132" rx="8" fill="#ffffff" stroke="#2f4858" stroke-width="2"/>
+<text x="932" y="518" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">回车组装 argv</text>
+<text x="932" y="548" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">cmd_strip 去首尾空格</text>
+<text x="932" y="571" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">exec 拷贝到 cmd_line_temp</text>
+<text x="932" y="594" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">空格改 NUL，argv 指向各段</text>
+</g>
+<polyline points="372,548 472,548" fill="none" stroke="#7556a8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="796,548 914,548" fill="none" stroke="#2f4858" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="662,628 662,710" fill="none" stroke="#b87923" stroke-width="2" stroke-dasharray="7 8" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="662" y="736" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#52647a">memmove 后数组仍然是连续 C 字符串</text>
+</svg>

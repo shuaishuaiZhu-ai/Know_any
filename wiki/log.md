@@ -2,13 +2,19 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-03
+updated: 2026-06-04
 tags:
   - meta
   - log
 status: active
 ---
 
+## [2026-06-04] update | agc_shell CLI Backspace 与 line buffer 图解
+
+- Source: `shuaishuai.zhu@192.168.80.116:/home/shuaishuai.zhu/fw/` current source, branch `zss/CliOptimize`, HEAD `541207a`.
+- Updated [agc_shell CLI 输入输出路径与 cp master 卡顿分析](<./fw/cli/agc_shell-cli-path.md>) with Backspace/Delete handling, `input_buff` raw-byte FIFO semantics, `this_line` current-line string maintenance, and Enter-time `argv` assembly.
+- Added editable SVG plus PNG render assets for buffer ownership, Backspace flow, and line-buffer edit examples under `_attachments/fw/cli/agc_shell-cli-path/line-editing/`.
+- Updated [CLI 索引](<./fw/cli/index.md>), [FW 技术知识库](<./fw/index.md>), [Wiki 总索引](<./index.md>), and [Hot Cache](<./hot.md>).
 ## 2026-06-04 - maintain - Obsidian Git and plugin stack installed
 
 - Initialized `C:\home\for_ai` as a local Git repository on branch `main`.

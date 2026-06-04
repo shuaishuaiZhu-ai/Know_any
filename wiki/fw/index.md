@@ -2,7 +2,7 @@
 type: index
 title: "FW 技术知识库"
 created: 2026-05-14
-updated: 2026-06-03
+updated: 2026-06-04
 tags:
   - fw
   - index
@@ -21,7 +21,7 @@ status: active
 4. [IMC 启动到 main 流程](<./imc/startup-to-main.md>)：理解 IMC 从 `_start` 到 RT-Thread `main()` 的启动链路。
 5. [CP Master 索引](<./cp-master/index.md>)：看 MCQD 如何进入 task list 并绑定 HCQD。
 6. [CP User 索引](<./cp-user/index.md>)：看 cmd_entry 如何执行命令、处理 stop/flush/pending。
-7. [CLI 索引](<./cli/index.md>)：看 agc_shell、USART、UART、RT-Thread 调度如何影响 CLI 体感。
+7. [CLI 索引](<./cli/index.md>)：看 agc_shell、USART、UART、RT-Thread 调度、输入 ringbuffer 和 Backspace 行编辑如何影响 CLI。
 8. [RT-Thread 索引](<./rt-thread/index.md>)：看 yield/delay/ready queue 语义。
 9. [GPGPU FW DVFS 学习文档](<./performance/dvfs-gpgpu-fw.md>)：理解 OPP/VF 频点、DVFS 状态机、timing 和面试问法。
 10. [C2C 互联学习文档](<./interconnect/c2c-dingtalk-study.md>)：理解 LD/ST 互联、topo discovery、AMT route、loopback 和 RAS。
@@ -54,7 +54,7 @@ flowchart LR
 | IMC | [IMC 索引](<./imc/index.md>) | 启动流程、board init、main、IPC command、AGC shell 入口。 |
 | CP Master | [CP Master 索引](<./cp-master/index.md>) | IPC、QDMA、BDMA、top_reg、Master/User 交互。 |
 | CP User | [CP User 索引](<./cp-user/index.md>) | cmd_entry、IB、stop/flush、candidate V7、branch layout。 |
-| CLI | [CLI 索引](<./cli/index.md>) | agc_shell 输入输出路径、USART 地址映射、console、CLI 卡顿分析。 |
+| CLI | [CLI 索引](<./cli/index.md>) | agc_shell 输入输出路径、USART 地址映射、console、输入 ringbuffer、Backspace 行编辑和 CLI 卡顿分析。 |
 | RT-Thread | [RT-Thread 索引](<./rt-thread/index.md>) | yield、delay、ready queue、线程调度语义。 |
 | Concepts | [FW 概念索引](<./concepts/index.md>) | HCQD、MCQD、IB、iDMA、Command Packet、Event Table。 |
 | Flows | [FW 流程索引](<./flows/index.md>) | 命令处理、多队列多 context、event/atomic/wait host。 |

@@ -2,7 +2,7 @@
 type: meta
 title: "Wiki 总索引"
 created: 2026-05-09
-updated: 2026-06-03
+updated: 2026-06-04
 tags:
   - meta
   - index
@@ -31,7 +31,7 @@ status: active
 | IMC | [IMC 索引](<./fw/imc/index.md>) | IMC 启动汇编、RT-Thread startup、board init、main、IPC 服务。 |
 | CP Master | [CP Master 索引](<./fw/cp-master/index.md>) | QDMA、BDMA、IPC、top_reg、MCQD 到 HCQD 绑定。 |
 | CP User | [CP User 索引](<./fw/cp-user/index.md>) | cmd_entry、IB、stop/flush、candidate 调度。 |
-| CLI | [CLI 索引](<./fw/cli/index.md>) | agc_shell、USART/UART、shell 卡顿、console 路径。 |
+| CLI | [CLI 索引](<./fw/cli/index.md>) | agc_shell、USART/UART、shell 卡顿、console 路径、输入 ringbuffer 与行编辑。 |
 | RT-Thread | [RT-Thread 索引](<./fw/rt-thread/index.md>) | yield、delay、ready queue、线程调度。 |
 | 概念 | [FW 概念索引](<./fw/concepts/index.md>) | HCQD、MCQD、IB、iDMA、Event Table、Command Packet。 |
 | 流程 | [FW 流程索引](<./fw/flows/index.md>) | Host 到 FW 命令链路、多队列、多 context。 |
