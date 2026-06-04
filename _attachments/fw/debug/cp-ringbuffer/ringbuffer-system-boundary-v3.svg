@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850">
+<defs>
+  <marker id="arrow-2563eb" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L9,5 L0,9 Z" fill="#2563eb"/></marker>
+  <marker id="arrow-16a34a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L9,5 L0,9 Z" fill="#16a34a"/></marker>
+  <marker id="arrow-db2777" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L9,5 L0,9 Z" fill="#db2777"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="800" y="48" text-anchor="middle" font-size="30" font-weight="900" fill="#0f172a">IPC shared RB 与 CLI 本地 RB 的边界</text>
+
+<g>
+  <rect x="80" y="115" width="590" height="185" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="375" y="153.5" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">IPC shared ringbuffer</text>
+  <text x="106" y="182.3" text-anchor="start" font-size="20" font-weight="500" fill="#334155">位置：IPC_SHARE_MEMORY_BASE 共享内存</text>
+<text x="106" y="209.3" text-anchor="start" font-size="20" font-weight="500" fill="#334155">对象：ipc_ring_buffer_t[EVENT_TYPE_MAX]</text>
+<text x="106" y="236.3" text-anchor="start" font-size="20" font-weight="500" fill="#334155">用途：Host / IMC / CP Master 之间传 IPC message</text>
+<text x="106" y="263.3" text-anchor="start" font-size="20" font-weight="500" fill="#334155">唤醒：写 RB 后触发目标端 IRQ，再唤醒 ipc_msg 线程</text>
+</g>
+<g>
+  <rect x="930" y="115" width="500" height="185" rx="10" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+  <text x="1180" y="153.5" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">CLI/agc_shell local ringbuffer</text>
+  <text x="956" y="182.3" text-anchor="start" font-size="20" font-weight="500" fill="#334155">位置：agc_shell_t 本地内存</text>
+<text x="956" y="209.3" text-anchor="start" font-size="20" font-weight="500" fill="#334155">对象：shell-&gt;input_buff + input_buff_pool[128]</text>
+<text x="956" y="236.3" text-anchor="start" font-size="20" font-weight="500" fill="#334155">用途：缓存 USART 输入字符</text>
+<text x="956" y="263.3" text-anchor="start" font-size="20" font-weight="500" fill="#334155">唤醒：USART RX -&gt; rx_indicate -&gt; rx_sem</text>
+</g>
+<g>
+  <rect x="70" y="392" width="160" height="50" rx="25" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="150" y="423" text-anchor="middle" font-size="20" font-weight="800" fill="#075985">Host/KMD</text>
+</g>
+<g>
+  <rect x="310" y="350" width="390" height="165" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="505" y="386.7" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">event RB</text>
+  <text x="336" y="413.2" text-anchor="start" font-size="18" font-weight="500" fill="#334155">HOST_TO_CP_MASTER</text>
+<text x="336" y="437.5" text-anchor="start" font-size="18" font-weight="500" fill="#334155">CP_MASTER_TO_HOST</text>
+<text x="336" y="461.8" text-anchor="start" font-size="18" font-weight="500" fill="#334155">CP_MASTER_TO_IMC</text>
+<text x="336" y="486.1" text-anchor="start" font-size="18" font-weight="500" fill="#334155">IMC_TO_CP_MASTER</text>
+</g>
+<g>
+  <rect x="760" y="350" width="340" height="135" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="930" y="386.7" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">ipc_msg 线程</text>
+  <text x="786" y="413.2" text-anchor="start" font-size="18" font-weight="500" fill="#334155">ipc_msg_thread_rcv_sync</text>
+<text x="786" y="437.5" text-anchor="start" font-size="18" font-weight="500" fill="#334155">ipc_msg_thread_rcv_async</text>
+<text x="786" y="461.8" text-anchor="start" font-size="18" font-weight="500" fill="#334155">ipc_msg_thread_send</text>
+</g>
+<g>
+  <rect x="1240" y="392" width="160" height="50" rx="25" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="1320" y="423" text-anchor="middle" font-size="20" font-weight="800" fill="#075985">IMC/CP</text>
+</g>
+<g>
+  <polyline points="230,417 310,417" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-2563eb)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="270" y="390" text-anchor="middle" font-size="17" font-weight="800" fill="#2563eb">写共享 RB</text>
+</g>
+<g>
+  <polyline points="700,417 760,417" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-2563eb)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="730" y="390" text-anchor="middle" font-size="17" font-weight="800" fill="#2563eb">IRQ/mailbox</text>
+</g>
+<g>
+  <polyline points="1100,417 1240,417" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-16a34a)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1170" y="390" text-anchor="middle" font-size="17" font-weight="800" fill="#16a34a">handler/ACK</text>
+</g>
+<g>
+  <rect x="80" y="630" width="170" height="50" rx="25" fill="#fce7f3" stroke="#db2777" stroke-width="2"/>
+  <text x="165" y="661" text-anchor="middle" font-size="20" font-weight="800" fill="#075985">USART RX</text>
+</g>
+<g>
+  <rect x="330" y="585" width="350" height="135" rx="10" fill="#fff1f2" stroke="#db2777" stroke-width="2"/>
+  <text x="505" y="621.7" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">agc_shell_rx_ind()</text>
+  <text x="356" y="648.2" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_device_read()</text>
+<text x="356" y="672.5" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_ringbuffer_put(shell-&gt;input_buff)</text>
+<text x="356" y="696.8" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_sem_release(&amp;shell-&gt;rx_sem)</text>
+</g>
+<g>
+  <rect x="820" y="585" width="380" height="135" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="1010" y="621.7" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">agc_shell 线程</text>
+  <text x="846" y="648.2" text-anchor="start" font-size="18" font-weight="500" fill="#334155">agc_shell_getchar()</text>
+<text x="846" y="672.5" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_ringbuffer_get()</text>
+<text x="846" y="696.8" text-anchor="start" font-size="18" font-weight="500" fill="#334155">agc_shell_parse() -&gt; agc_shell_exec()</text>
+</g>
+<g>
+  <polyline points="250,655 330,655" fill="none" stroke="#db2777" stroke-width="2.5" marker-end="url(#arrow-db2777)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="290" y="630" text-anchor="middle" font-size="17" font-weight="800" fill="#db2777">输入字符</text>
+</g>
+<g>
+  <polyline points="680,655 820,655" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-16a34a)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="750" y="630" text-anchor="middle" font-size="17" font-weight="800" fill="#16a34a">rx_sem 唤醒</text>
+</g>
+<text x="80" y="785" text-anchor="start" font-size="22" font-weight="800" fill="#334155">读图结论：IPC RB 和 CLI RB 共享 rt_ringbuffer 实现，但不是同一块内存，也不是同一种唤醒机制。</text>
+
+<text x="1572" y="826" text-anchor="end" font-size="16" fill="#64748b">source: 192.168.80.116:/home/shuaishuai.zhu/fw @ 541207a</text>
+</svg>

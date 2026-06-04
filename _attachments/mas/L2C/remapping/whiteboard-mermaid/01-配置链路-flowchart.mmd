@@ -1,0 +1,8 @@
+flowchart TD
+    A["bus address"] --> B["REMAPPING_ADDR*: select bus bits"]
+    B --> C["remapping_addr / col / row"]
+    C --> D["hash mode in REMAP_CFG"]
+    D --> E["REMAP_LUT_TABLE.idx"]
+    E --> F["REMAP_LUT_TABLE.value"]
+    F --> G["valid / axi_channel / part / bank / dram_channel"]
+    G --> H["physical access target"]

@@ -1,0 +1,69 @@
+4cls 2pe shn
+
+出问题只能重启整个palladium，reset pcie不行。
+
+
+
+1
+准备在pz1上测试下 kmd在haps上的修复的代码，带上看看是否问题依旧存在朱帅帅
+
+2
+总结不同服务器的差异 朱帅帅
+
+3
+看多cls shn版和eddr的差异，测试dm2.0 v3 4cls 2pe eddr 版本康健 
+
+4
+抓全部的波形 康健 朱帅帅
+
+5
+测试加速版本的4cls 2pe shn版本朱帅帅
+
+6
+dump一段死亡现场的波形信息朱帅帅
+
+7
+尝试把ringbuffer放到host memory，写指针放到device memory测试；以及ringbuffer放到device 侧，写指针放到host 侧测试 闫晓文 朱帅帅
+
+8
+尝试内存不释放，使用重复的地址闫晓文 朱帅帅
+
+任务如上：
+
+可以优先测试与kmd相关的几条，如果不行的话，后面的需要抓波形的，最好等到pz3上再测，或者抓了波形，问康健如何搞到pz3 runtime 服务器上。
+
+pz1
+
+把haps代码加到了kmd，发现cp执行完了cmd，但是kmd没有收到fence回复。尝试ssh，连不上，看来影响的不只是create stream，而是所有阶段。
+
+
+
+感觉应该是某些地址有问题导致的，感觉可以尝试让kmd固定地址试试。但是有个问题，每次都是创建新的进程，va每次感觉不同。
+
+出错时候的pcie monitor如下，看起来和之前没有什么区别。
+
+
+
+思考：可以尝试从cp master侧，去测试下host memory的读写，收到ipc之后，对host memory
+
+
+
+make RB_LOC=0 WP_LOC=1，在第一次create stream之后，pcie 服务器就卡死了。
+
+
+
+make RB_LOC=1 WP_LOC=0，甚至装不上驱动
+
+
+
+按理说，就算编译错了也不影响，全为1或者全为0，也不应该装不上驱动。难道真的是太卡的原因吗？
+
+用原来的kmd驱动，也还是有问题，看来是pcie服务器本身有问题了。
+
+
+
+把kmd test放到device memory，结果就可以安装驱动了。很奇怪
+
+
+
+​

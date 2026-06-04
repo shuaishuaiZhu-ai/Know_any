@@ -1,0 +1,681 @@
+{
+    "generatedAt":  "2026-05-09",
+    "wikiRoot":  "C:\\home\\for_ai\\wiki",
+    "outputRoot":  "C:\\home\\for_ai\\_learning_guides",
+    "pageCount":  89,
+    "categories":  [
+                       {
+                           "name":  "entities",
+                           "count":  9
+                       },
+                       {
+                           "name":  "fw/_index.md",
+                           "count":  1
+                       },
+                       {
+                           "name":  "fw/cp-master",
+                           "count":  1
+                       },
+                       {
+                           "name":  "fw/cp-user",
+                           "count":  2
+                       },
+                       {
+                           "name":  "fw/env.md",
+                           "count":  1
+                       },
+                       {
+                           "name":  "fw/learnings",
+                           "count":  2
+                       },
+                       {
+                           "name":  "meta",
+                           "count":  1
+                       },
+                       {
+                           "name":  "sources",
+                           "count":  4
+                       },
+                       {
+                           "name":  "sources/local-md",
+                           "count":  44
+                       },
+                       {
+                           "name":  "synthesis",
+                           "count":  4
+                       },
+                       {
+                           "name":  "topics",
+                           "count":  16
+                       },
+                       {
+                           "name":  "wiki-root",
+                           "count":  4
+                       }
+                   ],
+    "pages":  [
+                  {
+                      "rel":  "entities\\cmd_entry.md",
+                      "title":  "cmd_entry",
+                      "category":  "entities",
+                      "card":  "cards/entities - cmd_entry.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "entities\\CP-Command-Packet.md",
+                      "title":  "CP-Command-Packet",
+                      "category":  "entities",
+                      "card":  "cards/entities - CP-Command-Packet.md",
+                      "linkCount":  6
+                  },
+                  {
+                      "rel":  "entities\\CP-Firmware-CPE.md",
+                      "title":  "CP-Firmware-CPE",
+                      "category":  "entities",
+                      "card":  "cards/entities - CP-Firmware-CPE.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "entities\\Event-Table.md",
+                      "title":  "Event-Table",
+                      "category":  "entities",
+                      "card":  "cards/entities - Event-Table.md",
+                      "linkCount":  3
+                  },
+                  {
+                      "rel":  "entities\\GraceC-CP.md",
+                      "title":  "GraceC-CP",
+                      "category":  "entities",
+                      "card":  "cards/entities - GraceC-CP.md",
+                      "linkCount":  10
+                  },
+                  {
+                      "rel":  "entities\\HCQD.md",
+                      "title":  "HCQD",
+                      "category":  "entities",
+                      "card":  "cards/entities - HCQD.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "entities\\iDMA.md",
+                      "title":  "iDMA",
+                      "category":  "entities",
+                      "card":  "cards/entities - iDMA.md",
+                      "linkCount":  3
+                  },
+                  {
+                      "rel":  "entities\\Interaction-Buffer.md",
+                      "title":  "Interaction-Buffer",
+                      "category":  "entities",
+                      "card":  "cards/entities - Interaction-Buffer.md",
+                      "linkCount":  3
+                  },
+                  {
+                      "rel":  "entities\\MCQD.md",
+                      "title":  "MCQD",
+                      "category":  "entities",
+                      "card":  "cards/entities - MCQD.md",
+                      "linkCount":  3
+                  },
+                  {
+                      "rel":  "fw\\_index.md",
+                      "title":  "固件 (fw) 知识库",
+                      "category":  "fw/_index.md",
+                      "card":  "cards/fw - _index.md",
+                      "linkCount":  6
+                  },
+                  {
+                      "rel":  "fw\\cp-master\\overview.md",
+                      "title":  "CP Master — 架构总览",
+                      "category":  "fw/cp-master",
+                      "card":  "cards/fw - cp-master - overview.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "fw\\cp-user\\cmd_entry.md",
+                      "title":  "cmd_entry — CP User 调度器",
+                      "category":  "fw/cp-user",
+                      "card":  "cards/fw - cp-user - cmd_entry.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "fw\\cp-user\\ib.md",
+                      "title":  "IB — Interaction Buffer",
+                      "category":  "fw/cp-user",
+                      "card":  "cards/fw - cp-user - ib.md",
+                      "linkCount":  2
+                  },
+                  {
+                      "rel":  "fw\\env.md",
+                      "title":  "服务器环境 \u0026 构建",
+                      "category":  "fw/env.md",
+                      "card":  "cards/fw - env.md",
+                      "linkCount":  null
+                  },
+                  {
+                      "rel":  "fw\\learnings\\hcqd-scheduling.md",
+                      "title":  "HCQD 调度设计与版本演进",
+                      "category":  "fw/learnings",
+                      "card":  "cards/fw - learnings - hcqd-scheduling.md",
+                      "linkCount":  2
+                  },
+                  {
+                      "rel":  "fw\\learnings\\review-rules.md",
+                      "title":  "固件 Code Review 规则",
+                      "category":  "fw/learnings",
+                      "card":  "cards/fw - learnings - review-rules.md",
+                      "linkCount":  3
+                  },
+                  {
+                      "rel":  "hot.md",
+                      "title":  "Hot Cache",
+                      "category":  "wiki-root",
+                      "card":  "cards/hot.md",
+                      "linkCount":  6
+                  },
+                  {
+                      "rel":  "index.md",
+                      "title":  "Wiki Index",
+                      "category":  "wiki-root",
+                      "card":  "cards/index.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "log.md",
+                      "title":  "Wiki Log",
+                      "category":  "wiki-root",
+                      "card":  "cards/log.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "meta\\dashboard.md",
+                      "title":  "Dashboard",
+                      "category":  "meta",
+                      "card":  "cards/meta - dashboard.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "overview.md",
+                      "title":  "Overview",
+                      "category":  "wiki-root",
+                      "card":  "cards/overview.md",
+                      "linkCount":  11
+                  },
+                  {
+                      "rel":  "sources\\fw CP user firmware code summary.md",
+                      "title":  "fw CP user firmware code summary",
+                      "category":  "sources",
+                      "card":  "cards/sources - fw CP user firmware code summary.md",
+                      "linkCount":  10
+                  },
+                  {
+                      "rel":  "sources\\GraceC CP MAS v1.4.md",
+                      "title":  "GraceC CP MAS v1.4",
+                      "category":  "sources",
+                      "card":  "cards/sources - GraceC CP MAS v1.4.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\ajthunk\\.claude\\learnings\\agent-browser-no-sudo-install.md",
+                      "title":  "agent-browser Installation Without sudo",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - ajthunk - .claude - learnings - agent-browser-no-sudo-install.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\ajthunk\\.claude\\learnings\\agent-browser-windows-edge-workaround.md",
+                      "title":  "agent-browser on Windows: Use Edge Instead of Chrome",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - ajthunk - .claude - learnings - agent-browser-windows-edge-workaround.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\ajthunk\\.claude\\learnings\\feishu-requires-auth.md",
+                      "title":  "Feishu Documents Require Authentication",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - ajthunk - .claude - learnings - feishu-requires-auth.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\ajthunk\\.claude\\learnings\\ssh-windows-path-export-issue.md",
+                      "title":  "SSH One-liner PATH Export Fails with Windows Paths",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - ajthunk - .claude - learnings - ssh-windows-path-export-issue.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\ajthunk\\.claude\\retros\\2026-03-30-1935.md",
+                      "title":  "Session Retrospective — 2026-03-30 19:35",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - ajthunk - .claude - retros - 2026-03-30-1935.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\ajthunk\\清明自驾游路线规划2026-流程图.md",
+                      "title":  "清明自驾游路线规划2026-流程图",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - ajthunk - 清明自驾游路线规划2026-流程图.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\2026-03-31-hcqd-v3.md",
+                      "title":  "Learning: HCQD Round-Robin V3 Design Patterns",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - 2026-03-31-hcqd-v3.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\candidate-cache-pattern.md",
+                      "title":  "Learning: Candidate Bitmask Caching Pattern",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - candidate-cache-pattern.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\errors\\plan-mode-silent-detection-failure.md",
+                      "title":  "Plan Mode Detection Failure — Copilot Chat Agent Handoff Limitation",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - errors - plan-mode-silent-detection-failure.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\errors\\plan-mode-violation-root-cause.md",
+                      "title":  "Plan Mode 违规根因分析",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - errors - plan-mode-violation-root-cause.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\errors\\ssh-heredoc-backslash-expansion.md",
+                      "title":  "Backslash-N Expansion Through SSH Heredoc Layers",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - errors - ssh-heredoc-backslash-expansion.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\errors\\ssh-python-byte-escaping.md",
+                      "title":  "SSH Python Binary-Mode Replacement: False-Positive Trap",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - errors - ssh-python-byte-escaping.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\local-pointer-extraction.md",
+                      "title":  "Local Pointer Extraction: pending_mask Bitmask Pattern",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - local-pointer-extraction.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\patterns\\byte-level-file-surgery.md",
+                      "title":  "Byte-Level File Surgery: Diagnosis and Replacement",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - patterns - byte-level-file-surgery.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\patterns\\large-document-rewrite.md",
+                      "title":  "Large Document Rewrite Pattern",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - patterns - large-document-rewrite.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\patterns\\multi-point-edit-offset-tracking.md",
+                      "title":  "Multi-Point Python Edit Script: Offset Tracking",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - patterns - multi-point-edit-offset-tracking.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\patterns\\selective-version-revert.md",
+                      "title":  "Selective Version Revert: Base + Cherry-Pick Strategy",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - patterns - selective-version-revert.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\patterns\\ssh-remote-file-editing.md",
+                      "title":  "SSH Remote File Editing -- Patterns and Pitfalls",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - patterns - ssh-remote-file-editing.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\patterns\\static-bitmask-cache-stale-bit.md",
+                      "title":  "Static Bitmask Cache Stale-Bit Hazard",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - patterns - static-bitmask-cache-stale-bit.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\remote-file-editing.md",
+                      "title":  "Remote File Editing via SSH",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - remote-file-editing.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\remote-server.md",
+                      "title":  "Learning: Remote Server Access",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - remote-server.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\learnings\\struct-deduplication.md",
+                      "title":  "Struct Deduplication: Per-HCQD vs Global Pending",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - learnings - struct-deduplication.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-03-30.md",
+                      "title":  "Session Retrospective - 2026-03-30",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-03-30.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-03-30-1112.md",
+                      "title":  "Session Retrospective - 2026-03-30",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-03-30-1112.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-03-31-1916.md",
+                      "title":  "Session Retro: 2026-03-31-1916 - HCQD Round-Robin V3 Design",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-03-31-1916.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-03-1058.md",
+                      "title":  "Session Retrospective: 2026-04-03 10:58",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-03-1058.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-07-candidate-cache.md",
+                      "title":  "Session Retrospective: 2026-04-07",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-07-candidate-cache.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-08-1140.md",
+                      "title":  "Retro 2026-04-08-1140 (Session 3ebc4330)",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-08-1140.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-08-1630.md",
+                      "title":  "Session Retrospective: 2026-04-08 16:30",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-08-1630.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-08-1730.md",
+                      "title":  "Session Retrospective: 2026-04-08 17:30 — V7 Review Findings Fix",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-08-1730.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-08-1830.md",
+                      "title":  "Session Retrospective: 2026-04-08 18:30",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-08-1830.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-08-2031.md",
+                      "title":  "Retro: 2026-04-08-2031 (session 5d38a655)",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-08-2031.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-08-v7-candidate-driven.md",
+                      "title":  "Session Retrospective: 2026-04-08",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-08-v7-candidate-driven.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-08-v7-context.md",
+                      "title":  "Session Retrospective: 2026-04-08",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-08-v7-context.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-08-v7-doc-update.md",
+                      "title":  "Session Retrospective: 2026-04-08 (V7 Document Update)",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-08-v7-doc-update.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\.claude\\retros\\2026-04-15-1345.md",
+                      "title":  "Session Retrospective: 2026-04-15 13:45",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - .claude - retros - 2026-04-15-1345.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\aigc_sdk_bug_report.md",
+                      "title":  "aigc_sdk Bug 扫描报告",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - aigc_sdk_bug_report.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\aigc_sdk_check_report.md",
+                      "title":  "aigc_sdk 代码检查报告",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - aigc_sdk_check_report.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\cmd_entry_roundrobin_design.md",
+                      "title":  "CP User cmd_entry Candidate-Driven Dispatch 设计说明 V7",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - cmd_entry_roundrobin_design.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\docs\\cp_user_sf_cmd_changes.md",
+                      "title":  "CP User：Stop/Flush 与 cmd_entry 优化",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - docs - cp_user_sf_cmd_changes.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\wait_host_cmd_architecture.md",
+                      "title":  "wait_host_cmd_architecture",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - wait_host_cmd_architecture.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\fw\\wait_host_cmd_review_report.md",
+                      "title":  "wait_host_cmd_review_report",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - fw - wait_host_cmd_review_report.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\image_tool\\architecture.md",
+                      "title":  "image_tool 架构文档",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - image_tool - architecture.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "sources\\local-md\\C-home-shuaishuai.zhu\\image_tool\\README.md",
+                      "title":  "image_tool — Grace SoC 固件镜像打包工具",
+                      "category":  "sources/local-md",
+                      "card":  "cards/sources - local-md - C-home-shuaishuai.zhu - image_tool - README.md",
+                      "linkCount":  0
+                  },
+                  {
+                      "rel":  "sources\\本地 Markdown 文件索引.md",
+                      "title":  "本地 Markdown 文件索引",
+                      "category":  "sources",
+                      "card":  "cards/sources - 本地 Markdown 文件索引.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "sources\\语雀工作笔记索引.md",
+                      "title":  "语雀工作笔记索引",
+                      "category":  "sources",
+                      "card":  "cards/sources - 语雀工作笔记索引.md",
+                      "linkCount":  10
+                  },
+                  {
+                      "rel":  "synthesis\\C-home-shuaishuai-zhu Markdown 知识图谱.md",
+                      "title":  "C-home-shuaishuai-zhu Markdown 知识图谱",
+                      "category":  "synthesis",
+                      "card":  "cards/synthesis - C-home-shuaishuai-zhu Markdown 知识图谱.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "synthesis\\GraceC CP MAS v1.4 code knowledge map.md",
+                      "title":  "GraceC CP MAS v1.4 code knowledge map",
+                      "category":  "synthesis",
+                      "card":  "cards/synthesis - GraceC CP MAS v1.4 code knowledge map.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "synthesis\\面试用工作笔记总结.md",
+                      "title":  "面试用工作笔记总结",
+                      "category":  "synthesis",
+                      "card":  "cards/synthesis - 面试用工作笔记总结.md",
+                      "linkCount":  7
+                  },
+                  {
+                      "rel":  "synthesis\\语雀工作笔记知识图谱.md",
+                      "title":  "语雀工作笔记知识图谱",
+                      "category":  "synthesis",
+                      "card":  "cards/synthesis - 语雀工作笔记知识图谱.md",
+                      "linkCount":  10
+                  },
+                  {
+                      "rel":  "topics\\AI 协作远程编辑经验.md",
+                      "title":  "AI 协作远程编辑经验",
+                      "category":  "topics",
+                      "card":  "cards/topics - AI 协作远程编辑经验.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "topics\\aigc_sdk Bug 扫描与修复优先级.md",
+                      "title":  "aigc_sdk Bug 扫描与修复优先级",
+                      "category":  "topics",
+                      "card":  "cards/topics - aigc_sdk Bug 扫描与修复优先级.md",
+                      "linkCount":  5
+                  },
+                  {
+                      "rel":  "topics\\CP candidate peek 热路径优化.md",
+                      "title":  "CP candidate peek 热路径优化",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP candidate peek 热路径优化.md",
+                      "linkCount":  5
+                  },
+                  {
+                      "rel":  "topics\\CP cmd_entry Candidate V7 调度设计.md",
+                      "title":  "CP cmd_entry Candidate V7 调度设计",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP cmd_entry Candidate V7 调度设计.md",
+                      "linkCount":  12
+                  },
+                  {
+                      "rel":  "topics\\CP command processing flow.md",
+                      "title":  "CP command processing flow",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP command processing flow.md",
+                      "linkCount":  8
+                  },
+                  {
+                      "rel":  "topics\\CP event atomic wait host handling.md",
+                      "title":  "CP event atomic wait host handling",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP event atomic wait host handling.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "topics\\CP queue scheduling stop flush.md",
+                      "title":  "CP queue scheduling stop flush",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP queue scheduling stop flush.md",
+                      "linkCount":  6
+                  },
+                  {
+                      "rel":  "topics\\CP ringbuffer IPC 与 queue create 调试.md",
+                      "title":  "CP ringbuffer IPC 与 queue create 调试",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP ringbuffer IPC 与 queue create 调试.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "topics\\CP SDMA copy 与 kernel command 调试.md",
+                      "title":  "CP SDMA copy 与 kernel command 调试",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP SDMA copy 与 kernel command 调试.md",
+                      "linkCount":  5
+                  },
+                  {
+                      "rel":  "topics\\CP stop flush 与 queue 切换.md",
+                      "title":  "CP stop flush 与 queue 切换",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP stop flush 与 queue 切换.md",
+                      "linkCount":  8
+                  },
+                  {
+                      "rel":  "topics\\CP 多队列多上下文与 HCQD MCQD.md",
+                      "title":  "CP 多队列多上下文与 HCQD MCQD",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP 多队列多上下文与 HCQD MCQD.md",
+                      "linkCount":  5
+                  },
+                  {
+                      "rel":  "topics\\CP 分支预取与 cmd_entry 布局优化.md",
+                      "title":  "CP 分支预取与 cmd_entry 布局优化",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP 分支预取与 cmd_entry 布局优化.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "topics\\CP 平台 bring-up 与 PCIe 调试.md",
+                      "title":  "CP 平台 bring-up 与 PCIe 调试",
+                      "category":  "topics",
+                      "card":  "cards/topics - CP 平台 bring-up 与 PCIe 调试.md",
+                      "linkCount":  4
+                  },
+                  {
+                      "rel":  "topics\\image_tool 固件镜像打包工具.md",
+                      "title":  "image_tool 固件镜像打包工具",
+                      "category":  "topics",
+                      "card":  "cards/topics - image_tool 固件镜像打包工具.md",
+                      "linkCount":  3
+                  },
+                  {
+                      "rel":  "topics\\工具与登录环境经验.md",
+                      "title":  "工具与登录环境经验",
+                      "category":  "topics",
+                      "card":  "cards/topics - 工具与登录环境经验.md",
+                      "linkCount":  5
+                  },
+                  {
+                      "rel":  "topics\\硬件基础 RAM ROM Flash.md",
+                      "title":  "硬件基础 RAM ROM Flash",
+                      "category":  "topics",
+                      "card":  "cards/topics - 硬件基础 RAM ROM Flash.md",
+                      "linkCount":  3
+                  }
+              ]
+}

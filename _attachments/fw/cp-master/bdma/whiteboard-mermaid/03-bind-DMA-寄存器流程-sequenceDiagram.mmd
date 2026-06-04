@@ -1,0 +1,10 @@
+sequenceDiagram
+  participant B as BDMA bind thread
+  participant TOP as CP TOP regs
+  participant HW as Bind DMA / HCQD
+
+  B->>TOP: poll BINDDMA_STATUS until HCQD_IDLE
+  B->>TOP: write MCQD_ADDR_LO/HI
+  B->>TOP: write BINDDMA_HCQDID
+  TOP->>HW: bind MCQD to HCQD
+  HW-->>B: HCQD_ACTIVE becomes 1

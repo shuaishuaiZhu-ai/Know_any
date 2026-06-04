@@ -1,0 +1,12 @@
+flowchart LR
+    Ref["ref clock"] --> PLL["PLL"]
+    PLL --> Mux["glitchless mux"]
+    Mux --> Div["divider"]
+    Div --> Gate["clock gate"]
+    Gate --> Domain["GPU clock domain"]
+
+    FW["FW DVFS FSM"] -->|program + wait ack| PLL
+    FW -->|select clock path| Mux
+    FW -->|update divider| Div
+    FW -->|enable/disable| Gate
+    FW -->|release only after stable| Domain

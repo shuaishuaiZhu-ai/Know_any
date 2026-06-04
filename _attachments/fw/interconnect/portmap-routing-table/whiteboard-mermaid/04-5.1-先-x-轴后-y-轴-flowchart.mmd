@@ -1,0 +1,5 @@
+flowchart LR
+    SRC["源 GPU"] --> X["先沿 x 轴<br/>到目标列"]
+    X --> Y["再沿 y 轴<br/>到目标行"]
+    Y --> DST["目标 GPU"]
+    DST --> D2D["查 D2D<br/>到目标 die"]

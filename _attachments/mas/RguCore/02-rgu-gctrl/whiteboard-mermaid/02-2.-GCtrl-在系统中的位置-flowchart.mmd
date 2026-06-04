@@ -1,0 +1,12 @@
+flowchart TB
+    subgraph GCtrl["RguGCtrl"]
+        Glb["GlbCtrl<br/>Global Control"]
+        Clus["ClusCtrl<br/>Cluster Control"]
+    end
+
+    CP["CP / Kernel Packet"] --> Glb
+    Glb --> Router["Router / Ctrl NOC"]
+    Router --> Clus
+    Clus --> Core0["Core 0"]
+    Clus --> Core1["Core 1"]
+    Clus --> CoreN["Core N"]

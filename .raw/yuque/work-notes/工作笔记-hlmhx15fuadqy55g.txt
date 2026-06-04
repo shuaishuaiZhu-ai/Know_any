@@ -1,0 +1,136 @@
+ram和rom
+
+1
+RAM（Random access memory）：随机访问存储器，用于存储临时数据。断电后数据就会丢失。 优点在于访问速度很快
+
+a
+Dram（Dynamic ram）：需要刷新来保持数据的稳定性。容量大，成本低
+
+b
+Sram（static ram）：使用存储触发器（cmos电路）来储存数据。速度更快，但是价格更高，通常用于缓存。
+
+c
+SDram
+
+2
+ROM（Read only memory）：只读存储器，其中的数据不能被常规方式修改或写入。通常被用在烧写boot上面，boot rom。
+
+a
+mask rom：出厂就被写好的rom类型，通常用于存储固定程序的代码，固件等。例如芯片的efuse
+
+b
+prom：一旦数据写入后，就无法更改。
+
+c
+rprom：允许多次编程和擦除
+
+d
+eeprom（electrically erasable programmable rom）：电可擦除只读存储器
+
+e
+flash：需要理解nand flash和nor flash
+
+
+
+nano flash和nor flash
+
+物理特性有如下差异：
+
+特性
+
+	
+NOR Flash
+
+	
+NAND Flash
+
+
+
+单元连接方式
+
+	
+每个存储单元独立连接位线/字线
+
+	
+多个单元串联成页（Page），页间并联
+
+
+
+存储密度
+
+	
+低（单元面积约10F²）
+
+	
+高（单元面积约4F²）
+
+
+
+典型工艺节点
+
+	
+55nm-28nm
+
+	
+15nm + 3D堆叠（176层以上）
+
+
+
+擦除单位
+
+	
+扇区（64KB）
+
+	
+块（128-256KB）
+
+
+
+编程方式
+
+	
+字节/字编程
+
+	
+页编程（4KB-16KB/次）
+
+
+ 性能参数对比：
+
+1
+读取速度：
+
+a
+nor：支持随机访问，读取速度快（70ns），可直接执行代码Xip（execute in place）
+
+ⅰ
+cpu可以直接从nor flash中取指令：https://zhuanlan.zhihu.com/p/368276428
+
+ⅱ
+通常用于bios和uefi初始化
+
+b
+nand：支持整页读取，顺序多去可达3.5GB/s，随机读取延时约为50us
+
+2
+写入擦除速度：
+
+a
+nor：擦除慢，5ms/64KB，编程毒素0.3MB/s
+
+b
+nand：擦除快2ms/256KB，编程速度500MB/s
+
+
+
+cuda
+
+异构计算：https://blog.csdn.net/Pieces_thinking/article/details/122264574
+
+cuda runtime api 
+
+cuda driver api
+
+context stream
+
+​

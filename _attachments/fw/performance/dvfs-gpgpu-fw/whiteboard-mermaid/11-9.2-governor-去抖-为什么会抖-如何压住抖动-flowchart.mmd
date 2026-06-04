@@ -1,0 +1,10 @@
+flowchart LR
+    Sample["采样 busy/temp/power"] --> Filter["滑动平均 / EMA"]
+    Filter --> Judge{"超过阈值?"}
+    Judge -->|连续 N 次高负载| Up["请求升 OPP"]
+    Judge -->|连续 M 次低负载| Down["请求降 OPP"]
+    Judge -->|中间区间| Hold["保持当前 OPP"]
+    Up --> Residency["min residency / cooldown"]
+    Down --> Residency
+    Hold --> Sample
+    Residency --> Sample

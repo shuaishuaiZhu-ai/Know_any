@@ -1,0 +1,14 @@
+sequenceDiagram
+  participant UART as UART interrupt
+  participant Driver as USART driver
+  participant Rx as agc_shell_rx_ind
+  participant Sem as agc_sem
+  participant Shell as agc_shell thread
+  participant CLI as agc_cli_cmd
+  UART->>Driver: receive char
+  Driver->>Rx: dev.rx_indicate
+  Rx->>Rx: read device and push ringbuffer
+  Rx->>Sem: rt_sem_release
+  Shell->>Sem: rt_sem_take wakes
+  Shell->>Shell: parse/edit/echo command line
+  Shell->>CLI: agc_cli_cmd(argc, argv)

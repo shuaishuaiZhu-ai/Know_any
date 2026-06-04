@@ -1,0 +1,1786 @@
+[
+  {
+    "type": "table",
+    "rows": [
+      [
+        "产品名称 R1",
+        "内部"
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "产品版本 v0.1",
+        "总 xxx 页"
+      ],
+      [
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "RguGCtrl设计方案"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "拟制人员：  日期："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "审校人员：  日期："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "（仅供内部使用）"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "HX Logo"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "辉羲智能科技有限公司"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "HX"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "All Rights Reserved."
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "版权所有，侵权必究"
+  },
+  {
+    "type": "p",
+    "style": "743",
+    "text": "修订记录"
+  },
+  {
+    "type": "table",
+    "rows": [
+      [
+        "版本号",
+        "修订说明",
+        "修订人",
+        "审核人",
+        "修订日期"
+      ],
+      [
+        "V0.1",
+        "初版",
+        "熊海翡",
+        "",
+        "2024/07/24"
+      ],
+      [
+        "V0.2",
+        "更新近期改动，细化部分说明",
+        "熊海翡",
+        "",
+        "2024/09/23"
+      ],
+      [
+        "V0.3",
+        "增加第4.3章节 模块在系统位置的框图 在3.2章节的接口中增加kernel done相关信号 修改4.1.2中max_clus_num计算的相关公式",
+        "宋林",
+        "",
+        "2024/10/14"
+      ],
+      [
+        "V0.9",
+        "",
+        "张士长",
+        "",
+        "2025/06/09"
+      ]
+    ]
+  },
+  {
+    "type": "p",
+    "style": "743",
+    "text": "概述"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "系统位置"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "RguGCtrl含有两个模块，分别是GlbCtrl(global control)和ClusCtrl(cluster control)模块，其在系统中的位置如下图所示。一方面，GlbCtrl模块和系统外通过axi-lite交互，用于获取kernel参数配置；另一方面，ClusCtrl模块和系统内的Control Fabric(ctrl noc)通过axi-lite相连，把参数发给各个core。"
+  },
+  {
+    "type": "image",
+    "rid": "rId11",
+    "target": "media/image1.png",
+    "seq": 1
+  },
+  {
+    "type": "image",
+    "rid": "rId12",
+    "target": "media/image2.png",
+    "seq": 2
+  },
+  {
+    "type": "image",
+    "rid": "rId11",
+    "target": "media/image1.png",
+    "seq": 3
+  },
+  {
+    "type": "image",
+    "rid": "rId12",
+    "target": "media/image2.png",
+    "seq": 4
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "图1"
+  },
+  {
+    "type": "image",
+    "rid": "rId11",
+    "target": "media/image1.png",
+    "seq": 5
+  },
+  {
+    "type": "image",
+    "rid": "rId11",
+    "target": "media/image1.png",
+    "seq": 6
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "每个die含有一个GlbCtrl模块，连接CP(kernel dispatch)和ctrl noc，每个die独立运行；physical cluster则共有CLUS_N个，每个physical cluster内含有一个ClusCtrl模块和CORE_N个core。"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "功能列表"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "RguGCtrl模块的功能有："
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "将kernel的参数配置reg info拆分为logic cluster；将regi nfo和logic cluster通过Router分发给CLUS_N个physical cluster中的一个或多个，分发方式支持random和fixed两大类"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "将logic cluster拆分为block，并将reg info和blocks通过全互联reg总线分发给CLCR_N个core中的一个或多个"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "支持同时处理多个kernel；多个kernel可以并行执行，占用不同的physical cluster；每个physical cluster只能同时执行1个kernel"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "上报debug信息和中断等（TODO）"
+  },
+  {
+    "type": "p",
+    "style": "743",
+    "text": "整体架构"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "整体架构图参考图1，简要图如图2所示，RguGCtrl主要包括2个子模块，GlbCtrl和ClusCtrl。其中蓝线是Router，红线是全互联。"
+  },
+  {
+    "type": "image",
+    "rid": "rId13",
+    "target": "media/image3.png",
+    "seq": 7
+  },
+  {
+    "type": "image",
+    "rid": "rId13",
+    "target": "media/image3.png",
+    "seq": 8
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "图2"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "GlbCtrl模块功能如下："
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "通过axilite接口接收kernel配置信息reg info，支持缓存最多KNEL_N个kernel的信息；按序调度kernel，kernel packet寄存器被读出后，只要剩余的cluster资源满足下一个kernel的使用，就可以进行下一个kernel的调度，kernel所对应的cluster index发送完成后，则可清空该kernel的packet寄存器，从cp接收新的kernel packet；每个physical cluster只能同时执行1个kernel"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "根据griddim / clusdim / ctanum / cluster status等信息，自动给kernel分配需要的physical cluster，也支持直接配置"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "生成cluster mask，并将其与数据、地址合并成一笔数据，经axilite接口通过Router进行传输，Router根据cluster mask将reg info发送给对应的physical cluster"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "将kernel拆分为logic cluster，并逐个发给选中的每个physical cluster。支持随机分配和固定分配两种模式，随机分配选择最空闲的physical分配，固定分配则需要分配到特定的physical cluster"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "kernel分配过程中有physical cluster释放时，若该kernel已使用的physical cluster数尚未达到分配值，可以选中其进行reg info和logic cluster的分配"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "通过axilite接口给Router发送配置"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "通过axilite接口接收core的上报信息，维护各个physical cluster内logic cluster的执行情况。kernel的所有logic cluster都完成后，生成kernel_done信号，并将对应的kernel index上报给cp"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "ClusCtrl模块功能如下："
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "通过包接口(vld/data/ready)接收配置信息"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "通过内部全互联接口把reg info广播给physical cluster内所有的core"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "将logic cluster拆分为block，按照最空闲的顺序逐一发给每个core。需要同时发送cluster index和block index"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "通过内部全互联接口，接收来自core的上报信息，维护各个core内block的执行情况"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "通过包接口(vld/data/ready)给Router上报cluster的执行情况"
+  },
+  {
+    "type": "p",
+    "style": "743",
+    "text": "接口描述"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "配置参数"
+  },
+  {
+    "type": "table",
+    "rows": [
+      [
+        "Parameter",
+        "Default",
+        "Description"
+      ],
+      [
+        "KNEL_N",
+        "4",
+        "Max parallel kernel number"
+      ],
+      [
+        "CLUS_N",
+        "4",
+        "Physical cluster number in system"
+      ],
+      [
+        "CLCR_N",
+        "7",
+        "Core number in one physical cluster"
+      ],
+      [
+        "CORE_N",
+        "28(CLUS_N*CLCR_N)",
+        "Core number in system"
+      ],
+      [
+        "PARA_N",
+        "128",
+        "Max configurable parameter for one kernel"
+      ],
+      [
+        "IADR_W",
+        "16",
+        "Input address width"
+      ],
+      [
+        "OADR_W",
+        "16",
+        "Ouput address width"
+      ],
+      [
+        "INADR_W",
+        "16",
+        "Input address width from router for gctrl"
+      ],
+      [
+        "DATA_W",
+        "32",
+        "Data width"
+      ]
+    ]
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "接口信号"
+  },
+  {
+    "type": "p",
+    "style": "745",
+    "text": "GlbCtrl"
+  },
+  {
+    "type": "table",
+    "rows": [
+      [
+        "Port",
+        "I/O",
+        "Width",
+        "Description"
+      ],
+      [
+        "Clock & Reset"
+      ],
+      [
+        "clk",
+        "I",
+        "1",
+        "Source clk, 1GHz"
+      ],
+      [
+        "rst_n",
+        "I",
+        "1",
+        "Async reset, active low"
+      ],
+      [
+        "from CP"
+      ],
+      [
+        "pkt_valid",
+        "I",
+        "1",
+        "pkt valid signal"
+      ],
+      [
+        "pkt_addr",
+        "I",
+        "IADR_W",
+        "pkt address signal"
+      ],
+      [
+        "pkt_data",
+        "I",
+        "DATA_W",
+        "pkt data signal"
+      ],
+      [
+        "pkt_ready",
+        "O",
+        "1",
+        "pkt ready signal"
+      ],
+      [
+        "pkt_idx",
+        "I",
+        "KNEL_W",
+        "pkt index"
+      ],
+      [
+        "to Router"
+      ],
+      [
+        "cfg_valid",
+        "O",
+        "1",
+        "cfg valid signal"
+      ],
+      [
+        "cfg_data",
+        "O",
+        "CLUS_N+OADR_W+DATA_W",
+        "cfg data signal, CLUS_N bits (broadcast mask for clusters) is place in awuser[CLUS_N-1:0] for axilite"
+      ],
+      [
+        "cfg_ready",
+        "I",
+        "1",
+        "cfg ready signal"
+      ],
+      [
+        "from Router"
+      ],
+      [
+        "ack_valid",
+        "I",
+        "1",
+        "ack valid signal"
+      ],
+      [
+        "ack_data",
+        "I",
+        "20",
+        "ack data signal [19]：type 0: task_done [9:0] blk_cnt [10]cluster_done [11]Kernel_done 1: message [7:0] msg_data [11:8] msg_type [14:12] core_id [16:15] cluster_id [18:17] die_id"
+      ],
+      [
+        "ack_ready",
+        "O",
+        "1",
+        "ack ready signal"
+      ],
+      [
+        "to CP"
+      ],
+      [
+        "kdone_ena",
+        "O",
+        "KNEL_W",
+        "kernel index to CP"
+      ],
+      [
+        "kdone_idx",
+        "O",
+        "1",
+        "kernel execution completion signal"
+      ]
+    ]
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "备注：kernel_idx_i有唯一性，例如发下去值为A的kernel_idx_i，当对应A的kernel_done回复了，才能再次发值为A的kernel_idx_i。"
+  },
+  {
+    "type": "p",
+    "style": "745",
+    "text": "ClusCtrl"
+  },
+  {
+    "type": "table",
+    "rows": [
+      [
+        "Port",
+        "I/O",
+        "Width",
+        "Description"
+      ],
+      [
+        "Clock & Reset"
+      ],
+      [
+        "clk",
+        "I",
+        "1",
+        "Source clk, 1GHz"
+      ],
+      [
+        "rst_n",
+        "I",
+        "1",
+        "Async reset, active low"
+      ],
+      [
+        "from Router"
+      ],
+      [
+        "cfg_valid",
+        "I",
+        "1",
+        "cfg valid signal"
+      ],
+      [
+        "cfg_data",
+        "I",
+        "IADR_W+DATA_W",
+        "cfg data signal"
+      ],
+      [
+        "cfg_ready",
+        "O",
+        "1",
+        "cfg ready signal"
+      ],
+      [
+        "to Router"
+      ],
+      [
+        "ack_valid",
+        "O",
+        "1",
+        "ack valid signal"
+      ],
+      [
+        "ack_data",
+        "O",
+        "OADR_W+DATA_W",
+        "ack data signal"
+      ],
+      [
+        "ack_ready",
+        "I",
+        "1",
+        "ack ready signal"
+      ],
+      [
+        "to cores"
+      ],
+      [
+        "dn_valid",
+        "O",
+        "1",
+        "ClusCtrl to core valid"
+      ],
+      [
+        "dn_addr",
+        "O",
+        "DN_ADDR_W",
+        "ClusCtrl to core addr"
+      ],
+      [
+        "dn_data",
+        "O",
+        "DN_DATA_W",
+        "ClusCtrl to core data"
+      ],
+      [
+        "dn_ready",
+        "I",
+        "1",
+        "ClusCtrl to core ready"
+      ],
+      [
+        "from cores"
+      ],
+      [
+        "up_valid",
+        "I",
+        "1",
+        "Core to ClusCtrl valid"
+      ],
+      [
+        "up_addr",
+        "I",
+        "UP_ADDR_W",
+        "Core to ClusCtrl addr"
+      ],
+      [
+        "up_data",
+        "I",
+        "UP_DATA_W",
+        "Core to ClusCtrl data"
+      ],
+      [
+        "up_ready",
+        "O",
+        "1",
+        "Core to ClusCtrl ready"
+      ]
+    ]
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "接口时序"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "包接口：标准axi-lite接口时序"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "有地址"
+  },
+  {
+    "type": "image",
+    "rid": "rId14",
+    "target": "media/image4.png",
+    "seq": 9
+  },
+  {
+    "type": "image",
+    "rid": "rId14",
+    "target": "media/image4.png",
+    "seq": 10
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "无地址"
+  },
+  {
+    "type": "image",
+    "rid": "rId15",
+    "target": "media/image5.png",
+    "seq": 11
+  },
+  {
+    "type": "image",
+    "rid": "rId15",
+    "target": "media/image5.png",
+    "seq": 12
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "kernel done接口：一个clock有效"
+  },
+  {
+    "type": "image",
+    "rid": "rId16",
+    "target": "media/image6.png",
+    "seq": 13
+  },
+  {
+    "type": "image",
+    "rid": "rId16",
+    "target": "media/image6.png",
+    "seq": 14
+  },
+  {
+    "type": "p",
+    "style": "743",
+    "text": "详细设计"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "GlbCtrl模块"
+  },
+  {
+    "type": "p",
+    "style": "745",
+    "text": "实现思路"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "GlbCtrl模块收到的kernel配置信息参照 ISA中config表格的描述。其中，大多数参数GlbCtrl不做处理直接转发给core即可，需处理的参数是gridDim / clusDim / cta_num。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "gridDim：表示当前kernel的形状，即该kernel需要拆分为grid_size = gridDim.x * gridDim.y * gridDim.z个block下发给core，每个block用blockIdx.x/y/z来表示"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "clusDim：表示每个cluster的形状，即该kernel中的每个cluster包含clus_size = clusDim.x * clusDim.y * clusDim.z个block。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "cta_num：表示对于当前kernel，1个core最多可以允许多少个block。该值主要受share memory size，core能允许的最大block数和core能允许的最大warp数来决定。软件直接计算完毕后配置下来，最大为32。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "考虑到cluster层级的存在，需要做的是kernel -> logic cluster -> block的二级拆分。其中，每个logic cluster也有clusterIdx.x/y/z，每个logic cluster包含clus_size个block。因此，每个logic cluster包含的blockIdx是一个三维的坐标："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "blockIdx.x = clusterIdx.x * clusDim.x + 0 ~ clusDim.x-1"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "blockIdx.y = clusterIdx.y * clusDim.y + 0 ~ clusDim.y-1"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "blockIdx.z = clusterIdx.z * clusDim.z + 0 ~ clusDim.z-1"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "gridDim可以不必是clusDim的整数倍。这种情况下，最后一个logic cluster会包含少于n个blocks。clusDim全为1时，每个logic cluster即和1个block等价。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "当一个kernel中含有的logic cluster数较多时，会发给多个physical cluster并行计算，由硬件决定发给多少个physical cluster来执行。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "对于fixed分配策略，根据map公式能得知需要使用对应的physical cluster，后续clus_mask的计算也很直观。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "对于random分配策略，主要有两种思路：1）类似于轮询的方法，即尽量给每个physical cluster先都发一些logic cluster，这么做的好处是可以让多个core都工作起来。然而如果有多个kernel并行的需求的话，kernel0占据过全部的core会导致kernel1无法下发。2）类似于贪婪的方法，即从第一个physical cluster开始尽可能多的分配logic cluster，直到占满所有资源（参考cta_num）；然后再分配下一个，以此类推。当任务较小时，这么做可以让多个kernel并行跑，但是如果只有1个kernel则有很多core不会工作，效率比较低。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "确定好max_clus_num后，下一步需要做的事情就是在kernel发送前，从CLUS_N个physical cluster中选出max_clus_num个可用的来发送。如果只能选出K个可用的（K <= min(CLUS_N, max_clus_num)），那就先用这K个physical cluster；如果K = 0，则本kernel不能发送，需要等到K > 0后才能发送。K个physical cluster都占满后，若kernel还没分发完毕，则需要等待physical cluster的释放。若有新释放的physical cluster，且K < max_clus_num，则该kernel可以占住新释放的physical cluster使用；若K = max_clus_num，则只能等待已经占住的physical cluster的释放。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "GlbCtrl和各个physical cluster 只有一组axi-lite总线通过noc连接，如果给每个ClusCtrl配置参数和clusIdx时串行发送，则延迟较大。此处利用noc的广播模式：发送reg info时，附带clus_mask信息，表示reg info会同时发送给使能的physical cluster；发送cluster index时，由于各个physical cluster的值不一样，广播的话稍微复杂，因此index不广播。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "logic cluster的编码支持full mode和incr mode。full编码，指需要通过3笔axi-lite的trans，分别发送clusterIdx.x/y/z（地址分别对应8C/90/94)；incr编码，只用1笔trans发送{z_incr[9:0], y_incr[9:0], x_incr[9:0]}到9C地址，ClusCtrl收到incr编码时，需要在上一笔clusterIdx的基础上加上偏移量来得到实际的index值。采用incr mode，能有效减少发送的trans数。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "当某个physical cluster中的CLCR_N个core都不能正常工作时，认为此physical cluster不能正常工作，即不可为其分发block。clus_idle表示physical cluster是否空闲，当block_num=0且physical cluster可正常工作(有core可用)时才空闲。phy_clus_bcnt表示physical cluster能分发的最大block数目，此信号的计算为：正常工作core的数目*cta_num。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "用680/684地址的寄存器指示每个physical cluster中正常工作core的数目。"
+  },
+  {
+    "type": "image",
+    "rid": "rId17",
+    "target": "media/image7.png",
+    "seq": 15
+  },
+  {
+    "type": "image",
+    "rid": "rId17",
+    "target": "media/image7.png",
+    "seq": 16
+  },
+  {
+    "type": "image",
+    "rid": "rId18",
+    "target": "media/image8.emf",
+    "seq": 17
+  },
+  {
+    "type": "p",
+    "style": "745",
+    "text": "硬件实现"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "该模块的硬件实现如下图所示："
+  },
+  {
+    "type": "image",
+    "rid": "rId20",
+    "target": "media/image9.png",
+    "seq": 18
+  },
+  {
+    "type": "image",
+    "rid": "rId20",
+    "target": "media/image9.png",
+    "seq": 19
+  },
+  {
+    "type": "image",
+    "rid": "rId20",
+    "target": "media/image9.png",
+    "seq": 20
+  },
+  {
+    "type": "image",
+    "rid": "rId20",
+    "target": "media/image9.png",
+    "seq": 21
+  },
+  {
+    "type": "image",
+    "rid": "rId21",
+    "target": "media/image10.emf",
+    "seq": 22
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "kernel的存储"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "GlbCtrl需要缓存下KNEL_N个kernel信息，使用大小为KNEL_N * PARA_N的寄存器Table"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "。Kernel的outstanding为4，KNEL_N也是4，可以kernel_done之后释放存储资源。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "max_clus_num的计算："
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "对于random mode："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "软件在kernel info的某个地址配置mode[1:0] 和 clus_cnt[3:0]："
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Mode = 3’d0：硬件自行计算，且尽可能多占用physical cluster，在partial good的情况下，可能存在某个cluster空闲的blk数量大于其他cluster，实际分发任务过程中可能会连续分发到该physical cluster；"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Mode = 3’d1：硬件自行计算，每个physical cluster尽可能塞入更多的logic cluster，实际分发的还是在max_clus_num内选择最空闲的cluster进行任务分发；"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Mode = 3’d2：使用软件配置的clus_cnt + 1当作本kernel需要的physical cluster数目，该模式暂不使用；"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "对于fixed mode："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "map公式：physical_id = (clusterIdx.y & (2**b-1)) *(2**a) + (clusterIdx.x &（2**a-1));"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "其中a/b属于0~log2(CLUS_N)范围内，且a+b<=log2(CLUS_N)"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "知道griddim和map公式之后，需要用到哪几个physical cluster，max_clus_num都能直接定下来。在此不再赘述。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "log_cluster_id.x = (x<<cfg_xshift) + (w*cfg_wstep)"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "log_cluster_id.y = (y<<cfg_yshift) + (h*cfg_hstep)"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Mode = 3’d3：interleave模式，cfg_wstep=1、cfg_hstep=1，cfg_xshift=a、cfg_yshift=b；"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Mode = 3’d4：non-interleave模式，cfg_wstep=nclus_x/N、cfg_hstep=nclus_y/M，"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "cfg_xshift=0、cfg_yshift=0；(M=2b、N=2a)"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "随机模式下max_clus_num计算方法如下："
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "计算logic cluster总数量lgc_clus_cnt"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "x方向：ceil(gridDim.x/clusDim.x)"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "y方向：ceil(gridDim.y/clusDim.y)\nz方向：ceil(gridDim.z/clusDim.z)"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "将上述三个方向的logic cluster数量相乘，即得出lgc_clus_cnt。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "计算每个physical cluster可分发的logic cluster数量phy_clus_cnt\n      Mode = 3’d0时，phy_clus_cnt = ceil(CLCR_N / N)，N = clusDim_x*y*z"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Mode = 3’d1时，phy_clus_cnt = ceil(cta_num*CLCR_N/N)，N = clusDim_x*y*z"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "计算max_clus_num\n      max_clus_num = ceil(lgc_clus_cnt/phy_clus_cnt) \n      若ceil(lgc_clus_cnt/phy_clus_cnt)大于等于CLUS_N，则max_clus_num = CLUS_N;\n      若ceil(lgc_clus_cnt/phy_clus_cnt)小于CLUS_N，则max_clus_num ="
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "ceil(lgc_clus_cnt/phy_clus_cnt) ;"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Current cluster mask的计算"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "Kernel分发前，需要从CLUS_N个physical cluster中选择max_clus_num个可用的（empty并且kernel指定范围内的）。问题可抽象为从1个N bit的0/1数组flag中选出前K个1。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "可以维护N个1bit的加法树，分别计算从flag[i:0]中1的个数，记为cnt，其为单调非递减序列。然后把cnt和max_clus_num比较，找到cnt中第一个不小于K的位置pos。生成的clus_mask即为flag & {‘b0, pos个1bit}。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "如果只能选出K个可用的（K < max_clus_num），那就先用这K个physical cluster；如果K = 0，则本kernel不能发送，需要等到K > 0后才能发送。K个physical cluster都占满后，若kernel还没分发完毕，则需要等待physical cluster的释放。若有新释放的physical cluster，且K < max_clus_num，则该kernel可以占住新释放的physical cluster使用；若K = max_clus_num，则只能等待已经占住的physical cluster的释放。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Cluster的拆分和分发"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "在完成步骤2和3的计算，并收到CFG_DONE信号后，即可开始准备kernel的分发。分发的步骤："
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "reg info分配"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "对于每一轮，步骤3中计算得到的curr_clus_mask。使用curr_clus_mask，利用noc的广播模式逐笔发送reg info。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "cluster拆分和分配"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "Logic cluster的拆分，暂时使用递增发送的模式。即griddim2*2*2 & clusdim1*1*1的kernel会拆分为(0,0,0) -> (0,0,1) -> (0,1,0) -> (0,1,1) -> (1,0,0) -> … 8个logic cluster，这8个cluster会依次选择一个physical cluster分发。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "采用total_clus_mask来记录多轮中已经发送了reg info的physical cluster："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "total_clus_mask = total_clus_mask | curr_clus_mask"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "选择physical cluster时，从total_clus_mask中选则最空闲的一个来发送1个logic cluster。所谓最空闲，指的是physical cluster剩余可用的block数最多。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "clusterIdx的编码支持full mode和incr mode两种。现阶段实现策略：若当前clusterIdx.x/y/z与上一次index数值差在10bit有符号数表示范围内，则使用incr_mode，否则是full mode，从而节省tran数。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "FSM控制"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_PARA_FULL：正在所有所需cluster上发送reginfo；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_PARA_PART：正在部分所需cluster上发送reginfo；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDX_FULL：正在所有所需cluster上发clusidx；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDX_PART：正在部分所需cluster上发clusidx；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_WAIT_FULL：在申请到所有所需cluster的情况下等待cluster释放；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_WAIT_PART：在申请到部分所需cluster的情况下等待cluster释放或者尝试申请剩余的cluster；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDLE即空闲。状态跳转条件如下："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDLE -> S_PARA_FULL：申请到所有所需的physical cluster"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDLE -> S_PARA_PART：random模式下申请到部分所需的physical cluster"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_PARA_FULL -> S_IDX_FULL：发完CFG_DONE"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_PARA_PART -> S_IDX_PART：发完CFG_DONE"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDX_FULL -> S_WAIT_FULL：已没有cluster可用"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDX_PART -> S_WAIT_PART：已没有cluster可用"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_WAIT_FULL -> S_IDX_FULL：有cluster释放出来可用"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_WAIT_PART -> S_IDX_PART：有cluster释放出来可用"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_WAIT_PART -> S_PARA_PART：有新申请到的cluster（当申请数量达到所需数量将不会分配新的cluster）"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDX_FULL -> S_DONE：cluster index发送完成"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_IDX_PART -> S_DONE：cluster index发送完成"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S_DONE -> S_IDLE：done请求发送完成"
+  },
+  {
+    "type": "image",
+    "rid": "rId23",
+    "target": "media/image11.png",
+    "seq": 23
+  },
+  {
+    "type": "image",
+    "rid": "rId23",
+    "target": "media/image11.png",
+    "seq": 24
+  },
+  {
+    "type": "image",
+    "rid": "rId24",
+    "target": "media/image12.emf",
+    "seq": 25
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "典型时序如下图所示：先以广播模式发para，再逐个发clusidx。"
+  },
+  {
+    "type": "image",
+    "rid": "rId26",
+    "target": "media/image13.png",
+    "seq": 26
+  },
+  {
+    "type": "image",
+    "rid": "rId26",
+    "target": "media/image13.png",
+    "seq": 27
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "cluster status 的维护"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "模块内还会维护各个physical cluster的状态，主要记录当前physical cluster运行的已经发下去的block数目和该core运行的kernel id。前者用于判断当前physical cluster还能否继续分发logic cluster，后者用于判断每个physical cluster只能允许1个kernel的条件。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "某个kernel id的done的生成需要满足logic cluster已经全部发完和对应physical cluster在执行的logic cluster数目已清空两个条件。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "request和response\ngctrl给core分发logic，core处理完logic后会给gctrl回复ack；为了能够让core在logic"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "处理完后才回复ack，gctrl需在logic分发完毕后给core发送ack request，当core收到request后且logic处理完毕，才会给gctrl回复response。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "request"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "gctrl在下发的logic包最后加request信息，地址’h400，数据的最高位置1，如下图"
+  },
+  {
+    "type": "image",
+    "rid": "rId27",
+    "target": "media/image14.png",
+    "seq": 28
+  },
+  {
+    "type": "image",
+    "rid": "rId27",
+    "target": "media/image14.png",
+    "seq": 29
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "response"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "当physical cluster处理完所有logic后，clusctrl会给gctrl回复ack；\nack有如下两种："
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "ack0：core释放blk后就回ack，ack_addr=32’h0440_0610；"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "ack1：core处理完kernel分配的任务后回ack，ack_addr=32’h0440_0610；\nack0用来维护gctrl内部的block数量，以此维护physical cluster的状态；"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "ack1用来标识kernel done的生成时机；"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "ack_data参考GlbCtrl接口信号"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "kernel done\n当ack0维护的blk_num=max_phy_blk_num且ack1已获取同时满足时，可以生成kernel done信号，一"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "个clock脉冲；此脉冲有效时，对应的kernel index有效。"
+  },
+  {
+    "type": "image",
+    "rid": "rId28",
+    "target": "media/image15.png",
+    "seq": 30
+  },
+  {
+    "type": "image",
+    "rid": "rId28",
+    "target": "media/image15.png",
+    "seq": 31
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "ClusCtrl模块"
+  },
+  {
+    "type": "p",
+    "style": "745",
+    "text": "实现思路"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "整体思路和GlbCtrl类似，主要完成cluster -> block的转换即和多核的并行通信。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "每个core都有一个blkcnt_live信号，用来表示对应的core中已有block的数量，可通过min-tree求出CORE_N个blkcnt_live中最小的，其对应的core就是当前最空闲的core。若某个core不能正常工作，则其对应的blkcnt_live值为7{1’b1}；否则blkcnt_live当core最空闲时进行加操作、当core收到release ack时进行减操作。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "当某个core不工作时，其对应out fifo的写操作不会有效，即outff_wen不会被置高。"
+  },
+  {
+    "type": "p",
+    "style": "745",
+    "text": "硬件实现"
+  },
+  {
+    "type": "image",
+    "rid": "rId29",
+    "target": "media/image16.emf",
+    "seq": 32
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Cluster info的存储"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "仅需要一定深度的FIFO存下信息即可，不需要支持重播。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "FIFO深度不需要PARA_N，因为core的dn_ready信号常为高。暂定FIFO深度为8。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "Block的拆分和分发"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "1个physical cluster里面只会运行相同的kernel。因此和GlbCtrl相比，此 处认为physical cluster内部所有的core都会计算当前kernel，省去了max_core_num的计算步骤；认为core_mask是全1，也省去了core_mask计算的步骤。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "para分配"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "直接利用全互联的接口广播给所有的core。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "block的拆分和分配"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "收到的clusterIdx内部包含clusdim.x*y*z个block，这些block的坐标计算公式见上小节描述。Block的分配，从所有core中选则最空闲的一个来发送，每次只发1个block。所谓最空闲，指的是core上正在运行的block数最少，用min tree找即可。每次分发之前，需要先发3笔clusterIdx，再发3笔blockIdx，即一个block需要6笔计算才能传输完毕。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "控制"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "由于不支持replay和mask计算等功能，也不需要用FSM来控制。执行为简单的顺序流程：空闲 -> 发reginfo -> 发blocks（先clusterIdx再blockIdx）-> 结束。典型波形如下："
+  },
+  {
+    "type": "image",
+    "rid": "rId31",
+    "target": "media/image17.png",
+    "seq": 33
+  },
+  {
+    "type": "image",
+    "rid": "rId31",
+    "target": "media/image17.png",
+    "seq": 34
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "时段1：以广播模式给CLCR_N个core发送reginfo，以cfg_done（ADDR=400）结尾"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "时段2：发3笔clusterIdx"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "时段3：发3笔blockIdx。时段2和3组成1个block"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "以CLCR_N = 6为例，每个cycle正好可以发完1个block"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "core status的维护"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "模块内还会维护各个core的状态，主要记录当前core运行的已经发下去的block数目。有可能存在CLCR_N同时上报的情况，需要用adder tree将释放block数目记录。当记录值超过logic cluster的大小时，即可通过axi-lite总线给GlbCtrl模块会一个ack信号。"
+  },
+  {
+    "type": "p",
+    "style": "774",
+    "text": "ack与response"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "ack：up_addr=0、up_data[5:0](core完成的block数量)\nresponse：up_addr=0、up_data[7]=1"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "实例"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "clusIdx、blockIdx计算实例"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "配置：\ngriddim x = 4、griddim y = 4、griddim z = 1"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "clusterdim x = 2、clusterdim y = 2、clusterdim z = 1\nlogic clusIdx个数计算：\n    griddim x*y*z/clusterdim x*y*z = 4*4*1/2*2*1 = 2*2*1=4"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "logic cluster坐标："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "(x,y,z)=(0,0,0), (1,0,0), (0,1,0), (1,1,0)"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "blockIdx计算公式：\n        blockIdx.x = clusterIdx.x * clusDim.x + 0 ~ clusDim.x-1"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "blockIdx.y = clusterIdx.y * clusDim.y + 0 ~ clusDim.y-1"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "blockIdx.z = clusterIdx.z * clusDim.z + 0 ~ clusDim.z-1"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "clusIdx(蓝色)与blockIdx(红色)的坐标如下图所示："
+  },
+  {
+    "type": "image",
+    "rid": "rId32",
+    "target": "media/image18.emf",
+    "seq": 35
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "mode=0时，需要的physical cluster个数(Max_clus_num)计算"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "配置：\n    griddim x = 4、griddim y = 4、griddim z = 4"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "clusterdim x = 1、clusterdim y = 1、clusterdim z = 2"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "CLUS_N = 6"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "mode1的分配原则：\n每个physical cluster尽可能少占logic cluster；\nphysical cluster里的core都不能闲置；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "block总数目计算："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "M = gridDim.x*y*z = 4*4*4 = 64"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "一个logic cluster内的block数量："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "N = clusDim_x*y*z = 1*1*2 = 2"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "logic cluster总数："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S= Ceil(gridDim.x/clusDim_x)*Ceil(gridDim.y/clusDim_y)*Ceil(gridDim.z/clusDim_z)"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "=ceil(4/1)*ceil(4/1)*ceil(4/2) =32"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "每个physical cluster分发的logic cluster数量："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "k = ceil(CLCR_N(6) / N) = 6/2 = 3"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "需要的physical cluster总数："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "ceil(S/k) = 32/3 = 11(向上取整)"
+  },
+  {
+    "type": "image",
+    "rid": "rId34",
+    "target": "media/image19.emf",
+    "seq": 36
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "mode=1时，需要的physical cluster个数(Max_clus_num)计算"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "配置：\n    griddim x = 4、griddim y = 4、griddim z = 4"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "clusterdim x = 1、clusterdim y = 1、clusterdim z = 2"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "CLUS_N = 5"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "ctanum=4"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "mode2的分配原则：\n尽量用满每个physical cluster；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "block总数目计算："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "M = gridDim.x*y*z = 4*4*4 = 64"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "一个logic cluster内的block数量："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "N = clusDim_x*y*z = 1*1*2 = 2"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "logic cluster总数："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "S= Ceil(gridDim.x/clusDim_x)*Ceil(gridDim.y/clusDim_y)*Ceil(gridDim.z/clusDim_z)"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "= ceil(4/1)*ceil(4/1)*ceil(4/2) =32"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "每个physical cluster分发的logic cluster数量："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "k = ceil(ctanum*CLCR_N(6) / N) = ceil(4*6/2) = 12"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "需要的physical cluster总数："
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "Ceil(S/k) = 32/12 = 3(向上取整)"
+  },
+  {
+    "type": "image",
+    "rid": "rId36",
+    "target": "media/image20.png",
+    "seq": 37
+  },
+  {
+    "type": "image",
+    "rid": "rId36",
+    "target": "media/image20.png",
+    "seq": 38
+  },
+  {
+    "type": "p",
+    "style": "743",
+    "text": "软件接口"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "寄存器描述"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "详见ISA中的config表格。"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "https://r712him1th.feishu.cn/wiki/LhA5wap9siyZwTkGkJochsRHnjb"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "启动流程"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "准备工作：根据partial good信息配置 clsctrl中的680寄存器（默认值7核全开），根据需求判断是否需要配置gctrl/clsctrl的600寄存器（有默认值0）；"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "Kernel启动：根据寄存寄存器表配置相关寄存器"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "gctrl寄存器配置顺序要求"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "124/2C/680/684/8/C/10/14/18/1C/20/24/28（124/2C在28前面是强制要求），后续按顺序配置即可，400为最后一个寄存器。"
+  },
+  {
+    "type": "p",
+    "style": "743",
+    "text": "物理实现"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "SRAM列表"
+  },
+  {
+    "type": "table",
+    "rows": [
+      [
+        "Instance name",
+        "Depth",
+        "Width",
+        "Port",
+        "Mask",
+        "Pipeline",
+        "Retention",
+        "Frequency",
+        "Note"
+      ],
+      [
+        "rhc_spram_phy",
+        "1440",
+        "43",
+        "1rw",
+        "N/A",
+        "no",
+        "no",
+        "1000MHz",
+        "1 copy"
+      ]
+    ]
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "布局参考"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "面积参考"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "SF07@1GHz"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "GlbCtrl：58188（估计最后面积2w+）"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "ClusCtrl：3000+"
+  },
+  {
+    "type": "p",
+    "style": "",
+    "text": "无时序为例"
+  },
+  {
+    "type": "p",
+    "style": "743",
+    "text": "验证相关"
+  },
+  {
+    "type": "p",
+    "style": "744",
+    "text": "断言"
+  }
+]

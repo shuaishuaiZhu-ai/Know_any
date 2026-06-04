@@ -1,0 +1,6 @@
+flowchart LR
+    B["待分发 block"] --> M["比较各 core 的 blkcnt_live"]
+    M --> C["选择最小值 core"]
+    C --> I["发送 clusterIdx + blockIdx"]
+    I --> U["被选 core 的 blkcnt_live + 1"]
+    R["core release ack"] --> D["对应 core 的 blkcnt_live - 1"]

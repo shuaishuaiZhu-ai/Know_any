@@ -1,0 +1,15 @@
+flowchart TD
+  A[qdma_query_task 线程] --> B[读取 proc_list.proc_mask]
+  B --> C{context bit 有效?}
+  C -- 否 --> Z[delay 10 tick]
+  C -- 是 --> D[qdma_query_mcqd context]
+  D --> E[top_reg_wait_query_status 等 QUERY_IDLE]
+  E --> F[写 MCQD_TABLE_ADDR_LO/HI]
+  F --> G[写 MCQD_TABLE_MASK]
+  G --> H[再次等待 QUERY_IDLE]
+  H --> I[读 TOP_REG_MCQD_NOT_EMPTY]
+  I --> J{stream bit 非空且 task_valid 未置位?}
+  J -- 是 --> K[qdma_insert_list]
+  K --> L[append 到 task_list priority]
+  L --> M[置 task_valid bit]
+  J -- 否 --> Z

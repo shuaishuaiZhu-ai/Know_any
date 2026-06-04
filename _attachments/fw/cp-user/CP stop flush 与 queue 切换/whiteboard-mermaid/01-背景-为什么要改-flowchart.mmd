@@ -1,0 +1,10 @@
+flowchart TD
+    OLD["旧 stop/flush 处理"] --> A["stop 状态分散"]
+    OLD --> B["flush 信息单体保存"]
+    OLD --> C["fw hot loop 等 OSD"]
+    OLD --> D["flush 后全量 reset"]
+
+    A --> A1["cmd_entry 每轮额外扫描/判断"]
+    B --> B1["多 context flush 互相覆盖"]
+    C --> C1["stop/flush 阻塞普通调度"]
+    D --> D1["无关 HCQD pending 状态被误清"]

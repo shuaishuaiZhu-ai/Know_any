@@ -1,0 +1,10 @@
+stateDiagram-v2
+  [*] --> Queued: QDMA insert task_list
+  Queued --> Binding: BDMA picks idle HCQD
+  Binding --> Executing: write MCQD_ADDR + BINDDMA_HCQDID
+  Executing --> StopRequested: exc_cnt == 0 and release needed
+  StopRequested --> StopWaiting: HCQD/User not stopped yet
+  StopRequested --> Releasing: stop complete immediately
+  StopWaiting --> Releasing: HCQD_STATUS + CPE_FW_HCQD_STOPPED ready
+  Releasing --> Idle: RELEASE_HCQDID set then cleared
+  Idle --> [*]

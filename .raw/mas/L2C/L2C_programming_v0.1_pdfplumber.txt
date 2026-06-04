@@ -1,0 +1,1542 @@
+
+=== Page 1 ===
+L2C 编程说明
+
+=== Page 2 ===
+目录
+寄存器表 ....................................................................................................................................................... 5
+4 个 cluster 的基地址 ........................................................................................................................... 5
+16 个 L2C 在 cluster 内的基地址...................................................................................................... 5
+1 个 L2C 内的偏移地址 ....................................................................................................................... 6
+功能说明 ..................................................................................................................................................... 26
+BIST 阶段 ................................................................................................................................................ 26
+冗余 tsv 信号替换坏掉的 tsv 信号： ...................................................................................... 26
+关闭 remapping： ........................................................................................................................ 26
+Cacheop 强覆盖为 bypass： ................................................................................................... 26
+BOOT 阶段 ............................................................................................................................................ 27
+冗余 tsv 信号替换坏掉的 tsv 信号： ...................................................................................... 27
+配置总线地址到物理地址的映射关系 ..................................................................................... 27
+其他配置............................................................................................................................................ 31
+WORK 阶段 ........................................................................................................................................... 32
+flush 流程： ..................................................................................................................................... 33
+ECC 中断处理： .............................................................................................................................. 33
+remapping_error 中断处理： ................................................................................................... 33
+查 IDLE 状态 ..................................................................................................................................... 33
+性能统计相关 ....................................................................................................................................... 33
+Pa_counter ....................................................................................................................................... 33
+Pa_max_ost_counter .................................................................................................................... 34
+Pbm_counter .................................................................................................................................. 34
+Common_counter ......................................................................................................................... 35
+入口协议检查 ....................................................................................................................................... 37
+REMAPPING 详细说明 ...................................................................................................................... 38
+dram_channel/bank/part/axi_channel 和总线地址的映射， ...................................... 38
+col/row/remapping_addr 和总线地址的映射 .................................................................... 40
+基于 remapping_addr 和 row 地址的 hash 计算查找表的索引 ................................... 42
+Cache Operator 详细说明 .............................................................................................................. 43
+ISA 上对 L2COP 定义如下 .......................................................................................................... 43
+
+=== Page 3 ===
+Cache 行为描述 .............................................................................................................................. 44
+Cacheop 强覆盖 ............................................................................................................................ 44
+BYPASS 指令的配置 ...................................................................................................................... 44
+L2C disable ...................................................................................................................................... 45
+真实硬件上的实现说明，软件不感知 ..................................................................................... 45
+
+=== Page 4 ===
+Version
+Author Date Description
+number
+0.1 Wei Geng 2025.12.11 初版
+
+=== Page 5 ===
+寄存器表
+GraceC 有 4 个 cluster,每个 cluster 内有 8 个 LLCS，每个 LLCS 内有 2 个 l2c。
+4 个 cluster 的基地址
+Cluster0 32’h0480_0000 32’h048F_FFFF 1MB
+Cluster1 32’h0490_0000 32’h049F_FFFF 1MB
+Cluster2 32’h04A0_0000 32’h04AF_FFFF 1MB
+Cluster3 32’h04B0_0000 32’h04BF_FFFF 1MB
+16 个 L2C 在 cluster 内的基地址
+LLCS0 L2C0 32’h0009_0000 32’h0009_0FFF 4KB
+L2C1 32’h0009_1000 32’h0009_1FFF 4KB
+LLCS1 L2C0 32’h0009_2000 32’h0009_2FFF 4KB
+L2C1 32’h0009_3000 32’h0009_3FFF 4KB
+LLCS2 L2C0 32’h0009_4000 32’h0009_4FFF 4KB
+L2C1 32’h0009_5000 32’h0009_5FFF 4KB
+LLCS3 L2C0 32’h0009_6000 32’h0009_6FFF 4KB
+L2C1 32’h0009_7000 32’h0009_7FFF 4KB
+LLCS4 L2C0 32’h0009_8000 32’h0009_8FFF 4KB
+L2C1 32’h0009_9000 32’h0009_9FFF 4KB
+
+=== Page 6 ===
+LLCS5 L2C0 32’h0009_A000 32’h0009_AFFF 4KB
+L2C1 32’h0009_B000 32’h0009_BFFF 4KB
+LLCS6 L2C0 32’h0009_C000 32’h0009_CFFF 4KB
+L2C1 32’h0009_D000 32’h0009_DFFF 4KB
+LLCS7 L2C0 32’h0009_E000 32’h0009_EFFF 4KB
+L2C1 32’h0009_F000 32’h0009_FFFF 4KB
+1 个 L2C 内的偏移地址
+Register Name Offset Field Bits type reset description
+CACHE_OP_CFG0 0x000
+default_ccfg 23:20 RW 0x2 默认:写回 分配
+ccfg7 19:16 RW 0x0 详见 cache op 描述
+ccfg6 15:12 RW 0x0 详见 cache op 描述
+ccfg5 11:08 RW 0x0 详见 cache op 描述
+ccfg4 7:4 RW 0x0 详见 cache op 描述
+ccfg3 3:0 RW 0x0 详见 cache op 描述
+REMAPPING_ERROR 0x004
+remapping_erro 0:00 RO 0x0 当访问错误的地址映射表的状
+r_flag 态
+REMAPPING_ERROR_CLEA 0x008
+N
+remapping_erro 0:00 W1T 0x0
+r_clean
+PA_CFG 0x0c
+pa_axi_check_en 31 RW 0x0 AXI 协议检查的使能
+
+=== Page 7 ===
+common_count 30:21:0 RW 0x0 详见功能说明.性能统计相关的
+er_sel 0 描述
+common_count 20 RW 0x0 监测 remapping 性能的使
+er_en
+pa_count_en 19:19 RW 0x0 监测 pa 请求数量的使能
+pa_same_id_che 18:18 RW 0x1 trans 相同 id 阻塞功能，仅在
+ck_en DMS_LTC 访问时关闭，且 L2c
+要求强 bypass
+remapping_erro 17:17 RW 0x0 remapping_error 中断使能
+r_int_en
+remapping_en 16:16 RW 0x1 remapping 使能，默认使能，
+关掉 remapping 后，地址将会
+透传，此模式仅用于 debug/
+和 LTC 的访问。因为透传的地
+址给到 PBM 会发生错误地
+址。
+6:05 RW 0x01 保留位，废弃
+coalesce_en 4:04 RW 0x1 0 表示不支持 coalesce，当作
+普通 burst 处理
+bypass_cfg 3:00 RW 0x0 详见上述
+PBM_DPH_EN 0x10
+pbm_dph_enabl 0:00 RW 0x0 dph 驱逐使能
+e
+PBM_ADAPT_EVICT_EN 0x14
+pbm_adapt_rest 23:16 RW 0x80 自适应驱逐
+art_tm
+pbm_adapt_wait 15:08 RW 0xff 自适应驱逐的阈值
+_value
+pbm_adapt_evic 0:00 RW 0x0 自适应驱逐使能
+t_en
+
+=== Page 8 ===
+PBM_FLUSH_OP 0x18
+pbm_flush_op_c 16:16 RW 0x0 清除 flush_done 状态
+lean
+pbm_flush_op_e 0:00 RW 0x0 flush 使能
+n
+PBM_SET_TH_MONITOR 0x1C
+10:07 RW 0xf 废弃
+0:00 RW 0x0 废弃
+PBM_CTRL_COUNTER 0x20
+pbm_flush_done 9 RW 0x0 flush_done 中断使能
+_int_en
+pbm_count_clea 8:08 RW 0x0 pbm 性能计数器的 clean
+n
+pbm_count_en 0:00 RW 0x0 pbm 性能计数器的使能
+PBM_COUNTER0 0x24
+7:00 RO 0x0 废弃
+PBM_COUNTER1 0x28
+pbm_wrreq_cou 31:00:0 RO 0x0 pbm 写请求计数
+nter0 0
+PBM_COUNTER2 0x2C
+pbm_wrreq_cou 23:00 RO 0x0 pbm 写请求计数
+nter1
+PBM_COUNTER3 0x30
+pbm_wrhit_cou 31:00:0 RO 0x0 pbm 写命中计数
+nter0 0
+PBM_COUNTER4 0x34
+pbm_wrhit_cou 23:00 RO 0x0 pbm 写命中计数
+nter1
+PBM_COUNTER5 0x38
+pbm_rdreq_cou 31:00:0 RO 0x0 pbm 读请求计数
+nter0 0
+PBM_COUNTER6 0x3C
+pbm_rdreq_cou 23:00 RO 0x0 pbm 读请求计数
+nter1
+PBM_COUNTER7 0x40
+pbm_rdhit_coun 31:00:0 RO 0x0 pbm 读命中计数
+ter0 0
+PBM_COUNTER8 0x44
+
+=== Page 9 ===
+pbm_rdhit_coun 23:00 RO 0x0 pbm 读命中计数
+ter1
+PBM_FLUSH_OP_STATUS 0x48
+pbm_flush_op_d 0:00 RO 0x0 flush_done 状态标志
+one
+REMAPPING_ADDR0 0x4C
+remapping_add 28:24:0 RW 0x1b 详见 remapping 描述
+r3 0
+remapping_add 20:16 RW 0xd 详见 remapping 描述
+r2
+remapping_add 12:08 RW 0xc 详见 remapping 描述
+r1
+remapping_add 4:00 RW 0xb
+r0
+REMAPPING_ADDR1 0x50
+remapping_add 28:24:0 RW 0x1f 详见 remapping 描述
+r7 0
+remapping_add 20:16 RW 0x1e 详见 remapping 描述
+r6
+remapping_add 12:08 RW 0x1d 详见 remapping 描述
+r5
+remapping_add 4:00 RW 0x1c 详见 remapping 描述
+r4
+REMAPPING_ADDR2 0x54
+col_addr3 28:24:0 RW 0xa 详见 remapping 描述
+0
+col_addr2 20:16 RW 0x9 详见 remapping 描述
+col_addr1 12:08 RW 0x8 详见 remapping 描述
+col_addr0 4:00 RW 0x7 详见 remapping 描述
+REMAPPING_ADDR3 0x58
+row_addr2 28:24:0 RW 0x10 详见 remapping 描述
+0
+row_addr1 20:16 RW 0xf 详见 remapping 描述
+row_addr0 12:08 RW 0xe 详见 remapping 描述
+REMAPPING_ADDR4 0x5C
+
+=== Page 10 ===
+row_addr6 28:24:0 RW 0x14 详见 remapping 描述
+0
+row_addr5 20:16 RW 0x13 详见 remapping 描述
+row_addr4 12:08 RW 0x12 详见 remapping 描述
+row_addr3 4:00 RW 0x11 详见 remapping 描述
+REMAPPING_ADDR5 0x60
+row_addr10 28:24:0 RW 0x18 详见 remapping 描述
+0
+row_addr9 20:16 RW 0x17 详见 remapping 描述
+row_addr8 12:08 RW 0x16 详见 remapping 描述
+row_addr7 4:00 RW 0x15 详见 remapping 描述
+REMAPPING_ADDR6 0x64 详见 remapping 描述
+row_addr12 12:08 RW 0x1a 详见 remapping 描述
+row_addr11 4:00 RW 0x19 详见 remapping 描述
+CACHE_OP_CFG1 0x68
+ccfg15 31:28:0 RW 0x0 详见 cacheop 描述
+0
+ccfg14 27:24:0 RW 0x0 详见 cacheop 描述
+0
+ccfg13 23:20 RW 0x0 详见 cacheop 描述
+ccfg12 19:16 RW 0x0 详见 cacheop 描述
+ccfg11 15:12 RW 0x0 详见 cacheop 描述
+ccfg10 11:08 RW 0x0 详见 cacheop 描述
+ccfg9 7:04 RW 0x0 详见 cacheop 描述
+ccfg8 3:00 RW 0x0 详见 cacheop 描述
+CACHE_OP_COVER 0x6C
+cache_op_cover 4:01 RW 0x0 cacheop 强覆盖值
+_value
+
+=== Page 11 ===
+cache_op_cover 0:00 RW 0x0 cacheop 强覆盖使能
+_en
+L2C_IDLE 0x70
+pbm_bypass_idl 3:03 RO 0x1 内部子模块标记位
+e_flag
+pbm_core_idle_f 2:02 RO 0x1 内部子模块标记位
+lag
+pa_idle_flag 1:01 RO 0x1 内部子模块标记位
+l2c_idle_flag 0:00 RO 0x1 idle 标记位
+L2C_ICG_CTRL 0x74
+pbm_bypass_icg 3:03 RW 0x1 icg 使能
+_force_on
+pbm_core_icg_f 2:02 RW 0x1 icg 使能
+orce_on
+pa_icg_force_on 1:01 RW 0x1 icg 使能
+PA_OST_CFG 0x78
+pa_write_ost_co 31:31:0 RW 0x0 写 outstanding 计数使能
+unt_en 0
+pa_write_ost_ctrl 30:30:0 RW 0x0 写 outstanding 限流使能
+_en 0
+pa_write_ost_thr 29:16:0 RW 0x3fff 写 outstanding 限流阈值
+eshold 0
+pa_read_ost_co 15:15 RW 0x0 读 outstanding 计数使能
+unt_en
+pa_read_ost_ctrl 14:14 RW 0x0 读 outstanding 限流使能
+_en
+pa_read_ost_thr 13:00 RW 0x0 读 outstanding 限流阈值
+eshold
+PA_OST_STATUS 0x7C
+pa_read_ost_ma 29:16:0 RO 0x0 读达到过的最大 outstanding
+x_value 0
+pa_write_ost_ma 13:00 RO 0x0 写达到过的最大 outstanding
+x_value
+PA_READ_CNT0 0x80
+pa_read_req_cnt 31:00:0 RO 0x0 读请求个数的[31:0]
+_num0 0
+PA_READ_CNT1 0x84
+pa_read_req_cnt 31:00:0 RO 0x0 读请求个数的[63:32]
+_num1 0
+PA_WRITE_CNT0 0x88
+pa_write_req_cn 31:00:0 RO 0x0 写请求个数的[31:0]
+
+=== Page 12 ===
+t_num0 0
+PA_WRITE_CNT1 0x8C
+pa_write_req_cn 31:00:0 RO 0x0 写请求个数的[36:32]
+t_num1 0
+PA_COUNT_CLEAN 0x90
+pa_axi_check_cl 2 W1T 0x0 axi 检查状态位的 clean
+ean
+pa_count_clean 1 W1T 0x0 性能计数器的 clean
+common_count 0 W1T 0x0 common 统计计数的 clean
+er_clean
+PA_COMMON_RD_CNT0 0x94
+common_read_c 31:00:0 RO 0x0 common 读统计计数
+ounter0 0
+PA_COMMON_RD_CNT1 0x98
+common_read_c 31:00:0 RO 0x0 common 读统计计数
+ounter1 0
+PA_COMMON_WR_CNT0 0x9C
+common_write_ 31:00:0 RO 0x0 common 写统计计数
+counter0 0
+PA_COMMON_WR_CNT1 0xA0
+common_write_ 31:00:0 RO 0x0 common 写统计计数
+counter1 0
+REMAP_CFG 0xA4
+remapping_byp 3:03 RW 0x1 remapping 关闭时，总线地址
+ass_addr_lshift2 左移 2bit
+remapping_dch 2:02 RW 0x1 dram channel 的 hash 使能
+annel_hash_en
+remapping_dch 1:01 RW 0x0 1：低 3bithash;0:低 4bithash
+annel_hash_cfg
+remapping_set_ 0 RW 0x0 set hash 的两种模式
+hash_cfg
+PA_AXI_CHECK_STATUS 0xA8
+pa_axi_read_che 0:00 RO 0 读发生压缩 burst 的窄传输
+ck_flag[0]
+pa_axi_read_che 1 RO 0 读发生压缩 burst 的非 incr 传
+ck_flag[1] 输
+
+=== Page 13 ===
+pa_axi_read_che 2 RO 0 读发生非 incr/wrap 的传输
+ck_flag[2]
+pa_axi_read_che 3 RO 0 读发生相同 id 阻塞
+ck_flag[3]
+pa_axi_read_che 15:04 RO 0 读发生相同 id 阻塞的请求次
+ck_flag[15:4] 数
+pa_axi_write_ch 16 RO 0 写发生非 incr/wrap 的传输
+eck_flag[0]
+pa_axi_write_ch 17 RO 0 写发生相同 id 阻塞
+eck_flag[1]
+pa_axi_write_ch 29:18:0 RO 0 写发生相同 id 阻塞的请求次
+eck_flag[13:2] 0 数
+PBM_COMMON_COUNTE 0xAC
+R00
+perf_common_c 31:00:0 RO 0x0
+ounter0_0 0
+PBM_COMMON_COUNTE 0xB0
+R01
+perf_common_c 23:00 RO 0x0
+ounter0_1
+PBM_COMMON_COUNTE 0xB4
+R10
+perf_common_c 31:00:0 RO 0x0
+ounter1_0 0
+PBM_COMMON_COUNTE 0xB8
+R11
+perf_common_c 23:00 RO 0x0
+ounter1_1
+PBM_COMMON_COUNTE 0xC0
+R20
+perf_common_c 31:00:0 RO 0x0
+ounter2_0 0
+PBM_COMMON_COUNTE 0xC4
+R21
+perf_common_c 23:00 RO 0x0
+ounter2_1
+PBM_COMMON_COUNTE 0xC8
+R30
+perf_common_c 31:00:0 RO 0x0
+ounter3_0 0
+PBM_COMMON_COUNTE 0xCC
+R31
+perf_common_c 23:00 RO 0x0
+ounter3_1
+
+=== Page 14 ===
+PBM_COMMON_SEL 0xD0
+perf_event_sel0 31:24:0 RW 0x0 选择 counterX 统计的事件：
+0 0. wr hit stall 1. wr miss stall 2.
+wr evict stall 3. wr evict 4. rd
+hit stall 5. rd miss stall 6. rd
+evict stall 7. rd evict 8. adapt
+evict
+perf_event_sel1 23:16 RW 0x0 同上
+perf_event_sel2 15:08 RW 0x0 同上
+perf_event_sel3 7:00 RW 0x0 同上
+PBM_RB_CFG0 0xd4
+replay_buf_rd_w 31:16:0 RW 0x100 replaybuffer 读的水线
+l 0
+replay_buf_wr_w 15:00 RW 0x30 replaybuffer 写的水线
+l
+PBM_RB_CFG1 0xd8
+miss_stall_rls_wa 19:16 RW 0x4 miss_stall 的释放条件， 选择
+y_num 多少个空闲的 way 在释放
+rb_strb_flag_en 2:02 RW 0x1 部分写请求进 replaybuffer 的
+使能
+hit_stall_replay_ 1:01 RW 0x1 hit_stall 请求进 replaybuffer 的
+en 使能
+miss_stall_replay 0:00 RW 0x1 miss_stall 请求进 replaybuffer
+_en 的使能
+REMAP_LUT_TABLE0 0x400
+remapping_info 24:16:0 RW 0x101 地址映射表，详见 remapping
+1 0 表
+remapping_info 8:00 RW 0x100
+0
+REMAP_LUT_TABLE1 0x404
+remapping_info 24:16:0 RW 0x103
+3 0
+remapping_info 8:00 RW 0x102
+2
+
+=== Page 15 ===
+REMAP_LUT_TABLE2 0x408
+remapping_info 24:16:0 RW 0x105
+5 0
+remapping_info 8:00 RW 0x104
+4
+REMAP_LUT_TABLE3 0x40C
+remapping_info 24:16:0 RW 0x107
+7 0
+remapping_info 8:00 RW 0x106
+6
+REMAP_LUT_TABLE4 0x410
+remapping_info 24:16:0 RW 0x109
+9 0
+remapping_info 8:00 RW 0x108
+8
+REMAP_LUT_TABLE5 0x414
+remapping_info 24:16:0 RW 0x121
+11 0
+remapping_info 8:00 RW 0x120
+10
+REMAP_LUT_TABLE6 0x418
+remapping_info 24:16:0 RW 0x123
+13 0
+remapping_info 8:00 RW 0x122
+12
+REMAP_LUT_TABLE7 0x41C
+remapping_info 24:16:0 RW 0x125
+15 0
+remapping_info 8:00 RW 0x124
+14
+REMAP_LUT_TABLE8 0x420
+remapping_info 24:16:0 RW 0x127
+17 0
+remapping_info 8:00 RW 0x126
+16
+REMAP_LUT_TABLE9 0x424
+remapping_info 24:16:0 RW 0x129
+19 0
+remapping_info 8:00 RW 0x128
+18
+REMAP_LUT_TABLE10 0x428
+
+=== Page 16 ===
+remapping_info 24:16:0 RW 0x141
+21 0
+remapping_info 8:00 RW 0x140
+20
+REMAP_LUT_TABLE11 0x42C
+remapping_info 24:16:0 RW 0x143
+23 0
+remapping_info 8:00 RW 0x142
+22
+REMAP_LUT_TABLE12 0x430
+remapping_info 24:16:0 RW 0x145
+25 0
+remapping_info 8:00 RW 0x144
+24
+REMAP_LUT_TABLE13 0x434
+remapping_info 24:16:0 RW 0x147
+27 0
+remapping_info 8:00 RW 0x146
+26
+REMAP_LUT_TABLE14 0x438
+remapping_info 24:16:0 RW 0x149
+29 0
+remapping_info 8:00 RW 0x148
+28
+REMAP_LUT_TABLE15 0x43C
+remapping_info 24:16:0 RW 0x161
+31 0
+remapping_info 8:00 RW 0x160
+30
+REMAP_LUT_TABLE16 0x440
+remapping_info 24:16:0 RW 0x163
+33 0
+remapping_info 8:00 RW 0x162
+32
+REMAP_LUT_TABLE17 0x444
+remapping_info 24:16:0 RW 0x165
+35 0
+remapping_info 8:00 RW 0x164
+34
+REMAP_LUT_TABLE18 0x448
+remapping_info 24:16:0 RW 0x167
+
+=== Page 17 ===
+37 0
+remapping_info 8:00 RW 0x166
+36
+REMAP_LUT_TABLE19 0x44C
+remapping_info 24:16:0 RW 0x169
+39 0
+remapping_info 8:00 RW 0x168
+38
+REMAP_LUT_TABLE20 0x450
+remapping_info 24:16:0 RW 0x181
+41 0
+remapping_info 8:00 RW 0x180
+40
+REMAP_LUT_TABLE21 0x454
+remapping_info 24:16:0 RW 0x183
+43 0
+remapping_info 8:00 RW 0x182
+42
+REMAP_LUT_TABLE22 0x458
+remapping_info 24:16:0 RW 0x185
+45 0
+remapping_info 8:00 RW 0x184
+44
+REMAP_LUT_TABLE23 0x45C
+remapping_info 24:16:0 RW 0x187
+47 0
+remapping_info 8:00 RW 0x186
+46
+REMAP_LUT_TABLE24 0x460
+remapping_info 24:16:0 RW 0x189
+49 0
+remapping_info 8:00 RW 0x188
+48
+REMAP_LUT_TABLE25 0x464
+remapping_info 24:16:0 RW 0x1a1
+51 0
+remapping_info 8:00 RW 0x1a0
+50
+REMAP_LUT_TABLE26 0x468
+remapping_info 24:16:0 RW 0x1a3
+53 0
+
+=== Page 18 ===
+remapping_info 8:00 RW 0x1a2
+52
+REMAP_LUT_TABLE27 0x46C
+remapping_info 24:16:0 RW 0x1a5
+55 0
+remapping_info 8:00 RW 0x1a4
+54
+REMAP_LUT_TABLE28 0x470
+remapping_info 24:16:0 RW 0x1a7
+57 0
+remapping_info 8:00 RW 0x1a6
+56
+REMAP_LUT_TABLE29 0x474
+remapping_info 24:16:0 RW 0x1a9
+59 0
+remapping_info 8:00 RW 0x1a8
+58
+REMAP_LUT_TABLE30 0x478
+remapping_info 24:16:0 RW 0x1c1
+61 0
+remapping_info 8:00 RW 0x1c0
+60
+REMAP_LUT_TABLE31 0x47C
+remapping_info 24:16:0 RW 0x1c3
+63 0
+remapping_info 8:00 RW 0x1c2
+62
+REMAP_LUT_TABLE32 0x480
+remapping_info 24:16:0 RW 0x1c5
+65 0
+remapping_info 8:00 RW 0x1c4
+64
+REMAP_LUT_TABLE33 0x484
+remapping_info 24:16:0 RW 0x1c7
+67 0
+remapping_info 8:00 RW 0x1c6
+66
+REMAP_LUT_TABLE34 0x488
+remapping_info 24:16:0 RW 0x1c9
+69 0
+remapping_info 8:00 RW 0x1c8
+
+=== Page 19 ===
+68
+REMAP_LUT_TABLE35 0x48C
+remapping_info 24:16:0 RW 0x1e1
+71 0
+remapping_info 8:00 RW 0x1e0
+70
+REMAP_LUT_TABLE36 0x490
+remapping_info 24:16:0 RW 0x1e3
+73 0
+remapping_info 8:00 RW 0x1e2
+72
+REMAP_LUT_TABLE37 0x494
+remapping_info 24:16:0 RW 0x1e5
+75 0
+remapping_info 8:00 RW 0x1e4
+74
+REMAP_LUT_TABLE38 0x498
+remapping_info 24:16:0 RW 0x1e7
+77 0
+remapping_info 8:00 RW 0x1e6
+76
+REMAP_LUT_TABLE39 0x49C
+remapping_info 24:16:0 RW 0x1e9
+79 0
+remapping_info 8:00 RW 0x1e8
+78
+REMAP_LUT_TABLE40 0x4a0
+remapping_info 24:16:0 RW 0x1
+81 0
+remapping_info 8:00 RW 0x0
+80
+REMAP_LUT_TABLE41 0x4a4
+remapping_info 24:16:0 RW 0x3
+83 0
+remapping_info 8:00 RW 0x2
+82
+REMAP_LUT_TABLE42 0x4a8
+remapping_info 24:16:0 RW 0x5
+85 0
+remapping_info 8:00 RW 0x4
+84
+
+=== Page 20 ===
+REMAP_LUT_TABLE43 0x4aC
+remapping_info 24:16:0 RW 0x7
+87 0
+remapping_info 8:00 RW 0x6
+86
+REMAP_LUT_TABLE44 0x4b0
+remapping_info 24:16:0 RW 0x9
+89 0
+remapping_info 8:00 RW 0x8
+88
+REMAP_LUT_TABLE45 0x4b4
+remapping_info 24:16:0 RW 0x21
+91 0
+remapping_info 8:00 RW 0x20
+90
+REMAP_LUT_TABLE46 0x4b8
+remapping_info 24:16:0 RW 0x23
+93 0
+remapping_info 8:00 RW 0x22
+92
+REMAP_LUT_TABLE47 0x4bC
+remapping_info 24:16:0 RW 0x25
+95 0
+remapping_info 8:00 RW 0x24
+94
+REMAP_LUT_TABLE48 0x4c0
+remapping_info 24:16:0 RW 0x27
+97 0
+remapping_info 8:00 RW 0x26
+96
+REMAP_LUT_TABLE49 0x4c4
+remapping_info 24:16:0 RW 0x29
+99 0
+remapping_info 8:00 RW 0x28
+98
+REMAP_LUT_TABLE50 0x4c8
+remapping_info 24:16:0 RW 0x41
+101 0
+remapping_info 8:00 RW 0x40
+100
+REMAP_LUT_TABLE51 0x4cC
+
+=== Page 21 ===
+remapping_info 24:16:0 RW 0x43
+103 0
+remapping_info 8:00 RW 0x42
+102
+REMAP_LUT_TABLE52 0x4d0
+remapping_info 24:16:0 RW 0x45
+105 0
+remapping_info 8:00 RW 0x44
+104
+REMAP_LUT_TABLE53 0x4d4
+remapping_info 24:16:0 RW 0x47
+107 0
+remapping_info 8:00 RW 0x46
+106
+REMAP_LUT_TABLE54 0x4d8
+remapping_info 24:16:0 RW 0x49
+109 0
+remapping_info 8:00 RW 0x48
+108
+REMAP_LUT_TABLE55 0x4dC
+remapping_info 24:16:0 RW 0x61
+111 0
+remapping_info 8:00 RW 0x60
+110
+REMAP_LUT_TABLE56 0x4e0
+remapping_info 24:16:0 RW 0x63
+113 0
+remapping_info 8:00 RW 0x62
+112
+REMAP_LUT_TABLE57 0x4e4
+remapping_info 24:16:0 RW 0x65
+115 0
+remapping_info 8:00 RW 0x64
+114
+REMAP_LUT_TABLE58 0x4e8
+remapping_info 24:16:0 RW 0x67
+117 0
+remapping_info 8:00 RW 0x66
+116
+REMAP_LUT_TABLE59 0x4eC
+remapping_info 24:16:0 RW 0x69
+
+=== Page 22 ===
+119 0
+remapping_info 8:00 RW 0x68
+118
+REMAP_LUT_TABLE60 0x4f0
+remapping_info 24:16:0 RW 0x81
+121 0
+remapping_info 8:00 RW 0x80
+120
+REMAP_LUT_TABLE61 0x4f4
+remapping_info 24:16:0 RW 0x83
+123 0
+remapping_info 8:00 RW 0x82
+122
+REMAP_LUT_TABLE62 0x4f8
+remapping_info 24:16:0 RW 0x85
+125 0
+remapping_info 8:00 RW 0x84
+124
+REMAP_LUT_TABLE63 0x4fC
+remapping_info 24:16:0 RW 0x87
+127 0
+remapping_info 8:00 RW 0x86
+126
+REMAP_LUT_TABLE64 0x500
+remapping_info 24:16:0 RW 0x89
+129 0
+remapping_info 8:00 RW 0x88
+128
+REMAP_LUT_TABLE65 0x504
+remapping_info 24:16:0 RW 0xa1
+131 0
+remapping_info 8:00 RW 0xa0
+130
+REMAP_LUT_TABLE66 0x508
+remapping_info 24:16:0 RW 0xa3
+133 0
+remapping_info 8:00 RW 0xa2
+132
+REMAP_LUT_TABLE67 0x50C
+remapping_info 24:16:0 RW 0xa5
+135 0
+
+=== Page 23 ===
+remapping_info 8:00 RW 0xa4
+134
+REMAP_LUT_TABLE68 0x510
+remapping_info 24:16:0 RW 0xa7
+137 0
+remapping_info 8:00 RW 0xa6
+136
+REMAP_LUT_TABLE69 0x514
+remapping_info 24:16:0 RW 0xa9
+139 0
+remapping_info 8:00 RW 0xa8
+138
+REMAP_LUT_TABLE70 0x518
+remapping_info 24:16:0 RW 0xc1
+141 0
+remapping_info 8:00 RW 0xc0
+140
+REMAP_LUT_TABLE71 0x51C
+remapping_info 24:16:0 RW 0xc3
+143 0
+remapping_info 8:00 RW 0xc2
+142
+REMAP_LUT_TABLE72 0x520
+remapping_info 24:16:0 RW 0xc5
+145 0
+remapping_info 8:00 RW 0xc4
+144
+REMAP_LUT_TABLE73 0x524
+remapping_info 24:16:0 RW 0xc7
+147 0
+remapping_info 8:00 RW 0xc6
+146
+REMAP_LUT_TABLE74 0x528
+remapping_info 24:16:0 RW 0xc9
+149 0
+remapping_info 8:00 RW 0xc8
+148
+REMAP_LUT_TABLE75 0x52C
+remapping_info 24:16:0 RW 0xe1
+151 0
+remapping_info 8:00 RW 0xe0
+
+=== Page 24 ===
+150
+REMAP_LUT_TABLE76 0x530
+remapping_info 24:16:0 RW 0xe3
+153 0
+remapping_info 8:00 RW 0xe2
+152
+REMAP_LUT_TABLE77 0x534
+remapping_info 24:16:0 RW 0xe5
+155 0
+remapping_info 8:00 RW 0xe4
+154
+REMAP_LUT_TABLE78 0x538
+remapping_info 24:16:0 RW 0xe7
+157 0
+remapping_info 8:00 RW 0xe6
+156
+REMAP_LUT_TABLE79 0x53C
+remapping_info 24:16:0 RW 0xe9
+159 0
+remapping_info 8:00 RW 0xe8
+158
+TSV_AXI_ECC_CTRL 0x200
+tsv_axi_1bit_thre 15:08 RW 0xff tsv_axi ecc 纠 1 上报的阈值
+shold
+tsv_axi_2bit_int_ 3:03 RW 0x0 ecc2bit 错误的中断使能
+en
+tsv_axi_1bit_int_ 2:02 RW 0x0 ecc1bit 错误的中断使能
+en
+tsv_axi_addr_ecc 1:01 RW 0x0 aw/ar 通道 ecc 的使能
+_en
+tsv_axi_ecc_en 0:00 RW 0x0 ecc 使能，当该 bit 为 0，地址
+通道的 ecc 无效
+TSV_AXI_ECC_STATUS 0x204
+tsv_axi_1bit_cou 15:08 RO 0x0 ecc 纠 1 次数统计
+nt
+tsv_axi_2bit_flag 1:01 RO 0x0 ecc2bit 错误状态标志
+tsv_axi_1bit_flag 0:00 RO 0x0 ecc1bit 纠 1 超阈值状态标志
+TSV_AXI_ECC_CLEAN 0x208
+
+=== Page 25 ===
+tsv_axi_2bit_flag 1:01 W1T 0x0
+_clean
+tsv_axi_1bit_flag 0:00 W1T 0x0
+_clean
+TSV_AXI_IDLE 0x20c
+tsv_axi_idle_flag 0:00 RO 0x1 tsv_axi 的空闲标志
+TSV_AXI_ICG_CTRL 0x210
+tsv_axi_icg_force 0:00 RW 0x1 tsv_axi 的 icg
+_on
+TSV_RDN_CFG0 0x600
+rdn_cfg0 31:00:0 RW 0x0 tsv 冗余管理的寄存器，详见
+0 feature 描述
+TSV_RDN_CFG1 0x604
+rdn_cfg1 31:00:0 RW 0x0
+0
+TSV_RDN_CFG2 0x608
+rdn_cfg2 31:00:0 RW 0x0
+0
+TSV_RDN_CFG3 0x60c
+rdn_cfg3 31:00:0 RW 0x0
+0
+TSV_RDN_CFG4 0x610
+rdn_cfg4 31:00:0 RW 0x0
+0
+TSV_RDN_CFG5 0x614
+rdn_cfg5 31:00:0 RW 0x0
+0
+TSV_RDN_CFG6 0x618
+rdn_cfg6 31:00:0 RW 0x0
+0
+TSV_RDN_CFG7 0x61c
+rdn_cfg7 31:00:0 RW 0x0
+0
+TSV_RDN_CFG8 0x620
+rdn_cfg8 31:00:0 RW 0x0
+0
+TSV_RDN_CFG9 0x624
+rdn_cfg9 31:00:0 RW 0x0
+0
+
+=== Page 26 ===
+TSV_RDN_CFG10 0x628
+rdn_cfg10 31:00:0 RW 0x0
+0
+TSV_RDN_CFG11 0x62c
+rdn_cfg11 31:00:0 RW 0x0
+0
+TSV_RDN_CFG12 0x630
+rdn_cfg12 31:00:0 RW 0x0
+0
+TSV_RDN_CFG13 0x634
+rdn_cfg13 31:00:0 RW 0x0
+0
+TSV_RDN_CFG14 0x638
+rdn_cfg14 31:00:0 RW 0x0
+0
+TSV_RDN_CFG15 0x63c
+rdn_cfg15 31:00:0 RW 0x0
+0
+功能说明
+BIST 阶段
+冗余 tsv 信号替换坏掉的 tsv 信号：
+TSV_RDN_CFG0- TSV_RDN_CFG15，详见《tsv_rdn 配置说明》
+//该说明描述了具体 tsv 信号坏掉时的寄存器配置值,无 tsv 信号坏掉时，不需要配
+置。
+关闭 remapping：
+PA_CFG. remapping_en==0
+Cacheop 强覆盖为 bypass：
+CACHE_OP_COVER. cache_op_cover_en==1
+CACHE_OP_COVER. cache_op_cover_value[3:0]==4’b1000
+
+=== Page 27 ===
+BOOT 阶段
+冗余 tsv 信号替换坏掉的 tsv 信号：
+TSV_RDN_CFG0- TSV_RDN_CFG15，详见《tsv_rdn 配置说明》
+//该说明描述了具体 tsv 信号坏掉时的寄存器配置值,无 tsv 信号坏掉时，不需要配
+置。
+配置总线地址到物理地址的映射关系
+//举例一种无坏块的典型配置，8 层 dram，16bank_1KB 交织
+//该配置兼容 2 层/4 层 dram，需要软件内存管理不要地址越界。
+//实际过程有一套 bist 算法，根据坏块信息自动生成的查找表
+（REMAP_LUT_TABLE）配置值。
+LLCS.L2C0.REMAP_LUT_TABLE0.remapping_info0==0x100
+LLCS.L2C0.REMAP_LUT_TABLE0.remapping_info1==0x101
+LLCS.L2C0.REMAP_LUT_TABLE1.remapping_info2==0x102
+LLCS.L2C0.REMAP_LUT_TABLE1.remapping_info3==0x103
+LLCS.L2C0.REMAP_LUT_TABLE2.remapping_info4==0x104
+LLCS.L2C0.REMAP_LUT_TABLE2.remapping_info5==0x105
+LLCS.L2C0.REMAP_LUT_TABLE3.remapping_info6==0x106
+LLCS.L2C0.REMAP_LUT_TABLE3.remapping_info7==0x107
+LLCS.L2C0.REMAP_LUT_TABLE4.remapping_info8==0x108
+LLCS.L2C0.REMAP_LUT_TABLE4.remapping_info9==0x109
+LLCS.L2C0.REMAP_LUT_TABLE5.remapping_info10==0x140
+LLCS.L2C0.REMAP_LUT_TABLE5.remapping_info11==0x141
+LLCS.L2C0.REMAP_LUT_TABLE6.remapping_info12==0x142
+LLCS.L2C0.REMAP_LUT_TABLE6.remapping_info13==0x143
+LLCS.L2C0.REMAP_LUT_TABLE7.remapping_info14==0x144
+LLCS.L2C0.REMAP_LUT_TABLE7.remapping_info15==0x145
+LLCS.L2C0.REMAP_LUT_TABLE8.remapping_info16==0x146
+LLCS.L2C0.REMAP_LUT_TABLE8.remapping_info17==0x147
+LLCS.L2C0.REMAP_LUT_TABLE9.remapping_info18==0x148
+LLCS.L2C0.REMAP_LUT_TABLE9.remapping_info19==0x149
+LLCS.L2C0.REMAP_LUT_TABLE10.remapping_info20==0x180
+LLCS.L2C0.REMAP_LUT_TABLE10.remapping_info21==0x181
+LLCS.L2C0.REMAP_LUT_TABLE11.remapping_info22==0x182
+LLCS.L2C0.REMAP_LUT_TABLE11.remapping_info23==0x183
+LLCS.L2C0.REMAP_LUT_TABLE12.remapping_info24==0x184
+LLCS.L2C0.REMAP_LUT_TABLE12.remapping_info25==0x185
+LLCS.L2C0.REMAP_LUT_TABLE13.remapping_info26==0x186
+LLCS.L2C0.REMAP_LUT_TABLE13.remapping_info27==0x187
+
+=== Page 28 ===
+LLCS.L2C0.REMAP_LUT_TABLE14.remapping_info28==0x188
+LLCS.L2C0.REMAP_LUT_TABLE14.remapping_info29==0x189
+LLCS.L2C0.REMAP_LUT_TABLE15.remapping_info30==0x1c0
+LLCS.L2C0.REMAP_LUT_TABLE15.remapping_info31==0x1c1
+LLCS.L2C0.REMAP_LUT_TABLE16.remapping_info32==0x1c2
+LLCS.L2C0.REMAP_LUT_TABLE16.remapping_info33==0x1c3
+LLCS.L2C0.REMAP_LUT_TABLE17.remapping_info34==0x1c4
+LLCS.L2C0.REMAP_LUT_TABLE17.remapping_info35==0x1c5
+LLCS.L2C0.REMAP_LUT_TABLE18.remapping_info36==0x1c6
+LLCS.L2C0.REMAP_LUT_TABLE18.remapping_info37==0x1c7
+LLCS.L2C0.REMAP_LUT_TABLE19.remapping_info38==0x1c8
+LLCS.L2C0.REMAP_LUT_TABLE19.remapping_info39==0x1c9
+LLCS.L2C0.REMAP_LUT_TABLE20.remapping_info40==0x120
+LLCS.L2C0.REMAP_LUT_TABLE20.remapping_info41==0x121
+LLCS.L2C0.REMAP_LUT_TABLE21.remapping_info42==0x122
+LLCS.L2C0.REMAP_LUT_TABLE21.remapping_info43==0x123
+LLCS.L2C0.REMAP_LUT_TABLE22.remapping_info44==0x124
+LLCS.L2C0.REMAP_LUT_TABLE22.remapping_info45==0x125
+LLCS.L2C0.REMAP_LUT_TABLE23.remapping_info46==0x126
+LLCS.L2C0.REMAP_LUT_TABLE23.remapping_info47==0x127
+LLCS.L2C0.REMAP_LUT_TABLE24.remapping_info48==0x128
+LLCS.L2C0.REMAP_LUT_TABLE24.remapping_info49==0x129
+LLCS.L2C0.REMAP_LUT_TABLE25.remapping_info50==0x160
+LLCS.L2C0.REMAP_LUT_TABLE25.remapping_info51==0x161
+LLCS.L2C0.REMAP_LUT_TABLE26.remapping_info52==0x162
+LLCS.L2C0.REMAP_LUT_TABLE26.remapping_info53==0x163
+LLCS.L2C0.REMAP_LUT_TABLE27.remapping_info54==0x164
+LLCS.L2C0.REMAP_LUT_TABLE27.remapping_info55==0x165
+LLCS.L2C0.REMAP_LUT_TABLE28.remapping_info56==0x166
+LLCS.L2C0.REMAP_LUT_TABLE28.remapping_info57==0x167
+LLCS.L2C0.REMAP_LUT_TABLE29.remapping_info58==0x168
+LLCS.L2C0.REMAP_LUT_TABLE29.remapping_info59==0x169
+LLCS.L2C0.REMAP_LUT_TABLE30.remapping_info60==0x1a0
+LLCS.L2C0.REMAP_LUT_TABLE30.remapping_info61==0x1a1
+LLCS.L2C0.REMAP_LUT_TABLE31.remapping_info62==0x1a2
+LLCS.L2C0.REMAP_LUT_TABLE31.remapping_info63==0x1a3
+LLCS.L2C0.REMAP_LUT_TABLE32.remapping_info64==0x1a4
+LLCS.L2C0.REMAP_LUT_TABLE32.remapping_info65==0x1a5
+LLCS.L2C0.REMAP_LUT_TABLE33.remapping_info66==0x1a6
+LLCS.L2C0.REMAP_LUT_TABLE33.remapping_info67==0x1a7
+LLCS.L2C0.REMAP_LUT_TABLE34.remapping_info68==0x1a8
+LLCS.L2C0.REMAP_LUT_TABLE34.remapping_info69==0x1a9
+LLCS.L2C0.REMAP_LUT_TABLE35.remapping_info70==0x1e0
+LLCS.L2C0.REMAP_LUT_TABLE35.remapping_info71==0x1e1
+
+=== Page 29 ===
+LLCS.L2C0.REMAP_LUT_TABLE36.remapping_info72==0x1e2
+LLCS.L2C0.REMAP_LUT_TABLE36.remapping_info73==0x1e3
+LLCS.L2C0.REMAP_LUT_TABLE37.remapping_info74==0x1e4
+LLCS.L2C0.REMAP_LUT_TABLE37.remapping_info75==0x1e5
+LLCS.L2C0.REMAP_LUT_TABLE38.remapping_info76==0x1e6
+LLCS.L2C0.REMAP_LUT_TABLE38.remapping_info77==0x1e7
+LLCS.L2C0.REMAP_LUT_TABLE39.remapping_info78==0x1e8
+LLCS.L2C0.REMAP_LUT_TABLE39.remapping_info79==0x1e9
+LLCS.L2C1.REMAP_LUT_TABLE0.remapping_info0==0x110
+LLCS.L2C1.REMAP_LUT_TABLE0.remapping_info1==0x111
+LLCS.L2C1.REMAP_LUT_TABLE1.remapping_info2==0x112
+LLCS.L2C1.REMAP_LUT_TABLE1.remapping_info3==0x113
+LLCS.L2C1.REMAP_LUT_TABLE2.remapping_info4==0x114
+LLCS.L2C1.REMAP_LUT_TABLE2.remapping_info5==0x115
+LLCS.L2C1.REMAP_LUT_TABLE3.remapping_info6==0x116
+LLCS.L2C1.REMAP_LUT_TABLE3.remapping_info7==0x117
+LLCS.L2C1.REMAP_LUT_TABLE4.remapping_info8==0x118
+LLCS.L2C1.REMAP_LUT_TABLE4.remapping_info9==0x119
+LLCS.L2C1.REMAP_LUT_TABLE5.remapping_info10==0x150
+LLCS.L2C1.REMAP_LUT_TABLE5.remapping_info11==0x151
+LLCS.L2C1.REMAP_LUT_TABLE6.remapping_info12==0x152
+LLCS.L2C1.REMAP_LUT_TABLE6.remapping_info13==0x153
+LLCS.L2C1.REMAP_LUT_TABLE7.remapping_info14==0x154
+LLCS.L2C1.REMAP_LUT_TABLE7.remapping_info15==0x155
+LLCS.L2C1.REMAP_LUT_TABLE8.remapping_info16==0x156
+LLCS.L2C1.REMAP_LUT_TABLE8.remapping_info17==0x157
+LLCS.L2C1.REMAP_LUT_TABLE9.remapping_info18==0x158
+LLCS.L2C1.REMAP_LUT_TABLE9.remapping_info19==0x159
+LLCS.L2C1.REMAP_LUT_TABLE10.remapping_info20==0x190
+LLCS.L2C1.REMAP_LUT_TABLE10.remapping_info21==0x191
+LLCS.L2C1.REMAP_LUT_TABLE11.remapping_info22==0x192
+LLCS.L2C1.REMAP_LUT_TABLE11.remapping_info23==0x193
+LLCS.L2C1.REMAP_LUT_TABLE12.remapping_info24==0x194
+LLCS.L2C1.REMAP_LUT_TABLE12.remapping_info25==0x195
+LLCS.L2C1.REMAP_LUT_TABLE13.remapping_info26==0x196
+LLCS.L2C1.REMAP_LUT_TABLE13.remapping_info27==0x197
+LLCS.L2C1.REMAP_LUT_TABLE14.remapping_info28==0x198
+LLCS.L2C1.REMAP_LUT_TABLE14.remapping_info29==0x199
+LLCS.L2C1.REMAP_LUT_TABLE15.remapping_info30==0x1d0
+LLCS.L2C1.REMAP_LUT_TABLE15.remapping_info31==0x1d1
+LLCS.L2C1.REMAP_LUT_TABLE16.remapping_info32==0x1d2
+LLCS.L2C1.REMAP_LUT_TABLE16.remapping_info33==0x1d3
+LLCS.L2C1.REMAP_LUT_TABLE17.remapping_info34==0x1d4
+LLCS.L2C1.REMAP_LUT_TABLE17.remapping_info35==0x1d5
+
+=== Page 30 ===
+LLCS.L2C1.REMAP_LUT_TABLE18.remapping_info36==0x1d6
+LLCS.L2C1.REMAP_LUT_TABLE18.remapping_info37==0x1d7
+LLCS.L2C1.REMAP_LUT_TABLE19.remapping_info38==0x1d8
+LLCS.L2C1.REMAP_LUT_TABLE19.remapping_info39==0x1d9
+LLCS.L2C1.REMAP_LUT_TABLE20.remapping_info40==0x130
+LLCS.L2C1.REMAP_LUT_TABLE20.remapping_info41==0x131
+LLCS.L2C1.REMAP_LUT_TABLE21.remapping_info42==0x132
+LLCS.L2C1.REMAP_LUT_TABLE21.remapping_info43==0x133
+LLCS.L2C1.REMAP_LUT_TABLE22.remapping_info44==0x134
+LLCS.L2C1.REMAP_LUT_TABLE22.remapping_info45==0x135
+LLCS.L2C1.REMAP_LUT_TABLE23.remapping_info46==0x136
+LLCS.L2C1.REMAP_LUT_TABLE23.remapping_info47==0x137
+LLCS.L2C1.REMAP_LUT_TABLE24.remapping_info48==0x138
+LLCS.L2C1.REMAP_LUT_TABLE24.remapping_info49==0x139
+LLCS.L2C1.REMAP_LUT_TABLE25.remapping_info50==0x170
+LLCS.L2C1.REMAP_LUT_TABLE25.remapping_info51==0x171
+LLCS.L2C1.REMAP_LUT_TABLE26.remapping_info52==0x172
+LLCS.L2C1.REMAP_LUT_TABLE26.remapping_info53==0x173
+LLCS.L2C1.REMAP_LUT_TABLE27.remapping_info54==0x174
+LLCS.L2C1.REMAP_LUT_TABLE27.remapping_info55==0x175
+LLCS.L2C1.REMAP_LUT_TABLE28.remapping_info56==0x176
+LLCS.L2C1.REMAP_LUT_TABLE28.remapping_info57==0x177
+LLCS.L2C1.REMAP_LUT_TABLE29.remapping_info58==0x178
+LLCS.L2C1.REMAP_LUT_TABLE29.remapping_info59==0x179
+LLCS.L2C1.REMAP_LUT_TABLE30.remapping_info60==0x1b0
+LLCS.L2C1.REMAP_LUT_TABLE30.remapping_info61==0x1b1
+LLCS.L2C1.REMAP_LUT_TABLE31.remapping_info62==0x1b2
+LLCS.L2C1.REMAP_LUT_TABLE31.remapping_info63==0x1b3
+LLCS.L2C1.REMAP_LUT_TABLE32.remapping_info64==0x1b4
+LLCS.L2C1.REMAP_LUT_TABLE32.remapping_info65==0x1b5
+LLCS.L2C1.REMAP_LUT_TABLE33.remapping_info66==0x1b6
+LLCS.L2C1.REMAP_LUT_TABLE33.remapping_info67==0x1b7
+LLCS.L2C1.REMAP_LUT_TABLE34.remapping_info68==0x1b8
+LLCS.L2C1.REMAP_LUT_TABLE34.remapping_info69==0x1b9
+LLCS.L2C1.REMAP_LUT_TABLE35.remapping_info70==0x1f0
+LLCS.L2C1.REMAP_LUT_TABLE35.remapping_info71==0x1f1
+LLCS.L2C1.REMAP_LUT_TABLE36.remapping_info72==0x1f2
+LLCS.L2C1.REMAP_LUT_TABLE36.remapping_info73==0x1f3
+LLCS.L2C1.REMAP_LUT_TABLE37.remapping_info74==0x1f4
+LLCS.L2C1.REMAP_LUT_TABLE37.remapping_info75==0x1f5
+LLCS.L2C1.REMAP_LUT_TABLE38.remapping_info76==0x1f6
+LLCS.L2C1.REMAP_LUT_TABLE38.remapping_info77==0x1f7
+LLCS.L2C1.REMAP_LUT_TABLE39.remapping_info78==0x1f8
+LLCS.L2C1.REMAP_LUT_TABLE39.remapping_info79==0x1f9
+
+=== Page 31 ===
+REMAPPING_ADDR0.remapping_addr0==0xa
+REMAPPING_ADDR0.remapping_addr1==0xb
+REMAPPING_ADDR0.remapping_addr2==0xc
+REMAPPING_ADDR0.remapping_addr3==0xd
+REMAPPING_ADDR1.remapping_addr4==0x1c
+REMAPPING_ADDR1.remapping_addr5==0x1d
+REMAPPING_ADDR1.remapping_addr6==0x1e
+REMAPPING_ADDR1.remapping_addr7==0x1f
+REMAPPING_ADDR2.col_addr0==0x7
+REMAPPING_ADDR2.col_addr1==0x8
+REMAPPING_ADDR2.col_addr2==0x9
+REMAPPING_ADDR2.col_addr3==0xe
+REMAPPING_ADDR3.row_addr0==0xf
+REMAPPING_ADDR3.row_addr1==0x10
+REMAPPING_ADDR3.row_addr2==0x11
+REMAPPING_ADDR4.row_addr3==0x12
+REMAPPING_ADDR4.row_addr4==0x13
+REMAPPING_ADDR4.row_addr5==0x14
+REMAPPING_ADDR4.row_addr6==0x15
+REMAPPING_ADDR5.row_addr7==0x16
+REMAPPING_ADDR5.row_addr8==0x17
+REMAPPING_ADDR5.row_addr9==0x18
+REMAPPING_ADDR5.row_addr10==0x19
+REMAPPING_ADDR6.row_addr11==0x1a
+REMAPPING_ADDR6.row_addr12==0x1b
+其他配置
+1 配合 ISA 定义的 L2COP 含义
+CACHE_OP_CFG0.ccfg3==4'b0000
+CACHE_OP_CFG0.ccfg4==4'b0011
+CACHE_OP_CFG0.ccfg5==4'b0001
+CACHE_OP_CFG0.ccfg8==4'b0010
+CACHE_OP_CFG0.ccfg9==4'b1000
+CACHE_OP_CFG0.ccfg10==4'b0010
+CACHE_OP_CFG0.ccfg11==4'b0000
+CACHE_OP_CFG0.ccfg12==4'b0011
+CACHE_OP_CFG0.ccfg13==4'b0001
+2 性能调优的静态配置
+PA_CFG. bypass_cfg[0]==1’b1//bypass 指令不转换成cacheable 指令
+PA_CFG. bypass_cfg[1]==1’b1//下发burst 读byass 读请求的使能
+PA_CFG. bypass_cfg[3:2]==2’b01// 允许下发没有跨1KB 的burst 读bypass 请求，
+大于1KB 将拆成single 请求下发
+
+=== Page 32 ===
+警告：该配置要求PE.Coalesce 的brust 粒度最大是8！！！
+3 ecc 使能
+TSV_AXI_ECC_CTRL.tsv_axi_ecc_en==1 //打开ecc 功能
+TSV_AXI_ECC_CTRL.tsv_axi_addr_ecc_en==1 //打开ecc 功能
+TSV_AXI_ECC_CTRL.tsv_axi_2bit_int_en==1 //打开ecc int
+TSV_AXI_ECC_CTRL.tsv_axi_1bit_int _en==1 //打开ecc int
+TSV_AXI_ECC_CTRL.tsv_axi_1bit_threshold=0xff //设置1bit 纠正阈值.按需设置
+//注意：Ecc 功能非必须开启，但建议常开，调试阶段可关闭。
+4 icg 使能
+L2C_ICG_CTRL==0//关闭时钟一直有的模式，依靠硬件根据内部idle 状态做时钟
+门控
+//注意：icg 使能非必须开启，但建议常配成 0，调试阶段可忽略该配置。
+5 其他
+PA_CFG. remapping_error_int_en==1//打开remapping_error 的中断使能
+//一般不会用到该中断，但在调试阶段 remapping 映射表配置出错时，可通过该中断
+发现。
+PA_DPH_EN. pbm_dph_enable==1//打开 dph 驱逐功能
+//一种性能调优的配置，但目前收益未知。
+WORK 阶段
+Work 阶段 主要的操作是发起 flush 操作和处理中断。
+L2C 的中断描述
+中断 对应状态寄存器 描述
+remapping_error REMAPPING_ERROR.remappi 当物理地址映射表的索引无效时，置
+ng_error_flag 起该中断
+tsv_axi_ecc_1bit TSV_AXI_ECC_STATUS.tsv_axi 当 ecc1bit 纠正次数超过阈值时，置
+_1bit_flag 起该中断
+tsv_axi_ecc_2bit TSV_AXI_ECC_STATUS.tsv_axi 当发生 ecc2bit 错误时，置起该中断
+_2bit_flag
+pbm_flush_op_done PBM_FLUSH_OP_STATUS.pb 当 l2c 完成 flush 操作时，置起该中断
+m_flush_op_done
+以上所有中断在 cluster 级别会合并成一个 cluster_l2_int 的中断。
+
+=== Page 33 ===
+flush 流程：
+1. PA_OST_CFG==0XC000C000 //L2C 进入 stop 模式
+2. 等待L2C_IDLE. pbm_core_idle_flag==0 //读寄存器，L2C STOP 的 ack 标志
+3. PBM_CTRL_COUNTER. pbm_flush_done_int_en==1//如果是中断处理，打开 int 使
+能
+4. PBM_FLUSH_OP.pbm_flush_op_en==1//发起 flush 请求
+5. 等待PBM_FLUSH_OP_STATUS. pbm_flush_op_done==1//或者等中断
+6. PBM_FLUSH_OP.pbm_flush_op_en==0//关闭 flush 请求并清除状态寄存器
+7. PA_OST_CFG==0X00000000 //L2C 退出 stop 模式
+//注：当前设计 1/2/7 步骤可以省略，但推荐执行全流程
+ECC 中断处理：
+在打开 ecc 使能情况下：
+1. polling TSV_AXI_ECC_STATUS 或者等中断后读 TSV_AXI_ECC_STATUS
+2. 当读到 TSV_AXI_ECC_STATUS. tsv_axi_1bit_flag==1 时，写 TSV_AXI_ECC_CLEAN.
+tsv_axi_1bit_flag_clean==1 清除状态标记位；当读到 TSV_AXI_ECC_STATUS.
+tsv_axi_2bit_flag==1 时，写 TSV_AXI_ECC_CLEAN. tsv_axi_2bit_flag_clean==1 清
+除状态标记位。
+remapping_error 中断处理：
+在打开 remapping_error 中断使能情况下：
+1 中断后读 REMAPPING_ERROR. remapping_error_flag==1 确认是 remapping error,
+2 写 REMAPPING_ERROR_CLEAN. remapping_error_clean==1 清除状态标记位。
+查 IDLE 状态
+读 L2C_IDLE[3:0]==4‘b1111,则整个 L2C 在 idle 状态。
+性能统计相关
+L2C 内部的性能统计寄存器较多，分多个控制使能，具体如下：
+Pa_counter
+1. PA_CFG. pa_count_en==1//打开 pa_counter 的计数使能
+2. 等待一段系统访存的执行时间
+3. PA_CFG. pa_count_en==0//关闭计数使能，lock 计数
+
+=== Page 34 ===
+4. 读 PA_READ_CNT0, PA_READ_CNT1//读请求数量
+5. 读 PA_WRITE_CNT1，PA_OST_STATUS,//写请求数量
+6. 配置 PA_COUNT_CLEAN.pa_count_clean=1‘b1//复位请求计数器
+Pa_max_ost_counter
+1. PA_OST_CFG. pa_read_count_en==1//打开读最大 ost 的统计使能
+2. PA_OST_CFG. pa_write_count_en==1//打开读最大 ost 的统计使能
+3. 等待一段系统访存的执行时间
+4. 读 PA_OST_STATUS. pa_read_ost_max_value//读最大 ost
+5. 读 PA_OST_STATUS. pa_write_ost_max_value//写最大 ost
+6. PA_OST_CFG. pa_read_count_en==0//关闭使能并计数器置位为 0
+7. PA_OST_CFG. pa_write_count_en=0//关闭使能并计数器置位为 0
+Pbm_counter
+1. 配置 PBM_COMMON_SEL. perf_event_sel0/1/2/3 //配置 4 组 common 计数器统
+计的事件
+2. PBM_CTRL_COUNTER.pbm_count_en=1'b1 //打开 PBM 统计使能
+3. 等待一段时间
+4. 配置 PBM_CTRL_COUNTER.pbm_count_en=1'b0
+5. 读 PBM_COUNTER1 和 PBM_COUNTER2 //64bit 的 pbm 写请求计数
+6. 读 PBM_COUNTER3 和 PBM_COUNTER4 //64bit 的 pbm 写命中计数
+7. 读 PBM_COUNTER5 和 PBM_COUNTER6 //64bit 的 pbm 读请求计数
+8. 读 PBM_COUNTER7 和 PBM_COUNTER8 //64bit 的 pbm 读命中计数
+9. 读 PBM_COMMON_COUNTER0 和 PBM_COMMON_COUNTER1// 64bit
+perf_event_sel0 对应的事件计数
+10. 读 PBM_COMMON_COUNTER2 和 PBM_COMMON_COUNTER3// 64bit
+perf_event_sel1 对应的事件计数
+11. 读 PBM_COMMON_COUNTER4 和 PBM_COMMON_COUNTER5// 64bit
+perf_event_sel2 对应的事件计数
+12. 读 PBM_COMMON_COUNTER6 和 PBM_COMMON_COUNTER7// 64bit
+perf_event_sel3 对应的事件计数
+13. 配置 PBM_CTRL_COUNTER.pbm_count_clean=1'b1//计数器置位为 0
+perf_event_sel* 4bit 值的含义如下：
+perf_event_sel [3:0]==0 // wr hit stall
+perf_event_sel [3:0]==1 // wr miss stall
+perf_event_sel [3:0]==2 // wr evict stall
+
+=== Page 35 ===
+perf_event_sel [3:0]==3 // wr evict
+perf_event_sel [3:0]==4 // rd hit stall
+perf_event_sel [3:0]==5 // rd miss stall
+perf_event_sel [3:0]==6 // rd evict stall
+perf_event_sel [3:0]==7 // rd evict
+perf_event_sel [3:0]==8 // adapt evict
+Common_counter
+1. 配置 PA_CFG.common_counter_sel 选择监控信息*
+2. 配置 PA_CFG.common_counter_en=1'b1
+3. 等待一段时间
+4. 配置 PA_CFG.common_counter_en=1'b0//lock
+5. 读 PA_COMMON_RD_CNT0（counter0）, PA_COMMON_RD_CNT1
+（counter1）, PA_COMMON_WR_CNT0（counter2）, PA_COMMON_WR_CNT1
+（counter3）
+6. 配置 PA_COUNT_CLEAN.common_count_clean=1‘b1
+*监控信息说明如下：
+当 PA_CFG.common_counter_sel[9:8]==0：
+每个 L2C 支持 4 个 32bit counter 统计接口信息，统计以下事件：
+• 0. awvalid & awready
+• 1. wvalid & wready
+• 2. awvalid & ~awready
+• 3. wvalid & ~wready
+• 4. bvalid & ~bready
+• 5. arvalid & arready
+• 6. rvalid & rready
+• 7. arvalid & ~arready
+• 8. rvalid & ~rready
+
+=== Page 36 ===
+根据 common_counter_sel 选择特定的事件组合：
+• common_counter_sel[7:0]==d'0：counter3-0 分别统计事件 0,1,2,3
+• common_counter_sel[7:0]==d'1：counter3-0 分别统计事件 0,1,2,4
+• common_counter_sel[7:0]==d'15：counter3-0 分别统计事件 0,1,5,6
+• common_counter_sel[7:0]==d'21：counter3-0 分别统计事件 0,2,3,4
+• common_counter_sel[7:0]==d'56：counter3-0 分别统计事件 1,2,3,4
+• common_counter_sel[7:0]==d'79：counter3-0 分别统计事件 1,3,6,8
+• common_counter_sel[7:0]==d'93：counter3-0 分别统计事件 2,3,4,7
+• common_counter_sel[7:0]==d'94：counter3-0 分别统计事件 2,3,4,8
+• common_counter_sel[7:0]==d'100：counter3-0 分别统计事件 2,3,7,8
+• common_counter_sel[7:0]==d'106：counter3-0 分别统计事件 2,4,7,8
+• common_counter_sel[7:0]==d'116：counter3-0 分别统计事件 3,4,7,8
+• common_counter_sel[7:0]==d'125：counter3-0 分别统计事件 5,6,7,8
+当 PA_CFG.common_counter_sel[9:8]==2 且 PA_CFG.common_counter_sel[7]=0：
+• {counter3, counter2}合并为 64b counter，统计
+channel=common_counter_sel[4:0]且 bank=common_counter_sel[6:5]的写请求数
+量
+• {counter1, counter0}合并为 64b counter，统计
+channel=common_counter_sel[4:0]且 bank=common_counter_sel[6:5]的读请求数
+量
+当 PA_CFG.common_counter_sel[9:8]=2 且 PA_CFG.common_counter_sel[7]=1：
+• {counter3, counter2}合并为 64b counter，统计
+channel=common_counter_sel[4:0]的写请求数量
+• {counter1, counter0}合并为 64b counter，统计
+channel=common_counter_sel[4:0]的读请求数量
+当 PA_CFG.common_counter_sel[9:8]=3：
+• {counter3, counter2}合并为 64b counter，统计 set=common_counter_sel[7:0]的
+写请求数量
+• {counter1, counter0}合并为 64b counter，统计 set=common_counter_sel[7:0]的
+
+=== Page 37 ===
+读请求数量
+当 PA_CFG.common_counter_sel[9:8]=1：
+• counter0 统计指定 id 读请求的总 latency
+• counter1 统计指定 id 读请求的数量
+• 通过 counter0/counter1 计算指定 id 读请求的平均 latency
+• counter2 统计指定 id 读请求的最大 latency
+• 配置指定 id 流程：
+1. 配置 PA_CFG.common_counter_sel[9:8]=3'b01，
+PA_CFG.common_counter_sel[6]=0，PA_CFG.common_counter_sel[4:0]=指定id 的[4:0]
+2. 配置 PA_CFG.common_counter_sel[7]=1，trigger
+3. 配置 PA_CFG.common_counter_sel[7]=0，清除 trigger
+4. 配置 PA_CFG.common_counter_sel[9:8]=3'b01，
+PA_CFG.common_counter_sel[6]=1，PA_CFG.common_counter_sel[3:0]=指定id 的[8:5]
+5. 配置 PA_CFG.common_counter_sel[7]=1，trigger
+6. 配置 PA_CFG.common_counter_sel[7]=0，清除 trigger
+*注：当 PA_CFG.common_counter_sel[9:8]=0/1 时各 counter 有溢出保护，当
+PA_CFG.common_counter_sel[9:8]=2/3 时各 counter 没有溢出保护
+入口协议检查
+L2C 的入口主要是遵循 axi 协议，但仍有一些上下游共同定义的约束需要遵循。
+这部分寄存器就是用来在调试阶段检查上游的数据包是否符合约束的定义。
+1. 配置 PA_CFG.axi_check_en=1'b1
+2. 系统执行一段时间，
+3. 当访问发生错误时读PA_AXI_CHECK_STATUS 检查是否违法约束。
+状态寄存器含义如下：
+PA_AXI_CHECK_STATUS. pa_axi_read_check_flag[0]==1// 读发生压缩burst 的窄传输
+PA_AXI_CHECK_STATUS. pa_axi_read_check_flag[1]==1// 读发生压缩burst 的非incr
+传输
+
+=== Page 38 ===
+PA_AXI_CHECK_STATUS. pa_axi_read_check_flag[2]==1// 读发生非incr/wrap 的传输
+PA_AXI_CHECK_STATUS. pa_axi_read_check_flag[3]==1// 读发生相同id 阻塞
+PA_AXI_CHECK_STATUS. pa_axi_read_check_flag[15:4]// 读发生相同id 阻塞的请求次
+数
+PA_AXI_CHECK_STATUS. pa_axi_write_check_flag[0]==1// 读发生压缩burst 的窄传输
+PA_AXI_CHECK_STATUS. pa_axi_write_check_flag[1]==1// 写发生相同id 阻塞
+PA_AXI_CHECK_STATUS. pa_axi_write_check_flag[13:2]// 写发生写相同id 阻塞的请求
+次数
+REMAPPING 详细说明
+Remapping 是负责配置总线地址到物理地址的映射关系，分以下两部分：
+，
+dram_channel/bank/part/axi_channel 和总线地址的映射
+映射关系通过一个寄存器配置的查找表（REMAP_LUT_TABLE）维护,查找表的索引(idx)
+是对 remapping_add/row 的 hash 计算出的值，（remapping_addr/row 来自总线地址详
+见下）。查找表的值（value）是 valid 标识/dram_channel/bank/part/axi_channel。每个
+表项代表 1 个 16M 的存储空间。
+下面给出一种典型的查找表配置(4 层 dram，80%良率)，按照如下的 for 循环关系遍历
+物理地址，可用于 ut/soc/ emu 环境的测试。（实际过程是有一套 bist 算法，根据坏块
+信息自动生成的查找表配置值）
+for k in range(0,1):#axi_channel
+for q in range(0,2):#part
+for j in range(0,2):# bank
+for i in range(0,10):# dram channel
+idx.{vld,axi_channel,part,bank,dram_channel} = {1,k,q,j,i};
+i++
+idx++
+j++
+q++
+
+=== Page 39 ===
+对应寄存器配置：
+LLCS.L2C0.REMAP_LUT_TABLE0.remapping_info0==0x100
+LLCS.L2C0.REMAP_LUT_TABLE0.remapping_info1==0x101
+LLCS.L2C0.REMAP_LUT_TABLE1.remapping_info2==0x102
+LLCS.L2C0.REMAP_LUT_TABLE1.remapping_info3==0x103
+LLCS.L2C0.REMAP_LUT_TABLE2.remapping_info4==0x104
+LLCS.L2C0.REMAP_LUT_TABLE2.remapping_info5==0x105
+LLCS.L2C0.REMAP_LUT_TABLE3.remapping_info6==0x106
+LLCS.L2C0.REMAP_LUT_TABLE3.remapping_info7==0x107
+LLCS.L2C0.REMAP_LUT_TABLE4.remapping_info8==0x108
+LLCS.L2C0.REMAP_LUT_TABLE4.remapping_info9==0x109
+LLCS.L2C0.REMAP_LUT_TABLE5.remapping_info10==0x140
+LLCS.L2C0.REMAP_LUT_TABLE5.remapping_info11==0x141
+LLCS.L2C0.REMAP_LUT_TABLE6.remapping_info12==0x142
+LLCS.L2C0.REMAP_LUT_TABLE6.remapping_info13==0x143
+LLCS.L2C0.REMAP_LUT_TABLE7.remapping_info14==0x144
+LLCS.L2C0.REMAP_LUT_TABLE7.remapping_info15==0x145
+LLCS.L2C0.REMAP_LUT_TABLE8.remapping_info16==0x146
+LLCS.L2C0.REMAP_LUT_TABLE8.remapping_info17==0x147
+LLCS.L2C0.REMAP_LUT_TABLE9.remapping_info18==0x148
+LLCS.L2C0.REMAP_LUT_TABLE9.remapping_info19==0x149
+LLCS.L2C0.REMAP_LUT_TABLE10.remapping_info20==0x120
+LLCS.L2C0.REMAP_LUT_TABLE10.remapping_info21==0x121
+LLCS.L2C0.REMAP_LUT_TABLE11.remapping_info22==0x122
+LLCS.L2C0.REMAP_LUT_TABLE11.remapping_info23==0x123
+LLCS.L2C0.REMAP_LUT_TABLE12.remapping_info24==0x124
+LLCS.L2C0.REMAP_LUT_TABLE12.remapping_info25==0x125
+LLCS.L2C0.REMAP_LUT_TABLE13.remapping_info26==0x126
+LLCS.L2C0.REMAP_LUT_TABLE13.remapping_info27==0x127
+LLCS.L2C0.REMAP_LUT_TABLE14.remapping_info28==0x128
+LLCS.L2C0.REMAP_LUT_TABLE14.remapping_info29==0x129
+LLCS.L2C0.REMAP_LUT_TABLE15.remapping_info30==0x160
+LLCS.L2C0.REMAP_LUT_TABLE15.remapping_info31==0x161
+LLCS.L2C1.REMAP_LUT_TABLE0.remapping_info0==0x110
+LLCS.L2C1.REMAP_LUT_TABLE0.remapping_info1==0x111
+
+=== Page 40 ===
+LLCS.L2C1.REMAP_LUT_TABLE1.remapping_info2==0x112
+LLCS.L2C1.REMAP_LUT_TABLE1.remapping_info3==0x113
+LLCS.L2C1.REMAP_LUT_TABLE2.remapping_info4==0x114
+LLCS.L2C1.REMAP_LUT_TABLE2.remapping_info5==0x115
+LLCS.L2C1.REMAP_LUT_TABLE3.remapping_info6==0x116
+LLCS.L2C1.REMAP_LUT_TABLE3.remapping_info7==0x117
+LLCS.L2C1.REMAP_LUT_TABLE4.remapping_info8==0x118
+LLCS.L2C1.REMAP_LUT_TABLE4.remapping_info9==0x119
+LLCS.L2C1.REMAP_LUT_TABLE5.remapping_info10==0x150
+LLCS.L2C1.REMAP_LUT_TABLE5.remapping_info11==0x151
+LLCS.L2C1.REMAP_LUT_TABLE6.remapping_info12==0x152
+LLCS.L2C1.REMAP_LUT_TABLE6.remapping_info13==0x153
+LLCS.L2C1.REMAP_LUT_TABLE7.remapping_info14==0x154
+LLCS.L2C1.REMAP_LUT_TABLE7.remapping_info15==0x155
+LLCS.L2C1.REMAP_LUT_TABLE8.remapping_info16==0x156
+LLCS.L2C1.REMAP_LUT_TABLE8.remapping_info17==0x157
+LLCS.L2C1.REMAP_LUT_TABLE9.remapping_info18==0x158
+LLCS.L2C1.REMAP_LUT_TABLE9.remapping_info10==0x159
+LLCS.L2C1.REMAP_LUT_TABLE10.remapping_info20==0x130
+LLCS.L2C1.REMAP_LUT_TABLE10.remapping_info21==0x131
+LLCS.L2C1.REMAP_LUT_TABLE11.remapping_info22==0x132
+LLCS.L2C1.REMAP_LUT_TABLE11.remapping_info23==0x133
+LLCS.L2C1.REMAP_LUT_TABLE12.remapping_info24==0x134
+LLCS.L2C1.REMAP_LUT_TABLE12.remapping_info25==0x135
+LLCS.L2C1.REMAP_LUT_TABLE13.remapping_info26==0x136
+LLCS.L2C1.REMAP_LUT_TABLE13.remapping_info27==0x137
+LLCS.L2C1.REMAP_LUT_TABLE14.remapping_info28==0x138
+LLCS.L2C1.REMAP_LUT_TABLE14.remapping_info29==0x139
+LLCS.L2C1.REMAP_LUT_TABLE15.remapping_info30==0x170
+LLCS.L2C1.REMAP_LUT_TABLE15.remapping_info31==0x171
+col/row/remapping_addr 和总线地址的映射
+映射关系是通过寄存器配置，选择 col/row/remapping_addr 的每个 bit 位对应总线地
+址上的 bit 位。
+基于 remapping_addr 和 row 地址的 hash 计算后得到上述查找表的索引。
+Hash 计算可配的有 3 种模式 ：查找表索引不做 hash、低 3bit hash、低 4bit hash，默
+认选择低 4bit hash。
+对应寄存器配置：
+REMAP_CFG. remapping_dchannel_hash_en ==0 //不做hash
+REMAP_CFG. remapping_dchannel_hash_cfg==1 //低3bit hash
+
+=== Page 41 ===
+REMAP_CFG. remapping_dchannel_hash_cfg==0 //低4bit hash
+举例说明 16 个 bank 以 1KB 为粒度做交织的配置：
+该模式下的地址映射如图：
+col_addr[2:0] = bus_addr[9:7] //实现连续1KB映射到同row不同col
+col_addr[3] =bus_addr[14]// 实现每隔16KB映射到同row不同col
+remapping_addr[3:0] = burs_addr[13:10]// 连续16KB在不同bank上
+remappng_addr[7:4] = bus_addr[31:28]// 实现每256M映射在不同bank上
+row_addr[12:0]=bus_addr[27:15]
+对应的寄存器配置：
+REMAPPING_ADDR0.remapping_addr0==0xa
+REMAPPING_ADDR0.remapping_addr1==0xb
+REMAPPING_ADDR0.remapping_addr2==0xc
+REMAPPING_ADDR0.remapping_addr3==0xd
+REMAPPING_ADDR1.remapping_addr4==0x1c
+REMAPPING_ADDR1.remapping_addr5==0x1d
+REMAPPING_ADDR1.remapping_addr6==0x1e
+REMAPPING_ADDR1.remapping_addr7==0x1f
+REMAPPING_ADDR2.col_addr0==0x7
+REMAPPING_ADDR2.col_addr1==0x8
+REMAPPING_ADDR2.col_addr2==0x9
+REMAPPING_ADDR2.col_addr3==0xe
+REMAPPING_ADDR3.row_addr0==0xf
+REMAPPING_ADDR3.row_addr1==0x10
+REMAPPING_ADDR3.row_addr2==0x11
+REMAPPING_ADDR4.row_addr3==0x12
+
+=== Page 42 ===
+REMAPPING_ADDR4.row_addr4==0x13
+REMAPPING_ADDR4.row_addr5==0x14
+REMAPPING_ADDR4.row_addr6==0x15
+REMAPPING_ADDR5.row_addr7==0x16
+REMAPPING_ADDR5.row_addr8==0x17
+REMAPPING_ADDR5.row_addr9==0x18
+REMAPPING_ADDR5.row_addr10==0x19
+REMAPPING_ADDR6.row_addr11==0x1a
+REMAPPING_ADDR6.row_addr12==0x1b
+基于 remapping_addr 和 row 地址的 hash 计算查找表的索引
+Hash 计算可配的有 3 种模式 ：查找表索引(REMAP_LUT_TABLE.idx)不做 hash、低 3bit
+hash、低 4bit hash，默认选择低 4bit hash。具体逻辑如下：
+不做 hash:
+REMAP_LUT_TABLE.idx =remapping_addr;
+低 3bithash:
+REMAP_LUT_TABLE.idx [2:0] =hash_h3b_fun({20'b0,row_addr,remapping_addr[2:0]});
+REMAP_LUT_TABLE.idx [7:3] =remapping_addr[7:3];
+低 4bithash:
+REMAP_LUT_TABLE.idx [3:0] =hash_h3b_fun({20'b0,row_addr,remapping_addr[3:0]});
+REMAP_LUT_TABLE.idx [7:4] =remapping_addr[7:4];
+对应寄存器配置：
+REMAP_CFG. remapping_dchannel_hash_en ==0 //不做hash
+REMAP_CFG. remapping_dchannel_hash_cfg==1 //低3bit hash
+REMAP_CFG. remapping_dchannel_hash_cfg==0 //低4bit hash
+
+=== Page 43 ===
+Cache Operator 详细说明
+ISA 上对 L2COP 定义如下
+//注意：L2C 按 4bit L2COP 设计的，因此要将 L2COP 低 3bit 相同的指令，配置成
+cache 属性一致。
+配置寄存器对应的 L2COP:
+CACHE_OP_CFG0.default_cfg[3:0] 对应 L2COP[3:0]==0 的值
+CACHE_OP_CFG0.ccfg3[3:0] 对应 L2COP[3:0]==3 的值
+CACHE_OP_CFG0.ccfg4[3:0] 对应 L2COP[3:0]==4 的值
+CACHE_OP_CFG0.ccfg5[3:0] 对应 L2COP[3:0]==5 的值
+CACHE_OP_CFG0.ccfg6[3:0] 对应 L2COP[3:0]==6 的值
+CACHE_OP_CFG0.ccfg7[3:0] 对应 L2COP[3:0]==7 的值
+CACHE_OP_CFG1.ccfg8[3:0] 对应 L2COP[3:0]==8 的值
+CACHE_OP_CFG1.ccfg9[3:0] 对应 L2COP[3:0]==9 的值
+CACHE_OP_CFG1.ccfg10[3:0] 对应 L2COP[3:0]==10 的值
+CACHE_OP_CFG1.ccfg11[3:0] 对应 L2COP[3:0]==11 的值
+CACHE_OP_CFG1.ccfg12[3:0] 对应 L2COP[3:0]==12 的值
+CACHE_OP_CFG1.ccfg13[3:0] 对应 L2COP[3:0]==13 的值
+CACHE_OP_CFG1.ccfg14[3:0] 对应 L2COP[3:0]==14 的值
+CACHE_OP_CFG1.ccfg15[3:0] 对应 L2COP[3:0]==15 的值
+4bit 寄存器值的含义：
+[0] 1 写通 0 写回；
+[1] 1 分配 0 不分配；
+[2]1 evict first 0 evict normal ；
+[3]1 bypass 0 nonbypass。
+当[3]==bypass 时，[2:0]bit 的值忽略
+对应的 L2C 寄存器配置如下：
+CACHE_OP_CFG0.ccfg3==4'b0000
+
+=== Page 44 ===
+CACHE_OP_CFG0.ccfg4==4'b0011
+CACHE_OP_CFG0.ccfg5==4'b0001
+CACHE_OP_CFG0.ccfg8==4'b0010
+CACHE_OP_CFG0.ccfg9==4'b1000
+CACHE_OP_CFG0.ccfg10==4'b0010
+CACHE_OP_CFG0.ccfg11==4'b0000
+CACHE_OP_CFG0.ccfg12==4'b0011
+CACHE_OP_CFG0.ccfg13==4'b0001
+L2COP 含义
+0/8 暂无定义，默认是读写分
+配&写回
+1/9 Bypass
+2/10 读写分配& 写回
+3/11 读写不分配 &写回
+4/12 读写分配 & 写通
+5/13 读写不分配 & 写通
+其他 暂无定义
+Cache 行为描述
+Cacheop 强覆盖
+当 CACHE_OP_COVER. cache_op_cover_en 配置为1 时 ，此时 CACHE_OP_COVER.
+cache_op_cover_value[3:0]的寄存器值覆盖掉上游请求携带的 L2COP。该 4bit 含义同
+上。
+BYPASS 指令的配置
+对于 bypass 的 cache 请求，当 PA_CFG.bypass_cfg[0]==1 时 ，L2C 执行 bypass 指
+令，当 PA_CFG.bypass_cfg[0]==0 时，L2C 将 bypass 指令转换不分配&写通&优先驱
+逐。
+
+=== Page 45 ===
+PA_CFG.bypass_cfg[1]，当 bypass_cfg[0]==1'b1 时生效
+1: 对于 bypass 读指令，使能允许 burst 传输，并根据 bypass_cfg[3:2]做跨 dram
+channel 的检查，检查没有跨 dram channel 时，下发 burst 传输。//bufferdie 保序
+0：不允许 burst 的 bypass 传输，L2C 会 burst2single，拆成多笔相同 id 的请求，此
+时 ost 为 1
+PA_CFG.bypass_cfg[3:2]，当 bypass_cfg[1]==1’b1 时生效
+定义跨 dram channel 的范围(0:2KB; 1:1KB; 2:512B; 3:256B)
+//警告 配置值必须与 remapping 中 dram channel 交织粒度一致
+//警告：PE_coalesce 的粒度需要小于 dramchannel 的交织粒度
+L2C disable
+CACHE_OP_COVER. cache_op_cover_en==1
+CACHE_OP_COVER. cache_op_cover_value[3:0]==4’b1000
+PA_CFG.bypass_cfg[0]==1
+如上配置下，L2C 配置成 bypass 模式，不受上游的 L2COP 影响，可用于 Debug。
+真实硬件上的实现说明，软件不感知
+对于读不分配但需要保序的请求，硬件上转为读分配，优先驱逐的请求。

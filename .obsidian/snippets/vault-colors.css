@@ -1,0 +1,52 @@
+:root {
+  --wiki-entities: #c586c0;
+  --wiki-topics: #4fc1ff;
+  --wiki-synthesis: #dcdcaa;
+  --wiki-sources: #ce9178;
+  --wiki-fw: #6a9955;
+  --wiki-meta: #569cd6;
+}
+
+.nav-folder-title[data-path^="wiki/entities"] {
+  color: var(--wiki-entities);
+}
+
+.nav-folder-title[data-path^="wiki/topics"] {
+  color: var(--wiki-topics);
+}
+
+.nav-folder-title[data-path^="wiki/synthesis"] {
+  color: var(--wiki-synthesis);
+}
+
+.nav-folder-title[data-path^="wiki/sources"] {
+  color: var(--wiki-sources);
+}
+
+.nav-folder-title[data-path^="wiki/fw"] {
+  color: var(--wiki-fw);
+}
+
+.nav-folder-title[data-path^="wiki/meta"] {
+  color: var(--wiki-meta);
+}
+
+.nav-folder-title[data-path=".raw"] {
+  color: #808080;
+  opacity: 0.65;
+}
+
+.callout[data-callout="contradiction"] {
+  --callout-color: 209, 105, 105;
+  --callout-icon: lucide-alert-triangle;
+}
+
+.callout[data-callout="gap"] {
+  --callout-color: 220, 220, 170;
+  --callout-icon: lucide-help-circle;
+}
+
+.callout[data-callout="key-insight"] {
+  --callout-color: 79, 193, 255;
+  --callout-icon: lucide-lightbulb;
+}

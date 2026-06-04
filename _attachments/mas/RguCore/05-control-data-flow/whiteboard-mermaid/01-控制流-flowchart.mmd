@@ -1,0 +1,14 @@
+flowchart TD
+    A["CP 下发 kernel packet"] --> B["GCtrl 缓存 kernel"]
+    B --> C["解析 gridDim / clusDim / cta_num"]
+    C --> D["计算 logic cluster 数"]
+    D --> E{"分发模式"}
+    E -->|random| F["选择可用 physical cluster"]
+    E -->|fixed| G["按映射公式计算 physical_id"]
+    F --> H["发送 reg info"]
+    G --> H
+    H --> I["发送 clusterIdx"]
+    I --> J["ClsCtrl 拆 block"]
+    J --> K["选择最空闲 core"]
+    K --> L["Core 执行 block"]
+    L --> M["ack / done 回收"]

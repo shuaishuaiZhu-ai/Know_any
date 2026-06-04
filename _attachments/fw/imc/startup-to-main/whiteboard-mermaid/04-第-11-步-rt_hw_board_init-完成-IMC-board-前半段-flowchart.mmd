@@ -1,0 +1,8 @@
+flowchart TD
+  A["rt_hw_board_init"] --> B["board_system_premain_init"]
+  B --> C["board_show_version"]
+  C --> D["systimer_systick_init"]
+  D --> E["rt_console_set_device"]
+  E --> F["rt_system_heap_init"]
+  F --> G["rt_components_board_init"]
+  G --> H["rt_hw_board_pre_init"]

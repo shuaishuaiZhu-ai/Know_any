@@ -1,0 +1,16 @@
+sequenceDiagram
+  participant Q as query priority 20
+  participant B as bind priority 20
+  participant S as agc_shell priority 20
+  participant Sch as rt_schedule
+
+  loop no business but threads stay READY
+    Q->>Q: check proc bitmap
+    Q->>Sch: rt_thread_yield
+    Sch-->>B: next same-priority ready thread
+    B->>B: scan stop list / idle HCQD / task list
+    B->>Sch: rt_thread_yield
+    Sch-->>Q: next same-priority ready thread
+  end
+
+  Note over S: UART input wakes shell, but shell is inserted into same priority ready queue, not boosted above query/bind.

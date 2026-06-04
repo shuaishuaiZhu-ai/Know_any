@@ -1,0 +1,9 @@
+graph LR
+  Host[Host/UMD/KMD] --> MCQD[[MCQD]]
+  MCQD --> HCQD[[HCQD]]
+  HCQD --> IB[[Interaction-Buffer]]
+  IB --> CMD[[cmd_entry]]
+  CMD --> PKT[[CP-Command-Packet]]
+  PKT --> IDMA[[iDMA]]
+  PKT --> EVT[[Event-Table]]
+  CMD --> SF[[CP stop flush 与 queue 切换]]

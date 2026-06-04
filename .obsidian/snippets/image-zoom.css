@@ -1,0 +1,17 @@
+/*
+ * Companion CSS for the local for-ai-image-zoom Obsidian plugin.
+ * The plugin handles click, wheel zoom, pan, reset, and close behavior.
+ */
+
+.markdown-reading-view .markdown-preview-view img:not(.emoji),
+.markdown-source-view.mod-cm6 .cm-contentContainer img:not(.emoji),
+.markdown-preview-view .image-embed img:not(.emoji),
+.workspace-leaf-content[data-type="image"] .view-content img:not(.emoji),
+.image-container img:not(.emoji) {
+  cursor: zoom-in;
+}
+
+.workspace-leaf-content[data-type="image"] .view-content,
+.image-container {
+  overflow: auto !important;
+}

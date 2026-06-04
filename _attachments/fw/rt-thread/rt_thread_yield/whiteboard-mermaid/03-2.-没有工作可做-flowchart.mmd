@@ -1,0 +1,6 @@
+flowchart TD
+    A["循环线程没有工作"] --> B{"只是让同优先级 peer 运行?"}
+    B -- "是" --> C["rt_thread_yield()"]
+    B -- "否，等待事件/资源/硬件" --> D{"是否有明确唤醒源?"}
+    D -- "有" --> E["sem/event/mailbox/queue 阻塞等待"]
+    D -- "没有，临时 polling" --> F["rt_thread_delay(1) 或降低 polling 频率"]

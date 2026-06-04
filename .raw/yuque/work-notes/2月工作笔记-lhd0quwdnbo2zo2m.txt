@@ -1,0 +1,70 @@
+遗留任务
+
+wait cmd没有做，只是把cmd定义好了，写了个钉钉文档记录了如何设计。
+
+pz1上问题挺难搞的，注释掉mutex之后，就可以安装驱动了，不注释，就无法安装驱动，这个问题得找人一起排查排查。
+
+12b的v6 用不带mutex的代码也有问题。 22b的用不带mutex的就没问题，连续运行了50次都没问题。估计12b的还是不太对。
+
+rgu core rank也需要更改。
+
+pz1 加载kmd ko失败
+
+流程：
+
+1
+cd /sys/bus/pci/devices/0000:18:00.0：进入到对应的pcie deivce 内
+
+2
+echo 1 > remove：从内核角度移除该pcie设备
+
+○
+从内核视角“移除”该 PCI 设备（逻辑热拔插）。
+
+○
+结果通常包括：
+
+○
+设备会从 /sys/bus/pci/devices/0000:18:00.0 消失或变为未绑定状态
+
+○
+如果有驱动绑定，驱动会被解绑，相关资源（BAR、中断等）释放
+
+○
+注意：这不是物理断电，只是让内核不再管理它；有的硬件/驱动可能不会完全恢复。
+
+1
+cd /sys/bus/pci/
+
+2
+echo 1 > rescan ：让内核重新扫描pcie总线
+
+●
+让内核重新扫描 PCI 总线，把新出现的设备（或刚刚 remove 的设备）重新枚举出来。
+
+●
+如果 drivers_autoprobe 允许自动绑定，扫描到设备后通常会自动加载/绑定对应驱动。
+
+
+
+
+
+晓文根据pcie加载的情况，发现在运行到grace_enable_remapping_err之后，就卡死了。注释掉了grace_enable_remapping_err函数，之后安装正常。
+
+使用funcgraph，最后执行的是下下面的几个函数，准备把grqace_enable_tsv_err也注释掉
+
+
+
+把grqace_enable_tsv_err也注释掉之后，依旧不正常，安装ko还是卡死。
+
+根据chat-gpt的回复，怀疑可能是remap了很大的bar2导致的。
+
+在 aigc_probe() 里临时把 BAR2 映射注释掉，只映射 BAR0（REG）：
+
+第一次验证，可以安装ko。
+
+继续测试：
+
+虽然安装ko成功，但是会报错
+
+​

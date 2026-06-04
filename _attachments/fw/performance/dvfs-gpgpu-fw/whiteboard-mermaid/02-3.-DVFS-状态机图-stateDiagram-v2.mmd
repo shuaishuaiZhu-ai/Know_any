@@ -1,0 +1,49 @@
+stateDiagram-v2
+    [*] --> S_IDLE
+
+    state "S_IDLE: 等待请求/周期检查" as S_IDLE
+    state "S_REQ: 接收请求" as S_REQ
+    state "S_VALIDATE: 校验目标 OPP" as S_VALIDATE
+    state "S_WAIT_SAFE: 等待安全窗口" as S_WAIT_SAFE
+    state "S_UP_VOLT: 升频先升压" as S_UP_VOLT
+    state "S_WAIT_VOLT_UP: 等待升压稳定" as S_WAIT_VOLT_UP
+    state "S_DOWN_CLOCK: 降频先降时钟" as S_DOWN_CLOCK
+    state "S_SWITCH_CLOCK: 切换 PLL/mux/divider" as S_SWITCH_CLOCK
+    state "S_WAIT_PLL: 等待 PLL/clock ack" as S_WAIT_PLL
+    state "S_DOWN_VOLT: 降频后再降压" as S_DOWN_VOLT
+    state "S_WAIT_VOLT_DOWN: 等待降压完成" as S_WAIT_VOLT_DOWN
+    state "S_UPDATE: 更新当前状态" as S_UPDATE
+    state "S_DONE: 通知完成/释放锁" as S_DONE
+    state "S_REJECT: 拒绝非法请求" as S_REJECT
+    state "S_ROLLBACK: 回滚到 safe OPP" as S_ROLLBACK
+    state "S_THROTTLE: 强制降档" as S_THROTTLE
+
+    S_IDLE --> S_REQ : request or periodic governor tick
+    S_REQ --> S_VALIDATE : parse target OPP
+    S_VALIDATE --> S_REJECT : invalid OPP / forbidden state
+    S_VALIDATE --> S_THROTTLE : thermal or power limit
+    S_VALIDATE --> S_DONE : target == current
+    S_VALIDATE --> S_WAIT_SAFE : domain busy and must drain
+    S_WAIT_SAFE --> S_VALIDATE : idle/drain ack
+    S_VALIDATE --> S_UP_VOLT : target_freq > current_freq
+    S_VALIDATE --> S_DOWN_CLOCK : target_freq < current_freq
+
+    S_UP_VOLT --> S_WAIT_VOLT_UP : set higher voltage
+    S_WAIT_VOLT_UP --> S_SWITCH_CLOCK : voltage stable
+    S_WAIT_VOLT_UP --> S_ROLLBACK : timeout / regulator error
+
+    S_DOWN_CLOCK --> S_SWITCH_CLOCK : lower clock first
+    S_SWITCH_CLOCK --> S_WAIT_PLL : program PLL/mux/divider
+    S_WAIT_PLL --> S_DOWN_VOLT : clock ok and target_voltage lower
+    S_WAIT_PLL --> S_UPDATE : clock ok and no voltage down needed
+    S_WAIT_PLL --> S_ROLLBACK : pll lock timeout / clock ack error
+
+    S_DOWN_VOLT --> S_WAIT_VOLT_DOWN : set lower voltage
+    S_WAIT_VOLT_DOWN --> S_UPDATE : voltage stable
+    S_WAIT_VOLT_DOWN --> S_ROLLBACK : timeout / regulator error
+
+    S_THROTTLE --> S_DOWN_CLOCK : force lower OPP
+    S_ROLLBACK --> S_UPDATE : safe OPP restored
+    S_UPDATE --> S_DONE
+    S_REJECT --> S_DONE
+    S_DONE --> S_IDLE

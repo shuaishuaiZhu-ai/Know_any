@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant Host as Host or GPU client
+    participant Bridge as PCIe or NoC bridge
+    participant NoC
+    participant MC as Memory Controller
+    participant MEM as VRAM
+    participant DVFS as DVFS FSM
+
+    DVFS->>NoC: block memory ingress
+    DVFS->>MC: wait outstanding drain
+    Host->>Bridge: VRAM read request
+    Bridge->>NoC: request reaches ingress
+    NoC-->>Bridge: backpressure or no credit
+    Bridge->>Bridge: queue request
+    MC-->>DVFS: outstanding == 0
+    DVFS->>MEM: enter safe memory state
+    DVFS->>MC: switch memory OPP
+    MC-->>DVFS: memory ready
+    DVFS->>NoC: unblock memory ingress
+    Bridge->>NoC: issue queued read
+    NoC->>MC: read request
+    MC->>MEM: read command
+    MEM-->>MC: data
+    MC-->>Bridge: data
+    Bridge-->>Host: read response or PCIe completion

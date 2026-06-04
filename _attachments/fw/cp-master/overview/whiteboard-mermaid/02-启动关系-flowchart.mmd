@@ -1,0 +1,7 @@
+flowchart TD
+  A[cp_master board pos init] --> B[ipc_msg_init]
+  B --> C[ipc_cmd_init]
+  D[master_init INIT_APP_EXPORT] --> E[qdma_init]
+  E --> F[创建 query 线程]
+  D --> G[bdma_init]
+  G --> H[创建 bind 线程]

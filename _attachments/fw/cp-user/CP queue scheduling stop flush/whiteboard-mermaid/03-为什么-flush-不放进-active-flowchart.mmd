@@ -1,0 +1,9 @@
+flowchart LR
+    F["flush_cxt_bitmap bit5"] --> BAD["如果 OR 到 active"]
+    BAD --> WRONG["cmd_find_next_hcqd 会把 5 当 hcqd_id"]
+    WRONG --> BUG["context id 被误读成 HCQD id"]
+
+    F --> GOOD["正确做法: ctz 得到 cxt_id=5"]
+    GOOD --> H["sf_handle_flush(5)"]
+    H --> BM["返回真实 hcqd_bitmap"]
+    BM --> CLEAN["清对应 HCQD 状态"]

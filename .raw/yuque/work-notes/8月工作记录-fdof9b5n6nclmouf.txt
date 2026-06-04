@@ -1,0 +1,117 @@
+cp loader boot
+
+在只有两个usart port的情况下：
+
+尝试增加4个asm("nop");但是还是只启动了一个cp user
+
+
+
+不做reset，则所有cp user都正常。
+
+
+
+单独起一个cp user没问题。那大概率是起第二个cp user的时候，第一个cp user reset还没结束，这时候产生了noc的访问，导致出现bus err。
+
+
+
+在reset前面加nop也不行
+
+reset前加delay，会一直在那卡着。
+
+试下从3开始就dealy。
+
+如果从3开始就dealy，2可以正常运行
+
+如果只delay3,2还是不能运行。
+
+delay4,5。 23都能运行
+
+delay5，只有3可以运行，2无法正常运行
+
+delay4,23都可以正常运行
+
+
+
+延迟情况
+
+	
+2的状态
+
+	
+3的状态
+
+
+
+delay3-5
+
+	
+正常运行
+
+	
+延迟
+
+
+
+delay3
+
+	
+不能运行
+
+	
+延迟
+
+
+
+delay4,5
+
+	
+可以运行
+
+	
+可以运行
+
+
+
+delay5
+
+	
+无法运行
+
+	
+可以运行
+
+
+
+delay4
+
+	
+可以运行
+
+	
+可以运行
+
+只要4不做reset，2就可以正常运行。
+
+
+
+hw_top.u_AIGCIC_TOP_ss.u_CP.u_ux900_CP_master_core_rams.i0_trace_iaddr[63:0] == 64'h0000000080005ed8
+
+
+
+测试cp master，结果第一次bind到的hcqd id为23，有点懵逼。
+
+加点打印再看看什么情况。
+
+
+
+感觉之前可能是hcqd有问题导致的，重新修改之后，master就可bind到hcqd id 0.
+
+
+
+增加hcqd中相关信息的打印，发现最大的问题。fetch ptr并没有动，怪不得peek packet里面没有数据。
+
+但是，能走到这个里面，说明ib->rd_rb_candidate被置位了。也就是说，ib被置位了一半
+
+
+
+​

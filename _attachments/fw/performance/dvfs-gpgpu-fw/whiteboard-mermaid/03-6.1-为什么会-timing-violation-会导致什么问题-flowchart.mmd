@@ -1,0 +1,6 @@
+flowchart LR
+    A["低电压状态<br/>晶体管较慢"] --> B["先升 clock<br/>Tclk 变短"]
+    B --> C["组合逻辑还没算完<br/>data not stable"]
+    C --> D["capture flop 到点采样"]
+    D --> E["采到旧值 / 错值 / 不稳定值"]
+    E --> F["silent data corruption<br/>协议错误 / hang / reset"]

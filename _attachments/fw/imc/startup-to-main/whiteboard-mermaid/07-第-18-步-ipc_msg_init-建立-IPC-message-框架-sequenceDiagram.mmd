@@ -1,0 +1,18 @@
+sequenceDiagram
+  participant Peer as Host/CP Master
+  participant IRQ as IMC IRQ handler
+  participant MB as ipc_mb
+  participant Sync as ipc_rcv_sync
+  participant Async as ipc_rcv_async
+  participant Handler as event_handler[cmd]
+  Peer->>IRQ: trigger IPC interrupt
+  IRQ->>IRQ: clear interrupt
+  IRQ->>MB: rt_mb_send(src,dst)
+  Sync->>MB: receive src/dst
+  Sync->>Sync: read ringbuffer and check header
+  alt sync message
+    Sync->>Handler: call command handler
+  else async message
+    Sync->>Async: wait list + sem release
+    Async->>Handler: call command handler
+  end

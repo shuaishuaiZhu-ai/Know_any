@@ -1,0 +1,17 @@
+sequenceDiagram
+  participant B as CP Master BDMA
+  participant TOP as TOP/HCQD regs
+  participant U as CP User sf/cmd_entry
+  participant CPE as CPE regs
+
+  B->>TOP: write STOP_HCQDID bit
+  TOP-->>U: stop interrupt / stopped bitmap
+  U->>U: drop IB resident packets
+  U->>CPE: set CPE_FW_HCQD_STOPPED bit
+  B->>TOP: poll HCQD_STATUS stop complete
+  B->>CPE: poll CPE_FW_HCQD_STOPPED bit
+  B->>TOP: set RELEASE_HCQDID bit
+  B->>TOP: wait HCQD idle
+  B->>TOP: clear RELEASE_HCQDID bit
+  B->>CPE: clear CPE_FW_HCQD_STOPPED bit
+  B->>TOP: clear STOP_HCQDID

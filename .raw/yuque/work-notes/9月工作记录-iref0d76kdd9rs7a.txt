@@ -1,0 +1,61 @@
+多个mcqd并行
+
+根据log可以看到，mcqd的地址设置没什么问题
+
+
+
+但是query dma没有起来，目前看到，是因为mcqd addr忘记加base导致的
+
+
+
+更改了之后，insert 的时候，mcqd addr为0，这里不正常，需要再看下
+
+
+
+mcqd地址没问题，第一个mcqd 地址就是0，之后才递增的。可以看到，前两个SDMA cmd已经执行完成了
+
+
+
+更正了cmd addr和mcqd addr
+
+
+
+但是依旧只bind到一个mcqd。有点懵逼
+
+看了下cp mas，mcqd应该是需要按照128字节连续存放，这样才能query
+
+
+
+ 考虑在0x1000000之前，存放所有进程的mcqd。最大占用空间：128*32*32 = 0x20000 字节。  
+
+先用两个proc+两个mcqd测试一下。
+
+
+
+可以bind两个mcqd了，可以看到，hcqd0和hcqd1中的cmd 轮流取出来执行
+
+
+
+看起来，似乎没什么问题
+
+
+
+
+
+似乎是没有query到mcqd？
+
+
+
+这个地址有问题，排查后发现，是因为自己写错代码了。组cmd的时候，应该往proc1中塞的cmd，结果塞到proc0的mcqd2上去了，而实际上，你只初始化了0,1两个mcqd
+
+
+
+修正之后，可以bind两个proc的两个mcqd到四个hcqd上，可以确定，mcqd layout是正确的
+
+
+
+cp user peek的时候，是四个hcqd都先轮流执行一次。但是，第二轮hcqd peek的时候，hcqd2中的内容就有问题了。根据最后的数据，也可以看到，proc1 mcqd0对应的那组cmd没有执行。后续peek hcqd2也一直没有peek出来。
+
+但是，最大的问题，hcqd3没有问题。这就让人很懵逼，再看看代码。怀疑是不是哪里的代码给冲掉了
+
+​

@@ -1,0 +1,6 @@
+flowchart TD
+  A[rt_hw_board_pos_init] --> B[ipc_msg_init]
+  B --> C[ipc_cmd_init]
+  C --> D[注册 IPC handler]
+  C --> E[注册 HOST_TO_CP_MASTER IRQ]
+  C --> F[注册 IMC_TO_CP_MASTER IRQ]

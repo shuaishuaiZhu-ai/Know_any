@@ -1,0 +1,61 @@
+task：
+
+loader更改
+
+把多cls 多pe做成编译宏
+
+把cp clk init和fabric noc init都移植到rtos
+
+多context
+
+首先，query里面发现的0和1的stream bitmap为2
+
+然后，发现0的bitmap为0x3
+
+之，0的bitmap为0x6
+
+
+
+本地测试发现，对于context 1，hcqd的arrt一直为0 ？？？？？？？？？？？？
+
+是自己mcqd里面没写导致的·
+
+
+
+自己写，asid获取是正确的
+
+
+
+
+
+
+
+
+
+
+
+发现hcqd id不对，似乎是使用了内部的hcqd id，而不是global hcqd id，改为global hcqd id就好了
+
+
+
+kernel perf
+
+好几个版本都性能下降，只有remap16和0xff的那个版本性能最好。
+
+
+
+db release
+
+自己给吴曦的db，很奇怪，cmd下发下去之后，执行不完，但是不知道具体什么原因。
+
+
+
+新版本的cp，usart的log打印不出来，这个也很奇怪，回头得看看。
+
+看不到cp log，这点有点烦。
+
+确定是建洪改东西的时候，没有改cp 的编译选项，需要cp自己把rtconfig.py里的对应位置改为backdoor
+
+
+
+​

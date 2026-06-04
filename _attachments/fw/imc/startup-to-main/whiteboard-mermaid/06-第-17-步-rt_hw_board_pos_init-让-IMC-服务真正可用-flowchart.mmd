@@ -1,0 +1,8 @@
+flowchart TD
+  A["rt_hw_board_pos_init"] --> B["HAL init: efuse/iomux/gpio/udma/spi/sec/int/timer"]
+  B --> C["ipc_msg_init"]
+  C --> D["ipc_cmd_init"]
+  D --> E["hal_ipcm_init"]
+  E --> F["hal_clk_init / hal_idu_init"]
+  F --> G["hal_dms_init if FW_MEM_3D_DRAM"]
+  G --> H["hal_smbus_init / hal_imc_smbus_init / hal_wwdg_init / hal_i2c_init"]

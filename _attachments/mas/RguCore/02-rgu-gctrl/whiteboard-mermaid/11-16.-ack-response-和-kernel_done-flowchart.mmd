@@ -1,0 +1,4 @@
+flowchart BT
+    Core["Core 完成 block / response"] --> Clus["ClusCtrl 聚合 core 状态"]
+    Clus --> Glb["GlbCtrl 维护 physical cluster 状态"]
+    Glb --> CP["CP 收到 kernel_done"]

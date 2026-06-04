@@ -1,0 +1,5 @@
+flowchart LR
+    Ref["ref_clk<br/>例如 50MHz"] --> PLL["PLL<br/>倍频到 1GHz"]
+    PLL --> Div["clock divider<br/>/1 /2 /4 /8"]
+    Div --> Mux["clock mux<br/>选择 clock source"]
+    Mux --> Domain["GPGPU domain<br/>core / NoC / memory"]

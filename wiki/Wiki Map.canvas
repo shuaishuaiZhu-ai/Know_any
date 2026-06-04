@@ -1,0 +1,21 @@
+﻿{
+	"nodes":[
+		{"id":"synthesis","type":"file","file":"wiki/fw/source-maps/GraceC CP MAS v1.4 code knowledge map.md","x":360,"y":0,"width":320,"height":120,"color":"6"},
+		{"id":"flow","type":"file","file":"wiki/fw/flows/CP command processing flow.md","x":720,"y":-160,"width":320,"height":120,"color":"4"},
+		{"id":"cmd","type":"file","file":"wiki/fw/cp-user/cmd_entry.md","x":720,"y":0,"width":280,"height":120,"color":"3"},
+		{"id":"ib","type":"file","file":"wiki/fw/concepts/Interaction-Buffer.md","x":720,"y":160,"width":300,"height":120,"color":"3"},
+		{"id":"idma","type":"file","file":"wiki/fw/concepts/iDMA.md","x":1080,"y":80,"width":260,"height":120,"color":"3"},
+		{"id":"event","type":"file","file":"wiki/fw/flows/CP event atomic wait host handling.md","x":1080,"y":-160,"width":340,"height":120,"color":"4"},
+		{"id":"stopflush","type":"file","file":"wiki/fw/cp-user/CP stop flush 与 queue 切换.md","x":1080,"y":240,"width":340,"height":120,"color":"4"},
+		{"id":"entry","type":"file","file":"00 CP MAS 知识图谱入口.md","x":-20,"y":0,"width":300,"height":120,"color":"5"}
+	],
+	"edges":[
+		{"id":"e-entry-synthesis","fromNode":"entry","fromSide":"right","toNode":"synthesis","toSide":"left"},
+		{"id":"e-synthesis-flow","fromNode":"synthesis","fromSide":"right","toNode":"flow","toSide":"left"},
+		{"id":"e-synthesis-cmd","fromNode":"synthesis","fromSide":"right","toNode":"cmd","toSide":"left"},
+		{"id":"e-cmd-ib","fromNode":"cmd","fromSide":"bottom","toNode":"ib","toSide":"top"},
+		{"id":"e-ib-idma","fromNode":"ib","fromSide":"right","toNode":"idma","toSide":"left"},
+		{"id":"e-flow-event","fromNode":"flow","fromSide":"right","toNode":"event","toSide":"left"},
+		{"id":"e-ib-stopflush","fromNode":"ib","fromSide":"right","toNode":"stopflush","toSide":"left"}
+	]
+}

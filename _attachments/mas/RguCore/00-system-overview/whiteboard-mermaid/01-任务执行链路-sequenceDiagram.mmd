@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant CP
+    participant GCtrl
+    participant ClsCtrl
+    participant Core
+    participant SW as Software
+
+    CP->>GCtrl: kernel packet / reg info
+    GCtrl->>GCtrl: kernel -> logic cluster
+    GCtrl->>ClsCtrl: cluster config + cluster index
+    ClsCtrl->>ClsCtrl: logic cluster -> block
+    ClsCtrl->>Core: block dispatch
+    Core->>Core: warp/SIMT execution
+    Core-->>ClsCtrl: block/core ack
+    ClsCtrl-->>GCtrl: cluster ack / done
+    GCtrl-->>CP: kernel done / interrupt
+    GCtrl-->>SW: exception or status report

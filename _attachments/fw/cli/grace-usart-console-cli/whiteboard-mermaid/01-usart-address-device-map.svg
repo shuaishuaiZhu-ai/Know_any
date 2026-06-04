@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#B9BEC7"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1600" height="980" fill="#FFFFFF"/>
+
+  <rect x="430" y="50" width="1100" height="220" rx="12" fill="#FEFCE8" stroke="#B8BD54" stroke-width="4"/>
+  <text x="980" y="92" font-size="34" font-weight="500" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">IMC</text>
+  <rect x="430" y="350" width="1100" height="220" rx="12" fill="#FEFCE8" stroke="#B8BD54" stroke-width="4"/>
+  <text x="980" y="392" font-size="34" font-weight="500" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">CP Master</text>
+  <rect x="430" y="650" width="1100" height="220" rx="12" fill="#FEFCE8" stroke="#B8BD54" stroke-width="4"/>
+  <text x="980" y="692" font-size="34" font-weight="500" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">CP User</text>
+
+  <path d="M 380 430 L 405 430 L 405 170 L 505 170" fill="none" stroke="#B9BEC7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M 380 430 L 405 430 L 405 470 L 505 470" fill="none" stroke="#B9BEC7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M 380 430 L 405 430 L 405 770 L 505 770" fill="none" stroke="#B9BEC7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+
+  <path d="M 835 170 L 950 170" fill="none" stroke="#B9BEC7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M 835 470 L 945 470" fill="none" stroke="#B9BEC7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M 1175 470 L 1280 470" fill="none" stroke="#B9BEC7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M 835 770 L 945 770" fill="none" stroke="#B9BEC7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M 1175 770 L 1280 770" fill="none" stroke="#B9BEC7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+
+  <rect x="60" y="360" width="300" height="140" rx="14" fill="#EEF2FF" stroke="#4F46E5" stroke-width="4"/>
+<text x="210" y="422" font-size="27" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">board_cfg.h</text>
+<text x="210" y="457" font-size="27" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">USART0..USART5 base</text>
+
+  <rect x="515" y="125" width="320" height="90" rx="14" fill="#ECFEFF" stroke="#0891B2" stroke-width="4"/>
+<text x="675" y="162" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">USART_DEVICE_ADDR</text>
+<text x="675" y="197" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">USART0_BASE</text>
+  <rect x="960" y="125" width="260" height="90" rx="14" fill="#F0FDF4" stroke="#16A34A" stroke-width="4"/>
+<text x="1090" y="162" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">id 0</text>
+<text x="1090" y="197" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">usart0</text>
+
+  <rect x="515" y="425" width="320" height="90" rx="14" fill="#ECFEFF" stroke="#0891B2" stroke-width="4"/>
+<text x="675" y="462" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">USART1_BASE</text>
+<text x="675" y="497" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">+ 0x50000000</text>
+  <rect x="955" y="425" width="220" height="90" rx="14" fill="#FFF7ED" stroke="#EA580C" stroke-width="4"/>
+<text x="1065" y="462" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">mask</text>
+<text x="1065" y="497" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">0x0fffffff</text>
+  <rect x="1290" y="425" width="230" height="90" rx="14" fill="#F0FDF4" stroke="#16A34A" stroke-width="4"/>
+<text x="1405" y="462" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">id 1</text>
+<text x="1405" y="497" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">usart1</text>
+
+  <rect x="515" y="705" width="320" height="130" rx="14" fill="#ECFEFF" stroke="#0891B2" stroke-width="4"/>
+<text x="675" y="744" font-size="24" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">USART2_BASE</text>
+<text x="675" y="779" font-size="24" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">+ 0x50000000</text>
+<text x="675" y="814" font-size="24" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">+ 0x1000 * core_id</text>
+  <rect x="955" y="725" width="220" height="90" rx="14" fill="#FFF7ED" stroke="#EA580C" stroke-width="4"/>
+<text x="1065" y="762" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">mask</text>
+<text x="1065" y="797" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">0x0fffffff</text>
+  <rect x="1290" y="705" width="230" height="130" rx="14" fill="#F0FDF4" stroke="#16A34A" stroke-width="4"/>
+<text x="1405" y="762" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">core0..3</text>
+<text x="1405" y="797" font-size="25" font-weight="400" fill="#111827" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">usart2..usart5</text>
+
+  <text x="795" y="930" font-size="21" font-weight="400" fill="#475569" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif">CP MMIO adds 0x50000000; mask 0x0fffffff maps back to USARTx_BASE for id lookup</text>
+</svg>

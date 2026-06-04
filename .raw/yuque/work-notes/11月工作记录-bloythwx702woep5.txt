@@ -1,0 +1,61 @@
+版本冒烟
+
+4cls 2pe
+
+必须需要连续6个board+3个board
+
+启动很慢
+
+cp master没有起来？
+
+重新编译后，cp master也没有起来。
+
+
+
+原来的代码就可以load起来，很奇怪。
+
+尝试换下loader，不行
+
+尝试更换master，不行
+
+用老的loader，老的打包工具：还是没起来？？？
+
+纯更换user试试：made，cp user的问题。。。
+
+
+
+更改代码后，cp master还是加载不起来。。。
+
+
+
+
+
+core mask没问题，但是cls bitmap不对，只有cls0写上去了，cls其他的没写上去
+
+
+
+使用cp内部sdma和kernel，test pass
+
+
+
+1cls 7pe
+
+cp master能起来，但是第一个sdma cmd就有问题
+
+
+
+
+
+本地测试sdma和kernel，确定没有问题
+
+
+
+
+
+用kmd，就算测试kernel都不行，很离谱。试试用最原始的image
+
+用1cls 1pe的image跑，结果依旧错误。
+
+尝试用1cls 1pe在1cls 1pe的db上跑：没有问题
+
+​

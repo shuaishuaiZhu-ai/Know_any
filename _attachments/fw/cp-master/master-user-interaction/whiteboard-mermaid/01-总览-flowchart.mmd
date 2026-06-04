@@ -1,0 +1,27 @@
+flowchart LR
+  subgraph Master[CP Master]
+    IPC[ipc_cmd]
+    Q[QDMA query]
+    B[BDMA bind/stop/release]
+    TR[top_reg]
+  end
+
+  subgraph HW[Hardware]
+    TOP[TOP regs]
+    H[HCQD]
+    IB[Interaction Buffer]
+    CPE[CPE regs]
+  end
+
+  subgraph User[CP User]
+    CMD[cmd_entry]
+    SF[sf stop/flush]
+    UIB[ib.c]
+  end
+
+  IPC --> Q --> B --> TR --> TOP --> H --> IB --> CMD
+  B -->|STOP_HCQDID| TOP
+  TOP -->|stop irq / bitmap| SF
+  SF -->|drop packet| UIB
+  SF -->|CPE_FW_HCQD_STOPPED| CPE
+  CPE --> TR --> B

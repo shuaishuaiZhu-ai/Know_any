@@ -1,0 +1,28 @@
+flowchart TB
+  BoardCfg["board_cfg.h<br/>USART0..USART5 base"]:::src
+
+  subgraph IMC["IMC"]
+    IMCAddr["USART_DEVICE_ADDR<br/>USART0_BASE"]:::addr
+    IMCDev["id 0<br/>usart0"]:::dev
+  end
+
+  subgraph Master["CP Master"]
+    MAddr["USART1_BASE<br/>+ 0x50000000"]:::addr
+    MMask["mask<br/>0x0fffffff"]:::mask
+    MDev["id 1<br/>usart1"]:::dev
+  end
+
+  subgraph User["CP User"]
+    UAddr["USART2_BASE<br/>+ 0x50000000<br/>+ 0x1000 * core_id"]:::addr
+    UMask["mask<br/>0x0fffffff"]:::mask
+    UDev["core0..3<br/>usart2..usart5"]:::dev
+  end
+
+  BoardCfg --> IMCAddr --> IMCDev
+  BoardCfg --> MAddr --> MMask --> MDev
+  BoardCfg --> UAddr --> UMask --> UDev
+
+  classDef src fill:#eef2ff,stroke:#4f46e5,color:#111827;
+  classDef addr fill:#ecfeff,stroke:#0891b2,color:#111827;
+  classDef mask fill:#fff7ed,stroke:#ea580c,color:#111827;
+  classDef dev fill:#f0fdf4,stroke:#16a34a,color:#111827;

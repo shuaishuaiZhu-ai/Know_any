@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1580" height="950" viewBox="0 0 1580 950">
+<defs>
+  <marker id="arrow" markerWidth="14" markerHeight="14" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+  </marker>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+  </filter>
+</defs>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="790" y="48" text-anchor="middle" font-size="30" font-weight="800" fill="#0f172a">shell 输入路径：IRQ 只搬运，线程才解析</text>
+
+<g>
+  <rect x="60" y="115" width="260" height="140" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="190" y="151" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">串口终端</text>
+  <text x="88" y="172" text-anchor="start" font-size="19" font-weight="500" fill="#334155">用户输入字符</text>
+<text x="88" y="201" text-anchor="start" font-size="19" font-weight="500" fill="#334155">字节进入 RX FIFO</text>
+</g>
+<g>
+  <rect x="400" y="115" width="295" height="140" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+  <text x="547.5" y="151" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">USART IRQ</text>
+  <text x="428" y="172" text-anchor="start" font-size="19" font-weight="500" fill="#334155">drv_usartN_irq_handler()</text>
+<text x="428" y="201" text-anchor="start" font-size="19" font-weight="500" fill="#334155">drv_usart_irq_handler()</text>
+<text x="428" y="230" text-anchor="start" font-size="19" font-weight="500" fill="#334155">检查 status.empty</text>
+</g>
+<g>
+  <rect x="780" y="115" width="320" height="140" rx="10" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+  <text x="940" y="151" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">RX callback</text>
+  <text x="808" y="172" text-anchor="start" font-size="19" font-weight="500" fill="#334155">dev.rx_indicate</text>
+<text x="808" y="201" text-anchor="start" font-size="19" font-weight="500" fill="#334155">= agc_shell_rx_ind()</text>
+<text x="808" y="230" text-anchor="start" font-size="19" font-weight="500" fill="#334155">不是命令解析函数</text>
+</g>
+<g>
+  <rect x="1180" y="115" width="320" height="140" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="1340" y="151" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">读硬件数据</text>
+  <text x="1208" y="172" text-anchor="start" font-size="19" font-weight="500" fill="#334155">rt_device_read()</text>
+<text x="1208" y="201" text-anchor="start" font-size="19" font-weight="500" fill="#334155">drv_usart_read()</text>
+<text x="1208" y="230" text-anchor="start" font-size="19" font-weight="500" fill="#334155">drv_usart_receive_data()</text>
+</g>
+<g>
+  <polyline points="320,171 400,171" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="695,171 780,171" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="1100,171 1180,171" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <rect x="260" y="390" width="420" height="170" rx="10" fill="#fff1f2" stroke="#e11d48" stroke-width="2"/>
+  <text x="470" y="426" text-anchor="middle" font-size="24" font-weight="700" fill="#0f172a">中断/回调上下文：快动作</text>
+  <text x="288" y="448" text-anchor="start" font-size="20" font-weight="500" fill="#334155">根据 ringbuffer 空间决定读多少</text>
+<text x="288" y="479" text-anchor="start" font-size="20" font-weight="500" fill="#334155">rt_ringbuffer_put(shell-&gt;input_buff)</text>
+<text x="288" y="510" text-anchor="start" font-size="20" font-weight="500" fill="#334155">rt_sem_release(&amp;shell-&gt;rx_sem)</text>
+<text x="288" y="541" text-anchor="start" font-size="20" font-weight="500" fill="#334155">不处理方向键、不执行 agc 命令</text>
+</g>
+<g>
+  <rect x="875" y="390" width="420" height="170" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="1085" y="426" text-anchor="middle" font-size="24" font-weight="700" fill="#0f172a">shell 线程：慢动作</text>
+  <text x="903" y="448" text-anchor="start" font-size="20" font-weight="500" fill="#334155">agc_shell_getchar() 等 rx_sem</text>
+<text x="903" y="479" text-anchor="start" font-size="20" font-weight="500" fill="#334155">rt_ringbuffer_get() 取 1 字节</text>
+<text x="903" y="510" text-anchor="start" font-size="20" font-weight="500" fill="#334155">agc_shell_parse() 识别回车/退格/方向键</text>
+<text x="903" y="541" text-anchor="start" font-size="20" font-weight="500" fill="#334155">agc_shell_ctrl_enter() -&gt; agc_shell_exec()</text>
+</g>
+<g>
+  <rect x="585" y="680" width="430" height="120" rx="10" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+  <text x="800" y="716" text-anchor="middle" font-size="25" font-weight="700" fill="#0f172a">shell-&gt;input_buff ringbuffer</text>
+  <text x="613" y="739" text-anchor="start" font-size="20" font-weight="500" fill="#334155">128B 本地输入缓存</text>
+<text x="613" y="768" text-anchor="start" font-size="20" font-weight="500" fill="#334155">只属于 agc_shell</text>
+<text x="613" y="797" text-anchor="start" font-size="20" font-weight="500" fill="#334155">不是 IPC shared ringbuffer</text>
+</g>
+<g>
+  <polyline points="1340,255 1340,315 470,315 470,390" fill="none" stroke="#e11d48" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="760" y="303" text-anchor="middle" font-size="18" font-weight="700" fill="#e11d48">read_size 字节</text>
+</g>
+<g>
+  <polyline points="680,475 760,475 760,680" fill="none" stroke="#e11d48" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="730" y="455" text-anchor="middle" font-size="18" font-weight="700" fill="#e11d48">put</text>
+</g>
+<g>
+  <polyline points="1015,680 1015,560" fill="none" stroke="#16a34a" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1065" y="626" text-anchor="middle" font-size="18" font-weight="700" fill="#16a34a">get</text>
+</g>
+<g>
+  <polyline points="805,680 805,560 875,475" fill="none" stroke="#16a34a" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="845" y="620" text-anchor="start" font-size="18" font-weight="700" fill="#16a34a">release sem 唤醒</text>
+</g>
+<text x="90" y="852" text-anchor="start" font-size="22" font-weight="700" fill="#334155">读图结论：输入字符先从硬件 FIFO 进入 shell 本地 ringbuffer，随后 shell 线程再解析成命令。</text>
+<text x="90" y="886" text-anchor="start" font-size="22" font-weight="700" fill="#334155">因此 CLI 没反应时，要分开查 IRQ 是否触发、rx_indicate 是否注册、ringbuffer 是否入队、shell 线程是否被 rx_sem 唤醒。</text>
+
+<text x="1550" y="926" text-anchor="end" font-size="16" fill="#64748b">source: 192.168.80.116:/home/shuaishuai.zhu/fw @ 541207a</text>
+</svg>

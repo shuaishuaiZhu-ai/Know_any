@@ -1,0 +1,116 @@
+﻿{
+  "nodes": [
+    {
+      "id": "source",
+      "type": "file",
+      "file": "wiki/sources/语雀工作笔记索引.md",
+      "x": 0,
+      "y": 0,
+      "width": 300,
+      "height": 120,
+      "color": "1"
+    },
+    {
+      "id": "map",
+      "type": "file",
+      "file": "wiki/synthesis/语雀工作笔记知识图谱.md",
+      "x": 360,
+      "y": 0,
+      "width": 320,
+      "height": 120,
+      "color": "6"
+    },
+    {
+      "id": "interview",
+      "type": "file",
+      "file": "wiki/synthesis/面试用工作笔记总结.md",
+      "x": 720,
+      "y": 0,
+      "width": 320,
+      "height": 120,
+      "color": "5"
+    },
+    {
+      "id": "candidate",
+      "type": "file",
+      "file": "wiki/fw/performance/CP candidate peek 热路径优化.md",
+      "x": 360,
+      "y": -180,
+      "width": 320,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "branch",
+      "type": "file",
+      "file": "wiki/fw/performance/CP 分支预取与 cmd_entry 布局优化.md",
+      "x": 720,
+      "y": -180,
+      "width": 340,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "stopflush",
+      "type": "file",
+      "file": "wiki/fw/cp-user/CP stop flush 与 queue 切换.md",
+      "x": 1080,
+      "y": -180,
+      "width": 320,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "mcqd",
+      "type": "file",
+      "file": "wiki/fw/flows/CP 多队列多上下文与 HCQD MCQD.md",
+      "x": 360,
+      "y": 180,
+      "width": 340,
+      "height": 120,
+      "color": "3"
+    },
+    {
+      "id": "ringbuffer",
+      "type": "file",
+      "file": "wiki/fw/debug/CP ringbuffer IPC 与 queue create 调试.md",
+      "x": 720,
+      "y": 180,
+      "width": 340,
+      "height": 120,
+      "color": "3"
+    },
+    {
+      "id": "bringup",
+      "type": "file",
+      "file": "wiki/fw/debug/CP 平台 bring-up 与 PCIe 调试.md",
+      "x": 1080,
+      "y": 180,
+      "width": 340,
+      "height": 120,
+      "color": "3"
+    },
+    {
+      "id": "sdma",
+      "type": "file",
+      "file": "wiki/fw/debug/CP SDMA copy 与 kernel command 调试.md",
+      "x": 1080,
+      "y": 0,
+      "width": 340,
+      "height": 120,
+      "color": "2"
+    }
+  ],
+  "edges": [
+    {"id":"e1","fromNode":"source","fromSide":"right","toNode":"map","toSide":"left","toEnd":"arrow"},
+    {"id":"e2","fromNode":"map","fromSide":"right","toNode":"interview","toSide":"left","toEnd":"arrow"},
+    {"id":"e3","fromNode":"map","fromSide":"top","toNode":"candidate","toSide":"bottom","toEnd":"arrow"},
+    {"id":"e4","fromNode":"candidate","fromSide":"right","toNode":"branch","toSide":"left","toEnd":"arrow"},
+    {"id":"e5","fromNode":"branch","fromSide":"right","toNode":"stopflush","toSide":"left","toEnd":"arrow"},
+    {"id":"e6","fromNode":"map","fromSide":"bottom","toNode":"mcqd","toSide":"top","toEnd":"arrow"},
+    {"id":"e7","fromNode":"mcqd","fromSide":"right","toNode":"ringbuffer","toSide":"left","toEnd":"arrow"},
+    {"id":"e8","fromNode":"ringbuffer","fromSide":"right","toNode":"bringup","toSide":"left","toEnd":"arrow"},
+    {"id":"e9","fromNode":"sdma","fromSide":"top","toNode":"stopflush","toSide":"bottom","toEnd":"arrow"},
+    {"id":"e10","fromNode":"sdma","fromSide":"bottom","toNode":"bringup","toSide":"top","toEnd":"arrow"}
+  ]
+}

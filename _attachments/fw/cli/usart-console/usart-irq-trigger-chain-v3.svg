@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="895" viewBox="0 0 1600 895">
+<defs>
+  <marker id="arrow-ea580c" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L9,5 L0,9 Z" fill="#ea580c"/></marker>
+  <marker id="arrow-334155" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L9,5 L0,9 Z" fill="#334155"/></marker>
+  <marker id="arrow-db2777" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L9,5 L0,9 Z" fill="#db2777"/></marker>
+  <marker id="arrow-16a34a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L9,5 L0,9 Z" fill="#16a34a"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="800" y="48" text-anchor="middle" font-size="30" font-weight="800" fill="#0f172a">USART RX 中断触发条件与函数链</text>
+
+<g>
+  <rect x="70" y="100" width="450" height="166" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="295" y="137.6" text-anchor="middle" font-size="24" font-weight="700" fill="#0f172a">中断能进来的三个条件</text>
+  <text x="98" y="165.2" text-anchor="start" font-size="20" font-weight="500" fill="#334155">1. drv_usart_hw_init() 打开 RXIE</text>
+<text x="98" y="192.2" text-anchor="start" font-size="20" font-weight="500" fill="#334155">2. rt_hw_interrupt_register() 注册 handler</text>
+<text x="98" y="219.2" text-anchor="start" font-size="20" font-weight="500" fill="#334155">3. CP Master 额外 unmask</text>
+<text x="98" y="246.2" text-anchor="start" font-size="20" font-weight="500" fill="#334155">   INT_CTRL_INTR2CP_DIR</text>
+</g>
+<g>
+  <rect x="570" y="100" width="260" height="112" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="700" y="136.7" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">RX FIFO 非空</text>
+  <text x="598" y="163.1" text-anchor="start" font-size="19" font-weight="500" fill="#334155">外部终端输入字节</text>
+<text x="598" y="188.8" text-anchor="start" font-size="19" font-weight="500" fill="#334155">USART status.empty = 0</text>
+</g>
+<g>
+  <rect x="960" y="100" width="330" height="112" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+  <text x="1125" y="136.7" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">drv_usartN_irq_handler()</text>
+  <text x="988" y="163.1" text-anchor="start" font-size="19" font-weight="500" fill="#334155">宏生成 N 路入口</text>
+<text x="988" y="188.8" text-anchor="start" font-size="19" font-weight="500" fill="#334155">转入公共 handler</text>
+</g>
+<g>
+  <rect x="960" y="285" width="330" height="134" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+  <text x="1125" y="321.7" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">drv_usart_irq_handler()</text>
+  <text x="988" y="348.2" text-anchor="start" font-size="19" font-weight="500" fill="#334155">读取 pdev-&gt;reg-&gt;status</text>
+<text x="988" y="373.8" text-anchor="start" font-size="19" font-weight="500" fill="#334155">只判断 empty</text>
+<text x="988" y="399.4" text-anchor="start" font-size="19" font-weight="500" fill="#334155">不解析 shell 命令</text>
+</g>
+<g>
+  <rect x="560" y="285" width="280" height="115" rx="10" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+  <text x="700" y="321.7" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">status.empty == 0?</text>
+  <text x="588" y="348.2" text-anchor="start" font-size="19" font-weight="500" fill="#334155">是：继续通知 RX callback</text>
+<text x="588" y="373.8" text-anchor="start" font-size="19" font-weight="500" fill="#334155">否：直接返回</text>
+</g>
+<g>
+  <rect x="560" y="505" width="280" height="120" rx="10" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+  <text x="700" y="541.7" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">rx_indicate 已注册?</text>
+  <text x="588" y="568.2" text-anchor="start" font-size="19" font-weight="500" fill="#334155">是：agc_shell_rx_ind(dev, 1)</text>
+<text x="588" y="593.8" text-anchor="start" font-size="19" font-weight="500" fill="#334155">否：返回，不唤醒 shell</text>
+</g>
+<g>
+  <rect x="960" y="505" width="330" height="134" rx="10" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+  <text x="1125" y="541.7" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">agc_shell_rx_ind()</text>
+  <text x="988" y="568.2" text-anchor="start" font-size="19" font-weight="500" fill="#334155">rt_device_read()</text>
+<text x="988" y="593.8" text-anchor="start" font-size="19" font-weight="500" fill="#334155">rt_ringbuffer_put()</text>
+<text x="988" y="619.5" text-anchor="start" font-size="19" font-weight="500" fill="#334155">rt_sem_release()</text>
+</g>
+<g>
+  <rect x="570" y="695" width="780" height="110" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="960" y="731.7" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">shell 线程继续</text>
+  <text x="598" y="758.2" text-anchor="start" font-size="20" font-weight="500" fill="#334155">agc_shell_getchar() -&gt; agc_shell_parse()</text>
+<text x="598" y="785.2" text-anchor="start" font-size="20" font-weight="500" fill="#334155">-&gt; agc_shell_ctrl_*() -&gt; agc_shell_exec()</text>
+</g>
+<g>
+  <polyline points="520,182 570,156" fill="none" stroke="#ea580c" stroke-width="2.5" marker-end="url(#arrow-ea580c)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="555" y="135" text-anchor="middle" font-size="18" font-weight="700" fill="#ea580c">满足后等待 RX</text>
+</g>
+<g>
+  <polyline points="830,156 960,156" fill="none" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow-334155)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="1125,212 1125,285" fill="none" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow-334155)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="960,342 840,342" fill="none" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow-334155)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="700,400 700,505" fill="none" stroke="#db2777" stroke-width="2.5" marker-end="url(#arrow-db2777)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="735" y="463" text-anchor="middle" font-size="18" font-weight="700" fill="#db2777">非空</text>
+</g>
+<g>
+  <polyline points="840,565 960,565" fill="none" stroke="#db2777" stroke-width="2.5" marker-end="url(#arrow-db2777)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="902" y="540" text-anchor="middle" font-size="18" font-weight="700" fill="#db2777">已注册</text>
+</g>
+<g>
+  <polyline points="1290,625 1460,625 1460,695 1350,695" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-16a34a)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1220" y="663" text-anchor="middle" font-size="18" font-weight="700" fill="#16a34a">release rx_sem</text>
+</g>
+<text x="80" y="680" text-anchor="start" font-size="21" font-weight="700" fill="#334155">调试含义：中断链路卡住时，分层判断：</text>
+<text x="80" y="711" text-anchor="start" font-size="21" font-weight="700" fill="#334155">1. RXIE / IRQ handler / unmask</text>
+<text x="80" y="742" text-anchor="start" font-size="21" font-weight="700" fill="#334155">2. rx_indicate 是否注册</text>
+<text x="80" y="773" text-anchor="start" font-size="21" font-weight="700" fill="#334155">3. shell 线程是否被 rx_sem 唤醒</text>
+
+<text x="1570" y="826" text-anchor="end" font-size="16" fill="#64748b">source: 192.168.80.116:/home/shuaishuai.zhu/fw @ 541207a</text>
+</svg>

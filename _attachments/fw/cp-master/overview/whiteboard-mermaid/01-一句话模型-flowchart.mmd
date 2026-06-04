@@ -1,0 +1,11 @@
+flowchart LR
+  H[Host / IMC IPC] --> I[ipc_cmd]
+  I --> P[proc_list: context/stream/MCQD table]
+  P --> Q[qdma query thread]
+  Q --> T[task_list priority queues]
+  T --> B[bdma bind thread]
+  B --> R[top_reg bind DMA registers]
+  R --> HCQD[HCQD active]
+  HCQD --> U[CP User cmd_entry]
+  U --> FWSTOP[CPE_FW_HCQD_STOPPED]
+  FWSTOP --> B

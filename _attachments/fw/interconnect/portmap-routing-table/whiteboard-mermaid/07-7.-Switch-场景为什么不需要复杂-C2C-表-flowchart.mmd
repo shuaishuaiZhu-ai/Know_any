@@ -1,0 +1,6 @@
+flowchart TD
+    REQ["访问请求"] --> TYPE{"目标位置"}
+    TYPE -->|"跨 GPU"| HW["硬件轮询选择 serdes port"]
+    TYPE -->|"同 GPU 跨 die"| D2D["查 D2D port map"]
+    HW --> OUT["发往 switch / 外部互联"]
+    D2D --> UCIE["选择 ucie0 / ucie1"]

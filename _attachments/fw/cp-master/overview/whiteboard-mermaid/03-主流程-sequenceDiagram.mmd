@@ -1,0 +1,21 @@
+sequenceDiagram
+  participant Host as Host/IMC
+  participant IPC as ipc_cmd
+  participant Q as qdma_query_task
+  participant B as bdma_bind_task
+  participant TOP as CP TOP/HCQD regs
+  participant User as CP User cmd_entry
+
+  Host->>IPC: CREATE_STREAM(context, stream, priority, mcqd_addr)
+  IPC->>IPC: 更新 proc_list.proc_mask / mcqd_mask / mcqd_addr
+  loop 每 10 tick
+    Q->>TOP: 配置 QUERY DMA: MCQD_TABLE_ADDR + MASK
+    TOP-->>Q: MCQD_NOT_EMPTY stream bitmap
+    Q->>Q: 新 stream 插入 task_list[priority]
+  end
+  loop bind 线程
+    B->>TOP: 扫 HCQD_ACTIVE + stop/exc list
+    B->>TOP: 写 MCQD_ADDR_LO/HI + BINDDMA_HCQDID
+    TOP-->>User: HCQD active，IB candidate 可见
+    User->>User: cmd_entry 执行 packet
+  end

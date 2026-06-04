@@ -1,0 +1,73 @@
+[
+  {
+    "file": "C:\\work\\mas\\RguCore\\RGU_Design_Spec_Core_V1.2.docx",
+    "chars": 12076,
+    "lines": 477,
+    "headings_sample": []
+  },
+  {
+    "file": "C:\\work\\mas\\RguCore\\RGU_Design_Spec_RguGCtrl_V1.0.docx",
+    "chars": 15046,
+    "lines": 309,
+    "headings_sample": []
+  },
+  {
+    "file": "C:\\work\\mas\\RguCore\\RGU_Design_Spec_RguUCore_V1.2.docx",
+    "chars": 11019,
+    "lines": 311,
+    "headings_sample": [
+      "1.数据流描述",
+      "2.模块功能描述",
+      "3.接口时序",
+      "1.数据流描述",
+      "2.模块功能描述",
+      "1.数据流描述",
+      "2.模块功能描述",
+      "1.数据流描述",
+      "2.模块功能描述",
+      "1.模块功能描述",
+      "1.数据流描述",
+      "2.模块功能描述",
+      "1.数据流描述",
+      "2.模块功能描述",
+      "1.数据流描述",
+      "2.模块功能描述",
+      "1.数据流描述",
+      "2.模块功能描述"
+    ]
+  },
+  {
+    "file": "C:\\work\\mas\\RguCore\\Rgu_Design_Spec_SHM_V1.2.docx",
+    "chars": 16811,
+    "lines": 435,
+    "headings_sample": [
+      "4.2.1功能描述",
+      "4.2.2接口描述",
+      "4.2.3数据流描述",
+      "4.3.1功能描述",
+      "4.2.2接口描述",
+      "4.3.3数据流描述",
+      "4.3.4接口时序描述",
+      "4.3.1功能描述",
+      "4.3.2接口描述",
+      "4.3.3数据流描述",
+      "4.3.4流水线描述"
+    ]
+  },
+  {
+    "file": "C:\\work\\mas\\RguCore\\RGU_Design_Spec_Sys_V1.2.docx",
+    "chars": 2755,
+    "lines": 159,
+    "headings_sample": [
+      "0 | 指令校验错误 |",
+      "1 | 指令访问越界 |",
+      "2 | 除0异常 |",
+      "3 | NaN异常 |",
+      "4 | TRF访问越界 |",
+      "5 | SHM访问越界 |",
+      "6 | 地址违反对齐要求 |",
+      "7 | 访存Error_response |",
+      "8 | 执行卡死 | 长时间不动"
+    ]
+  }
+]

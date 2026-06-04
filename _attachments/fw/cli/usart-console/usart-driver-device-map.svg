@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="860" viewBox="0 0 1560 860">
+<defs>
+  <marker id="arrow" markerWidth="14" markerHeight="14" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+  </marker>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+  </filter>
+</defs>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="780" y="48" text-anchor="middle" font-size="30" font-weight="800" fill="#0f172a">drv_usart_init 内部职责：硬件配置和软件注册</text>
+
+<g>
+  <rect x="80" y="115" width="330" height="160" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="245" y="151" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">输入地址</text>
+  <text x="108" y="172" text-anchor="start" font-size="18" font-weight="500" fill="#334155">USART_DEVICE_ADDR</text>
+<text x="108" y="201" text-anchor="start" font-size="18" font-weight="500" fill="#334155">IMC: USART0_BASE</text>
+<text x="108" y="230" text-anchor="start" font-size="18" font-weight="500" fill="#334155">CP: USARTx_BASE</text>
+<text x="108" y="259" text-anchor="start" font-size="18" font-weight="500" fill="#334155">+ MEMORY_MAP_IO_BASE</text>
+</g>
+<g>
+  <rect x="515" y="115" width="330" height="135" rx="10" fill="#f0f9ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="680" y="151" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">drv_usart_get_id()</text>
+  <text x="543" y="172" text-anchor="start" font-size="18" font-weight="500" fill="#334155">reg &amp; USART_ADDR_MASK</text>
+<text x="543" y="201" text-anchor="start" font-size="18" font-weight="500" fill="#334155">去掉 CP MMIO 高位</text>
+<text x="543" y="230" text-anchor="start" font-size="18" font-weight="500" fill="#334155">得到 USART_ID_N</text>
+</g>
+<g>
+  <rect x="1010" y="115" width="340" height="135" rx="10" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+  <text x="1180" y="151" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">统一身份</text>
+  <text x="1038" y="172" text-anchor="start" font-size="18" font-weight="500" fill="#334155">device name = usartN</text>
+<text x="1038" y="201" text-anchor="start" font-size="18" font-weight="500" fill="#334155">IRQ = USART0_IRQn + N</text>
+<text x="1038" y="230" text-anchor="start" font-size="18" font-weight="500" fill="#334155">pdev = usart_device[N]</text>
+</g>
+<g>
+  <polyline points="410,173 515,173" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="462" y="148" text-anchor="middle" font-size="18" font-weight="700" fill="#2563eb">mask 地址</text>
+</g>
+<g>
+  <polyline points="845,173 1010,173" fill="none" stroke="#059669" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="925" y="148" text-anchor="middle" font-size="18" font-weight="700" fill="#059669">id 驱动后续选择</text>
+</g>
+<g>
+  <rect x="120" y="365" width="520" height="245" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+  <text x="380" y="401" text-anchor="middle" font-size="25" font-weight="700" fill="#0f172a">硬件配置分支</text>
+  <text x="148" y="424" text-anchor="start" font-size="20" font-weight="500" fill="#334155">drv_usart_hw_init(id)</text>
+<text x="148" y="455" text-anchor="start" font-size="20" font-weight="500" fill="#334155">读取 boot strap 决定 921600/115200</text>
+<text x="148" y="486" text-anchor="start" font-size="20" font-weight="500" fill="#334155">reset USART</text>
+<text x="148" y="517" text-anchor="start" font-size="20" font-weight="500" fill="#334155">drv_usart_init_cmd(): TX/RX/parity/stop/data size</text>
+<text x="148" y="548" text-anchor="start" font-size="20" font-weight="500" fill="#334155">清 RX FIFO，设置 watermark=0，打开 RXIE</text>
+</g>
+<g>
+  <rect x="820" y="365" width="520" height="245" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="1080" y="401" text-anchor="middle" font-size="25" font-weight="700" fill="#0f172a">软件对象分支</text>
+  <text x="848" y="424" text-anchor="start" font-size="20" font-weight="500" fill="#334155">drv_usart_dev_init(id, reg)</text>
+<text x="848" y="455" text-anchor="start" font-size="20" font-weight="500" fill="#334155">填 dev.read/write/control/user_data</text>
+<text x="848" y="486" text-anchor="start" font-size="20" font-weight="500" fill="#334155">rt_device_register(&quot;usartN&quot;)</text>
+<text x="848" y="517" text-anchor="start" font-size="20" font-weight="500" fill="#334155">rt_hw_interrupt_register(USART0_IRQn + id)</text>
+<text x="848" y="548" text-anchor="start" font-size="20" font-weight="500" fill="#334155">console/HAL/shell 后续都按名字找它</text>
+</g>
+<g>
+  <polyline points="1180,230 1180,330 380,330 380,365" fill="none" stroke="#0891b2" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="615" y="318" text-anchor="middle" font-size="18" font-weight="700" fill="#0891b2">id 用于配置当前 USART</text>
+</g>
+<g>
+  <polyline points="1180,230 1180,365" fill="none" stroke="#16a34a" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1270" y="310" text-anchor="middle" font-size="18" font-weight="700" fill="#16a34a">id 用于注册 usartN/IRQ</text>
+</g>
+<g>
+  <rect x="335" y="665" width="920" height="135" rx="10" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+  <text x="795" y="701" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">读图结论</text>
+  <text x="363" y="721" text-anchor="start" font-size="19" font-weight="500" fill="#334155">drv_usart_init() 不是只配硬件；它同时创建 RT-Thread 可见的软件设备。</text>
+<text x="363" y="750" text-anchor="start" font-size="19" font-weight="500" fill="#334155">如果没有 rt_device_register，rt_kprintf 找不到 console device。</text>
+<text x="363" y="779" text-anchor="start" font-size="19" font-weight="500" fill="#334155">agc_shell 也无法通过 device 框架绑定 USART 输入。</text>
+</g>
+
+<text x="1530" y="836" text-anchor="end" font-size="16" fill="#64748b">source: 192.168.80.116:/home/shuaishuai.zhu/fw @ 541207a</text>
+</svg>

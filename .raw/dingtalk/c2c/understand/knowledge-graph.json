@@ -1,0 +1,397 @@
+{
+  "version": "1.0.0",
+  "kind": "knowledge",
+  "project": {
+    "name": "C2C DingTalk Extract Staging",
+    "languages": [
+      "markdown"
+    ],
+    "frameworks": [
+      "karpathy-wiki"
+    ],
+    "description": "Knowledge graph for C2C DingTalk Extract Staging",
+    "analyzedAt": "2026-05-25T06:18:53.134063+00:00",
+    "gitCommitHash": ""
+  },
+  "nodes": [
+    {
+      "id": "article:raw\\10.1-m公司互联",
+      "type": "article",
+      "name": "10.1 m公司互联",
+      "filePath": "raw\\10.1-m公司互联.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/dxXB52LJqnN41ZEZFqxRY2bL8qjMp697",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.1 m公司互联\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/dxXB52LJqnN41ZEZFqxRY2bL8qjMp697\"\ndentry_uuid: \"dxXB52LJqnN41ZEZFqxRY2bL8qjMp697\"\ndoc_key: \"AJdl64DvAm9aqke1\"\ncreated: \"2024-09-25T04:50:38.000Z\"\nupdated: \"2025-12-30T01:42:58.000Z\"\n---\n# 10.1 m公司互联\n\nSource: https://alidocs.dingtalk.com/i/nodes/dxXB52LJqnN41ZEZFqxRY2bL8qjMp697\n\nParent: 10.C2C\n\nExtracted text length: 2015\n\nImage count observed: 0\n\n## Extracted Text\n\n- 采用LD/ST方式，类似NV方案。\n- 1.\n- 硬件实现\n- a.\n- serdes + pcs/ilkn + axi controller/bridge + noc做法来进行互联，不需要主从关系，对等的training\n- b.\n- 互连之间有边带信号连接，做link握手\n- c.\n- 互联之间要有中断实现\n- d.\n- pcie gpu和 port连接NOC之间放一个地址转换单元AMT，解析global mem地址，指向那一个GPU，该从那个互连接口出去\n- i.\n- AMT需要软件根据top路由配置地址路由\n- e.\n- 支持40 bit地址，1T地址空间\n- f.\n- top也是固定几种连接方式（理论上没有限制，软件能够通过port link关系，识别任何top关系）\n- 2.\n- fw\n- a.\n- link traing\n- i.\n- serdes link training\n- ii.\n- pcs/ilkn link training\n- b.\n- port和chip关系表建立\n- c.\n- 配合kmd进行AMT配置，其实就是AMT地址路由表配置\n- d.\n- 互联的port之间，trigger msg通讯，交换port号和chip id号，形成一张地址路由表\n- e.\n- 异常处理\n- 3.\n- kmd\n- a.\n- kmd会预先定制各种top互联关系\n- b.\n- 根据pcie bdf号配置chip id\n- c.\n- 根据port和chip号，确认top互联关系\n- d.\n- 找出chip和chip之间最优路径\n- e.\n- 联动fw配置AMT路由\n- f.\n- 异常处理\n- 以4相连举例，每卡4 port，每卡最大 80 G，只用了三个port相连：\n- top关系：\n- 全局地址：\n- AMT路由配置流程：\n- 1.\n- fw先做好link，插在服务器上的卡pcie也link\n- 2.\n- kmd拿到各个卡的bdf信息，通过一定规则，指定GPU ID-chip id，并下发给FW\n- 3.\n- FW收到GPU ID（chip0-3）之后，FW开始配置寄存器，以广播形式，让link的port之间互相发自己的port信息和chip id信息，确认各个chip的互联port和port之间关系路径，FW收集所有不成环的路径并保存\n- 4.\n- 以GPU0发起点举例，流程如下：\n- a.\n- FW检查GPU0 port0/1/2状态是link，通过构造source是chip 0/port0，chip 0/port1，chip 0/port2，分别填入port0/1/2对应的寄存器，trigger中断 msg携带source信息，发送到对方link的port\n- b.\n- GPU1的port1收到中断，解析msg信息写入寄存器，GPU1 FW保存并记录，GPU1同样构造chip1 port 0为source， chip0 port 0为dest，发送给chip0，作为一个ACK\n- c.\n- GPU0收到后，在重复发一次source为chip 0 port 0 dest为chip1 port 0，re-ACK一次\n- d.\n- 这样GPU0和GPU1间建立了一项通讯表项：\n- i.\n- GPU 0 - source：chip 0 port 0 dest：chip1 port 0\n- ii.\n- GPU 1 - source：chip 1 port 0 dest：chip0 port 0\n- e.\n- GPU2 GPU3和GPU0也是同样通讯\n- f.\n- 最终GPU0会有最优表项：\n- i.\n- source：chip 0 port 0 dest：chip1 port 0\n- ii.\n- source：chip 0 port 1 dest：chip2 port 1\n- iii.\n- source：chip 0 port 2 dest：chip3 port 2\n- g.\n- GPU1会有最优表项：\n- i.\n- source：chip 1 port 0 dest：chip0 port 0\n- ii.\n- source：chip 1 port 1 dest：chip3 port 1\n- iii.\n- source：chip 1 port 2 dest：chip2 port 2\n- h.\n- GPU2会有最优表项：\n- i.\n- source：chip 2 port 0 dest：chip3 port 0\n- ii.\n- source：chip 2 port 1 dest：chip0 port 1\n- iii.\n- source：chip 2 port 2 dest：chip1 port 2\n- i.\n- GPU3会有最优表项：\n- i.\n- source：chip 3 port 0 dest：chip2 port 0\n- ii.\n- source：chip 3 port 1 dest：chip1 port 1\n- iii.\n- source：chip 3 port 2 dest：chip0 port 2\n- j.\n- 表项中source和dest的chip id相等，认为是死锁情况，互联接口自己插在自己port上了，不允许。\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.10-多场景topo发现流程补充方案",
+      "type": "article",
+      "name": "10.10 多场景topo发现流程补充方案",
+      "filePath": "raw\\10.10-多场景topo发现流程补充方案.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/X6GRezwJlA2abxwxCrGqNaZr8dqbropQ",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.10 多场景topo发现流程补充方案\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/X6GRezwJlA2abxwxCrGqNaZr8dqbropQ\"\ndentry_uuid: \"X6GRezwJlA2abxwxCrGqNaZr8dqbropQ\"\ndoc_key: \"a2QnV4je7Q3QJO4X\"\ncreated: \"2026-05-12T01:38:56.000Z\"\nupdated: \"2026-05-18T07:10:44.000Z\"\n---\n# 10.10 多场景topo发现流程补充方案\n\nSource: https://alidocs.dingtalk.com/i/nodes/X6GRezwJlA2abxwxCrGqNaZr8dqbropQ\n\nParent: 10.C2C\n\nExtracted text length: 188\n\nImage count observed: 0\n\n## Extracted Text\n\n- 1.\n- 封装介绍\n- 1.1 2DIE封装\n- 1.2 4DIE封装\n- 1.2.1 形态1\n- 1.2.2 形态2\n- 形态2：仅在直连场景才有，如果用到交换场景会出错；\n- 形态2为AI提出的TOPO需求。其来源为下图。但是大概率不会有此形态。暂时以存在讨论；\n- 2.\n- 使用场景介绍\n- 2.1 2DIE场景\n- 2.2 4DIE场景\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.2-OISA介绍",
+      "type": "article",
+      "name": "10.2 OISA介绍",
+      "filePath": "raw\\10.2-OISA介绍.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/1DKw2zgV2P3GpjDjhz14Kqb18B5r9YAn",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.2 OISA介绍\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/1DKw2zgV2P3GpjDjhz14Kqb18B5r9YAn\"\ndentry_uuid: \"1DKw2zgV2P3GpjDjhz14Kqb18B5r9YAn\"\ndoc_key: \"1GXn4BYoE6PxODQ4\"\ncreated: \"2024-10-14T07:52:13.000Z\"\nupdated: \"2024-10-15T03:33:50.000Z\"\n---\n# 10.2 OISA介绍\n\nSource: https://alidocs.dingtalk.com/i/nodes/1DKw2zgV2P3GpjDjhz14Kqb18B5r9YAn\n\nParent: 10.C2C\n\nExtracted text length: 36\n\nImage count observed: 9\n\n## Extracted Text\n\n- No accessible text extracted. The source appears to be image-heavy or empty in the text tree.\n\n## Image Evidence\n\n- image 0: 1299x732 https://alidocs.dingtalk.com/core/api/resources/img/5eecdaf48460cde5bfc1238242c37065378a7d783f0cf9f2fdec3f5658bae6ec63a75b5f9f33dcf139e8703ac5556d0db04d05333a5195b8b6c576a5f665eaca28eb3fed32c648f36fc51d093192379e6522a17305debdc841ce1f53144a8262?x-oss-process=image/format,webp/ignore-error,1\n- image 1: 1306x732 https://alidocs.dingtalk.com/core/api/resources/img/5eecdaf48460cde5bfc1238242c37065378a7d783f0cf9f2fdec3f5658bae6ec63a75b5f9f33dcf139e8703ac5556d0d292734d2bbb313994c64ad2f6a359e707401f3962ee4a97bd6ffbafbad71a744219e037e07a7865fdb025edc2b0daf9c?x-oss-process=image/format,webp/ignore-error,1\n- image 2: 1305x726 https://alidocs.dingtalk.com/core/api/resources/img/5eecdaf48460cde5bfc1238242c37065378a7d783f0cf9f2fdec3f5658bae6ec63a75b5f9f33dcf139e8703ac5556d0df1ffa581b3586615e317d09719f1ee15f5d9798412ef8c5130a1e8a36d947969ec4a2e6bd391c790a4e06c67c1f30cec?x-oss-process=image/format,webp/ignore-error,1\n- image 3: 1302x726 https://alidocs.dingtalk.com/core/api/resources/img/5eecdaf48460cde5bfc1238242c37065378a7d783f0cf9f2fdec3f5658bae6ec63a75b5f9f33dcf139e8703ac5556d0db7170c44aefe1d18c1dddf2f388adca1fe86b0a8ff7533a08c8b3766f38ff7ba6045e81548feb654564f591ca295e356?x-oss-process=image/format,webp/ignore-error,1\n- image 4: 1303x730 https://alidocs.dingtalk.com/core/api/resources/img/5eecdaf48460cde5bfc1238242c37065378a7d783f0cf9f2fdec3f5658bae6ec63a75b5f9f33dcf139e8703ac5556d0d099d44f7dad03dfb6cfd9e83c6fa6127d9dc8bc89da1422de2288cd78fd36c5a378ddba0786f885bb05115cc51dd8ba5?x-oss-process=image/format,webp/ignore-error,1\n- image 5: 1297x730 https://alidocs.dingtalk.com/core/api/resources/img/5eecdaf48460cde5bfc1238242c37065378a7d783f0cf9f2fdec3f5658bae6ec63a75b5f9f33dcf139e8703ac5556d0d294f3f8d6716e5e227374bce5ef281d3961690628e45dcb6bd8351e118ad5e2037eceb1478a1e5a667350ec7eec0644b?x-oss-process=image/format,webp/ignore-error,1\n- image 6: 1300x727 https://alidocs.dingtalk.com/core/api/resources/img/5eecdaf48460cde5bfc1238242c37065378a7d783f0cf9f2fdec3f5658bae6ec63a75b5f9f33dcf139e8703ac5556d0d2d9bb4d026d8248c3ef47e98506fc6ef53eff09e48ff42837ff0c6394ae425273a2c672596a4cc161337e86b5484ef44?x-oss-process=image/format,webp/ignore-error,1\n- image 7: 90x86 https://img.alicdn.com/imgextra/i3/O1CN01dvJs0u1lKS4mSvj4m_!!6000000004800-2-tps-90-86.png\n- image 8: 474x474 https://static.dingtalk.com/media/lQLPDhviE5tNzA7NAdrNAdqwOytlu07gC80DQxO7uY",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.3-hwj-互联",
+      "type": "article",
+      "name": "10.3 hwj 互联",
+      "filePath": "raw\\10.3-hwj-互联.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/7dx2rn0JbYogpk7kSxXqLXBxVMGjLRb3",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.3 hwj 互联\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/7dx2rn0JbYogpk7kSxXqLXBxVMGjLRb3\"\ndentry_uuid: \"7dx2rn0JbYogpk7kSxXqLXBxVMGjLRb3\"\ndoc_key: \"NpQlKa1J0g5ZqDvL\"\ncreated: \"2024-10-30T11:11:47.000Z\"\nupdated: \"2024-10-30T11:40:02.000Z\"\n---\n# 10.3 hwj 互联\n\nSource: https://alidocs.dingtalk.com/i/nodes/7dx2rn0JbYogpk7kSxXqLXBxVMGjLRb3\n\nParent: 10.C2C\n\nExtracted text length: 435\n\nImage count observed: 0\n\n## Extracted Text\n\n- hwj的互联方案：\n- ●\n- 协议走的是网络rdma方案，每个port之间互联，走网络协议，最多支持8卡互联\n- ●\n- 不支持LD/ST形式，多卡之间内存不共享，不支持cuda多device内存数据直接计算\n- ●\n- 每个互联的口之间实现一个tiny core，做数据transfer\n- ●\n- 硬件实现rdma的数据封包和解包\n- ●\n- 卡与卡之间不支持统一编址，各自卡内的PA和VA单独一套\n- ●\n- 卡与卡之间互联的port，会做一个类似IP地址的路由协议，路由协议需要kmd去做配置，选择最短路径\n- ●\n- 卡与卡之间的数据传输，依靠NCCL kernel launch，kernel需要携带source/destination chip id（不确定带不带port id）和address（VA/PA都可以），执行时候，tiny core根据source/desination chip id，port id，address，进行数据reduce/gather等操作。\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.4-pcie互联",
+      "type": "article",
+      "name": "10.4 pcie互联",
+      "filePath": "raw\\10.4-pcie互联.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/P0MALyR8klNZ0pPpIELQ6GX2W3bzYmDO",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.4 pcie互联\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/P0MALyR8klNZ0pPpIELQ6GX2W3bzYmDO\"\ndentry_uuid: \"P0MALyR8klNZ0pPpIELQ6GX2W3bzYmDO\"\ndoc_key: \"ybEnB5jdeAW3dlP1\"\ncreated: \"2025-06-16T11:22:23.000Z\"\nupdated: \"2025-06-16T11:32:16.000Z\"\n---\n# 10.4 pcie互联\n\nSource: https://alidocs.dingtalk.com/i/nodes/P0MALyR8klNZ0pPpIELQ6GX2W3bzYmDO\n\nParent: 10.C2C\n\nExtracted text length: 772\n\nImage count observed: 0\n\n## Extracted Text\n\n- 描述\n- 目前单die情况是4 * pcie gen5 x16，一个作为pcie EP连接host主机，3个x16 lane口作为互联口，或者bifurcation成6个x8 lane口，通过pcie进行多卡互联。\n- 双die in package情况，总共是8个pcie gen5 x16，每个die，各自用一个x16 lane bifurcation成两个x8 lane，分别连接到主机，就有6个pcie gen5 x16 + 2个pcie gen5 x8，或者\n- ，进行多卡互联。\n- 目前存在或者需要搞清楚问题：\n- 1.\n- pcie和pcie的互联，建立link，需要RP和EP作为一对，互联两个口之间必是RP和EP，EP和RP之间不做mapping，数据如何互访？？？\n- a.\n- RP -> EP, 通过pcie bar mapping\n- b.\n- EP -> RP,通过pcie ATU outbound config\n- 2.\n- pcie互联，是不是要固定topoty结构，那些是RP，那些是EP，不然link建立不了？？？\n- a.\n- 需要建立固定top关系，2互联，4互联，6互联，8互联\n- 3.\n- 不同的top，需要不同bifurcation配置，策略？？？？\n- a.\n- x16口不够\n- 4.\n- 怎么知道top关系？\n- a.\n- 通过kmd获取bdf信息，给各自卡的imc，\n- i.\n- 通过边带信号互相发送，建立各自的互联信息表，知道互联情况？\n- ii.\n- 通过互联口pcie device ID？需要确定GPU ID后，才能建立C2C link\n- 5.\n- 多卡之间内存怎么排布\n- a.\n- 参照NV实现，LD/ST，最好是统一PA\n- 单die top分析\n- 4卡全互联\n- 每张卡6个pcie gen5x8 port，假设每张卡memory最大为80G，互联top：\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.5-topo-discovery-port-mapping-configuration",
+      "type": "article",
+      "name": "10.5 topo discovery/port mapping configuration",
+      "filePath": "raw\\10.5-topo-discovery-port-mapping-configuration.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/P0MALyR8klNZ0pPpIELQdDPLW3bzYmDO",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.5 topo discovery/port mapping configuration\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/P0MALyR8klNZ0pPpIELQdDPLW3bzYmDO\"\ndentry_uuid: \"P0MALyR8klNZ0pPpIELQdDPLW3bzYmDO\"\ndoc_key: \"Pd6l2Z7LDLeLyl7M\"\ncreated: \"2025-06-16T11:33:02.000Z\"\nupdated: \"2026-05-25T02:27:53.000Z\"\n---\n# 10.5 topo discovery/port mapping configuration\n\nSource: https://alidocs.dingtalk.com/i/nodes/P0MALyR8klNZ0pPpIELQdDPLW3bzYmDO\n\nParent: 10.C2C\n\nExtracted text length: 450\n\nImage count observed: 0\n\n## Extracted Text\n\n- 1.\n- 介绍\n- ●\n- 目前实现策略\n- ○\n- C2C： adapter + OISA MAC + PCS + 112G serdes\n- ○\n- D2D：uxcs + adapter + 24G serdes\n- ●\n- 支持port数量：\n- ○\n- C2C是x2和x4两种配置，即6x200G和3x400G的接口\n- ■\n- 目前产品如果没有serdes lane问题，后面只会有3个400G port，下面介绍所有topo组网都以1die 3 port为准\n- ○\n- D2D就只支持2 port，一个port 有8link\n- ●\n- 支持die数量为1chip 2 die和1chip 4 die模式，每一个die作为一个device，有单独pcie\n- ○\n- 4die在GraceC封装并不会有，但是也要支持，低优先级\n- 2.\n- Topo\n- 2.1 PCIe topo\n- 2-die在服务器的互联（Topo结构以bus0起始作为举例，不支持nic的rdma情况）：\n- ●\n- 单机8卡：\n- ●\n- 双机16卡：\n- ○\n- 两个单机8卡互联\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.6-c2c-ras和testable",
+      "type": "article",
+      "name": "10.6 c2c ras和testable",
+      "filePath": "raw\\10.6-c2c-ras和testable.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/ndMj49yWjX2zRqOqF276BayQJ3pmz5aA",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.6 c2c ras和testable\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/ndMj49yWjX2zRqOqF276BayQJ3pmz5aA\"\ndentry_uuid: \"ndMj49yWjX2zRqOqF276BayQJ3pmz5aA\"\ndoc_key: \"jP2lRYjMZj3JAO8g\"\ncreated: \"2025-12-29T12:08:46.000Z\"\nupdated: \"2026-04-17T07:25:53.000Z\"\n---\n# 10.6 c2c ras和testable\n\nSource: https://alidocs.dingtalk.com/i/nodes/ndMj49yWjX2zRqOqF276BayQJ3pmz5aA\n\nParent: 10.C2C\n\nExtracted text length: 853\n\nImage count observed: 0\n\n## Extracted Text\n\n- ●\n- RAS feature\n- ●\n- 可维护性\n- ●\n- 可测试性\n- ●\n- 可诊断性\n- 1.AXI monitor功能\n- 统计AXI请求的size是AXI口的宽度，即1024b（128B）\n- cycle是按照C2C的主时钟900MHz统计的\n- 这里的mst和slv是站在c2c的视角，根据noc的请求方向来判断是mst还是slv：从noc来的请求，c2c就是slv；到noc去的请求，c2c就是mst。以gpu0发往gpu1数据为例，需要监测的是gpu0的slv口和gpu1的mst口\n- 1.\n- 针对三个Adapter都分别有统计，针对每个Adapter分为Slave和Master两方向的统计，即：\n- a.\n- S0、M0监控Adapter0端口\n- b.\n- S1、M1监控Adapter1端口\n- c.\n- S2、M2监控Adapter2端口\n- 2.\n- 针对每个Adapter的monitor，包含读统计和写统计两类\n- a.\n- araddr统计读操作\n- b.\n- awaddr统计写操作\n- 3.\n- 针对每个Adapter的monitor，又包含4类功能：\n- a.\n- latency统计功能：统计发包到收到response的cycle数。使用方法：软件可以先使能en，硬件在检测到第一笔AXI请求后开始计时，软件可以polling done寄存器，然后读cycle寄存器\n- b.\n- req cnt功能：统计一段时间内该port的AXI请求数量。使用方法：软件先配置clr寄存器清除原有的cnt计数，然后硬件开始统计AXI请求的数量（即包的个数？），然后软件手动配置stop寄存器停止统计，最后软件polling done寄存器等待其拉高后读取cnt寄存器\n- c.\n- 地址匹配功能：检测某一地址是否有AXI访问。使用方法：软件配置target_addr的低位和高位地址（49bit全局编码地址），然后使能en，之后polling match寄存器，等待其拉高后读取match_addr寄存器对比与target_addr是否一致\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.7-Multi-Standard-Serdes（MSS）",
+      "type": "article",
+      "name": "10.7 Multi-Standard Serdes（MSS）",
+      "filePath": "raw\\10.7-Multi-Standard-Serdes（MSS）.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/Amq4vjg8905L7OpOUdxDgXkeJ3kdP0wQ",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.7 Multi-Standard Serdes（MSS）\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/Amq4vjg8905L7OpOUdxDgXkeJ3kdP0wQ\"\ndentry_uuid: \"Amq4vjg8905L7OpOUdxDgXkeJ3kdP0wQ\"\ndoc_key: \"eYVOL5jKMzWG0lpz\"\ncreated: \"2025-07-15T06:54:42.000Z\"\nupdated: \"2025-12-29T12:10:24.000Z\"\n---\n# 10.7 Multi-Standard Serdes（MSS）\n\nSource: https://alidocs.dingtalk.com/i/nodes/Amq4vjg8905L7OpOUdxDgXkeJ3kdP0wQ\n\nParent: 10.C2C\n\nExtracted text length: 60\n\nImage count observed: 0\n\n## Extracted Text\n\n- 1.\n- zeusCORE 整体架构框图\n- Top level框图：\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.8-C2C-自定义L2报文调研分析",
+      "type": "article",
+      "name": "10.8 C2C 自定义L2报文调研分析",
+      "filePath": "raw\\10.8-C2C-自定义L2报文调研分析.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/G53mjyd80pOLkmvmHlXK9jBD86zbX04v",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.8 C2C 自定义L2报文调研分析\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/G53mjyd80pOLkmvmHlXK9jBD86zbX04v\"\ndentry_uuid: \"G53mjyd80pOLkmvmHlXK9jBD86zbX04v\"\ndoc_key: \"3M0OzeZ2jpGAYqze\"\ncreated: \"2026-03-12T06:39:22.000Z\"\nupdated: \"2026-03-19T01:19:24.000Z\"\n---\n# 10.8 C2C 自定义L2报文调研分析\n\nSource: https://alidocs.dingtalk.com/i/nodes/G53mjyd80pOLkmvmHlXK9jBD86zbX04v\n\nParent: 10.C2C\n\nExtracted text length: 161\n\nImage count observed: 0\n\n## Extracted Text\n\n- 为了适配不同vendor交换机，这里做一个C2C L2的调研和一些交换机调研\n- 1.\n- C2C L2报文格式\n- 1.1 L2标准报文format\n- 标准的L2网络报文格式：\n- 其中：\n- ●\n- DA和SA表示source MAC和destination MAC\n- ●\n- EthType表示报文类型\n- ○\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\10.9-C2C-loopback功能",
+      "type": "article",
+      "name": "10.9 C2C loopback功能",
+      "filePath": "raw\\10.9-C2C-loopback功能.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/y20BglGWO2XloQEQF0x6zp6l8A7depqY",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"10.9 C2C loopback功能\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/y20BglGWO2XloQEQF0x6zp6l8A7depqY\"\ndentry_uuid: \"y20BglGWO2XloQEQF0x6zp6l8A7depqY\"\ndoc_key: \"jP2lRYjVG006EO8g\"\ncreated: \"2026-04-17T03:09:39.000Z\"\nupdated: \"2026-05-07T09:45:05.000Z\"\n---\n# 10.9 C2C loopback功能\n\nSource: https://alidocs.dingtalk.com/i/nodes/y20BglGWO2XloQEQF0x6zp6l8A7depqY\n\nParent: 10.C2C\n\nExtracted text length: 675\n\nImage count observed: 0\n\n## Extracted Text\n\n- C2C子系统包含Adapter、LLRMAC、Serdes PHY三部分\n- C2C子系统支持多节点loopback方式：\n- ●\n- Adapter\n- ○\n- MAC出口内环\n- ●\n- LLRMAC\n- ○\n- PCS内环\n- ○\n- MAC内环\n- ●\n- Serdes PHY\n- ○\n- 近端环回\n- ■\n- 近端串行内部环回（NES，Near-End Serial）\n- ■\n- 近端串行外部环回（NES-external）\n- ■\n- 近端并行内部环回（NEP，Near-End Parallel）\n- ○\n- 远端环回\n- ■\n- 远端串行外部环回（FES，Far-End Serial）（aw文档写只支持1G低速测试，但是DV验证可以跑通高速模式）\n- ■\n- 外部并行环回（FEP，Far-End Parallel）\n- ■\n- 外部并行错误环回（Far-End Error External）\n- 使用imc测试C2C loopback功能时，必须使能top环回功能\n- 1.Top环回\n- 功能介绍：\n- 为了使用imc测试C2C的loopback通路，DE设计了Top环回功能（即addr replace功能）。\n- 该功能需要搭配后级的adapter / llrmac loopback功能一起使用。\n- 使能后，top会在C2C入口处将地址信息中的gpu_id和die_id替换为本gpu_id和die_id；C2C子系统在经过后级loopback后会重新返回到top中，然后top检测到替换后的地址信息是本gpu的就会接收，传递给Noc，Noc根据地址信息中的bit[36:0]路由到相应的mem中\n- 整体测试流程：\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "article:raw\\AI集群ID基础设施调研",
+      "type": "article",
+      "name": "AI集群ID基础设施调研",
+      "filePath": "raw\\AI集群ID基础设施调研.md",
+      "summary": "Source: https://alidocs.dingtalk.com/i/nodes/G53mjyd80pOLkmvmHgdeaxZn86zbX04v",
+      "tags": [
+        "raw"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [],
+        "category": null,
+        "content": "---\ntype: raw-source-extract\ntitle: \"AI集群ID基础设施调研\"\nsource_type: dingtalk-alidocs\nsource_url: \"https://alidocs.dingtalk.com/i/nodes/G53mjyd80pOLkmvmHgdeaxZn86zbX04v\"\ndentry_uuid: \"G53mjyd80pOLkmvmHgdeaxZn86zbX04v\"\ndoc_key: \"Lk3lbmbAMdkZjOm9\"\ncreated: \"2026-05-20T03:17:22.000Z\"\nupdated: \"2026-05-21T09:29:05.000Z\"\n---\n# AI集群ID基础设施调研\n\nSource: https://alidocs.dingtalk.com/i/nodes/G53mjyd80pOLkmvmHgdeaxZn86zbX04v\n\nParent: 10.10 多场景topo发现流程补充方案.adoc\n\nExtracted text length: 1188\n\nImage count observed: 0\n\n## Extracted Text\n\n- 1.\n- GPUID：硬件级资源标识\n- GPUID（GPU 标识符）是最底层的硬件标识，用于唯一识别物理 GPU 设备。在支持多实例 GPU（MIG）技术的系统中，GPUID 的定义更加复杂。例如，NVIDIA A100 支持将单个物理 GPU 划分为最多 7 个独立的 GPU 实例，每个实例称为一个 MIG 片段，具有独立的计算、内存和带宽资源。\n- 1.1\n- 物理 GPU 与 MIG 实例的 ID 分配\n- 在现代 AI 集群中，GPUID 的分配机制需要同时支持传统的物理 GPU 和新兴的 MIG 技术。物理 GPU 的 ID 分配通常采用 PCI Bus ID 或 UUID 两种方式。为了确保两套编号系统的一致性，最佳实践是始终先设置 CUDA_DEVICE_ORDER=PCI_BUS_ID，让两套编号统一。最安全的方法是使用 PCI Bus ID 直接指定 GPU，完全绕过任何排序策略。\n- 对于支持 MIG 技术的 GPU，ID 分配机制更加复杂。NVIDIA 的 MIG 技术允许将基于 Ampere 及后续架构的 GPU（如 A100、H100）划分为独立且安全的 GPU 实例。在 Kubernetes 环境中，NVIDIA 提供了两种策略来暴露 MIG 设备：none 策略和single 策略。\n- 1.\n- none 策略保持 nvidia-device-plugin 的运行方式与以往相同，插件不会区分启用或未启用 MIG 的 GPU，将枚举节点上的所有 GPU，使用nvidia.com/gpu资源类型使其可用。这种策略的优势在于兼容性好，但无法充分利用 MIG 技术的优势。\n- 2.\n- single 策略旨在保持用户在 Kubernetes 中使用 GPU 的体验不变。MIG 设备使用与以前相同的nvidia.com/gpu资源类型进行枚举。然而，与该资源类型相关的属性现在映射到节点上可用的 MIG 设备，而不是完整的 GPU。这种策略能够让用户透明地使用 MIG 技术，无需修改现有应用程序。\n- 1.2\n- GPU 虚拟化环境下的 ID 管理\n- 在 GPU 虚拟化环境中，GPUID 的管理面临新的挑战。NVIDIA vGPU 技术为虚拟化环境提供了 GPU 资源分配机制，其中vgpu-uuid是 vGPU 创建时分配的 UUID，用于唯一标识虚拟 GPU 设备。\n- 在实际部署中，管理员需要通过以下方式管理 GPUID：\n- 使用 **-i <GPU_ID>** 参数指定要使用的 GPU 设备，将 < GPU_ID > 替换为需要配置的 GPU 的实际 ID\n- 使用 **-mig <INSTANCE_COUNT>** 参数配置 MIG（Multi-Instance GPU）实例数量\n\n",
+        "backlinks": []
+      }
+    },
+    {
+      "id": "topic:source-extracts",
+      "type": "topic",
+      "name": "Source Extracts",
+      "summary": "Category from index: Source Extracts (11 articles)",
+      "tags": [
+        "category"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.1-m公司互联",
+      "type": "source",
+      "name": "10.1-m公司互联.md",
+      "filePath": "raw\\10.1-m公司互联.md",
+      "summary": "Raw source (.md, 4 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.10-多场景topo发现流程补充方案",
+      "type": "source",
+      "name": "10.10-多场景topo发现流程补充方案.md",
+      "filePath": "raw\\10.10-多场景topo发现流程补充方案.md",
+      "summary": "Raw source (.md, 1 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.2-OISA介绍",
+      "type": "source",
+      "name": "10.2-OISA介绍.md",
+      "filePath": "raw\\10.2-OISA介绍.md",
+      "summary": "Raw source (.md, 3 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.3-hwj-互联",
+      "type": "source",
+      "name": "10.3-hwj-互联.md",
+      "filePath": "raw\\10.3-hwj-互联.md",
+      "summary": "Raw source (.md, 1 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.4-pcie互联",
+      "type": "source",
+      "name": "10.4-pcie互联.md",
+      "filePath": "raw\\10.4-pcie互联.md",
+      "summary": "Raw source (.md, 2 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.5-topo-discovery-port-mapping-configuration",
+      "type": "source",
+      "name": "10.5-topo-discovery-port-mapping-configuration.md",
+      "filePath": "raw\\10.5-topo-discovery-port-mapping-configuration.md",
+      "summary": "Raw source (.md, 1 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.6-c2c-ras和testable",
+      "type": "source",
+      "name": "10.6-c2c-ras和testable.md",
+      "filePath": "raw\\10.6-c2c-ras和testable.md",
+      "summary": "Raw source (.md, 2 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.7-Multi-Standard-Serdes（MSS）",
+      "type": "source",
+      "name": "10.7-Multi-Standard-Serdes（MSS）.md",
+      "filePath": "raw\\10.7-Multi-Standard-Serdes（MSS）.md",
+      "summary": "Raw source (.md, 1 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.8-C2C-自定义L2报文调研分析",
+      "type": "source",
+      "name": "10.8-C2C-自定义L2报文调研分析.md",
+      "filePath": "raw\\10.8-C2C-自定义L2报文调研分析.md",
+      "summary": "Raw source (.md, 1 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:10.9-C2C-loopback功能",
+      "type": "source",
+      "name": "10.9-C2C-loopback功能.md",
+      "filePath": "raw\\10.9-C2C-loopback功能.md",
+      "summary": "Raw source (.md, 2 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "source:AI集群ID基础设施调研",
+      "type": "source",
+      "name": "AI集群ID基础设施调研.md",
+      "filePath": "raw\\AI集群ID基础设施调研.md",
+      "summary": "Raw source (.md, 3 KB)",
+      "tags": [
+        "raw",
+        "md"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [],
+  "layers": [
+    {
+      "id": "layer:source-extracts",
+      "name": "Source Extracts",
+      "description": "Source Extracts (1 nodes)",
+      "nodeIds": [
+        "topic:source-extracts"
+      ]
+    },
+    {
+      "id": "layer:other",
+      "name": "Other",
+      "description": "Uncategorized nodes (22)",
+      "nodeIds": [
+        "article:raw\\10.1-m公司互联",
+        "article:raw\\10.10-多场景topo发现流程补充方案",
+        "article:raw\\10.2-OISA介绍",
+        "article:raw\\10.3-hwj-互联",
+        "article:raw\\10.4-pcie互联",
+        "article:raw\\10.5-topo-discovery-port-mapping-configuration",
+        "article:raw\\10.6-c2c-ras和testable",
+        "article:raw\\10.7-Multi-Standard-Serdes（MSS）",
+        "article:raw\\10.8-C2C-自定义L2报文调研分析",
+        "article:raw\\10.9-C2C-loopback功能",
+        "article:raw\\AI集群ID基础设施调研",
+        "source:10.1-m公司互联",
+        "source:10.10-多场景topo发现流程补充方案",
+        "source:10.2-OISA介绍",
+        "source:10.3-hwj-互联",
+        "source:10.4-pcie互联",
+        "source:10.5-topo-discovery-port-mapping-configuration",
+        "source:10.6-c2c-ras和testable",
+        "source:10.7-Multi-Standard-Serdes（MSS）",
+        "source:10.8-C2C-自定义L2报文调研分析",
+        "source:10.9-C2C-loopback功能",
+        "source:AI集群ID基础设施调研"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Source Extracts",
+      "description": "Explore the Source Extracts section (11 articles)",
+      "nodeIds": [
+        "topic:source-extracts"
+      ]
+    }
+  ]
+}

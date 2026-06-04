@@ -1,0 +1,14 @@
+sequenceDiagram
+  participant M as CP Master BDMA
+  participant TOP as TOP regs
+  participant H as HCQD
+  participant IB as Interaction Buffer
+  participant U as CP User cmd_entry
+
+  M->>TOP: write MCQD_ADDR_LO/HI
+  M->>TOP: write BINDDMA_HCQDID
+  TOP->>H: bind MCQD to HCQD
+  H->>IB: expose candidate bit / packet fifo
+  U->>IB: ib_get_candidate_bitmask
+  U->>IB: ib_peek_packet
+  U->>U: cmd_handle_packet

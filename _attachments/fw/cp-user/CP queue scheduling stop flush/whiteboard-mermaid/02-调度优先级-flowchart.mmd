@@ -1,0 +1,13 @@
+flowchart TD
+    START["cmd_entry Phase 2"] --> FLUSH{"flush_cxt_bitmap 有 bit?"}
+    FLUSH -- yes --> DRAIN["drain context flush<br/>清 HCQD 软件状态"]
+    DRAIN --> NEXT["enable irq; continue"]
+    FLUSH -- no --> ACTIVE["active = candidate | pending_mask | stop_bitmask"]
+    ACTIVE --> PICK["round-robin / ctz 选 hcqd_id"]
+    PICK --> STOP{"stop_bitmask 命中?"}
+    STOP -- yes --> DROP["drop IB-resident packets<br/>通知 stopped"]
+    STOP -- no --> PENDING{"cmd_status pending?"}
+    PENDING -- yes --> RETRY["atomic/event/wait_host/block_mask 重试"]
+    PENDING -- no --> CAND{"candidate bit?"}
+    CAND -- yes --> PEEK["ib_peek_packet<br/>cmd_handle_packet"]
+    CAND -- no --> STALE["清 stale pending/candidate"]

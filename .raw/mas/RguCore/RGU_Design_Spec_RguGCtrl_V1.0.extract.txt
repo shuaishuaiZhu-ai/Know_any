@@ -1,0 +1,362 @@
+[TABLE]
+产品名称 R1 | 内部
+ | 
+产品版本 v0.1 | 总 xxx 页
+ | 
+[P style=] RguGCtrl设计方案
+[P style=] 拟制人员：  日期：
+[P style=] 审校人员：  日期：
+[P style=] （仅供内部使用）
+[P style=] HX Logo
+[P style=] 辉羲智能科技有限公司
+[P style=] HX
+[P style=] All Rights Reserved.
+[P style=] 版权所有，侵权必究
+[P style=743] 修订记录
+[TABLE]
+版本号 | 修订说明 | 修订人 | 审核人 | 修订日期
+V0.1 | 初版 | 熊海翡 |  | 2024/07/24
+V0.2 | 更新近期改动，细化部分说明 | 熊海翡 |  | 2024/09/23
+V0.3 | 增加第4.3章节 模块在系统位置的框图 在3.2章节的接口中增加kernel done相关信号 修改4.1.2中max_clus_num计算的相关公式 | 宋林 |  | 2024/10/14
+V0.9 |  | 张士长 |  | 2025/06/09
+[P style=743] 概述
+[P style=744] 系统位置
+[P style=] RguGCtrl含有两个模块，分别是GlbCtrl(global control)和ClusCtrl(cluster control)模块，其在系统中的位置如下图所示。一方面，GlbCtrl模块和系统外通过axi-lite交互，用于获取kernel参数配置；另一方面，ClusCtrl模块和系统内的Control Fabric(ctrl noc)通过axi-lite相连，把参数发给各个core。
+[IMAGE 1 rid=rId11 target=media/image1.png]
+[IMAGE 2 rid=rId12 target=media/image2.png]
+[IMAGE 3 rid=rId11 target=media/image1.png]
+[IMAGE 4 rid=rId12 target=media/image2.png]
+[P style=] 图1
+[IMAGE 5 rid=rId11 target=media/image1.png]
+[IMAGE 6 rid=rId11 target=media/image1.png]
+[P style=] 每个die含有一个GlbCtrl模块，连接CP(kernel dispatch)和ctrl noc，每个die独立运行；physical cluster则共有CLUS_N个，每个physical cluster内含有一个ClusCtrl模块和CORE_N个core。
+[P style=744] 功能列表
+[P style=] RguGCtrl模块的功能有：
+[P style=774] 将kernel的参数配置reg info拆分为logic cluster；将regi nfo和logic cluster通过Router分发给CLUS_N个physical cluster中的一个或多个，分发方式支持random和fixed两大类
+[P style=774] 将logic cluster拆分为block，并将reg info和blocks通过全互联reg总线分发给CLCR_N个core中的一个或多个
+[P style=774] 支持同时处理多个kernel；多个kernel可以并行执行，占用不同的physical cluster；每个physical cluster只能同时执行1个kernel
+[P style=774] 上报debug信息和中断等（TODO）
+[P style=743] 整体架构
+[P style=] 整体架构图参考图1，简要图如图2所示，RguGCtrl主要包括2个子模块，GlbCtrl和ClusCtrl。其中蓝线是Router，红线是全互联。
+[IMAGE 7 rid=rId13 target=media/image3.png]
+[IMAGE 8 rid=rId13 target=media/image3.png]
+[P style=] 图2
+[P style=] GlbCtrl模块功能如下：
+[P style=774] 通过axilite接口接收kernel配置信息reg info，支持缓存最多KNEL_N个kernel的信息；按序调度kernel，kernel packet寄存器被读出后，只要剩余的cluster资源满足下一个kernel的使用，就可以进行下一个kernel的调度，kernel所对应的cluster index发送完成后，则可清空该kernel的packet寄存器，从cp接收新的kernel packet；每个physical cluster只能同时执行1个kernel
+[P style=774] 根据griddim / clusdim / ctanum / cluster status等信息，自动给kernel分配需要的physical cluster，也支持直接配置
+[P style=774] 生成cluster mask，并将其与数据、地址合并成一笔数据，经axilite接口通过Router进行传输，Router根据cluster mask将reg info发送给对应的physical cluster
+[P style=774] 将kernel拆分为logic cluster，并逐个发给选中的每个physical cluster。支持随机分配和固定分配两种模式，随机分配选择最空闲的physical分配，固定分配则需要分配到特定的physical cluster
+[P style=774] kernel分配过程中有physical cluster释放时，若该kernel已使用的physical cluster数尚未达到分配值，可以选中其进行reg info和logic cluster的分配
+[P style=774] 通过axilite接口给Router发送配置
+[P style=774] 通过axilite接口接收core的上报信息，维护各个physical cluster内logic cluster的执行情况。kernel的所有logic cluster都完成后，生成kernel_done信号，并将对应的kernel index上报给cp
+[P style=] ClusCtrl模块功能如下：
+[P style=774] 通过包接口(vld/data/ready)接收配置信息
+[P style=774] 通过内部全互联接口把reg info广播给physical cluster内所有的core
+[P style=774] 将logic cluster拆分为block，按照最空闲的顺序逐一发给每个core。需要同时发送cluster index和block index
+[P style=774] 通过内部全互联接口，接收来自core的上报信息，维护各个core内block的执行情况
+[P style=774] 通过包接口(vld/data/ready)给Router上报cluster的执行情况
+[P style=743] 接口描述
+[P style=744] 配置参数
+[TABLE]
+Parameter | Default | Description
+KNEL_N | 4 | Max parallel kernel number
+CLUS_N | 4 | Physical cluster number in system
+CLCR_N | 7 | Core number in one physical cluster
+CORE_N | 28(CLUS_N*CLCR_N) | Core number in system
+PARA_N | 128 | Max configurable parameter for one kernel
+IADR_W | 16 | Input address width
+OADR_W | 16 | Ouput address width
+INADR_W | 16 | Input address width from router for gctrl
+DATA_W | 32 | Data width
+[P style=744] 接口信号
+[P style=745] GlbCtrl
+[TABLE]
+Port | I/O | Width | Description
+Clock & Reset
+clk | I | 1 | Source clk, 1GHz
+rst_n | I | 1 | Async reset, active low
+from CP
+pkt_valid | I | 1 | pkt valid signal
+pkt_addr | I | IADR_W | pkt address signal
+pkt_data | I | DATA_W | pkt data signal
+pkt_ready | O | 1 | pkt ready signal
+pkt_idx | I | KNEL_W | pkt index
+to Router
+cfg_valid | O | 1 | cfg valid signal
+cfg_data | O | CLUS_N+OADR_W+DATA_W | cfg data signal, CLUS_N bits (broadcast mask for clusters) is place in awuser[CLUS_N-1:0] for axilite
+cfg_ready | I | 1 | cfg ready signal
+from Router
+ack_valid | I | 1 | ack valid signal
+ack_data | I | 20 | ack data signal [19]：type 0: task_done [9:0] blk_cnt [10]cluster_done [11]Kernel_done 1: message [7:0] msg_data [11:8] msg_type [14:12] core_id [16:15] cluster_id [18:17] die_id
+ack_ready | O | 1 | ack ready signal
+to CP
+kdone_ena | O | KNEL_W | kernel index to CP
+kdone_idx | O | 1 | kernel execution completion signal
+[P style=] 备注：kernel_idx_i有唯一性，例如发下去值为A的kernel_idx_i，当对应A的kernel_done回复了，才能再次发值为A的kernel_idx_i。
+[P style=745] ClusCtrl
+[TABLE]
+Port | I/O | Width | Description
+Clock & Reset
+clk | I | 1 | Source clk, 1GHz
+rst_n | I | 1 | Async reset, active low
+from Router
+cfg_valid | I | 1 | cfg valid signal
+cfg_data | I | IADR_W+DATA_W | cfg data signal
+cfg_ready | O | 1 | cfg ready signal
+to Router
+ack_valid | O | 1 | ack valid signal
+ack_data | O | OADR_W+DATA_W | ack data signal
+ack_ready | I | 1 | ack ready signal
+to cores
+dn_valid | O | 1 | ClusCtrl to core valid
+dn_addr | O | DN_ADDR_W | ClusCtrl to core addr
+dn_data | O | DN_DATA_W | ClusCtrl to core data
+dn_ready | I | 1 | ClusCtrl to core ready
+from cores
+up_valid | I | 1 | Core to ClusCtrl valid
+up_addr | I | UP_ADDR_W | Core to ClusCtrl addr
+up_data | I | UP_DATA_W | Core to ClusCtrl data
+up_ready | O | 1 | Core to ClusCtrl ready
+[P style=744] 接口时序
+[P style=774] 包接口：标准axi-lite接口时序
+[P style=774] 有地址
+[IMAGE 9 rid=rId14 target=media/image4.png]
+[IMAGE 10 rid=rId14 target=media/image4.png]
+[P style=774] 无地址
+[IMAGE 11 rid=rId15 target=media/image5.png]
+[IMAGE 12 rid=rId15 target=media/image5.png]
+[P style=774] kernel done接口：一个clock有效
+[IMAGE 13 rid=rId16 target=media/image6.png]
+[IMAGE 14 rid=rId16 target=media/image6.png]
+[P style=743] 详细设计
+[P style=744] GlbCtrl模块
+[P style=745] 实现思路
+[P style=] GlbCtrl模块收到的kernel配置信息参照 ISA中config表格的描述。其中，大多数参数GlbCtrl不做处理直接转发给core即可，需处理的参数是gridDim / clusDim / cta_num。
+[P style=774] gridDim：表示当前kernel的形状，即该kernel需要拆分为grid_size = gridDim.x * gridDim.y * gridDim.z个block下发给core，每个block用blockIdx.x/y/z来表示
+[P style=774] clusDim：表示每个cluster的形状，即该kernel中的每个cluster包含clus_size = clusDim.x * clusDim.y * clusDim.z个block。
+[P style=774] cta_num：表示对于当前kernel，1个core最多可以允许多少个block。该值主要受share memory size，core能允许的最大block数和core能允许的最大warp数来决定。软件直接计算完毕后配置下来，最大为32。
+[P style=] 考虑到cluster层级的存在，需要做的是kernel -> logic cluster -> block的二级拆分。其中，每个logic cluster也有clusterIdx.x/y/z，每个logic cluster包含clus_size个block。因此，每个logic cluster包含的blockIdx是一个三维的坐标：
+[P style=] blockIdx.x = clusterIdx.x * clusDim.x + 0 ~ clusDim.x-1
+[P style=] blockIdx.y = clusterIdx.y * clusDim.y + 0 ~ clusDim.y-1
+[P style=] blockIdx.z = clusterIdx.z * clusDim.z + 0 ~ clusDim.z-1
+[P style=] gridDim可以不必是clusDim的整数倍。这种情况下，最后一个logic cluster会包含少于n个blocks。clusDim全为1时，每个logic cluster即和1个block等价。
+[P style=] 当一个kernel中含有的logic cluster数较多时，会发给多个physical cluster并行计算，由硬件决定发给多少个physical cluster来执行。
+[P style=774] 对于fixed分配策略，根据map公式能得知需要使用对应的physical cluster，后续clus_mask的计算也很直观。
+[P style=774] 对于random分配策略，主要有两种思路：1）类似于轮询的方法，即尽量给每个physical cluster先都发一些logic cluster，这么做的好处是可以让多个core都工作起来。然而如果有多个kernel并行的需求的话，kernel0占据过全部的core会导致kernel1无法下发。2）类似于贪婪的方法，即从第一个physical cluster开始尽可能多的分配logic cluster，直到占满所有资源（参考cta_num）；然后再分配下一个，以此类推。当任务较小时，这么做可以让多个kernel并行跑，但是如果只有1个kernel则有很多core不会工作，效率比较低。
+[P style=] 确定好max_clus_num后，下一步需要做的事情就是在kernel发送前，从CLUS_N个physical cluster中选出max_clus_num个可用的来发送。如果只能选出K个可用的（K <= min(CLUS_N, max_clus_num)），那就先用这K个physical cluster；如果K = 0，则本kernel不能发送，需要等到K > 0后才能发送。K个physical cluster都占满后，若kernel还没分发完毕，则需要等待physical cluster的释放。若有新释放的physical cluster，且K < max_clus_num，则该kernel可以占住新释放的physical cluster使用；若K = max_clus_num，则只能等待已经占住的physical cluster的释放。
+[P style=] GlbCtrl和各个physical cluster 只有一组axi-lite总线通过noc连接，如果给每个ClusCtrl配置参数和clusIdx时串行发送，则延迟较大。此处利用noc的广播模式：发送reg info时，附带clus_mask信息，表示reg info会同时发送给使能的physical cluster；发送cluster index时，由于各个physical cluster的值不一样，广播的话稍微复杂，因此index不广播。
+[P style=] logic cluster的编码支持full mode和incr mode。full编码，指需要通过3笔axi-lite的trans，分别发送clusterIdx.x/y/z（地址分别对应8C/90/94)；incr编码，只用1笔trans发送{z_incr[9:0], y_incr[9:0], x_incr[9:0]}到9C地址，ClusCtrl收到incr编码时，需要在上一笔clusterIdx的基础上加上偏移量来得到实际的index值。采用incr mode，能有效减少发送的trans数。
+[P style=] 当某个physical cluster中的CLCR_N个core都不能正常工作时，认为此physical cluster不能正常工作，即不可为其分发block。clus_idle表示physical cluster是否空闲，当block_num=0且physical cluster可正常工作(有core可用)时才空闲。phy_clus_bcnt表示physical cluster能分发的最大block数目，此信号的计算为：正常工作core的数目*cta_num。
+[P style=] 用680/684地址的寄存器指示每个physical cluster中正常工作core的数目。
+[IMAGE 15 rid=rId17 target=media/image7.png]
+[IMAGE 16 rid=rId17 target=media/image7.png]
+[IMAGE 17 rid=rId18 target=media/image8.emf]
+[P style=745] 硬件实现
+[P style=] 该模块的硬件实现如下图所示：
+[IMAGE 18 rid=rId20 target=media/image9.png]
+[IMAGE 19 rid=rId20 target=media/image9.png]
+[IMAGE 20 rid=rId20 target=media/image9.png]
+[IMAGE 21 rid=rId20 target=media/image9.png]
+[IMAGE 22 rid=rId21 target=media/image10.emf]
+[P style=774] kernel的存储
+[P style=] GlbCtrl需要缓存下KNEL_N个kernel信息，使用大小为KNEL_N * PARA_N的寄存器Table
+[P style=] 。Kernel的outstanding为4，KNEL_N也是4，可以kernel_done之后释放存储资源。
+[P style=774] max_clus_num的计算：
+[P style=774] 对于random mode：
+[P style=] 软件在kernel info的某个地址配置mode[1:0] 和 clus_cnt[3:0]：
+[P style=774] Mode = 3’d0：硬件自行计算，且尽可能多占用physical cluster，在partial good的情况下，可能存在某个cluster空闲的blk数量大于其他cluster，实际分发任务过程中可能会连续分发到该physical cluster；
+[P style=774] Mode = 3’d1：硬件自行计算，每个physical cluster尽可能塞入更多的logic cluster，实际分发的还是在max_clus_num内选择最空闲的cluster进行任务分发；
+[P style=774] Mode = 3’d2：使用软件配置的clus_cnt + 1当作本kernel需要的physical cluster数目，该模式暂不使用；
+[P style=774] 对于fixed mode：
+[P style=] map公式：physical_id = (clusterIdx.y & (2**b-1)) *(2**a) + (clusterIdx.x &（2**a-1));
+[P style=] 其中a/b属于0~log2(CLUS_N)范围内，且a+b<=log2(CLUS_N)
+[P style=] 知道griddim和map公式之后，需要用到哪几个physical cluster，max_clus_num都能直接定下来。在此不再赘述。
+[P style=774] log_cluster_id.x = (x<<cfg_xshift) + (w*cfg_wstep)
+[P style=774] log_cluster_id.y = (y<<cfg_yshift) + (h*cfg_hstep)
+[P style=774] Mode = 3’d3：interleave模式，cfg_wstep=1、cfg_hstep=1，cfg_xshift=a、cfg_yshift=b；
+[P style=774] Mode = 3’d4：non-interleave模式，cfg_wstep=nclus_x/N、cfg_hstep=nclus_y/M，
+[P style=774] cfg_xshift=0、cfg_yshift=0；(M=2b、N=2a)
+[P style=] 随机模式下max_clus_num计算方法如下：
+[P style=774] 计算logic cluster总数量lgc_clus_cnt
+[P style=774] x方向：ceil(gridDim.x/clusDim.x)
+[P style=774] y方向：ceil(gridDim.y/clusDim.y)
+z方向：ceil(gridDim.z/clusDim.z)
+[P style=774] 将上述三个方向的logic cluster数量相乘，即得出lgc_clus_cnt。
+[P style=774] 计算每个physical cluster可分发的logic cluster数量phy_clus_cnt
+      Mode = 3’d0时，phy_clus_cnt = ceil(CLCR_N / N)，N = clusDim_x*y*z
+[P style=774] Mode = 3’d1时，phy_clus_cnt = ceil(cta_num*CLCR_N/N)，N = clusDim_x*y*z
+[P style=774] 计算max_clus_num
+      max_clus_num = ceil(lgc_clus_cnt/phy_clus_cnt) 
+      若ceil(lgc_clus_cnt/phy_clus_cnt)大于等于CLUS_N，则max_clus_num = CLUS_N;
+      若ceil(lgc_clus_cnt/phy_clus_cnt)小于CLUS_N，则max_clus_num =
+[P style=774] ceil(lgc_clus_cnt/phy_clus_cnt) ;
+[P style=774] Current cluster mask的计算
+[P style=] Kernel分发前，需要从CLUS_N个physical cluster中选择max_clus_num个可用的（empty并且kernel指定范围内的）。问题可抽象为从1个N bit的0/1数组flag中选出前K个1。
+[P style=] 可以维护N个1bit的加法树，分别计算从flag[i:0]中1的个数，记为cnt，其为单调非递减序列。然后把cnt和max_clus_num比较，找到cnt中第一个不小于K的位置pos。生成的clus_mask即为flag & {‘b0, pos个1bit}。
+[P style=] 如果只能选出K个可用的（K < max_clus_num），那就先用这K个physical cluster；如果K = 0，则本kernel不能发送，需要等到K > 0后才能发送。K个physical cluster都占满后，若kernel还没分发完毕，则需要等待physical cluster的释放。若有新释放的physical cluster，且K < max_clus_num，则该kernel可以占住新释放的physical cluster使用；若K = max_clus_num，则只能等待已经占住的physical cluster的释放。
+[P style=774] Cluster的拆分和分发
+[P style=] 在完成步骤2和3的计算，并收到CFG_DONE信号后，即可开始准备kernel的分发。分发的步骤：
+[P style=774] reg info分配
+[P style=] 对于每一轮，步骤3中计算得到的curr_clus_mask。使用curr_clus_mask，利用noc的广播模式逐笔发送reg info。
+[P style=774] cluster拆分和分配
+[P style=] Logic cluster的拆分，暂时使用递增发送的模式。即griddim2*2*2 & clusdim1*1*1的kernel会拆分为(0,0,0) -> (0,0,1) -> (0,1,0) -> (0,1,1) -> (1,0,0) -> … 8个logic cluster，这8个cluster会依次选择一个physical cluster分发。
+[P style=] 采用total_clus_mask来记录多轮中已经发送了reg info的physical cluster：
+[P style=] total_clus_mask = total_clus_mask | curr_clus_mask
+[P style=] 选择physical cluster时，从total_clus_mask中选则最空闲的一个来发送1个logic cluster。所谓最空闲，指的是physical cluster剩余可用的block数最多。
+[P style=] clusterIdx的编码支持full mode和incr mode两种。现阶段实现策略：若当前clusterIdx.x/y/z与上一次index数值差在10bit有符号数表示范围内，则使用incr_mode，否则是full mode，从而节省tran数。
+[P style=774] FSM控制
+[P style=] S_PARA_FULL：正在所有所需cluster上发送reginfo；
+[P style=] S_PARA_PART：正在部分所需cluster上发送reginfo；
+[P style=] S_IDX_FULL：正在所有所需cluster上发clusidx；
+[P style=] S_IDX_PART：正在部分所需cluster上发clusidx；
+[P style=] S_WAIT_FULL：在申请到所有所需cluster的情况下等待cluster释放；
+[P style=] S_WAIT_PART：在申请到部分所需cluster的情况下等待cluster释放或者尝试申请剩余的cluster；
+[P style=] S_IDLE即空闲。状态跳转条件如下：
+[P style=] S_IDLE -> S_PARA_FULL：申请到所有所需的physical cluster
+[P style=] S_IDLE -> S_PARA_PART：random模式下申请到部分所需的physical cluster
+[P style=] S_PARA_FULL -> S_IDX_FULL：发完CFG_DONE
+[P style=] S_PARA_PART -> S_IDX_PART：发完CFG_DONE
+[P style=] S_IDX_FULL -> S_WAIT_FULL：已没有cluster可用
+[P style=] S_IDX_PART -> S_WAIT_PART：已没有cluster可用
+[P style=] S_WAIT_FULL -> S_IDX_FULL：有cluster释放出来可用
+[P style=] S_WAIT_PART -> S_IDX_PART：有cluster释放出来可用
+[P style=] S_WAIT_PART -> S_PARA_PART：有新申请到的cluster（当申请数量达到所需数量将不会分配新的cluster）
+[P style=] S_IDX_FULL -> S_DONE：cluster index发送完成
+[P style=] S_IDX_PART -> S_DONE：cluster index发送完成
+[P style=] S_DONE -> S_IDLE：done请求发送完成
+[IMAGE 23 rid=rId23 target=media/image11.png]
+[IMAGE 24 rid=rId23 target=media/image11.png]
+[IMAGE 25 rid=rId24 target=media/image12.emf]
+[P style=] 典型时序如下图所示：先以广播模式发para，再逐个发clusidx。
+[IMAGE 26 rid=rId26 target=media/image13.png]
+[IMAGE 27 rid=rId26 target=media/image13.png]
+[P style=774] cluster status 的维护
+[P style=] 模块内还会维护各个physical cluster的状态，主要记录当前physical cluster运行的已经发下去的block数目和该core运行的kernel id。前者用于判断当前physical cluster还能否继续分发logic cluster，后者用于判断每个physical cluster只能允许1个kernel的条件。
+[P style=] 某个kernel id的done的生成需要满足logic cluster已经全部发完和对应physical cluster在执行的logic cluster数目已清空两个条件。
+[P style=774] request和response
+gctrl给core分发logic，core处理完logic后会给gctrl回复ack；为了能够让core在logic
+[P style=774] 处理完后才回复ack，gctrl需在logic分发完毕后给core发送ack request，当core收到request后且logic处理完毕，才会给gctrl回复response。
+[P style=774] request
+[P style=774] gctrl在下发的logic包最后加request信息，地址’h400，数据的最高位置1，如下图
+[IMAGE 28 rid=rId27 target=media/image14.png]
+[IMAGE 29 rid=rId27 target=media/image14.png]
+[P style=774] response
+[P style=774] 当physical cluster处理完所有logic后，clusctrl会给gctrl回复ack；
+ack有如下两种：
+[P style=774] ack0：core释放blk后就回ack，ack_addr=32’h0440_0610；
+[P style=774] ack1：core处理完kernel分配的任务后回ack，ack_addr=32’h0440_0610；
+ack0用来维护gctrl内部的block数量，以此维护physical cluster的状态；
+[P style=774] ack1用来标识kernel done的生成时机；
+[P style=774] ack_data参考GlbCtrl接口信号
+[P style=774] kernel done
+当ack0维护的blk_num=max_phy_blk_num且ack1已获取同时满足时，可以生成kernel done信号，一
+[P style=774] 个clock脉冲；此脉冲有效时，对应的kernel index有效。
+[IMAGE 30 rid=rId28 target=media/image15.png]
+[IMAGE 31 rid=rId28 target=media/image15.png]
+[P style=744] ClusCtrl模块
+[P style=745] 实现思路
+[P style=] 整体思路和GlbCtrl类似，主要完成cluster -> block的转换即和多核的并行通信。
+[P style=] 每个core都有一个blkcnt_live信号，用来表示对应的core中已有block的数量，可通过min-tree求出CORE_N个blkcnt_live中最小的，其对应的core就是当前最空闲的core。若某个core不能正常工作，则其对应的blkcnt_live值为7{1’b1}；否则blkcnt_live当core最空闲时进行加操作、当core收到release ack时进行减操作。
+[P style=] 当某个core不工作时，其对应out fifo的写操作不会有效，即outff_wen不会被置高。
+[P style=745] 硬件实现
+[IMAGE 32 rid=rId29 target=media/image16.emf]
+[P style=774] Cluster info的存储
+[P style=774] 仅需要一定深度的FIFO存下信息即可，不需要支持重播。
+[P style=774] FIFO深度不需要PARA_N，因为core的dn_ready信号常为高。暂定FIFO深度为8。
+[P style=774] Block的拆分和分发
+[P style=] 1个physical cluster里面只会运行相同的kernel。因此和GlbCtrl相比，此 处认为physical cluster内部所有的core都会计算当前kernel，省去了max_core_num的计算步骤；认为core_mask是全1，也省去了core_mask计算的步骤。
+[P style=774] para分配
+[P style=] 直接利用全互联的接口广播给所有的core。
+[P style=774] block的拆分和分配
+[P style=] 收到的clusterIdx内部包含clusdim.x*y*z个block，这些block的坐标计算公式见上小节描述。Block的分配，从所有core中选则最空闲的一个来发送，每次只发1个block。所谓最空闲，指的是core上正在运行的block数最少，用min tree找即可。每次分发之前，需要先发3笔clusterIdx，再发3笔blockIdx，即一个block需要6笔计算才能传输完毕。
+[P style=774] 控制
+[P style=] 由于不支持replay和mask计算等功能，也不需要用FSM来控制。执行为简单的顺序流程：空闲 -> 发reginfo -> 发blocks（先clusterIdx再blockIdx）-> 结束。典型波形如下：
+[IMAGE 33 rid=rId31 target=media/image17.png]
+[IMAGE 34 rid=rId31 target=media/image17.png]
+[P style=774] 时段1：以广播模式给CLCR_N个core发送reginfo，以cfg_done（ADDR=400）结尾
+[P style=774] 时段2：发3笔clusterIdx
+[P style=774] 时段3：发3笔blockIdx。时段2和3组成1个block
+[P style=774] 以CLCR_N = 6为例，每个cycle正好可以发完1个block
+[P style=774] core status的维护
+[P style=] 模块内还会维护各个core的状态，主要记录当前core运行的已经发下去的block数目。有可能存在CLCR_N同时上报的情况，需要用adder tree将释放block数目记录。当记录值超过logic cluster的大小时，即可通过axi-lite总线给GlbCtrl模块会一个ack信号。
+[P style=774] ack与response
+[P style=] ack：up_addr=0、up_data[5:0](core完成的block数量)
+response：up_addr=0、up_data[7]=1
+[P style=744] 实例
+[P style=] clusIdx、blockIdx计算实例
+[P style=] 配置：
+griddim x = 4、griddim y = 4、griddim z = 1
+[P style=] clusterdim x = 2、clusterdim y = 2、clusterdim z = 1
+logic clusIdx个数计算：
+    griddim x*y*z/clusterdim x*y*z = 4*4*1/2*2*1 = 2*2*1=4
+[P style=] logic cluster坐标：
+[P style=] (x,y,z)=(0,0,0), (1,0,0), (0,1,0), (1,1,0)
+[P style=] blockIdx计算公式：
+        blockIdx.x = clusterIdx.x * clusDim.x + 0 ~ clusDim.x-1
+[P style=] blockIdx.y = clusterIdx.y * clusDim.y + 0 ~ clusDim.y-1
+[P style=] blockIdx.z = clusterIdx.z * clusDim.z + 0 ~ clusDim.z-1
+[P style=] clusIdx(蓝色)与blockIdx(红色)的坐标如下图所示：
+[IMAGE 35 rid=rId32 target=media/image18.emf]
+[P style=] mode=0时，需要的physical cluster个数(Max_clus_num)计算
+[P style=] 配置：
+    griddim x = 4、griddim y = 4、griddim z = 4
+[P style=] clusterdim x = 1、clusterdim y = 1、clusterdim z = 2
+[P style=] CLUS_N = 6
+[P style=] mode1的分配原则：
+每个physical cluster尽可能少占logic cluster；
+physical cluster里的core都不能闲置；
+[P style=] block总数目计算：
+[P style=] M = gridDim.x*y*z = 4*4*4 = 64
+[P style=] 一个logic cluster内的block数量：
+[P style=] N = clusDim_x*y*z = 1*1*2 = 2
+[P style=] logic cluster总数：
+[P style=] S= Ceil(gridDim.x/clusDim_x)*Ceil(gridDim.y/clusDim_y)*Ceil(gridDim.z/clusDim_z)
+[P style=] =ceil(4/1)*ceil(4/1)*ceil(4/2) =32
+[P style=] 每个physical cluster分发的logic cluster数量：
+[P style=] k = ceil(CLCR_N(6) / N) = 6/2 = 3
+[P style=] 需要的physical cluster总数：
+[P style=] ceil(S/k) = 32/3 = 11(向上取整)
+[IMAGE 36 rid=rId34 target=media/image19.emf]
+[P style=] mode=1时，需要的physical cluster个数(Max_clus_num)计算
+[P style=] 配置：
+    griddim x = 4、griddim y = 4、griddim z = 4
+[P style=] clusterdim x = 1、clusterdim y = 1、clusterdim z = 2
+[P style=] CLUS_N = 5
+[P style=] ctanum=4
+[P style=] mode2的分配原则：
+尽量用满每个physical cluster；
+[P style=] block总数目计算：
+[P style=] M = gridDim.x*y*z = 4*4*4 = 64
+[P style=] 一个logic cluster内的block数量：
+[P style=] N = clusDim_x*y*z = 1*1*2 = 2
+[P style=] logic cluster总数：
+[P style=] S= Ceil(gridDim.x/clusDim_x)*Ceil(gridDim.y/clusDim_y)*Ceil(gridDim.z/clusDim_z)
+[P style=] = ceil(4/1)*ceil(4/1)*ceil(4/2) =32
+[P style=] 每个physical cluster分发的logic cluster数量：
+[P style=] k = ceil(ctanum*CLCR_N(6) / N) = ceil(4*6/2) = 12
+[P style=] 需要的physical cluster总数：
+[P style=] Ceil(S/k) = 32/12 = 3(向上取整)
+[IMAGE 37 rid=rId36 target=media/image20.png]
+[IMAGE 38 rid=rId36 target=media/image20.png]
+[P style=743] 软件接口
+[P style=744] 寄存器描述
+[P style=] 详见ISA中的config表格。
+[P style=] https://r712him1th.feishu.cn/wiki/LhA5wap9siyZwTkGkJochsRHnjb
+[P style=744] 启动流程
+[P style=] 准备工作：根据partial good信息配置 clsctrl中的680寄存器（默认值7核全开），根据需求判断是否需要配置gctrl/clsctrl的600寄存器（有默认值0）；
+[P style=] Kernel启动：根据寄存寄存器表配置相关寄存器
+[P style=] gctrl寄存器配置顺序要求
+[P style=] 124/2C/680/684/8/C/10/14/18/1C/20/24/28（124/2C在28前面是强制要求），后续按顺序配置即可，400为最后一个寄存器。
+[P style=743] 物理实现
+[P style=744] SRAM列表
+[TABLE]
+Instance name | Depth | Width | Port | Mask | Pipeline | Retention | Frequency | Note
+rhc_spram_phy | 1440 | 43 | 1rw | N/A | no | no | 1000MHz | 1 copy
+[P style=744] 布局参考
+[P style=744] 面积参考
+[P style=] SF07@1GHz
+[P style=] GlbCtrl：58188（估计最后面积2w+）
+[P style=] ClusCtrl：3000+
+[P style=] 无时序为例
+[P style=743] 验证相关
+[P style=744] 断言

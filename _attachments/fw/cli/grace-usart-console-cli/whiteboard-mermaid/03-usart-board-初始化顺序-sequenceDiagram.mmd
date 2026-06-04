@@ -1,0 +1,22 @@
+sequenceDiagram
+  participant RT as rt_hw_board_init
+  participant Board as board_premain
+  participant Drv as drv_usart_init
+  participant HW as USART HW
+  participant Dev as usartN device
+  participant Console as RT console
+  participant Pre as board_pre_init
+  participant Shell as agc_shell
+
+  RT->>Board: board_system_premain_init()
+  Board->>Board: system init / cache / ECLIC
+  Board->>Drv: drv_usart_init(addr)
+  Drv->>HW: reset + baud + tx/rx + RXIE
+  Drv->>Dev: register usartN + IRQ
+  Board->>Board: print board info
+  RT->>RT: show version + systick
+  RT->>Console: set console to usartN
+  RT->>Pre: rt_hw_board_pre_init()
+  Pre->>Dev: hal_usart_init finds usartN
+  Pre->>Shell: agc_shell_init()
+  Shell->>Dev: open + set rx_indicate

@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant FW
+    participant RST as ResetCtrl
+    participant PLL
+    participant CLK as ClockCtrl
+    participant GPU as GPU Domain
+
+    FW->>RST: assert reset
+    FW->>PLL: program PLL params and enable
+    PLL-->>FW: pll_lock
+    FW->>CLK: select PLL clock path
+    CLK-->>FW: clock stable / ack
+    FW->>RST: deassert reset with sync release
+    RST-->>GPU: reset released on stable clock

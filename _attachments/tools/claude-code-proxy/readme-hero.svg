@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title desc">
+  <title id="title">claude-code-proxy overview</title>
+  <desc id="desc">Claude Code connects to ccproxy, which routes requests to ChatGPT subscription, OpenAI API, DeepSeek, Kimi, Zhipu GLM, MiniMax, or custom adapters.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101820"/>
+      <stop offset="0.52" stop-color="#17212b"/>
+      <stop offset="1" stop-color="#22313d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#55d6be"/>
+      <stop offset="1" stop-color="#f4c95d"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+    <style>
+      .title{font:700 54px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#f7fafc}
+      .subtitle{font:500 24px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#c7d2da}
+      .label{font:700 20px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#f7fafc}
+      .small{font:500 16px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#c7d2da}
+      .chip{font:700 15px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#102027}
+      .box{fill:#1d2b34;stroke:#3d5260;stroke-width:1.2;rx:18;filter:url(#shadow)}
+      .box2{fill:#f8fafc;rx:18;filter:url(#shadow)}
+      .line{stroke:#55d6be;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+      .dimline{stroke:#647987;stroke-width:2;fill:none;stroke-dasharray:7 7}
+    </style>
+  </defs>
+  <rect width="1280" height="520" fill="url(#bg)"/>
+  <path d="M980 78 C1060 96 1118 155 1136 235 C1159 340 1081 428 976 436 C850 446 766 359 790 250 C810 157 886 56 980 78Z" fill="#2e4350" opacity="0.45"/>
+  <path d="M112 392 C185 438 291 440 367 383 C444 326 450 231 386 170 C302 89 159 115 99 215 C56 287 52 354 112 392Z" fill="#273b46" opacity="0.6"/>
+
+  <text x="72" y="105" class="title">claude-code-proxy</text>
+  <text x="74" y="148" class="subtitle">Use Claude Code with API keys, subscriptions, and local adapters.</text>
+  <rect x="74" y="182" width="174" height="34" rx="17" fill="url(#accent)"/>
+  <text x="95" y="204" class="chip">ccproxy model set</text>
+  <rect x="262" y="182" width="152" height="34" rx="17" fill="#334650"/>
+  <text x="285" y="204" class="small">Windows ready</text>
+  <rect x="428" y="182" width="166" height="34" rx="17" fill="#334650"/>
+  <text x="450" y="204" class="small">Device-code login</text>
+
+  <rect x="86" y="286" width="250" height="112" class="box"/>
+  <text x="122" y="331" class="label">Claude Code CLI</text>
+  <text x="122" y="365" class="small">Anthropic Messages API</text>
+
+  <path d="M338 342 H502" class="line"/>
+  <path d="M488 328 L507 342 L488 356" class="line"/>
+
+  <rect x="520" y="250" width="244" height="184" class="box2"/>
+  <text x="570" y="305" font-family="ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="32" font-weight="800" fill="#102027">ccproxy</text>
+  <text x="570" y="340" font-family="ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="18" font-weight="600" fill="#526672">local router</text>
+  <rect x="568" y="370" width="148" height="34" rx="17" fill="#102027"/>
+  <text x="591" y="392" class="small">127.0.0.1:8082</text>
+
+  <path d="M768 342 H896" class="line"/>
+  <path d="M882 328 L901 342 L882 356" class="line"/>
+
+  <rect x="916" y="132" width="242" height="68" class="box"/>
+  <text x="952" y="173" class="label">OpenAI API key</text>
+  <rect x="916" y="216" width="242" height="68" class="box"/>
+  <text x="952" y="257" class="label">ChatGPT subscription</text>
+  <rect x="916" y="300" width="242" height="68" class="box"/>
+  <text x="952" y="341" class="label">DeepSeek / Kimi / Zhipu</text>
+  <rect x="916" y="384" width="242" height="68" class="box"/>
+  <text x="952" y="425" class="label">MiniMax / Custom</text>
+
+  <path d="M777 292 C836 262 850 183 910 166" class="dimline"/>
+  <path d="M777 325 C834 319 852 253 910 250" class="dimline"/>
+  <path d="M777 358 C838 362 853 336 910 334" class="dimline"/>
+  <path d="M777 392 C840 421 856 420 910 418" class="dimline"/>
+</svg>

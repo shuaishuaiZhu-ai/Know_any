@@ -1,0 +1,5 @@
+flowchart LR
+    A["physical cluster 可用 flag"] --> B["统计前缀 1 的数量"]
+    B --> C["找到第 K 个可用位置"]
+    C --> D["生成 clus_mask"]
+    D --> E["本轮 reg info / logic cluster 分发"]

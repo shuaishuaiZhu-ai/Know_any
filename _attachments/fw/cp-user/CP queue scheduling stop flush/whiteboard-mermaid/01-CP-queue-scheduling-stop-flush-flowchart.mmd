@@ -1,0 +1,10 @@
+flowchart TD
+  A[cmd_entry 主循环] --> B{flush_cxt_bitmap 非 0?}
+  B -- 是 --> C[先按 context 处理 flush]
+  C --> D[drop resident packet]
+  D --> E[只清相关 HCQD 状态]
+  B -- 否 --> F{stop_bitmask 或 candidate 或 pending?}
+  F --> G[按 HCQD round-robin 选择队列]
+  G --> H{stop 优先?}
+  H -- 是 --> I[stop queue 并清理状态]
+  H -- 否 --> J[处理 event / wait_host / block / candidate]

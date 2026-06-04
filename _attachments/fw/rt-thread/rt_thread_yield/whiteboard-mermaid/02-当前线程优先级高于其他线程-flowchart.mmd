@@ -1,0 +1,5 @@
+flowchart LR
+    A["A: prio 5, current"] --> Y["rt_thread_yield"]
+    B["B: prio 10, ready"] --> S["rt_schedule"]
+    Y --> S
+    S --> A2["仍选择 A，因为 A 仍是最高优先级 ready 线程"]

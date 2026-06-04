@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant FW as FW DVFS FSM
+    participant PMIC as PMIC/Regulator
+    participant CLK as Clock/CRG
+    participant PLL as PLL
+    participant GPU as GPGPU Domain
+
+    FW->>GPU: request idle/drain or active-change permission
+    GPU-->>FW: safe ack
+    FW->>PMIC: set voltage if target freq higher
+    PMIC-->>FW: voltage stable
+    FW->>CLK: switch domain to safe clock / bypass
+    CLK-->>FW: safe clock ack
+    FW->>PLL: write refdiv/fbdiv/postdiv/enable
+    PLL-->>FW: pll_lock
+    FW->>CLK: select PLL output and divider
+    CLK-->>FW: clock switch ack
+    FW->>PMIC: lower voltage if target freq lower
+    PMIC-->>FW: voltage stable
+    FW->>FW: update current OPP/freq and release lock

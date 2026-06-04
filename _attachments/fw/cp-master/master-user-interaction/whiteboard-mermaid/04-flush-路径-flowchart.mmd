@@ -1,0 +1,8 @@
+flowchart TD
+  A[FLUSH_ASID valid + context id] --> B[sf_flush_isr]
+  B --> C[扫描本 core HCQD ATTRI.asid]
+  C --> D[flush_hcqd_bitmap context = hcqd bitmap]
+  D --> E[flush_cxt_bitmap 置位]
+  E --> F[cmd_entry 优先处理 flush]
+  F --> G[drop packet / 清 cmd_status]
+  G --> H[写 CPE_FW_HCQD_STOPPED]

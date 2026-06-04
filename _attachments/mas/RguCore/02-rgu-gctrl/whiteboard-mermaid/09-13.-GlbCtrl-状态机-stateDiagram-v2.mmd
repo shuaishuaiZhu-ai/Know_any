@@ -1,0 +1,14 @@
+stateDiagram-v2
+    [*] --> S_IDLE
+    S_IDLE --> S_PARA_FULL: 所需 cluster 全部分配
+    S_IDLE --> S_PARA_PART: 只分配到部分 cluster
+    S_PARA_FULL --> S_IDX_FULL: reg info 发送完成
+    S_PARA_PART --> S_IDX_PART: reg info 发送完成
+    S_IDX_FULL --> S_WAIT_FULL: 暂无可用容量
+    S_IDX_PART --> S_WAIT_PART: 暂无可用容量
+    S_WAIT_FULL --> S_IDX_FULL: 已占用 cluster 释放
+    S_WAIT_PART --> S_IDX_PART: 已占用 cluster 释放
+    S_WAIT_PART --> S_PARA_PART: 新 cluster 加入，需要补发 reg info
+    S_IDX_FULL --> S_DONE: 所有 clusterIdx 发送完成
+    S_IDX_PART --> S_DONE: 所有 clusterIdx 发送完成
+    S_DONE --> S_IDLE: done request 发送完成

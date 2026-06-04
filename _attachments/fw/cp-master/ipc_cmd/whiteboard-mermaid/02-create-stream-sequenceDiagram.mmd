@@ -1,0 +1,13 @@
+sequenceDiagram
+  participant Host as Host/IMC
+  participant IPC as ipc_cmd_create_stream
+  participant P as proc_list
+  participant Q as qdma_query_task
+
+  Host->>IPC: context_id, stream_id, priority, mcqd_addr
+  IPC->>IPC: check mcqd_addr != 0
+  IPC->>P: proc_mask |= BIT(context_id)
+  IPC->>P: mcqd_mask |= BIT(stream_id)
+  IPC->>P: save priority and mcqd_addr
+  IPC-->>Host: DONE ACK
+  Q->>P: later scan proc_mask/mcqd_mask

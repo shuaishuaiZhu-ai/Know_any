@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="520" viewBox="0 0 1160 520" role="img" aria-labelledby="title desc">
+  <title id="title">Provider modes supported by ccproxy</title>
+  <desc id="desc">ccproxy supports API-key providers, subscription modes, local adapters, and custom providers.</desc>
+  <defs>
+    <style>
+      .title{font:800 32px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#102027}
+      .head{font:800 21px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#102027}
+      .body{font:500 16px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#526672}
+      .pill{font:700 14px ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#102027}
+      .box{rx:18;stroke:#d0d7de;stroke-width:1.2;fill:#ffffff}
+      .accent{fill:#e6fffa;stroke:#68d8c2}
+      .warn{fill:#fff8e6;stroke:#edc870}
+      .dark{fill:#102027}
+      .line{stroke:#8da2ad;stroke-width:3;fill:none;stroke-linecap:round}
+    </style>
+  </defs>
+  <rect width="1160" height="520" rx="28" fill="#f6f8fa"/>
+  <text x="54" y="66" class="title">Choose one provider mode</text>
+  <text x="54" y="98" class="body">The command stays the same: ccproxy model set, then ccproxy run.</text>
+
+  <rect x="70" y="152" width="230" height="250" class="box accent"/>
+  <text x="104" y="198" class="head">API key</text>
+  <text x="104" y="236" class="body">OpenAI</text>
+  <text x="104" y="266" class="body">DeepSeek</text>
+  <text x="104" y="296" class="body">Kimi / Zhipu</text>
+  <text x="104" y="326" class="body">MiniMax</text>
+  <rect x="104" y="354" width="142" height="32" rx="16" fill="#d6f7ef"/>
+  <text x="124" y="375" class="pill">env var only</text>
+
+  <rect x="350" y="152" width="230" height="250" class="box warn"/>
+  <text x="384" y="198" class="head">Subscription</text>
+  <text x="384" y="236" class="body">ChatGPT login</text>
+  <text x="384" y="266" class="body">MiniMax Token Plan</text>
+  <text x="384" y="296" class="body">local adapters</text>
+  <rect x="384" y="354" width="160" height="32" rx="16" fill="#ffe7a3"/>
+  <text x="404" y="375" class="pill">guided setup</text>
+
+  <rect x="630" y="152" width="230" height="250" class="box"/>
+  <text x="664" y="198" class="head">Install</text>
+  <text x="664" y="236" class="body">PowerShell script</text>
+  <text x="664" y="266" class="body">POSIX shell script</text>
+  <text x="664" y="296" class="body">uninstall cleanup</text>
+  <rect x="664" y="354" width="134" height="32" rx="16" fill="#eef3f6"/>
+  <text x="684" y="375" class="pill">one command</text>
+
+  <rect x="910" y="152" width="180" height="250" class="box"/>
+  <text x="944" y="198" class="head">Custom</text>
+  <text x="944" y="236" class="body">local adapters</text>
+  <text x="944" y="266" class="body">OpenAI-compatible</text>
+  <text x="944" y="296" class="body">you run it</text>
+  <rect x="944" y="354" width="102" height="32" rx="16" fill="#eef3f6"/>
+  <text x="964" y="375" class="pill">bring one</text>
+
+  <path d="M186 430 H982" class="line"/>
+  <path d="M186 430 V402 M466 430 V402 M746 430 V402 M1000 430 V402" class="line"/>
+  <rect x="390" y="448" width="372" height="40" rx="20" class="dark"/>
+  <text x="430" y="474" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="16" font-weight="700" fill="#ffffff">ANTHROPIC_BASE_URL=http://127.0.0.1:8082</text>
+</svg>

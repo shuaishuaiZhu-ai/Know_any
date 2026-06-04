@@ -1,0 +1,7 @@
+flowchart LR
+  IPC[ipc_cmd] -->|create stream| P[proc_list]
+  P --> Q[QDMA query]
+  Q --> T[task_list]
+  T --> B[BDMA bind]
+  IPC -->|destroy stream| BEX[bdma_exc_list]
+  BEX --> STOP[stop/release HCQD]

@@ -1,0 +1,12 @@
+.wiki-tmp/
+.trash/
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache/
+.obsidian/plugins/*/node_modules/
+.obsidian/plugins/*/.git/
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+desktop.ini

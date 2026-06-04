@@ -1,0 +1,20 @@
+sequenceDiagram
+  participant B as Master BDMA/IPC
+  participant TOP as TOP regs
+  participant SF as User sf
+  participant CMD as User cmd_entry
+  participant IB as Interaction Buffer
+  participant CPE as CPE regs
+
+  B->>TOP: STOP_HCQDID = BIT(hcqd)
+  TOP-->>SF: IRQ_STOP_REQ / CPE_HCQD_STOPPED bitmap
+  SF->>SF: stop_bitmask |= hcqd_bitmap
+  CMD->>CMD: active includes stop_bitmask
+  CMD->>SF: sf_handle_stop(hcqd)
+  SF->>IB: ib_read_packet + ib_drop_packet for resident packets
+  SF->>CPE: set CPE_FW_HCQD_STOPPED bit
+  B->>TOP: poll HCQD_STATUS stop complete
+  B->>CPE: poll CPE_FW_HCQD_STOPPED
+  B->>TOP: RELEASE_HCQDID set/clear
+  B->>CPE: clear CPE_FW_HCQD_STOPPED
+  B->>TOP: STOP_HCQDID = 0

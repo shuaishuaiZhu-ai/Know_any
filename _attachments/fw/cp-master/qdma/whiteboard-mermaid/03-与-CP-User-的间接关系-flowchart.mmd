@@ -1,0 +1,6 @@
+flowchart LR
+  Q[QDMA 发现 MCQD stream] --> T[task_list]
+  T --> B[BDMA 绑定 HCQD]
+  B --> H[HCQD active]
+  H --> IB[Interaction Buffer candidate]
+  IB --> C[CP User cmd_entry]

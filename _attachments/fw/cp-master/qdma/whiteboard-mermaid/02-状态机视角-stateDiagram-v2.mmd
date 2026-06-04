@@ -1,0 +1,10 @@
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> ScanContext: proc_mask != 0
+  ScanContext --> QueryDMA: context bit set
+  QueryDMA --> ReadStreamBitmap: QUERY_IDLE
+  ReadStreamBitmap --> InsertTask: stream ready and not task_valid
+  InsertTask --> ScanContext: task inserted
+  ReadStreamBitmap --> ScanContext: no new stream
+  ScanContext --> Sleep: all contexts scanned
+  Sleep --> Idle: rt_thread_delay(10)

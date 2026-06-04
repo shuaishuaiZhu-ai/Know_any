@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820">
+  <rect x="0" y="0" width="1280" height="820" fill="#F8FAFC"/>
+  <g font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">
+    <text x="52" y="58" font-size="30" font-weight="700" fill="#0F172A">C2C portmap：GPU5DIE1 的第一跳如何变成 8bit mask</text>
+    <text x="52" y="92" font-size="16" fill="#475569">表项不是完整路径，只回答一个问题：从当前源点去目标 GPU 时，第一跳从哪个 C2C 出口出去。</text>
+
+    <rect x="52" y="122" width="500" height="390" rx="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+    <text x="78" y="158" font-size="20" font-weight="700" fill="#1E293B">4x4 GPU 拓扑，源点是 G5</text>
+    <text x="78" y="184" font-size="13" fill="#64748B">目标落在哪个方向，只影响第一跳出口；后续每一跳再查下一颗 GPU 的表。</text>
+
+    <g font-size="16" font-weight="700" text-anchor="middle">
+      <rect x="86" y="220" width="86" height="58" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+      <text x="129" y="255" fill="#1E40AF">G0</text>
+      <rect x="184" y="220" width="86" height="58" rx="10" fill="#DBEAFE" stroke="#60A5FA" stroke-width="2"/>
+      <text x="227" y="246" fill="#1E3A8A">G1</text>
+      <text x="227" y="266" font-size="11" fill="#2563EB">上方</text>
+      <rect x="282" y="220" width="86" height="58" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+      <text x="325" y="255" fill="#1E40AF">G2</text>
+      <rect x="380" y="220" width="86" height="58" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+      <text x="423" y="255" fill="#1E40AF">G3</text>
+
+      <rect x="86" y="296" width="86" height="58" rx="10" fill="#DCFCE7" stroke="#86EFAC" stroke-width="2"/>
+      <text x="129" y="322" fill="#166534">G4</text>
+      <text x="129" y="342" font-size="11" fill="#16A34A">左方</text>
+      <rect x="184" y="296" width="86" height="58" rx="12" fill="#1D4ED8" stroke="#1E3A8A" stroke-width="3"/>
+      <text x="227" y="322" fill="#FFFFFF">G5</text>
+      <text x="227" y="342" font-size="11" fill="#DBEAFE">源 GPU</text>
+      <rect x="282" y="296" width="86" height="58" rx="10" fill="#FEF3C7" stroke="#FBBF24" stroke-width="2"/>
+      <text x="325" y="322" fill="#92400E">G6</text>
+      <text x="325" y="342" font-size="11" fill="#B45309">右方</text>
+      <rect x="380" y="296" width="86" height="58" rx="10" fill="#FEF3C7" stroke="#FBBF24" stroke-width="2"/>
+      <text x="423" y="322" fill="#92400E">G7</text>
+      <text x="423" y="342" font-size="11" fill="#B45309">右方</text>
+
+      <rect x="86" y="372" width="86" height="58" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+      <text x="129" y="407" fill="#1E40AF">G8</text>
+      <rect x="184" y="372" width="86" height="58" rx="10" fill="#FCE7F3" stroke="#F9A8D4" stroke-width="2"/>
+      <text x="227" y="398" fill="#9D174D">G9</text>
+      <text x="227" y="418" font-size="11" fill="#DB2777">下方</text>
+      <rect x="282" y="372" width="86" height="58" rx="10" fill="#FEF3C7" stroke="#FBBF24" stroke-width="2"/>
+      <text x="325" y="398" fill="#92400E">G10</text>
+      <text x="325" y="418" font-size="11" fill="#B45309">右下</text>
+      <rect x="380" y="372" width="86" height="58" rx="10" fill="#FEF3C7" stroke="#FBBF24" stroke-width="2"/>
+      <text x="423" y="398" fill="#92400E">G11</text>
+      <text x="423" y="418" font-size="11" fill="#B45309">右下</text>
+
+      <rect x="86" y="448" width="86" height="58" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+      <text x="129" y="483" fill="#1E40AF">G12</text>
+      <rect x="184" y="448" width="86" height="58" rx="10" fill="#FCE7F3" stroke="#F9A8D4" stroke-width="2"/>
+      <text x="227" y="474" fill="#9D174D">G13</text>
+      <text x="227" y="494" font-size="11" fill="#DB2777">下方</text>
+      <rect x="282" y="448" width="86" height="58" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+      <text x="325" y="483" fill="#1E40AF">G14</text>
+      <rect x="380" y="448" width="86" height="58" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+      <text x="423" y="483" fill="#1E40AF">G15</text>
+    </g>
+
+    <line x1="227" y1="296" x2="227" y2="279" stroke="#2563EB" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="227,270 219,284 235,284" fill="#2563EB"/>
+    <line x1="270" y1="325" x2="281" y2="325" stroke="#D97706" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="292,325 278,317 278,333" fill="#D97706"/>
+    <line x1="227" y1="354" x2="227" y2="371" stroke="#DB2777" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="227,382 219,368 235,368" fill="#DB2777"/>
+    <line x1="184" y1="325" x2="173" y2="325" stroke="#16A34A" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="162,325 176,317 176,333" fill="#16A34A"/>
+
+    <rect x="592" y="122" width="636" height="390" rx="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+    <text x="622" y="158" font-size="20" font-weight="700" fill="#1E293B">8bit mask 的读法</text>
+    <text x="622" y="184" font-size="13" fill="#64748B">下面的方向映射来自当前 draw.io 中 GPU5DIE1 表项的反推；正式 bit 位含义仍以 MAS/register 定义为准。</text>
+
+    <g font-size="16">
+      <rect x="632" y="222" width="140" height="42" rx="8" fill="#DBEAFE" stroke="#60A5FA"/>
+      <text x="702" y="249" text-anchor="middle" font-family="Consolas, monospace" font-weight="700" fill="#1E40AF">11000000</text>
+      <text x="800" y="249" fill="#1E293B">第一跳向上，进入上方 serdes port 组</text>
+
+      <rect x="632" y="284" width="140" height="42" rx="8" fill="#FEF3C7" stroke="#F59E0B"/>
+      <text x="702" y="311" text-anchor="middle" font-family="Consolas, monospace" font-weight="700" fill="#92400E">00110000</text>
+      <text x="800" y="311" fill="#1E293B">第一跳向右，进入右侧 serdes port 组</text>
+
+      <rect x="632" y="346" width="140" height="42" rx="8" fill="#FCE7F3" stroke="#F472B6"/>
+      <text x="702" y="373" text-anchor="middle" font-family="Consolas, monospace" font-weight="700" fill="#9D174D">00001100</text>
+      <text x="800" y="373" fill="#1E293B">第一跳向下，进入下方 serdes port 组</text>
+
+      <rect x="632" y="408" width="140" height="42" rx="8" fill="#DCFCE7" stroke="#4ADE80"/>
+      <text x="702" y="435" text-anchor="middle" font-family="Consolas, monospace" font-weight="700" fill="#166534">00000011</text>
+      <text x="800" y="435" fill="#1E293B">第一跳向左，进入左侧 serdes port 组</text>
+    </g>
+
+    <rect x="622" y="462" width="556" height="32" rx="16" fill="#F1F5F9"/>
+    <text x="900" y="483" font-size="14" text-anchor="middle" fill="#334155">关键点：mask 只编码“下一跳出口”，不编码目标 GPU，也不编码完整路径。</text>
+
+    <rect x="52" y="552" width="1176" height="206" rx="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+    <text x="78" y="588" font-size="20" font-weight="700" fill="#1E293B">例子：G5 去不同目标时，先看第一跳</text>
+
+    <g font-size="14">
+      <rect x="88" y="620" width="250" height="92" rx="14" fill="#FEF3C7" stroke="#F59E0B"/>
+      <text x="112" y="650" font-size="17" font-weight="700" fill="#92400E">G5 -> G10</text>
+      <text x="112" y="676" fill="#78350F">目标在右下；若策略是先 x 后 y</text>
+      <text x="112" y="700" fill="#78350F">第一跳仍然向右：00110000</text>
+
+      <rect x="378" y="620" width="250" height="92" rx="14" fill="#DCFCE7" stroke="#22C55E"/>
+      <text x="402" y="650" font-size="17" font-weight="700" fill="#166534">G5 -> G0</text>
+      <text x="402" y="676" fill="#14532D">目标在左上；先 x 后 y 时</text>
+      <text x="402" y="700" fill="#14532D">第一跳先向左：00000011</text>
+
+      <rect x="668" y="620" width="250" height="92" rx="14" fill="#FCE7F3" stroke="#EC4899"/>
+      <text x="692" y="650" font-size="17" font-weight="700" fill="#9D174D">G5 -> G13</text>
+      <text x="692" y="676" fill="#831843">目标在下方同列附近</text>
+      <text x="692" y="700" fill="#831843">第一跳向下：00001100</text>
+
+      <rect x="958" y="620" width="220" height="92" rx="14" fill="#F8FAFC" stroke="#94A3B8"/>
+      <text x="982" y="650" font-size="17" font-weight="700" fill="#334155">到下一颗 GPU 后</text>
+      <text x="982" y="676" fill="#475569">硬件再查那颗 GPU</text>
+      <text x="982" y="700" fill="#475569">自己的 c2c port map</text>
+    </g>
+  </g>
+</svg>

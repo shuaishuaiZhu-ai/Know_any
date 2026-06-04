@@ -1,0 +1,33 @@
+digraph switch_forwarding {
+  graph [rankdir=LR, bgcolor="#F8FAFC", pad="0.35", nodesep="0.55", ranksep="0.9", fontname="Microsoft YaHei"];
+  node [shape=rect, style="rounded,filled", fontname="Microsoft YaHei", fontsize=13, color="#CBD5E1", fillcolor="#FFFFFF"];
+  edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", arrowsize=0.8];
+
+  start [label="Source DIE request\nAXI / NoC", fillcolor="#DBEAFE", color="#60A5FA"];
+  amt [label="AMT / route decode\n目标 GPU + 目标 DIE", fillcolor="#E0F2FE", color="#38BDF8"];
+  same_gpu [shape=diamond, label="目标 GPU\n相同？", fillcolor="#FEF3C7", color="#F59E0B"];
+  same_die [shape=diamond, label="目标 DIE\n相同？", fillcolor="#FCE7F3", color="#F472B6"];
+  local [label="Local hit\n本地 DIE 命中", fillcolor="#DCFCE7", color="#22C55E"];
+  d2d [label="D2D port map\n选择 ucie0 / ucie1", fillcolor="#F5F3FF", color="#A78BFA"];
+  target_die [label="Target DIE\nGPU 内到达", fillcolor="#EEF2FF", color="#818CF8"];
+
+  c2c [label="C2C adapter\n跨 GPU 平面", fillcolor="#FEF3C7", color="#F59E0B"];
+  poll [label="硬件轮询 serdes port\n选择可用 C2C 出口", fillcolor="#FFF7ED", color="#FB923C"];
+  sw [label="C2C switch fabric\n转到目标 GPU 端口", fillcolor="#E2E8F0", color="#64748B"];
+  endpoint [label="目标 GPU C2C endpoint\n接收跨 GPU 包", fillcolor="#DBEAFE", color="#60A5FA"];
+  maybe_d2d [shape=diamond, label="入口 DIE\n就是目标 DIE？", fillcolor="#FCE7F3", color="#F472B6"];
+
+  start -> amt;
+  amt -> same_gpu;
+  same_gpu -> same_die [label="是"];
+  same_die -> local [label="是"];
+  same_die -> d2d [label="否"];
+  d2d -> target_die;
+  same_gpu -> c2c [label="否 / 跨 GPU"];
+  c2c -> poll;
+  poll -> sw;
+  sw -> endpoint;
+  endpoint -> maybe_d2d;
+  maybe_d2d -> target_die [label="是"];
+  maybe_d2d -> d2d [label="否"];
+}

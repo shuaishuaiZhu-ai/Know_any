@@ -1,0 +1,7 @@
+flowchart TB
+    G["GlbCtrl<br/>全局调度"]
+    C["ClusCtrl<br/>cluster 内部调度"]
+    Core["Core"]
+
+    G -->|"clusterIdx<br/>这个 physical cluster 执行哪个 logic cluster"| C
+    C -->|"blockIdx<br/>这个 core 执行哪个 block"| Core

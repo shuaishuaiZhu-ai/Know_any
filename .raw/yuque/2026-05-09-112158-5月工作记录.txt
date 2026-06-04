@@ -1,0 +1,97 @@
+1
+v9版本，smda copy错误if (unlikely(sf_get_stop_bitmask() & BIT(hcqd_id)))
+{
+    cmd_handle_stop_slow(hcqd_id);
+    goto skip;
+}
+
+umd的第一个copy kernel cmd有问题。sdma copy完成之后，umd会把host 和device memory上的kernel cmd进行对比，第202个index的数据，对比没有通过
+
+
+
+根据黄艳的说法，只有在V9 emu上有问题，在其他emu上没有问题。其他emu指的是之前版本。
+
+而且，只有在index202的时候出问题，这也是需要排查的点。前面都正常copy了，所以，看下size是否正确。
+
+
+
+代码：
+header：200eb11  
+
+packet为17，确认为sdma
+body0:1  mem to mem mode
+body1:0
+
+body2:11ba28c0
+body3:58ec
+
+body4:4000 0000
+
+body5:7f87
+body6:ff
+
+body7:551f 0000
+body8:7f88
+body9:0
+
+body10:0
+
+body11:0
+
+
+
+sdma收到的cmd看起来没有问题
+
+2
+stop and flush
+
+修复之后，每次无效循环只有168ns，单次循环判断效果大幅提升
+
+
+
+从收到candidate到真正peek，用时586ns，速度还行，但是应该还有可以提升的地方。继续查看
+
+查看指令发现，执行完ib candidate之后，直接往下执行，执行到了ib_wait_idma_idle，这很不正常，因为完全不应该这么来，应该接着执行active才对
+
+
+
+
+找ChatGPT排查发现，如果是invalid的时候，代码是不执行的。
+
+invalid区间占用了好久，很奇怪。应该是切换堆栈的时候，i0还在跑。可以看到后面80002560之后，直接就跳转到了80001824，这是明显的
+
+所以波形中看到 0x80002554/0x8000255a/0x80002560/0x80002564，最合理解释是：CPU 前端在 ret 目标地址还没解析完成前，按顺序继续取了下一段 .text，也就是 ib_wait_idma_idle 的开头；等 ret 解析出 ra = 0x80001824 后，这些错误路径指令被 flush，随后 trace 回到 0x80001824/0x80001826/...。
+
+
+
+根据统计，每个函数跳转都要10ns。下面的小区间执行的是if的跳转，19cc的时候，开始执行跳转，等真正跳转到1a2c执行的时候，已经过了10ns：
+
+
+根据波形可以看到，每个beqz跳转大概为10ns
+
+
+
+
+
+根因：
+
+1
+当前代码写的就是if body这种形式，编译器默认就会把body排在if下main，预取指令就会预取body代码。等到beqz跳转到的时候，已经预取了好几条指令了，预取的指令只能丢掉，因此浪费了不少时间。
+
+
+改进：
+
+两种方法：
+
+1
+使用unlikely，在 -O2 下，GCC 通常会把 unlikely body 布局成 out-of-line block，热路径 fall-through 到下一个判断。但是，debug使用的是O0，release是O2，debug版本不好用起来，作为备选项
+if (unlikely(sf_get_stop_bitmask() & BIT(hcqd_id)))if (unlikely(sf_get_stop_bitmask() & BIT(hcqd_id)))
+
+2
+手写 goto 布局，适合 -O0 也生效
+
+更改为了goto的逻辑，继续进行一波测试
+
+​
+
+若有收获，就点个赞吧

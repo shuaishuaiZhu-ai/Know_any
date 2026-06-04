@@ -1,0 +1,312 @@
+
+产品名称 R1 | 内部
+产品版本 v0.1 | 总 xxx 页
+
+UCORE设计方案
+拟制人员：  日期：
+审校人员：  日期：
+（仅供内部使用）
+HX Logo
+辉羲智能科技有限公司
+HX
+All Rights Reserved.
+版权所有，侵权必究
+修订记录
+
+版本号 | 修订说明 | 修订人 | 审核人 | 修订日期
+
+概述
+系统位置
+在RGU工作的抽象中，一个任务在执行过程中将被拆分成多个子任务发送给多个warp(WARP对应SIMT中的基本概念)中执行，子任务的执行是通过逐条指令的执行实现的。
+RguUcore的任务是:
+对指令中标量指令处理，进行标量计算以及指令指针的跳转控制
+对向量指令进行预处理。预处理的内容包括得到uval/r地址/指令控制信息等
+1个RguUcore支持16个warp同时工作，进一步拆分成2个RguSubUcore，每个RguSubUcore支持8个warp同时工作，RguSubUcore主要的共享资源为标量计算资源。RguUcore在RguSubUcore的基础上进一步做对CCACHE和ICACHE的仲裁，16个warp输出一组CCACHE请求和一组ICACHE请求。
+为了实现以上目标，RguSubUcore从WarpDisp获取子任务及参数，同时从icache中取指令；读取指令后对标量/向量指令进行处理，并向Wcheduler输出向量指令预处理所需信息。在RGU中与其他模块的交互情况如图所示。
+功能列表
+
+REQ ID | REQ Type | REQ Description
+REQ_001 | Functional | 支持NOP指令功能
+REQ_002 | Functional | 支持BPT指令功能
+REQ_003 | Functional | 支持BAR指令功能
+REQ_004 | Functional | 支持FENCE指令功能
+REQ_005 | Functional | 支持BRA指令功能
+REQ_006 | Functional | 支持LOOP指令功能
+REQ_007 | Functional | 支持JMP指令功能
+REQ_008 | Functional | 支持SWAPPC指令功能
+REQ_009 | Functional | 支持GETPC指令功能
+REQ_010 | Functional | 支持SETMASK指令功能
+REQ_011 | Functional | 支持EXIT指令功能
+REQ_012 | Functional | 支持UALU指令计算
+REQ_013 | Functional | 支持UBitwise指令计算
+REQ_014 | Functional | 支持剩余指令解码及u域数值访问
+REQ_015 | Functional | 支持PC跳转控制
+REQ_016 | Functional | 支持UR/SR配置
+REQ_017 | Functional | 支持取指及LOOP取指优化
+REQ_018 | Functional | 支持tmask计算
+REQ_019 | Functional | 支持SIMT STACK
+REQ_020 | Functional | 支持U域计算指令结果前传
+REQ_021 | Functional | 支持U域任意指令@up/@ip
+REQ_022 | Functional | 支持mov/LDST指令的tid处理
+REQ_023 | Functional | 支持多路CCACHE/ICACHE请求仲裁
+REQ_024 | Functional | 支持多路tma仲裁/任务包完整/流控
+
+整体架构
+1个RguUcore包含2个RguSubUcore以及1个RguCCac
+和一个RguICacheArb，其中，RguSubUcore用于实现标量指令的执行及向量指令的预处理；RguCCacheArb用于仲裁多路ULDC请求；RguICacheArb用于仲裁多路取指请求；其中两个仲裁模块均支持乱序返回及请求间搭车机制，即当多笔请求会未来请求有重复取指地址，会将多笔请求进行合并。
+进一步的，如前所述，RguUcore实现标量指令的执行及向量指令的预处理,图2展示了RguUcore的架构图，以解释如何实现上述功能。
+RguUcore包含4个UBff子模块,该模块进行取指及预取。
+RguUcore包含4个UCheck子模块,该模块判断当前指令的数据依赖性与资源冲突情况。
+RguUcore包含4个UCtrl子模块，该模块控制pc指针的跳转，得到线程执行掩码tmask,并对标量控制指令进行处理,同时维护SIMT STACK。更具体的说，
+UCtrl包含1个SLoop模块，该模块对loop指令进行处理。
+UCtrl包含1个SBranch模块，该模块对branch指令进行处理。
+UCtrl包含1个SJump模块，该模块对jump指令进行处理。
+UCtrl包含1个STack模块，该模块维护SIMT STACK。
+RguUcore包含4个Urf子模块，该模块对UR/USR/UP进行访问，同时对立即数进行替换处理，为这种指令的各个操作数提供UVAL。
+RguUcore包含4个EFifo子模块，该模块对向量指令进行解码及缓存。
+RguUcore包含1个Uniform子模块，该模块对标量计算指令进行处理，4个warp竞争一份计算资源。
+RguUcore包含1个UMonitor子模块，该模块监视共享资源占用情况，反馈给ucheck做资源冲突检查。
+RguUcore包含1个SIMT STACK SRAM子模块，该模块存储多个warp的stack情况。
+接口描述
+配置参数
+
+命名 | 含义 | 约束
+WARP_N | 1个ucore支持的warp数量 | 
+CINS_N | 1条cache line中指令数量 | 
+THD_N | 1个warp中的线程数 | 
+PC_W | 指令宽度 | 
+VAL_W | 数据宽度 | 
+IOSTD_N | Icache outstanding最大值 | 与ICACHE对齐
+COSTD_N | Ccache outstanding最大值 | 与CCACHE对齐
+TMA_D | 路上最多允许tma的数量 | 与TMA对齐
+
+接口信号
+信号名称/方向/位宽/含义，样例：
+
+Port | I/O | Width | Description
+APB Clock & Reset
+clk | I | 1 | RguUcoreClock.
+rst_n | I | 1 | RguUcoreReset.
+flush | I | 1 | 指令缓存清空信号
+ICACHE Interface
+L0_ardy | I | 1 | 取指rdy
+L0_avld | O | 1 | 取指请求
+L0_aaddr | O | [PC_W -$clog2(CINS_N)-1:0] | 取指地址
+L0_atsid | O | [$clog2(IOSTD_N)-1:0] | 取指请求id
+L0_rvld | I | 1 | 指令数据有效
+L0_rrdy | O | 1 | 指令数据能被接收（常1）
+L0_rdata | I | [CINS_N-1:0] | 取指数据
+L0_rtsid | I | [$clog2(IOSTD_N)-1:0] | 指令返回id
+CCACHE Interface
+ldc_ardy | I | 1 | Uldc请求能被接收
+ldc_avld | O | 1 | Uldc请求
+ldc_aaddr | O | [31:0] | Uldc请求地址
+ldc_atsid | O | [$clog2(COSTD_N)-1:0] | Uldc请求请求id
+ldc_rvld | I | 1 | Uldc读回数据有效
+ldc_rrdy | O | 1 | Uldc读回数据能被接收
+ldc_rdata | I | [VAL_W-1:0] | Uldc读回数据
+ldc_rtsid | I | [$clog2(COSTD_N)-1:0] | Uldc读回id
+TMA Interface
+tma_vld | O | 1 | 有效tma请求
+tma_wpid | O | [$clog2(WARP_N)-1:0] | 有效tma请求warpid
+tma_info | O | package | 有效tma请求信息
+tma_ack | I | 1 | tma请求被下发，用于流控
+Task Interface
+pc_start | I | [PC_W-1:0] | Pc初始位置
+tmask_start | I | [WARP_N-1:0][THD_N-1:0] | Tmask初始值
+warp_prio | I | [WARP_N-1:0][$clog2(WARP_N)-1:0] | 当前任务优先级。
+warp_start | I | 1 | 当前任务开始信号。
+warp_done | O | [WARP_N-1:0] | 当前任务结束信号
+Config Interface
+cfg_vld | I | [WARP_N-1:0] | 参数配置使能信号,share的cfg只能从warp0/4配置
+cfg_addr | I | 6 | 参数配置地址。
+cfg_data | I | 32 | 参数配置数值。
+Vector Interface * WARP_N
+uinfo_rdy | I | 1 | 向量指令能够被接收。
+uinfo _vld | O | 1 | 向量指令有效。
+uinfo_info | O | 结构体 | 向量指令预处理信息，包含以下信息： info.ins_data：向量指令 info.ins_tmask：vector结果写入vlm使能线程使能 info.ins_wval:wrf_val info.ins_tval:trf_val info.loop_id:当前loop_id info.loop_vmsk:loop产生的vmask info.loop_fst：指示各层loop是否处于第一圈 info.loop_lst：指示各层loop是否处于最后一圈 info.loop_cnt:指示各层loop圈数 info.spe_vmask:特殊寄存器vmask值 info.spe_vout:特殊寄存器vout值 info.spe_vclr:特殊寄存器vclr值 info.warp_prio:当前warp优先级 info.stage_id：当前指令所属stage(fence stage)
+Vector to SRF Interface
+ext_iwid | I | [$clog2(WARP_N)-1:0] | 外部指令写回warpid
+ext_ivld | I | 1 | 外部指令写回
+ext_irdy | O |  | 外部指令写回能被接收
+ext_iaddr | I | [7:0] | 外部指令写回地址
+ext_idata | I | [VAL_W-1:0] | 外部指令写回数据
+ipred Interface
+tp_rden | O | [WARP_N-1:0] | Tpred读使能，与指令issue同相位
+tp_rid | O | [WARP_N-1:0][2:0] | Tpred读id
+tp_rval | I | [WARP_N-1:0][THD_N-1:0] | Tpred读数据
+tp_rvld | I | [WARP_N-1:0][6:0] | Tpred读数据有效
+Err Interface
+err_div | O | 1 | Err信号
+
+接口时序
+Tma接口时序
+一次完整的tma传输不能被打断，当一条tma指令不带yelid则认为一次完整传输结束;
+当路上的tma指令大于下游模块bffer深度，ucore不能下发vld;
+Harden边界隔离
+3组对外接口：icache/ccache/tma均经过仲裁发出，且发向不同hardblock，因此需隔离给出，以icache接口为例，路径如下：
+详细设计
+UBuff模块
+1.数据流描述
+Ubuff模块向cache发起取指请求，并收到取指/预取指令，下游模块向ubuff发起取值请求，ubuff向其返回目标指令。
+Ubuff模块允许当拍返回响应。
+Ubuff与下游模块的接口中，允许下游模块未收到响应前修改请求地址，且永远响应最新的请求地址。
+2.模块功能描述
+Ubuff根据当前指令执行情况向cache取值或预取，当目标pc不在cacheline中时，Ubuff发起取指操作，当目标pc的下8条不在预取cacheline中时，Ubuff发起预取操作。
+存在以下3个优化点：
+不重复取指，一条请求没有返回前不重复发出请求；
+Loop end在预取cacheline时，不再预取直到loop执行结束；
+cache_line只接收最后一次发出的请求，这个点的原因是预取实际是一种预测行为，预测即可能预测错误，最新的请求一定的更准确的需求，所以只接收最后一次请求的响应。
+3.接口时序
+1）对上游模块的取指请求任意周期后返回
+2）ivld/idata可以乱序返回
+UBuff1模块
+1.数据流描述
+Ubuff1模块从下游模块接收取值请求，并返回相应指令；向上游模块发出取值或预取请求，并接受返回的响应，向上游模块发出预取请求时，允许预取请求未响应时修改请求。
+整体取指通路如下图所示：
+支持ucore接口指令信息前传，在取指未hit的状态下在ucore内部延迟为3cycle.
+2.模块功能描述
+Ubuff1模块是为timing而加入的模块，旨在得到干净的寄存器输出指令，内部主要包含两组寄存器：ins_dat_reg和pc_dat_reg; 模块向上游模块取值时存在两种情况1）取值 2）预取。
+当下游模块请求地址和pc_dat_reg相等时向上游模块发出预取请求，预取地址当前pc+1;当当下游模块请求地址和pc_dat_reg不相等时向上游模块发出取指请求，取值地址当前pc。当请求地址和pc_dat_reg相等时表示有有效指令可用，即ins_vld拉高。
+当处于预取状态时，常见的情况是之前预取的指令预测错误，继而发出新的取值请求，这种情况是被允许的。
+UCheck模块
+1.数据流描述
+UCheck模块接收到指令信息，输出指令是否可以执行的指示信号。
+2.模块功能描述
+Ucheck主要检查数据依赖和资源冲突，数据依赖主要包括以下几个方面：
+Urf：写后读冲突，写后写冲突；
+Upred：由于目前只支持1周期指令配置pred，因此认为下条指令一定能拿到之前指令的up结果，因此无upred冲突；
+Ipred：写后读冲突；
+Carry：认为mad/add/mul都是2cycle，且carry的产生和使用在固定stage,所以无carry冲突。
+资源冲突主要包括以下几个方面：
+Udp出口冲突
+Sequence 独占计算资源冲突
+Stack高速缓存满
+多warp udp竞争
+UCtrl模块
+1.数据流描述
+Uctrl模块接受指令及相关数据信息，处理pc跳转，并生成指令执行掩码tmask；内部维护simt stack，并向多warp共享stack存储输出访存请求；指令不能执行分为以下两种情况：
+当前指令所需输入没有准备好—check_ok
+当前指令执行需要一定时间延时—pc_vld，更具体的：
+--数据当拍读不到/stack无法及时提供数据，卡第二拍
+--非流水指令本身延时：jump某些类型/swap pc/get pc,卡第二拍（本质是读urf timing较差所以等待一排）
+--u域指令+uldc读ipred需要等待一拍，卡第一拍（原因是保证ualu的固定执行延时）
+--u域控制指令读upred需要等待一拍，卡第二拍（原因是卡第一拍时发现tmask的生成非常不统一，因此卡在第二拍，实际上对于非流水的指令，卡在哪一拍都是一样的，只是抽象问题）
+进一步的，指令何时可以跳转分为以下两种情况：
+不卡第二排的指令正常issue时跳转
+卡第二拍的指令在issue的下一拍跳转
+进一步的，不同指令的tmask_atp来源不同，更具体的：
+ctrl类指令的tmask_atp来源于upred _reg/ipred_reg
+u域其他指令tmask_atp来源于upred/ ipred_reg
+r域指令tmask_atp来源于upred
+另外，loop空转时的行为是进入loop执行体第一条指令，然后跳至loop结尾，loop执行体第一条指令的tmask=0.
+2.模块功能描述
+1）loop:仅支持1层loop,不支持loop嵌套，不支持per线程的loop end；当loop不满足进入条件时，会跳过loop代码段继续向后执行；
+2）jump:简单jump功能，参考指令集描述
+3）bra:简单的bra功能，分歧维护在stack模块中，后面在stack中详细描述逻辑
+4）simt stack :将在下一小节详细说明
+SIMT STACK模块
+1.模块功能描述
+SIMT STACK主要由各warp独立小深度缓存，多warp共享的大容量存储，以及外围控制逻辑组成。存储内容包括各分歧的汇聚点，各分歧pc，及执行掩码tmask以及分歧优先级信息,通过维护一个有序列表实现并选择表头分歧执行实现pc的维护。
+为了支持多个分歧快速出入栈，将STACK拆分成2个子栈，能够支持一条branch指令同时入栈3项出栈1项，即单条指令单周期快速出入站。结构图如下图所示，其中，缓存与sram交互工作流程描述如下：
+当子栈接收到push信号时，将数据压入缓存寄存器，寄存器中已有数据依次下移；
+当子栈接收到pop信号时，将数据弹出缓存寄存器，寄存器中已有数据依次上移；
+当缓存寄存器已使用数量大于阈值A时，向sram发出写请求，将寄存器堆中最老数据写入sram;
+当缓存寄存器中已使用数量小于阈值B时，向sram发出读请求，将sram中最新的数据写会寄存器堆；
+不同warp独占共享sram的一块空间，不能同时读写，当sram同时接收到多个读写请求出，可根据需要仲裁规则进行仲裁；
+外围控制逻辑描述如下:
+何时pop/push,pop/push哪些内容/子项：
+当遇到常规指令，且pc_nxt!=栈顶汇聚点，将下一条pc信息入栈；
+当遇到分支指令，且分支指令产生分歧时，将进行压栈，三个子项-汇聚点/剩余路径子项信息，分歧1子项信息，分歧2子项信息可能同时压入一个或多个，每一项是否压入判断条件如下表：
+
+汇聚点/剩余路径子项信息 | 该分支指令的汇聚点和栈顶汇聚点相同时不压入
+分歧1子项信息 | 该分歧pc与分支指令汇聚点相同时不压入
+分歧2子项信息 | 该分歧pc与分支指令汇聚点相同时不压入
+
+当当前指令执行结束，将进行出栈，出栈时只弹出栈顶;
+进一步的，支持函数递归调用功能，Stack中的每一项由PC实际内容为(FuncDepth + PC)；当函数递归深度不同时，不会因pc相同而产生出栈。funcdepth由swap/jump指令维护。
+选择哪个子栈进行操作
+上述何时入栈出栈的描述中，可能同时入栈多次，及同时出入栈，一共有4个子栈，需要计算每个出入栈的子栈id,逻辑描述如下：每个周期维护读写地址cur_addr=old_addr+wr_num-rd_en;多次写入的写地址即为old_addr -rd_en-wr_id,弹出地址即为old_addr。
+流控相关：
+需要注意的是，当指令发出push或pop请求的时候，stack可能无法及时收取，这时的抽象是当条指令issue,正常做该指令相关的操作，但是与pc存取相关的行为被block住，此时将pc_vld拉低，保持住当前指令pc，同时不断重复pop/push请求，直至成功。除了动作请求需要被存下，数据信息是否也需要被存下？不需要，分析如下：1)只有branch指令会触发stack的push,是否push收到p的影响，但是branch指令本身不修改p,所以branch先行执行不会对branch后续产生影响；2）pop时，弹出行为不受p影响。
+Urf模块
+1.数据流描述
+Urf接收到指令对urf/upred/uspe的读写请求，输出读请求数据。
+2.模块功能描述
+Urf模块内部例化urf/upred/uspe实体，其中，
+upred[7]写死为1，@！upred7时为不执行；
+Urf与uspe统一编码，根据地址段自动映射到对应区间；(后续会对面积进行优化，将任务级的spe做多warp共享)
+urf的读取支持写数据前传，即ualu指令计算出的结果可以立即被使用，因此1周期指令能够实现连续发射；
+模块内部处理u立即数，输出数据已经过立即数替换;
+写urf的源头由4个：ualu指令，config通路，pc相关ctrl指令以及外部通路（如mov，mem指令），config通路与其他源头发生时间不同，无竞争关系；剩余ualu指令+pc相关ctrl指令写urf优先级高于外部通路写优先级。
+Uniform模块
+1.数据流描述
+Uniform模块接收到仲裁后的ualu指令/所需操作数，输出ualu计算结果/upred计算结果，以及相关结果所需控制信息如地址/warpid等。
+2.模块功能描述
+Uniform模块内部集成ualu/ubit/udiv模块，在时序上对输入的信息打一拍，送入计算模块，计算模块本身延时为0/1/6cycle
+其中ualu/ubit复用ialu计算逻辑，详见ialu设计文档。
+Efifo模块
+1.数据流描述
+Efifo模块收到e指令的请求，输出e指令初步解析信息，包括指令opcode；指令info/ctrl等域信息；执行掩码tmask；pu+pg*2的ipred相关访问信息；4个操作数的信息，包含操作数位宽，数据来源，地址；以及3个u域val(一条指令最多访问3个uval)。
+2.模块功能描述
+对指令信息进行简单解析，并将解析信息送入fifo, fifo满时需要对check模块进行反压，不再允许e指令继续发射；同时efifo模块处理mov/LDST指令的tid。
+RguUArb模块
+1.数据流描述
+RguUArb接受多个来源的访问请求，仲裁出1路请求给出，同时接收乱序返回的数据，广播给有过这一请求的来源。
+2.模块功能描述
+RguUArb接收多个来源的访问请求，每个访问请求带一个tag, tag相同的请求可以进行合并，同时tag和历史上未返回请求的tag相同也可进行合并；维护一个表格，表格中记录路上未返回的请求，同时携带这笔请求返回后需要广播给哪些warp以及这比请求的tag，当时不允许当拍响应请求（timing考虑）；当请求返回后，从表格中找到相关信息，并将返回数据及tag中携带信息广播给需要的warp。
+软件接口
+Debug & trace
+Debug&Trace实现调试及追踪功能。
+其中调试功能的各个模式通过不issue后续的指令来达到调试目标支持以下模式：
+1）断点调试：走到目标pc后，当条指令无法issue，进而pc被卡住，实现断点调试的目的。warp_state[2]指示user_stall，含义为用户期望暂行运行程序，断点调试模式下走到目标pc后会被拉高；
+Figure14断点调试波形图
+2）暂停运行：暂停运行模式下pc指针不会继续往下走。
+Figure15暂停运行波形图
+进一步的，端口信号dbg_step可以理解为“断点调试”“暂停运行”模式下开的“后门”，没遇到一个dbg_step脉冲信号，pc指针可以往下走一条。在该信号与各个模式配合使用下，能够实现更多的调试场景，例如：
+3）逐条调试
+逐条调试是在暂停运行的模式下进行的，在stallmode下，debug_step拉高一次，pc往下执行一条；如果因为指令依赖性等硬件问题导致当前pc无法往下运行，此时不能再发debug_step，直到pc不再有依赖性等问题才能再次发出debug_step。
+Figure16逐条调试波形图
+3）多断点调试
+当pc跳转到第一个断电pc处不再往下走时，可以发出一个debug_step，已让其走出stall状态，进而走到下一个断点。
+Figure17多断点调试波形图
+追踪功能支持用户访问标量寄存器堆等信息，追踪功能访问标量寄存器为最高优先级，当发出追踪访问请求时，指令对相同读口的访问请求将被拒绝。
+4) early stop
+当pc处于任意指令流中时，进入early stop mode时都会尽可能早的退出，例如在循环指令中进入early stop mode会提前跳出循环，在嵌套分支中会将stack弹空后退出。
+Report
+Ucore上报异常，目前支持两种异常上报：
+1）div_err：除法的除数为0
+2）ins_err：指令奇偶校验错误，一条指令只会上报一次，如下波形所示：
+物理实现
+按实际情况写(如有)
+SRAM列表
+
+Port (Mandatory) 1p11/2p11/2p22 | Number (NA) | Width (NB) (Mandatory) | Depth (NW) (Mandatory)
+2p11 | 8 | 120 | 128
+
+布局参考
+冒烟所需功能点（仅供参考）
+1)branch嵌套case
+--32/16层嵌套
+--pred不ready
+--一个branch产生0/1/2/3个压栈项
+--branch中存在exit
+--初始tmask!=全1
+2)冲突依赖
+--urf写后读、写后写冲突（需要注意setpc/getpc等ctrl指令写urf）
+--ipred写后读冲突（所有u域指令均可读ipred)
+--upred理论上无冲突，可以随机发一些写完就用的序列随便验证一下
+--carry理论上无冲突，可以随机发一些写完就用的序列随便验证一下
+--uniform输出port冲突，单warp下比较好测,可以等同为写口冲突（2cycle+1cycle)
+--除法资源冲突
+--stack full(连续发branch应该能触发）
+3)数据通路
+--imm/urf/upred/spe作为操作数cross
+4)e域指令
+--常规e域指令解析信息是否正确
+--mov/ld/st特殊tid模式下tid计算是否正确
+5)ccache/icache搭车机制，乱序返回机制，请求当拍返回
+6)指令卡住
+--各种指令用@p/@up/@p7/@up7/@!p7/@up7
+--各种控制类指令读urf
+--stack连续压栈出栈，循环体内部满足上述两条

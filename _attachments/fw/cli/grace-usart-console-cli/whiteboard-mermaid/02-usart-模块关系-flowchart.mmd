@@ -1,0 +1,38 @@
+flowchart LR
+  subgraph B["board layer"]
+    Addr["per_map.h<br/>USART_DEVICE_ADDR"]:::board
+    Premain["board_system_premain_init"]:::board
+    Preinit["rt_hw_board_pre_init"]:::board
+    SetConsole["rt_console_set_device"]:::board
+  end
+
+  subgraph D["driver layer"]
+    GetId["drv_usart_get_id"]:::drv
+    Hw["drv_usart_hw_init"]:::drv
+    DevInit["drv_usart_dev_init"]:::drv
+    Reg["rt_device_register<br/>usartN"]:::drv
+    Irq["rt_hw_interrupt_register"]:::drv
+  end
+
+  subgraph H["HAL layer"]
+    HalInit["hal_usart_init"]:::hal
+    Find["rt_device_find<br/>usartN"]:::hal
+  end
+
+  subgraph S["console / shell"]
+    Console["RT console"]:::shell
+    Shell["agc_shell_init"]:::shell
+    Rx["rx_indicate"]:::shell
+    Read["rt_device_read"]:::shell
+  end
+
+  Addr --> Premain --> GetId --> Hw --> DevInit --> Reg --> Irq
+  SetConsole --> Console --> Shell --> Rx --> Read
+  Preinit --> HalInit --> Find
+  Find -. uses .-> Reg
+  Console -. selects .-> Reg
+
+  classDef board fill:#eff6ff,stroke:#2563eb,color:#111827;
+  classDef drv fill:#f0fdf4,stroke:#16a34a,color:#111827;
+  classDef hal fill:#fefce8,stroke:#ca8a04,color:#111827;
+  classDef shell fill:#fdf2f8,stroke:#db2777,color:#111827;

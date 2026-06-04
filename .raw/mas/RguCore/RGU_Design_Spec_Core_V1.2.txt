@@ -1,0 +1,477 @@
+
+产品名称 | 内部
+产品版本 | 总 xxx 页
+
+RGU Core设计
+拟制人员：  日期：
+审校人员：  日期：
+（仅供内部使用）
+HX Logo
+辉羲智能科技有限公司
+HX
+All Rights Reserved.
+版权所有，侵权必究
+修订记录
+
+版本号 | 修订说明 | 修订人 | 审核人 | 修订日期
+V0.1 | 初始版本，对应RTL V0.1 | 王文强 |  | 2024/07/31
+V0.2 | 0.2版本 | 王文强 |  | 2024/09/14
+V0.3 | 10/15版本 | 王文强 |  | 2024/10/15
+V0.4 | 11/07版本 | 王文强 |  | 2024/11/07
+
+概述
+系统位置
+RguCore的作用为负责AI计算功能。从GCtrl部分接受任务，从外存中读取指令和数据，解析执行，将结果写回到外存中。
+功能列表
+支持SIMT编程框架
+支持图灵完备的指令集
+分支/跳转/循环
+同步指令
+原子操作
+ALU指令
+Tensor Core指令
+Uniform指令
+同步/异步访存指令
+支持多核调度
+支持异常检测
+支持程序调试
+设计参数
+
+分类 | 参数 | 取值 | 备注(1GHz频率下)
+Context | #Warp | 64 | 4subcore * 16
+ | #Block | 32 | 
+Memory | SharedMem+L1 | 256KB | L1 size = 32/64/128KB
+ | ICache | 32KB | 
+ | CCache | 8KB | 
+Uniform Datapath | UDP | 4subcore * 2 | 
+ | URF | 4subcore * 2 *2KB | register-based，warp固定64个
+ | #ISS | 4subcore * 2instr/cyc | 
+Thread Datapath | TensorCore | 8*8*8MAC@FP16 | 单核FP16算力：4TFlops
+ | INT-ALU | 4subcore * 16 | 
+ | FP-ALU | 4subcore * 16 | 单核FP32算力：128GFlops 单核FP16算力：256GFlops 单核BF16算力：128GFlops
+ | SFU | 4subcore * 4 | 
+ | LSU | 4subcore * 16 | 单核带宽：256GB/s
+ | TRF | 4subcore * 128KB | 单核容量：512KB
+ | #ISS | 4subcore * 2INS/clk | 
+带宽 | AXI-Master | 128B/clk | 
+ | AXI-Slave | 128B/clk | 
+ | SHM | 512B/clk | 
+ | TMA | 128B/clk | 
+ | Outstanding | 512 | 
+
+整体架构
+结构框图
+整体分为4个subcore，每个subcore处理16个warp。CPart处理多个subcore间共享的逻辑，包括访存通路/任务分发/同步机制。
+接口描述
+配置参数
+目前主要包含接口信号的一些位宽，在RguCommon.sv中定义。
+
+Name | Type | Value | Description
+Clock & Reset
+CMADDR_W | integer | 8 | 响应接口地址/数据位宽
+CMDATA_W | integer | 13 | 
+CSADDR_W | integer | 24 | 控制接口地址/数据位宽
+CSDATA_W | integer | 32 | 
+DMADDR_W | integer | 48 | Master接口地址/数据位宽
+DMDATA_W | integer | 1024 | 
+DMAXID_W | integer | 11 | Master接口ID位宽
+DMUSER_W | integer | 17 | Master接口User位宽
+DSADDR_W | integer | 32 | Slave接口地址/数据位宽
+DSDATA_W | integer | 1024 | 
+DSAXID_W | integer | 6 | Slave接口ID位宽
+DSUSER_W | integer | 9 | Slave接口User位宽
+
+接口信号
+
+Port | I/O | Width | Description
+Clock & Reset
+clk | I | 1 | System Clock
+rst_n | I | 1 | System Reset (active low)
+32bit 控制接口
+dn_avalid | I | 1 | 命令+写数据
+dn_addr | I | CSADDR_W | 
+dn_atype | I | 2 | 
+dn_wdata | I | CSDATA_W | 
+dn_aready | O | 1 | 
+dn_rvalid | O | 1 | 写响应+写数据
+dn_rtype | O | 2 | 
+dn_rdata | O | CSDATA_W | 
+dn_rready | I | 1 | 
+12bit响应接口
+up_avalid | O | 1 | 
+up_data | O | CMDATA_W | 
+up_aready | I | 1 | 
+TBU接口
+tvalid_dti_dn | I | 1 | 
+tready_dti_dn | O | 1 | 
+tdata_dti_dn | I | MMU_STREAM_B2C_WIDTH | 
+tlast_dti_dn | I | 1 | 
+tvalid_dti_up | O | 1 | 
+tready_dti_up | I | 1 | 
+tdata_dti_up | O | MMU_STREAM_C2B_WIDTH | 
+tlast_dti_up | O | 1 | 
+tbu_last | O | 1 | 
+1024bit AXI5 Master Interface(读+写)
+datam_awready | I | 1 | AXI Write Address Ready.
+datam_awid | O | DMAXID_W | AXI Write Address ID.
+datam_awaddr | O | DMADDR_W | AXI Write Address
+datam_awuser | O | DMUSER_W | AXI Write User
+datam_awlen | O | 8 | AXI Write Address Length.
+datam_awsize | O | 3 | AXI Write Address Size.
+datam_awburst | O | 2 | AXI Write Address burst.
+datam_awlock | O | 2 | AXI Write Address lock.
+datam_awcache | O | 4 | AXI Write Address Cache.
+datam_awprot | O | 3 | AXI Write Address Protection.
+datam_awatop | O | 6 | AXI Write Atom Operation.
+datam_awqos | O | 4 | AXI Write Address QoS.
+datam_awvalid | O | 1 | AXI Write Address Valid.
+datam_wready | I | 1 | AXI Write Ready.
+datam_wdata | O | 1024 | AXI Write Data.
+datam_wstrb | O | 128 | AXI Write Strobe.
+datam_wlast | O | 1 | AXI Write Last.
+datam_wvalid | O | 1 | AXI Write Valid.
+datam_bid | I | DMAXID_W | AXI Response ID.
+datam_bresp | I | 2 | AXI Response.
+datam_bvalid | I | 1 | AXI Response Valid.
+datam_bready | O | 1 | AXI Response Ready.
+datam_arready | I | 1 | AXI Read Address Ready.
+datam_arid | O | DMAXID_W | AXI Read Address ID.
+datam_araddr | O | DMADDR_W | AXI Read Address
+datam_aruser | O | DMUSER_W | AXI Read Address User
+datam_arlen | O | 8 | AXI Read Address Length.
+datam_arsize | O | 3 | AXI Read Address Size.
+datam_arburst | O | 2 | AXI Read Address burst.
+datam_arlock | O | 2 | AXI Read Address lock.
+datam_arcache | O | 4 | AXI Read Address Cache.
+datam_arprot | O | 3 | AXI Read Address Protection.
+datam_arqos | O | 4 | AXI Read Address QoS.
+datam_arvalid | O | 1 | AXI Read Address Valid.
+datam_rvalid | I | 1 | AXI Read Valid
+datam_rlast | I | 1 | AXI Read Last
+datam_rready | O | 1 | AXI Read Ready
+datam_rdata | I | 1024 | AXI Read Data
+datam_rid | I | DMAXID_W | AXI Read ID
+datam_rresp | I | 2 | AXI Read Response
+1024bit AXI5 Slave Interface(读+写)
+datas_awready | O | 1 | AXI Write Address Ready.
+datas_awid | I | DSAXID_W | AXI Write Address ID.
+datas_awaddr | I | DSADDR_W | AXI Write Address
+datas_awuser | I | DSUSER_W | AXI Write User
+datas_awlen | I | 8 | AXI Write Address Length.
+datas_awsize | I | 3 | AXI Write Address Size.
+datas_awburst | I | 2 | AXI Write Address burst.
+datas_awlock | I | 2 | AXI Write Address lock.
+datas_awcache | I | 4 | AXI Write Address Cache.
+datas_awprot | I | 3 | AXI Write Address Protection.
+datas_awatop | I | 6 | AXI Write Atom Operation.
+datas_awqos | I | 4 | AXI Write Address QoS.
+datas_awvalid | I | 1 | AXI Write Address Valid.
+datas_wready | O | 1 | AXI Write Ready.
+datas_wdata | I | 1024 | AXI Write Data.
+datas_wstrb | I | 128 | AXI Write Strobe.
+datas_wlast | I | 1 | AXI Write Last.
+datas_wvalid | I | 1 | AXI Write Valid.
+datas_bid | O | DSAXID_W | AXI Response ID.
+datas_bresp | O | 2 | AXI Response.
+datas_bvalid | O | 1 | AXI Response Valid.
+datas_bready | I | 1 | AXI Response Ready.
+datas_arready | O | 1 | AXI Read Address Ready.
+datas_arid | I | DSAXID_W | AXI Read Address ID.
+datas_araddr | I | DSADDR_W | AXI Read Address Address.
+datas_arlen | I | 8 | AXI Read Address Length.
+datas_arsize | I | 3 | AXI Read Address Size.
+datas_arburst | I | 2 | AXI Read Address burst.
+datas_arlock | I | 2 | AXI Read Address lock.
+datas_arcache | I | 4 | AXI Read Address Cache.
+datas_arprot | I | 3 | AXI Read Address Protection.
+datas_arqos | I | 4 | AXI Read Address QoS.
+datas_arvalid | I | 1 | AXI Read Address Valid.
+datas_rvalid | O | 1 | AXI Read Valid
+datas_rlast | O | 1 | AXI Read Last
+datas_rready | I | 1 | AXI Read Ready
+datas_rdata | O | 1024 | AXI Read Data
+datas_rid | O | DSAXID_W | AXI Read ID
+datas_rresp | O | 2 | AXI Read Response
+128bit Master Stream Interface
+tracm_ready | I | 1 | Trace stream ready
+tracm_valid | O | 1 | Trace stream valid
+tracm_data | O | 128 | Trace stream data
+
+AxUser编码
+参考MIO文档约定。
+AXI Slave接口
+支持多ID
+Outstanding = 64
+支持burst传输
+AxUser={sub_info, cmd_type}
+AxSize =3'b111固定值
+AxBurst=2'b01 incr固定值
+Axlock =Axcache=Axprot=AxRegion=AxQos=0
+AXI Master接口
+支持多ID
+Outstanding = 512
+路上不会有相同ID
+支持burst传输(AxLen=0~3)
+支持读交织
+AxUser = {L2_info, sub_info, cmd_type}
+AxSize =3'b111固定值
+AxBurst=2'b01 incr固定值
+Axlock=Axcache=Axprot=AxRegion=0
+AxQos=0(数据)/1(指令)
+接口时序
+AXI接口都按照标准协议握手。
+详细设计
+SubCore设计
+UCore
+每个UCore维护8个warp，负责如下功能：
+取指令
+每个warp维护一组指令缓存：IBuffer，当前设置为8条指令
+若访问的PC落在IBuffer中，快速返回结果；
+若访问的PC不在IBuffer中，则会触发ICache的读取(以4*128bit为单位)；
+支持对ICache的预取操作
+检查UR/UP的依赖
+维护UR/UP状态表
+若不满足执行条件，卡住
+处理U域指令
+控制类指令：NOP/Exit/分支/跳转/PC/Mask相关
+计算类指令：UALU(共享1组单元)
+下发T域指令
+将非U域指令中的UR/UP替换为真实值，下发给后续通路
+整体为简单顺序执行逻辑，不支持如下特性：
+不支持乱序
+不支持寄存器重命名
+不支持多发射
+不支持分支预测
+WScheduler
+处理T域的整体控制：指令检查=>操作数预取=>下发执行=>返回响应
+IIssue
+进行指令的检查和选择。
+判断每条指令是否满足发射条件
+维护寄存器状态表
+接收Disp返回的执行单元状态
+在满足条件的指令中选择优先级最高的发射
+优先级 = F(blk_age, warp_id, unit, usr, rr)
+按奇偶分组，选择优先级最高的两条普通指令，发给FDisp执行
+选择优先级最高的一条tensor/fp64指令，发给CDisp执行
+FDisp
+维护细粒度指令的操作数预取+分发。
+维护两份预取队列，收到指令后放入队列中。
+从队列中选择操作数进行收集：
+支持多个指令组合收集 – 比如指令1的操作数c有冲突/没有操作数c，则后续指令的操作数c可以收集
+收集完成后标记为可发射
+在两个队列中(共8条指令)中选择可发射的最优指令执行，考虑如下问题：
+发射出的指令需要避免写冲突(历史指令的写/当拍指令的写)
+IALU/FALU如果写延时一致，需要避免当拍写冲突
+SFU/LSU延时不一致，只考虑历史冲突
+统计如下信息，反馈给上级：
+寄存器的在读状态
+寄存器的在写状态
+执行单元的状态
+CDisp
+维护粗粒度指令的操作数预取+分发。
+收到指令后分成两路解析
+分成多拍进行操作数收集
+分成多拍进行执行，执行的前提是所需操作数收集完成
+可细粒度分发，不一定等待所有操作数完成
+同样统计寄存器读写/执行单元状态，反馈给上级
+TrfCtrl
+整体控制TRF的读写占用情况，避免TRF的bank冲突。
+接收Disp的访存请求，进行仲裁，返回响应
+下发读写动作给TRF
+Tpart
+执行通路包括寄存器堆和计算单元
+采用多组多bank的sram实现寄存器堆
+当前设计分为两组，对应奇偶warp可双发射
+每组包含4个bank，平均意义上可支撑3读+1写的请求
+寄存器交织分配到4个bank上：bank_id = (reg_id + warp_id)%4
+采用Operand collector解决寄存器堆的bank冲突
+预取完操作数之后，才能执行
+寄存器堆按线程0-15/16-31分为两组
+T16-31对应的读写操作固定比T0-15晚一拍
+根据PU的个数分为几种情况：
+PU数目=32时，PU单元和32个线程直接对应
+PU数目=16时，第一拍处理T0-15，第二拍处理T16-31
+PU数目<16时，重复多次b)过程
+注意：对于warp间数据共享(如sfl)或者和uniform/ctrl单元的交互，需要注意前后拍的问题。
+Tensor Core和FP64为多操作数指令，采用专用的取数buffer和控制通路。
+Tensor Core
+执行矩阵/FP64操作。
+CPart-访存通路
+整体抽象
+访存通路的功能在于实现各存储介质之间的数据传输，如图所示
+对应支持的命令如下：
+Load:  		SHM2REG，GLB2REG
+Store:  		REG2SHM，REG2GLB
+AsyncCopy:  SHM2GLB，GLB2SHM
+TMA: 		GLB2SHM, SHM2GLB, GLB2GLB
+结构框图
+整体抽象为Master + InterConnect + Slave的抽象。其中Master包括LSU/TMA，负责指令级别的特性处理；Slave包括SHM-RW/GLB-RW，负责针对SHM/GLB地址空间的访存拆分与合并。
+Instruction Cache
+独立的ICache，提供4组512bit的访问接口。
+Const Memory
+独立的Const Cache，提供4组32bit的访问接口。对于ULDC指令，直接访问即可；对于LDC指令，会拆分成不同的地址顺序访问（地址相同的线程会合并在一起）。
+提供额外的接口满足TMA的访问请求，位宽待定。
+Shared Memory
+以4B为单位，分成32个Bank。每个Bank内部分成4个子bank，支撑如下来源的访问：
+3个shm-rw的访问，可以同时支撑4个subcore+1个TMA的全速访问
+来自外部的访问(AXI-Slave接口进来，包含普通访问+原子操作)
+来自DCache的访问(共享SRAM)
+Global Memory
+local memory
+按物理warp分配空间：
+phy_addr = core_base + hw_warp_id * warp_step + local_addr/4 * addr_step + lane_id * 4 + local_addr%4
+global memory
+统一编址：
+DDR
+SHM of other cores
+地址对齐
+要求访存地址对齐到访存粒度，如读取32bit数据时，地址必须对齐到32bit，否则行为是未定义的。
+原子操作
+数据通路
+为提升性能，原子操作采用在末端实现的方式。通过AXI5的接口返回原值。
+任务封装
+单操作数原子操作
+命令通路：每个32bit代表一个操作数
+返回通路：每个32bit代表一个原值
+双操作数原子操作(CAS/ARRIVE)
+命令通路：每(2*32bit)代表一对操作数
+第一个32bit为操作数0: set_val/arrive_val
+第二个32bit为操作数1: cmp_val/arrive_val
+利用User中cas_region区分具体操作的是低32bit还是搞32bit
+死锁分析
+目标是满足如下规则：
+Master：无论其他端口状态如何，必须能够接收已发出请求的响应(r/b)
+Slave： 无论其他端口状态如何，只要自己的响应通道没有堵死，就能够接收新的请求
+如果路上存在相同ID的请求，则任意接收的请求都必须返回响应
+如果路上不存在相同ID的请求，可以允许部分请求卡住
+(这里的能够接收是长时间的概念)
+问题1：ACPY/TMA内部未预留大的读buffer
+具体问题：如果写通道卡住，则读返回通道可能卡住
+解决方案：修改TMA对SHM/GLB的访问通路，拆分为独立的R/W接口
+CPart-任务分发
+支持功能
+kernel初始化
+block分发
+kernel结束
+kernel early stop
+读状态
+常规流程
+接收kernel初始化命令
+初始化kernel级信息
+可选invalid ICache/CCache
+接收block任务
+Block初始化
+Block执行
+等待Block结束，返回响应
+重复过程2，直到block分发完成
+接收Kernel结束命令
+执行Kernel结束流程
+返回响应
+Early Stop
+支持特殊的Early Stop流程：
+所有在途的fence/wait指令失效
+所有warp执行EXIT指令
+如果SIMT-stack有残留，会自己逐步弹出
+返回warp_done
+执行Kernel结束流程，返回响应
+block切换
+在编程抽象上，不同的block间没有明确的先后关系，可以穿插执行。因此在block切换时，为追求效率，会在上一个warp下发指令后，尽快切入到新的warp。
+block间切换时，需要额外考虑新的依赖问题：前一个block对shm的异步访问必须在后一个block对shm的访问之前完成。因此在新warp启动后，需要执行如下状态管理：
+首先处于mem_stall状态，无法执行访存操作
+等待对应block的shm的所有异步访问完成后(shm_cnt=0)，进入mem_ok状态
+kernel切换
+收到kernel结束命令后，会
+等待所有warp执行完成
+等待所有访存指令完成
+flush所有非local memory的cache内容
+invalid所有local memory的cache内容
+返回响应
+CPart-线程同步
+硬件同步
+暂定硬件只支持sync_threads(block级别)。
+mbarrier
+memory barrier的实现机制如下：
+整体过程：初始化 -> 线程同步 -> stage0 -> stage1 -> stage2 -> …
+采用最高位区分不同的stage
+对应的，需要在shm/glb实现atom.arrive/atom.try_wait指令的支持，其中try_wait的目标是减少pooling load的过程，降低带宽占用。
+其中，atom.try_wait在如下情况下会尽量等待：
+1) 同一WARP的目标地址相同
+2) 同一WARP的目标数据的高位相同
+Try_wait必须注意避免死锁：
+1) Global单元：在try_wait_number超过阈值后，会自动返回最久的try_wait
+2) SHM单元：引入一个额外的timeout阈值。
+cluster.sync
+每个block的shared memory上分配一个barrier
+Block启动时，初始化该地址为cluster.size()
+考虑UMD下发
+Cluster内所有线程查询cluster.first_block_shm_addr，然后访问该shm上的barrier
+grid.sync
+在global memory上分配一个barrier
+在kernel启动前初始化为grid.size()
+Grid内所有线程访问该barrier
+数据依赖
+寄存器依赖
+寄存器依赖只发生在线程内部，由硬件自动维护，保证在编程上满足顺序执行的抽象：逐warp维护表格，记录正在读写的寄存器信息，根据该表格判断指令是否可以读/写寄存器。
+普通指令
+普通指令的延时较短，因此直接记录每条正在执行的指令的操作数情况。单条指令中每个操作数最大访问8个寄存器，因此表格中每一项采用sid+len表示，其中sid∈[0,255], len∈{1,2,4,8}。如何判断两个操作数有冲突：
+区间 [sid_m, sid_m+ len_m)和[sid_n, sid_n+ len_n) 有交集
+sid_m < sid_n+ len_n && sid_n < sid_m+ len_m
+-len_m < sid_m - sid_n < len_n
+8bit减法 + 4bit比较*2
+访存指令
+访存指令延时较长，因此按照寄存器的个数来记录占用情况(256*1bit)。这种记录方式下，不支持写后写的情况。
+硬件实现
+URF的依赖性在UCore内判断。
+TRF的依赖性在WScheduler内判断。
+TRF需要特殊注意乱序情况带来的写后读问题。
+存储器依赖
+硬件行为
+硬件自动保证单线程内的执行顺序：
+同步->同步：需要保序
+LSU保证按顺序发给下游模块(GLB/SHM)
+下游模块按照接收顺序执行
+同步->异步：
+当前结论是不需要保序
+异步->异步：不需保序
+异步->同步：不需保序
+硬件实现
+同步指令间的保序
+同步->AsyncCpy的保序
+同步->TMA的保序
+软件依赖
+通过执行软件指令，可以实现：
+单线程内异步->异步/同步的保序
+fence
+wait_group
+多线程间的访存同步
+存储器屏障：FENCE
+缓存一致性：CCTL
+线程间同步：BARRIER
+存储器屏障
+在计算核发出请求后，后续访存系统是完全乱序执行的，因此目前整体以NOC返回的bresp/rresp代表结束，不区分不同的屏障域(cta/gpu/sys)。
+具体的，需要统计一些counter来记录，包含：
+同步指令：
+未完成的写指令条数
+未完成的读指令条数
+分shm/glb分别维护
+异步指令：
+分group维护异步指令的完成情况
+*ATOM等价于1写+0/1读(返回原值时带读)
+Barrier
+参考线程同步章节。
+CCTL
+控制缓存的行为，具体取决于cache的设计。CCTL指令应该返回响应，用于判断是否真正flush/invalid完成。
+硬件实现
+Fence/barrier发生在WScheduler中，避免不满足条件的指令进入后级，长时间卡住流水。
+异常处理
+参考sys文档
+调试功能
+参考sys文档
+物理实现
+S05工艺，目标频率：
+1) 1.4GHz@tt0p75v
+2) 1.0GHz@ss0p675v （TBD）
+SRAM列表
+参考RGU_SRAMList.xlsx
+布局参考
+待后端讨论，一种可能方案如下

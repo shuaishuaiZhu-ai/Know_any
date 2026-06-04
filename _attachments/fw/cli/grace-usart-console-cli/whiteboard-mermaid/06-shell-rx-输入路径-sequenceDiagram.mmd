@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant RX as USART RX
+  participant IRQ as drv_usartN_irq
+  participant Dev as usartN device
+  participant Ind as agc_shell_rx_ind
+  participant Ring as input ringbuffer
+  participant Sem as rx_sem
+  participant Thread as shell thread
+
+  RX->>IRQ: RX interrupt
+  IRQ->>IRQ: status.empty == 0
+  IRQ->>Dev: rx_indicate(dev, 1)
+  Dev->>Ind: callback
+  Ind->>Dev: rt_device_read()
+  Dev-->>Ind: input bytes
+  Ind->>Ring: put bytes
+  Ind->>Sem: rt_sem_release()
+  Sem->>Thread: wake shell
+  Thread->>Thread: parse and execute command

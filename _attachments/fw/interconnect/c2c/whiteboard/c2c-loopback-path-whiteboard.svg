@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
+  <rect x="0" y="0" width="1280" height="760" fill="#F8FAFC"/>
+  <g font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">
+    <text x="56" y="62" font-size="30" font-weight="700" fill="#0F172A" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">Loopback 测试：为什么要替换 gpu_id / die_id</text>
+    <text x="56" y="96" font-size="16" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">top loopback 绕回本地后，返回请求必须被 NoC 识别为本地目标，才能进入本地 memory 路径。</text>
+    
+    <rect x="72" y="160" width="160" height="86" rx="16" fill="#EFF6FF" stroke="#60A5FA" stroke-width="2"/>
+<text x="94" y="194" font-size="18" font-weight="700" fill="#1E40AF" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">IMC</text>
+<text x="94" y="222" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">issue test access</text>
+    <rect x="302" y="160" width="190" height="86" rx="16" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+<text x="324" y="194" font-size="18" font-weight="700" fill="#92400E" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">TOP</text>
+<text x="324" y="222" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">replace gpu_id / die_id</text>
+    <rect x="562" y="160" width="190" height="86" rx="16" fill="#FCE7F3" stroke="#EC4899" stroke-width="2"/>
+<text x="584" y="194" font-size="18" font-weight="700" fill="#9D174D" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">C2C loopback</text>
+<text x="584" y="222" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">send and return</text>
+    <rect x="822" y="160" width="160" height="86" rx="16" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/>
+<text x="844" y="194" font-size="18" font-weight="700" fill="#166534" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">NoC</text>
+<text x="844" y="222" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">local target</text>
+    <rect x="1052" y="160" width="160" height="86" rx="16" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="2"/>
+<text x="1074" y="194" font-size="18" font-weight="700" fill="#5B21B6" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">MEM</text>
+<text x="1074" y="222" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">address bit[36:0]</text>
+    <line x1="232" y1="203" x2="302" y2="203" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+<polygon points="302,203 294.20577136594005,207.5 294.20577136594005,198.5" fill="#2563EB"/>
+    <line x1="492" y1="203" x2="562" y2="203" stroke="#D97706" stroke-width="3" stroke-linecap="round"/>
+<polygon points="562,203 554.2057713659401,207.5 554.2057713659401,198.5" fill="#D97706"/>
+    <polyline points="752,203 782,203 782,310 382,310 382,246" fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="382,246 386.5,253.79422863405995 377.5,253.79422863405995" fill="#DB2777"/>
+    <line x1="492" y1="310" x2="822" y2="203" stroke="#16A34A" stroke-width="3" stroke-linecap="round"/>
+<polygon points="822,203 815.973727615169,209.68461226578046 813.1978197709695,201.12340115750192" fill="#16A34A"/>
+    <line x1="982" y1="203" x2="1052" y2="203" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round"/>
+<polygon points="1052,203 1044.20577136594,207.5 1044.20577136594,198.5" fill="#8B5CF6"/>
+    <rect x="94" y="404" width="250" height="130" rx="16" fill="#FFFFFF" stroke="#93C5FD" stroke-width="2"/>
+<text x="116" y="438" font-size="18" font-weight="700" fill="#0F172A" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">Adapter loopback</text>
+<text x="116" y="466" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">MAC outlet internal</text>
+<text x="116" y="486" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">验证 adapter + 上游路径</text>
+    <rect x="384" y="404" width="250" height="130" rx="16" fill="#FFFFFF" stroke="#FBBF24" stroke-width="2"/>
+<text x="406" y="438" font-size="18" font-weight="700" fill="#0F172A" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">LLRMAC loopback</text>
+<text x="406" y="466" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">PCS internal / MAC internal</text>
+<text x="406" y="486" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">验证 MAC/PCS 内部路径</text>
+    <rect x="674" y="404" width="250" height="130" rx="16" fill="#FFFFFF" stroke="#F9A8D4" stroke-width="2"/>
+<text x="696" y="438" font-size="18" font-weight="700" fill="#0F172A" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">SerDes near-end</text>
+<text x="696" y="466" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">NES / NES-external / NEP</text>
+<text x="696" y="486" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">定位本端 PHY 问题</text>
+    <rect x="964" y="404" width="250" height="130" rx="16" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="2"/>
+<text x="986" y="438" font-size="18" font-weight="700" fill="#0F172A" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">SerDes far-end</text>
+<text x="986" y="466" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">FES / FEP / Far-End</text>
+<text x="986" y="486" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">验证跨链路与远端响应</text>
+    <rect x="162" y="612" width="956" height="52" rx="26" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="1"/>
+    <text x="640" y="645" font-size="17" font-weight="400" fill="#334155" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">如果不改成本地 gpu_id/die_id，回来的包仍像远端访问，可能无法正确进入本地 memory。</text>
+  
+  </g>
+</svg>

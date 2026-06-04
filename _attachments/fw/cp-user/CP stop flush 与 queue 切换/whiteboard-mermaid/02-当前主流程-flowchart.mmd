@@ -1,0 +1,23 @@
+flowchart TD
+    A["stop/flush IRQ"] --> B{"IRQ type"}
+    B -- stop --> S1["sf_stop_isr: stop_bitmask |= hcqd_bitmap"]
+    B -- flush --> F1["sf_flush_isr: build hcqd_bitmap by cxt_id"]
+    F1 --> F2["flush_hcqd_bitmap[cxt_id] = hcqd_bitmap"]
+    F2 --> F3["flush_cxt_bitmap |= BIT(cxt_id)"]
+
+    S1 --> C["cmd_entry Phase 1"]
+    F3 --> C
+    C --> D["active = candidate | pending_mask | stop_bitmask"]
+    C --> E["flush_bm = sf_get_flush_cxt_bitmap()"]
+    D --> P2{"active or flush_bm?"}
+    E --> P2
+    P2 -- no --> IDLE["continue; skip lock"]
+    P2 -- yes --> LOCK["disable irq"]
+    LOCK --> FLUSH{"flush_cxt_bitmap != 0?"}
+    FLUSH -- yes --> HF["drain all pending context flush"]
+    HF --> CLEAN["reset flushed cmd_status<br/>clear candidate/pending"]
+    CLEAN --> UNLOCK["enable irq; continue"]
+    FLUSH -- no --> PICK["pick HCQD by round-robin active mask"]
+    PICK --> STOP{"stop bit set?"}
+    STOP -- yes --> HS["sf_handle_stop(hcqd_id)"]
+    STOP -- no --> NORMAL["pending/candidate dispatch"]

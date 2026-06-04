@@ -1,0 +1,11 @@
+flowchart TD
+    A["memory DVFS request"] --> B["stop new GPU/DMA work"]
+    B --> C["block NoC/MC ingress"]
+    C --> D["drain outstanding reads/writes"]
+    D --> E["flush write buffers if needed"]
+    E --> F["enter safe memory state"]
+    F --> G["switch vdd_mem / PLL / divider / PHY cfg"]
+    G --> H["wait stable / lock / training done"]
+    H --> I["update memory timing registers"]
+    I --> J["exit safe memory state"]
+    J --> K["unblock ingress and replay queued requests"]

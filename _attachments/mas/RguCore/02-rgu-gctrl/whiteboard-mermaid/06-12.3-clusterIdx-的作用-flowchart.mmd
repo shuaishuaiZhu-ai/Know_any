@@ -1,0 +1,6 @@
+flowchart LR
+    G["GlbCtrl"] -->|"clusterIdx=(1,0,0)"| PC["Physical Cluster 0 / ClusCtrl"]
+    PC --> B0["blockIdx=(2,0,0)"]
+    PC --> B1["blockIdx=(3,0,0)"]
+    PC --> B2["blockIdx=(2,1,0)"]
+    PC --> B3["blockIdx=(3,1,0)"]

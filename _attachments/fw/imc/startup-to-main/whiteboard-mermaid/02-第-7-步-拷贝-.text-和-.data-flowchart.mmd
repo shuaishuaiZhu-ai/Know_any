@@ -1,0 +1,5 @@
+flowchart LR
+  Image["镜像加载地址 LMA"] --> TextCopy["copy .text if LMA != VMA"]
+  Image --> DataCopy["copy .data if LMA != VMA"]
+  TextCopy --> ILM["代码运行地址 VMA"]
+  DataCopy --> DLM["数据运行地址 VMA"]

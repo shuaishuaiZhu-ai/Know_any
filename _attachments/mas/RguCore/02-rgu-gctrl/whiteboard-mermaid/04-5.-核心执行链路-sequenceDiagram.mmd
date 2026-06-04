@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant CP as CP
+    participant G as GlbCtrl
+    participant R as Router
+    participant C as ClusCtrl
+    participant Core as Core
+
+    CP->>G: 下发 kernel reg info / packet
+    G->>G: 解析 gridDim / clusDim / cta_num
+    G->>G: 计算 max_clus_num / cluster mask
+    G->>R: 广播 reg info 到目标 physical cluster
+    R->>C: 转发 reg info
+    G->>R: 分发 logic cluster index
+    C->>Core: 拆成 block 后派给 core
+    Core-->>C: block release / response
+    C-->>G: cluster ack / response
+    G-->>CP: kernel_done + kernel index

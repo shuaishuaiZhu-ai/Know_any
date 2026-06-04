@@ -1,0 +1,159 @@
+
+产品名称 | 内部
+产品版本 | 总 xxx 页
+
+RGU整体设计
+拟制人员：  日期：
+审校人员：  日期：
+（仅供内部使用）
+HX Logo
+辉羲智能科技有限公司
+HX
+All Rights Reserved.
+版权所有，侵权必究
+修订记录
+
+版本号 | 修订说明 | 修订人 | 审核人 | 修订日期
+V0.3 | 对应10/15版本 | 王文强 |  | 2024/10/15
+V0.4 | 对应11/07版本 | 王文强 |  | 2024/11/07
+V0.5 | 对应12/30版本 | 王文强 |  | 2024/12/30
+
+概述
+系统位置
+Rgu Sys整体提供的模块包括：
+RguGCtrl：	对kernel进行拆分和调度
+RguClsCtrl：	对cluster进行拆分和调度
+RguCRouter：	在GCtrl和ClsCtrl之间传输任务/响应
+RguCore：	SIMT计算核
+RguGAtom：	负责原子操作相关
+注：上述模块都为标准valid/ready握手，由集成人员根据具体的时钟结构选择是否在通路上插入异步FIFO。
+功能列表
+单核功能
+图灵完备的指令集支持，具体参考Rgu_Design_Spec_Core
+系统功能
+支持多kernel调度
+支持多cluster/多核调度
+支持distributed shared memory访问
+支持高性能原子操作
+支持异常上报
+支持调试功能
+整体架构
+结构框图
+RguGCtrl解析CP下发的kernel包，拆分为cluster后下发给RguClsCtrl；RguClsCtrl进一步将cluster拆分为block，下发给对应的core执行。
+控制通路
+允许通过CP触发GCtrl执行
+允许直接通过寄存器接口触发GCtrl执行
+允许通过GCtrl调度ClsCtrl执行
+允许直接通过寄存器接口触发ClsCtrl执行
+数据通路
+核内部的传输：
+利用LSU实现RegFile和外存之间的数据交互(路径4)
+利用LSU实现RegFile和SHM之间的数据交互(路径5)
+利用AsyncCopy/TMA实现外存和SHM之间的数据交互(路径6)
+核对外的访问：
+读取外存（路径1）
+读取其他核的SHM（路径2/3）
+所有AXI口都为1024bit宽度，地址48bit。
+详细设计
+寄存器空间
+参考寄存器描述文档
+Harvest机制
+可用cluster数目可调
+配置GCtrl寄存器：cluster_map
+每个cluster的可用核数可配置
+配置GCtrl寄存器：core_num
+配置ClsCtrl寄存器：core_mask
+只支持1/2/4/8/9/10
+运行流程
+初始化
+通过寄存器通路配置core的静态信息
+Harvest相关信息
+cluster_map
+core_num
+core_mask
+异常处理配置
+ecp_stall
+ecp_report
+数据准备
+指令/数据放在外存中
+准备UMD包，下发给CP
+通过UMD包中的0x400地址控制kernel执行属性，包括
+分发模式
+自动分发
+固定映射
+启动kernel时invalid cache
+结束kernel时invalid cache
+Block结束时等待访存状态
+Kernel结束时等待访存状态
+任务执行
+Kernel通过CP -> GCtrl -> ClsCtrl -> Core逐步调度分发执行，并回收响应。
+分发模式
+最大支持16个kernel并行，当前一个kernel已经分发完后，可以接着分发后续的kernel
+对每个kernel，支持两种分发模式：
+随机分发
+每个逻辑cluster随机分发到某个物理cluster上
+支持三种模式，尽可能占更多cluster/尽可能占更少cluster/软件指定cluster数目
+固定分发
+每个逻辑cluster固定映射到某个物理cluster上
+支持交织/大块切分两种映射公式，参考GCtrl文档
+调试流程
+任务执行
+利用寄存器接口直接控制某个模块执行任务(主要用于调试)：
+直接控制GCtrl，执行一个kernel
+直接控制ClsCtrl，执行一个cluster
+直接控制Core，执行一个block
+注意：该模式需要将对应模块配置为无响应模式，避免给上级返回不合理的ACK；通过pooling状态确定是否执行完成。
+指令调试
+配置core的寄存器，可逐warp执行单步/断点调试：
+设置debug mode + break point
+设置debug action，执行
+状态读取
+通过寄存器接口可以读取core的状态：
+运行状态
+寄存器堆内容
+存储器内容
+访存相关
+原子操作
+基于AXI5接口实现原值的返回。GAtom模块需要在noc之后。
+Distributed Shared Memory访问
+设计思路：软件实现
+分配一片地址空间(VA)作为SHM的地址映射表
+支持的block数目由分配的空间大小决定
+Core接收block后，首线程向事先分配好的空间写入映射表
+Core在访存其他block时
+首先通过barrier机制确认目标block存活
+计算目标block的映射表地址
+读取该地址内容，得到目标block的shared memory首地址
+访问
+异常处理
+常规情况
+对于常规异常，Core无需复位，可以配置如下两种属性：
+是否上报(ecp_report)
+是否让当前core进入stall状态(ecp_stall)
+异常编码：
+
+编号 | 含义 | 备注
+0 | 指令校验错误 | 
+1 | 指令访问越界 | 
+2 | 除0异常 | 
+3 | NaN异常 | 
+4 | TRF访问越界 | 
+5 | SHM访问越界 | 
+6 | 地址违反对齐要求 | 
+7 | 访存Error_response | 
+8 | 执行卡死 | 长时间不动
+
+中断上报到GCtrl之后，会继续上报给软件，软件可进一步控制计算系统的行为：
+清楚异常core的stall状态(如有)，继续执行
+控制当前进程进入early stop状态
+当前进程正在GCtrl缓存中的kernel直接返回响应
+当前进程正在Core执行中的kernel进入early stop状态，快速返回kernel done
+控制当前进程进入stall状态
+所有执行当前进程kernel的core都进入stall状态
+复位模式
+对于特殊情况如卡死，此时需要考虑至少在cluster层面整体复位。由SOC层面整体考虑：
+保证控制通路的传输完整性
+AXI-L完整性(配置NOC实现)
+结束kernel分发
+保证数据通路的传输完整性
+AXI读写(配置NOC实现)

@@ -1,0 +1,15 @@
+flowchart TD
+  A[bdma_bind_task while 1] --> B[bdma_check_stop_wait_list]
+  B --> C[bdma_find_idle_hcqd]
+  C --> D[统计 task_list 节点数]
+  D --> E{存在 idle HCQD?}
+  E -- 是 --> F[bdma_get_priority_list_node]
+  F --> G{取到 task?}
+  G -- 是 --> H[写 task.hcqd_id]
+  H --> I[bdma_bind_hcqd]
+  I --> J[top_reg_config_binddma]
+  J --> K[append 到 bdma_exc_list]
+  G -- 否 --> L[继续扫描 HCQD]
+  E -- 否 --> M[bdma_check_exc_list_node]
+  K --> A
+  M --> A

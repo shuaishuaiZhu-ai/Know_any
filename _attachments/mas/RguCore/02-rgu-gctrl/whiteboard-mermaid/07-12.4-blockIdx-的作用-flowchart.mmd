@@ -1,0 +1,6 @@
+flowchart TB
+    PC["Physical Cluster / ClusCtrl"]
+    PC -->|"blockIdx=(2,0,0)"| C0["Core 0"]
+    PC -->|"blockIdx=(3,0,0)"| C1["Core 1"]
+    PC -->|"blockIdx=(2,1,0)"| C2["Core 2"]
+    PC -->|"blockIdx=(3,1,0)"| C3["Core 3"]

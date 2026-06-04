@@ -1,0 +1,67 @@
+新shcdule测试
+
+
+
+再一次bind之后，没有执行完。emu log如下
+
+
+
+umd log如下：
+
+可以看到，只执行了三次就出错了
+
+
+
+从kern.log看，没啥问题，ipc已经下发
+
+
+
+继续压测一把试试
+
+抓了波形，根据波形的结果可以看到在拿到candidate的值之后，还是多读了一次candidate才peek的pkt。查看代码发现，确实设计的时候，会导致多读一次，这里需要优化。
+
+
+
+同时， 可以看到，此处会多读一次mcu id，也浪费了时间，之后这个，应该固化成一个全局变量。
+
+
+
+
+
+优化方案：
+
+把candidate的值放到while循环外.
+
+最大的问题，stop怎么办？
+
+思考：stop，那肯定说明当前hcqd有效，所以才stop。包括flush也是同理。所以，先读candidate，再去处理，是没问题的。
+
+
+
+关于stop逻辑：
+
+1
+中断会触发stop逻辑，然后自动调用到stop isr中。
+
+2
+如果对应的hcqd有效，candidate，则会去读对应的stop状态，会因为stop没执行完而跳过这次peek
+
+3
+如果对应hcqd无效，则cmd entry里面的逻辑根本不会有对hcqd的操作，自然不会影响stop
+
+综上，cmd entry中，只需要判断对应的hcqd即可，不需要全部判断。
+
+
+
+可能会出现的问题：
+如果先读一次，确认candidate的值，保存了candidate的值。在处理candidate的过程中，收到了stop的指令，这时候candidate就会无效。
+
+包括如果收到flush，也会无效。所以，你才会在处理后，也清理掉对应的bit。
+
+但是问题是，stop isr的执行，如果stop执行完，candidate没有情况，还会继续peek，然后就会peek出错误的东西。
+
+明天再看下代码，stop是不是只置位，不处理，实际处理得到cmd entry。
+
+
+
+​

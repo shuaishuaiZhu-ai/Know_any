@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
+  <rect x="0" y="0" width="1280" height="760" fill="#F8FAFC"/>
+  <g font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">
+    <text x="56" y="62" font-size="30" font-weight="700" fill="#0F172A" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">GPU ID / 集群 ID 基础设施：事实和推断要分开</text>
+    <text x="56" y="96" font-size="16" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">C2C 文档确认 KMD 下发 GPU/chip ID 给 FW；MIG/vGPU/UUID 到 AMT 的映射是工程推断。</text>
+    
+    <rect x="88" y="156" width="210" height="96" rx="16" fill="#EFF6FF" stroke="#60A5FA" stroke-width="2"/>
+<text x="110" y="190" font-size="18" font-weight="700" fill="#1E40AF" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">PCI Bus ID / BDF</text>
+<text x="110" y="218" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">硬件枚举身份</text>
+    <rect x="88" y="300" width="210" height="96" rx="16" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/>
+<text x="110" y="334" font-size="18" font-weight="700" fill="#166534" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">GPU UUID / vGPU UUID</text>
+<text x="110" y="362" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">用户态稳定标识</text>
+    <rect x="88" y="444" width="210" height="96" rx="16" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+<text x="110" y="478" font-size="18" font-weight="700" fill="#92400E" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">MIG instance</text>
+<text x="110" y="506" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">虚拟/切分实例</text>
+    <rect x="418" y="276" width="220" height="134" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+<text x="440" y="310" font-size="18" font-weight="700" fill="#0F172A" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">KMD device model</text>
+<text x="440" y="338" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">统一设备模型</text>
+<text x="440" y="358" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">选择 stable GPU ID / chip ID</text>
+    <rect x="756" y="276" width="210" height="134" rx="16" fill="#FCE7F3" stroke="#EC4899" stroke-width="2"/>
+<text x="778" y="310" font-size="18" font-weight="700" fill="#9D174D" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">FW port-chip table</text>
+<text x="778" y="338" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">port-chip relation</text>
+<text x="778" y="358" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">明确来源：10.1</text>
+    <rect x="1062" y="276" width="160" height="134" rx="16" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="2"/>
+<text x="1084" y="310" font-size="18" font-weight="700" fill="#5B21B6" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">AMT route table</text>
+<text x="1084" y="338" font-size="13" font-weight="400" fill="#475569" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">路由使用者</text>
+    <line x1="298" y1="204" x2="418" y2="320" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+<polygon points="418,320 409.2684407760281,317.81828656366804 415.5236396476554,311.347391179226" fill="#2563EB"/>
+    <line x1="298" y1="348" x2="418" y2="342" stroke="#16A34A" stroke-width="3" stroke-linecap="round"/>
+<polygon points="418,342 410.4402151982315,346.8836107288511 409.99077664573645,337.8948396789505" fill="#16A34A"/>
+    <line x1="298" y1="492" x2="418" y2="366" stroke="#D97706" stroke-width="3" stroke-linecap="round"/>
+<polygon points="418,366 415.8832905972,374.74754487293995 409.36604921788967,368.5406483212158" fill="#D97706"/>
+    <line x1="638" y1="343" x2="756" y2="343" stroke="#DB2777" stroke-width="3" stroke-linecap="round"/>
+<polygon points="756,343 748.2057713659401,347.5 748.2057713659401,338.5" fill="#DB2777"/>
+<text x="697" y="333" font-size="13" font-weight="700" fill="#DB2777" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">下发</text>
+    <line x1="966" y1="343" x2="1062" y2="343" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round"/>
+<polygon points="1062,343 1054.20577136594,347.5 1054.20577136594,338.5" fill="#8B5CF6"/>
+    <rect x="730" y="502" width="456" height="76" rx="16" fill="#FFF7ED" stroke="#FDBA74" stroke-width="2"/>
+    <text x="758" y="535" font-size="18" font-weight="700" fill="#9A3412" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">推断边界</text>
+    <text x="758" y="562" font-size="14" font-weight="400" fill="#7C2D12" text-anchor="start" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">MIG/vGPU/UUID 需要映射到 C2C route ID，但当前 C2C 文档未直接确认。</text>
+    <rect x="166" y="626" width="948" height="50" rx="25" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="1"/>
+    <text x="640" y="658" font-size="17" font-weight="400" fill="#334155" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">回答时先讲确认事实，再讲工程上可能需要补的映射层，避免把推断说成设计事实。</text>
+  
+  </g>
+</svg>

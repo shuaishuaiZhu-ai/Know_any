@@ -1,0 +1,10 @@
+flowchart LR
+    CP["CP / Packet 配置"] --> Glb["GlbCtrl<br/>接收 kernel packet / reg info"]
+    Glb --> LC["kernel -> logic cluster"]
+    LC --> PC["选择 physical cluster"]
+    PC --> Clus["目标 physical cluster 的 ClusCtrl"]
+    Clus --> B["logic cluster -> block"]
+    B --> Core["Core 执行 block"]
+    Core --> ClusAck["block release / response"]
+    ClusAck --> GlbAck["cluster ack / response"]
+    GlbAck --> Done["kernel_done 给 CP"]

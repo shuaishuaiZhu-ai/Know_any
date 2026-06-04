@@ -1,0 +1,14 @@
+flowchart TB
+    Host["Host / KMD / 用户策略"] --> Req["perf / power / fixed OPP 请求"]
+    Sched["GPGPU scheduler<br/>queue depth / active cluster / busy counter"] --> Mon["workload monitor"]
+    Sensor["thermal / power / current sensor"] --> Mon
+    Mon --> Gov["DVFS governor / policy"]
+    Req --> Gov
+    Gov --> OPP["OPP table<br/>合法 VF 频点和限制"]
+    OPP --> FSM["DVFS transition FSM"]
+    FSM --> Volt["voltage regulator / PMIC / PMU"]
+    FSM --> Clk["PLL / clock mux / divider / CRG"]
+    FSM --> Handshake["domain idle / drain / ack"]
+    Clk --> GPU["GPGPU core / cluster / NoC / memory domain"]
+    Volt --> GPU
+    Handshake --> GPU

@@ -1,0 +1,52 @@
+sequenceDiagram
+  participant D0A as device0 app
+  participant D0D as device0 driver
+  participant G0 as gpu0
+  participant G1 as gpu1
+  participant D1D as device1 driver
+  participant D1A as device1 app
+
+  Note left of D0A: memory alloc va0 and pa0<br/>fill pattern in va0
+  D0A->>D0D: request gpu pa address
+  D0D->>G0: gpu pa allocate and mmu mapping
+  D0D-->>D0A: return gpu pa address
+
+  D0A->>D1A: request target device execute memory alloc
+  D1A->>D1D: request gpu pa address
+  Note right of D1A: request parse<br/>memory alloc va1 and pa1<br/>send malloc result to requester
+  D1D->>G1: gpu pa allocate and mmu mapping
+  D1D-->>D1A: return gpu pa address
+  D1A-->>D0A: resp target device execute memory alloc done
+
+  D0A->>D1A: request target device address
+  Note right of D1A: request parse<br/>get device1 pa1<br/>send device1 pa to requester
+  D1A-->>D0A: resp target device with pa1
+
+  Note left of D0A: get target device pa1<br/>mapping pa1 with va2<br/>use va0 and va2 trigger memory copy
+  D0A->>D0D: mmu mapping
+  D0D->>G0: mmu mapping
+  D0D-->>D0A: mmu mapping done
+  D0A->>G0: trigger gpu dma or launch kernel execute memcopy copy and sync
+  G0->>G1: data transfer
+  G1-->>G0: data transfer done
+  G0-->>D0A: data transfer done
+
+  D1A->>D1A: execute relate operation
+
+  Note left of D0A: local va0 pa0 free
+  D0A->>D0D: pa0 free
+  D0D->>G0: pa0 unmapping
+  D0D-->>D0A: free done
+
+  Note left of D0A: va2 for pa1 is be free
+  D1A->>D0A: request unmapping pa1 at device0 pte
+  D0A->>D0D: pa1 unmapping
+  D0D->>G0: pa1 unmapping
+  D0D-->>D0A: unmapping done
+  D0A-->>D1A: resp unmapping pa1 done
+
+  Note right of D1A: remote pa1 unmapping
+  D1A->>D1D: pa1 free
+  D1D->>G1: pa1 unmapping
+  Note right of D1A: local va1 with pa1 free
+  D1D-->>D1A: pa1 free done

@@ -1,0 +1,15 @@
+flowchart TB
+    A["1. 收到 target OPP"] --> B["2. 查 OPP 表<br/>取 PLL cfg / divider / voltage"]
+    B --> C["3. 加 DVFS lock<br/>禁止并发切换"]
+    C --> D["4. 等安全窗口<br/>idle / drain / handshake"]
+    D --> E["5. 如需升频<br/>先升 voltage 并等 stable"]
+    E --> F["6. 切到 safe clock 或 bypass<br/>避免 domain 用不稳定 PLL"]
+    F --> G["7. 写 PLL 参数<br/>refdiv / fbdiv / postdiv / frac"]
+    G --> H["8. enable PLL"]
+    H --> I{"PLL lock?"}
+    I -- "no / timeout" --> R["rollback 到 old/safe OPP<br/>记录错误并上报"]
+    I -- "yes" --> J["9. 配 divider / mux<br/>切到新 clock"]
+    J --> K["10. 等 clock ack<br/>必要时 ungate / release"]
+    K --> L["11. 如需降频<br/>再降 voltage"]
+    L --> M["12. 更新 current OPP/freq<br/>更新 timer/delay 相关参数"]
+    M --> N["13. 释放 DVFS lock<br/>通知 Host/FW policy"]

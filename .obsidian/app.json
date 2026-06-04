@@ -1,0 +1,25 @@
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "wiki/sources",
+  "attachmentFolderPath": "_attachments",
+  "promptDelete": false,
+  "readableLineLength": false,
+  "strictLineBreaks": false,
+  "showLineNumber": false,
+  "showInlineTitle": true,
+  "showUnsupportedFiles": false,
+  "userIgnoreFilters": [
+    ".raw/",
+    ".git/",
+    ".trash/"
+  ],
+  "useMarkdownLinks": true,
+  "pdfExportSettings": {
+    "includeName": true,
+    "pageSize": "Letter",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  }
+}

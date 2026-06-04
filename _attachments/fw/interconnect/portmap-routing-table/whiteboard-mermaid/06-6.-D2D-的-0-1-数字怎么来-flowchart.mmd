@@ -1,0 +1,6 @@
+flowchart LR
+    D0["die0"] ---|"ucie 方向 1"| D1["die1"]
+    D0 ---|"ucie 方向 0"| D2["die2"]
+    D1 --- D3["die3"]
+    D2 --- D3
+    D0 -."斜对角<br/>按顺时针规则选".-> D3

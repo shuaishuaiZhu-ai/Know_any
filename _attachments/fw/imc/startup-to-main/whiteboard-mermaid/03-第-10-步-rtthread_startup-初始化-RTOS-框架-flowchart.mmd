@@ -1,0 +1,9 @@
+flowchart TD
+  A["rt_hw_interrupt_disable"] --> B["rt_show_version"]
+  B --> C["rt_system_timer_init"]
+  C --> D["rt_system_scheduler_init"]
+  D --> E["rt_hw_board_init"]
+  E --> F["rt_application_init: create main thread"]
+  F --> G["rt_system_timer_thread_init"]
+  G --> H["rt_thread_idle_init"]
+  H --> I["rt_system_scheduler_start"]

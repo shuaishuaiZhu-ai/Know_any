@@ -1,0 +1,20 @@
+sequenceDiagram
+  participant Host as Host/IMC
+  participant IPC as ipc_cmd_destory_stream
+  participant B as bdma_exc_list
+  participant TOP as TOP/HCQD regs
+  participant U as CP User
+
+  Host->>IPC: context_id, stream_id
+  IPC->>IPC: mcqd_mask &= ~BIT(stream_id)
+  IPC->>B: 查找正在执行的 task
+  alt 找到执行中的 HCQD
+    IPC->>TOP: 等 STOP_HCQDID 空闲
+    IPC->>TOP: 写 STOP_HCQDID
+    TOP-->>U: stop 请求
+    U-->>TOP: CPE_FW_HCQD_STOPPED
+    IPC->>TOP: release HCQD
+    IPC->>TOP: clear release/stop/fw_stop
+    IPC->>B: free task，清 task_valid
+  end
+  IPC-->>Host: DONE ACK

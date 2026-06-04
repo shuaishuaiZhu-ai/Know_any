@@ -1,0 +1,435 @@
+
+产品名称 R1 | 内部
+产品版本 v0.1 | 总 xxx 页
+
+RpuSHM设计方案
+拟制人员：  日期：
+审校人员：  日期：
+（仅供内部使用）
+HX Logo
+辉羲智能科技有限公司
+HX
+All Rights Reserved.
+版权所有，侵权必究
+修订记录
+
+版本号 | 修订说明 | 修订人 | 审核人 | 修订日期
+
+概述
+系统位置
+SHM是访存系统中的一部分。
+功能列表
+
+REQ ID | REQ Type | REQ Description
+REQ_001 | Functional | 支持多路访问仲裁
+REQ_002 | Functional | 支持axi访问
+REQ_002 | Functional | 支持L1Cmem访问
+REQ_003 | Functional | 支持多种数制/计算模式的原子操作，包括64bit原子操作
+REQ_004 | Functional | 支持线程间读搭车机制，不支持写搭车机制
+REQ_005 | Functional | 支持对tmask=0的空指令回响应
+REQ_006 | Functional | 支持multiple bank sram基本功能
+REQ_006 | Functional | 支持atom结果前传
+REQ_007 | Functional | 支持大位宽load拆分及响应ctrid/访问地址自动递增
+REQ_008 | Functional | 支持atomcas/atomarrive/trywait
+REQ_009 | Functional | 
+
+整体架构
+RguSHM实现多路多线程访问共享内存的功能。
+SHM存储部分分为32个bank,每个bank进一步分为4个子bank(sbank);一个子bank的容量尺寸为2KB=512*32b,因此shm总容量为256KB=2KB*32*4。在地址映射上，地址先在bank维度interleave,再在sbank维度interleave,地址分布示意图如下图所示：
+Shm主要由4部分组成：
+4个RguShmPort子模块，该模块处理常规接口线程地址到bank地址的映射，并解决线程间的bank访问冲突，将1笔请求拆分成无冲突的多笔下发至存储实体；同时收集读回数据，将不同bank读回数据重排布回各个线程；并根据依赖关系维护写响应信息。
+1个RguShmExt子模块，该模块负责将axi接口请求转成sram接口请求，由于axi访问天然无bank冲突，所以无需拆分指令；同时将返回数据按需放回axi读通道或axi附加atom写通道。
+1个RguShmMem子模块,该模块处理cache对sram的访问请求，请求接收带反压，读请求接收后三个周期返回数据
+32个RguShmBank子模块，该模块处理每个bank的访问请求；内部支持atom功能，支持各种atom操作，同时能过自动将atom拆分成一条读和一条写；读为3周期延时；对atom的写结果可间隔两拍访问。
+架构图如上图所示。
+接口描述
+配置参数
+
+命名 | 含义 | 约束
+MST_AW | Master address width | 16
+SLV_AW | Slave address width | 16
+SLV_IW | Slave id width | 6
+SLV_UW | slave user width | 13
+DATA_W | channel data width | 32
+CHNL_N | channel number | 32
+TRID_W | transaction id | 12
+USER_W | user width | 78
+AXI_DW | axi data width | 1024
+AXI_SW | axi data strobe width | 1024/8
+
+接口信号
+信号名称/方向/位宽/含义，样例：
+
+Port | I/O | Width | Description
+Clock & Reset
+clk | I | 1 | RguUcoreClock.
+rst_n | I | 1 | RguUcoreReset.
+cfg information
+warp_prio | I | 64*6 | warp id priority
+mem_ctrl | I | 32 | mem_ctrl signal
+spd_time1 | I | 32 | suspend_time out level1
+spd_time2 | I | 32 | suspend_time out level2
+spd_time3 | I | 32 | suspend_time out level3
+o_ecp | O | 1 | exception
+Mem Interface* WARP_N
+mem_avalid | I | 1 | l1c memory request使能
+mem_aready | O | 1 | l1c memory request ready
+mem_atype | I | 1 | 0:wr 1:rd
+mem_aaddr | I | 10 | l1c request address width, +1=128byte
+mem_wdata | I | [AXI_DW-1:0] | l1c写数据
+mem_wstrb | I | [AXI_SW-1:0] | l1c写srtb
+mem_rvalid | I | 1 | l1c读使能
+mem_rready | O | 1 | l1c读rdy
+mem_rdata | O | [AXI_DW-1:0] | l1c读数据，读延时3排
+Port req Interface
+mrw_areq_valid | I | [1:0] | Port访问请求
+mrw_areq_auser | I | [1:0][USER_W-1:0] | Port访问用户自定义信息
+mrw_areq_ctrid | I | [1:0][TRID_W-1:0] | Port访问tag
+mrw_areq_cmask | I | [1:0][CHNL_N-1:0] | Port访问tmask
+mrw_areq_caddr | I | [1:0][CHNL_N-1:0][MST_AW-1:0] | Port访问地址
+mrw_areq_cdata | I | [1:0][CHNL_N-1:0][DATA_W-1:0] | Port访问写数据
+mrw_areq_cstrb | I | [1:0][CHNL_N-1:0][DATA_W/8-1:0] | Port访问写strb
+mrw_areq_ready | O | [1:0] | Port访问ready
+RW Port 读响应 Interface
+mrw_rret_valid | O | [1:0] | Port读响应有效
+mrw_rret_ready | I | [1:0] | Port读响应ready
+mrw_rret_ctrid | O | [1:0][TRID_W-1:0] | Port读响应tag
+mrw_rret_cmask | O | [1:0][CHNL_N-1:0] | Port读响应tmask
+mrw_rret_cdata | O | [1:0][CHNL_N-1:0][DATA_W-1:0] | Port读响应数据
+RW Port 写响应 Interface
+mrw_bret_valid | O | [1:0] | Port写响应有效
+mrw_bret_ready | I | [1:0] | Port读响应ready
+mrw_bret_ctrid | O | [1:0][TRID_W-1:0] | Port读响应tag
+mrw_bret_cmask | O | [1:0][CHNL_N-1:0] | Port读响应tmask
+RO Port Interface
+mro_rreq_valid | I |  | Port访问请求
+mro_rreq_auser | I | [USER_W-1:0] | Port访问用户自定义信息
+mro_rreq_ctrid | I | [TRID_W-1:0] | Port访问tag
+mro_rreq_cmask | I | [CHNL_N-1:0] | Port访问tmask
+mro_rreq_caddr | I | [CHNL_N-1:0][MST_AW-1:0] | Port访问地址
+mro_rreq_ready | O |  | Port访问ready
+mro_rret_valid | O |  | Port读响应有效
+mro_rret_ready | I |  | Port读响应ready
+mro_rret_ctrid | O | [TRID_W-1:0] | Port读响应tag
+mro_rret_cmask | O | [CHNL_N-1:0] | Port读响应tmask
+mro_rret_cdata | O | [CHNL_N-1:0][DATA_W-1:0] | Port读响应数据
+WO Port Interface
+mwo_wreq_valid | I |  | Port访问请求
+mwo_wreq_auser | I | [USER_W-1:0] | Port访问用户自定义信息
+mwo_wreq_ctrid | I | [TRID_W-1:0] | Port访问tag
+mwo_wreq_cmask | I | [CHNL_N-1:0] | Port访问tmask
+mwo_wreq_caddr | I | [CHNL_N-1:0][MST_AW-1:0] | Port访问地址
+mwo_wreq_cdata | I | [CHNL_N-1:0][DATA_W-1:0] | Port访问写数据
+mwo_wreq_cstrb | I | [CHNL_N-1:0][DATA_W/8-1:0] | Port访问写strb
+mwo_wreq_ready | O |  | Port访问ready
+mwo_bret_valid | O |  | Port写响应有效
+mwo_bret_ready | I |  | Port读响应ready
+mwo_bret_ctrid | O | [TRID_W-1:0] | Port读响应tag
+mwo_bret_cmask | O | [CHNL_N-1:0] | Port读响应tmask
+Ext写请求Interface
+exts_wvalid | I | 1 | Ext写请求
+exts_wid | I | [SLV_IW-1:0] | Ext写id
+exts_waddr | I | [SLV_AW-1:0] | Ext写地址
+exts_wdata | I | [AXI_DW-1:0] | Ext写数据
+exts_wstrb | I | [AXI_SW-1:0] | Ext写strb
+exts_wuser | I | [SLV_UW-1:0] | Ext写用户自定义信息
+exts_wready | O | 1 | Ext写ready
+Ext写响应Interface
+exts_bvalid | O | 1 | Ext写响应使能
+exts_bid | O | [SLV_IW-1:0] | Ext写响应id
+exts_bresp | O | [1:0] | Ext写响应
+exts_bready | I | 1 | Ext写响应ready
+Ext读请求Interface
+exts_arvalid | I | 1 | Ext读请求使能
+exts_arid | I | [SLV_IW-1:0] | Ext读id
+exts_araddr | I | [SLV_AW-1:0] | Ext读请求地址
+exts_aruser | I | [SLV_UW-1:0] | Ext读请求user
+exts_arready | O | 1 | Ext读请求ready
+Ext读响应Interface
+exts_rdata | O | [AXI_DW-1:0] | Ext读响应数据
+exts_rid | O | [SLV_IW-1:0] | Ext读响应id
+exts_rresp | O | [1:0] | Ext读响应
+exts_rvalid | O | 1 | Ext读响应有效
+exts_rready | I | 1 | Ext读响应ready
+
+接口时序
+详细设计
+RguShmPort模块
+功能描述
+RguShmPort子模块，该模块处理常规接口线程地址到bank地址的映射，并解决线程间的bank访问冲突，将1笔请求拆分成无冲突的多笔下发至存储实体，支持读搭车机制；同时收集读回数据，将不同bank读回数据重排布回各个线程；并根据依赖关系维护写响应信息。子模块架构如下图所示。
+关于cas的特殊说明：
+Cas指令的命名封装描述如下-
+为实现以上抽象功能，RguShmPort需要以下处理：
+由于奇偶bank服务于一个线程，因此需要cas指令在ABUFFER奇偶bank的出口处中同时出现且同时被接受；同时能够被接收包含两个条件：a.下游模块相邻bank流控rdy b.下游模块相邻bank都无更高优先级port参与仲裁竞争
+Queue仲裁时，让小线程优先级更高；
+非主bank实际并不对sbank发起访问，因此对sbank的访问需要被丢掉；
+非主bank的一些ack、resp通路上的计数问题，一些tmask和cnter也要注意丢掉一半线程
+关于try wait的特殊说明：
+1）1个warp的try wait没有执行完前，将会阻塞同一个warp其他写指令，以防止同个warp的try wait等到到其后续写指令结果；--这是出于面积的考量，否则来一条写需要32个thd分别去和wait list比较；
+2）shmport中维护一个table记录正在等待的try wait指令，同时记录等待地址，warpid,tmask, ctrid等信息，记录时同时分配下游table id,当下游table满时，应阻塞这条指令的收取；
+3）当存在相同地址的try wait时，直接将下游tableid赋给该指令，同时这条指令不再下发至queue中；当多个请求等待相同地址被合并时，下发第一个的threshold作为所有相同地址请求的threadhold
+4）当存在相同bank id，地址不同的trywait时，将会阻塞当前trywait命令；当trywait设置为nolimit模式时，会产生hardware timeout信号给到trywait监听模块，强制返回；当trywait设置为其他模式，则等待监控成功或者software timeout;
+4）数据返回时，从32bank中选择出一个数据，并索引table,按序将待等待的指令返回，至隔离fifo;
+5)输出数据轮询仲裁从常规读响应和try wait读响应选择一路输出。
+接口描述
+RguShmPort接收一条指令per thd的请求，拆分成多条per bank请求下发，并回复per ins读响应及写响应。
+
+Port | I/O | Width | Description
+Clock & Reset
+clk | I | 1 | 
+rst_n | I | 1 | 
+Master Req Interface
+mreq_vld | I | 1 | Port访问使能
+mreq_rdy | O | 1 | Port访问ready
+mreq_info | I | [31:0] | Port访问信息，atom相关 [31:25] req_prio [24:19]req_wpid [18:16]req_opcode [15:11]reserved 10: twait_flag [9:8]twait_spd_level 7:twait_cmpval 6: atom read return [5:2]atom opcode [1:0]atom dtype
+mreq_type | I | [1:0] | Port访问类型 NORM_STORE = 2'd0 NORM_LOAD = 2'd1 ATOM_WRITE = 2'd2 ATOM_READ = 2'd3
+mreq_addr | I | [THD_N-1:0][ADDR_W-1:0] | Port访问地址
+mreq_tmask | I | [THD_N-1:0] | Port访问tmmask
+mreq_ctrid | I | [TRID_W-1:0] | Port访问tag
+mreq_wstrb | I | [THD_N-1:0][VAL_W/8-1:0] | Port访问写strb
+mreq_wdata | I | [THD_N-1:0][VAL_W-1:0] | Port访问写数据
+Master Ack Interface
+mack_rvld | I | 1 | 读响应使能
+mack_rrdy | O | 1 | 读响应rdy
+mack_rdata | I | [THD_N-1:0][VAL_W-1:0] | 读响应数据
+mack_ctrid | I | [TRID_W-1:0] | 读响应tag
+mack_tmask | I | [THD_N-1:0] | 读响应tmask
+Slave req Interface
+sreq_vld | O | [BANK_N-1:0] | Bank访问请求
+sreq_rdy | I | [BANK_N-1:0] | Bank访问ready
+sreq_info | O | [BANK_N-1:0][29:0] | Bank访问信息 [29:19]isid; [18:12]prio; [11]twait_en [10:9]twait_spd_level [8]twait_cmpval 7: atom_cas_fst 6: atom_artrn_en [5:2]atom_opcode [1:0]atom_dtype
+sreq_type | O | [BANK_N-1:0][1:0] | Bank访问类型
+sreq_addr | O | [BANK_N-1:0][ADDR_W-$clog2(BANK_N)-1:0] | Bank访问地址
+sreq_wstrb | O | [BANK_N-1:0][VAL_W/8-1:0] | Bank写strb
+sreq_wdata | O | [BANK_N-1:0][VAL_W-1:0] | Bank写数据
+Slave ack Interface
+sack_rrdy | O | [BANK_N-1:0] | Bank读响应有效
+sack_rvld | I | [BANK_N-1:0] | Bank读响应ready
+sack_rdata | I | [BANK_N-1:0][VAL_W-1:0] | Bank读响应数据
+Master write resp Interface
+resp_vld | O | 1 | Port写响应有效
+resp_rdy | I | 1 | Port写响应ready
+resp_ctrid | O | [TRID_W-1:0] | Port写响应tag
+resp_tmask | O | [THD_N-1:0] | Port写响应tmask
+
+数据流描述
+Request通路：
+RguShmPort接收到32线程的访问请求，将相关信息存入Queue中，Queue未满即能从上游收请求；queue起到timing隔离和32线程不均衡抹平作用，深度定为4；
+XBAR将Queue出口的32线程信息拆分到各个bank中，当线程间出现bank冲突时，将一笔操作拆分成多笔，直到一笔操作全部被XBAR仲裁下发后，将这笔指令相关信息从Queue读出；
+指令从Queue读出时，将旁路信息分别存入4个旁路fifo,依次为存有tmask+ctrid的旁路fifo0;存有bankid+transid的旁路fifo1;存有各bank目标拆分写指令条数+ ctrid的旁路fifo2；存有各bank下发指令的目标线程掩码fifo3;这三个fifo所存储信息、作用、读取时刻、深度等信息如下表所示：
+
+ | 存储信息 | 作用 | 读取时刻 | 深度
+Fifo0 | tmask+ctrid | 收集读回数据+ 生成读返回携带信息 | ShmPort有效输出时刻 | RINS_OTF
+Fifo1 | bankid+transid | 收集一条指令返回bank数据 | 进入ofifo时刻 | RINS_OTF-2
+Fifo2 | ins_num+ctrid | 记录各bank写个数+ 生成写返回携带信息 | 有效写响应返回时 | WINS_OTF
+Fifo3 | Thd mask | 记录当前下发的bank指令的需要被哪些线程收走 |  | BTRANS_OTF
+
+同时将地址，数据信息存入隔离fifo-WBUFF/ABUFF中，隔离fifo深度设为2；
+ABUFF/3个旁路fifo任意满后，对Queue进行反压；
+ABUFF发射bank访问请求后，对每个bank的发射指令条数进行计数，考虑到cnter至少能承接1条指令全部冲突的计算情况，cnter宽度至少为6，留出几bit指示满进行反压，总宽度暂定为9；
+Wcnter满后对AFIFO进行反压；
+Bresp通路
+一条写指令拆分出的多条指令全部下发下去就可以回resp,一条写只要发下去了，后面再发的读一定能读到最新的数据；
+Rack通路
+不同bank读数据返回，记录各个bank返回的读响应是当前bank的第几笔读响应，如果是当前指令需要的响应，就收走；
+不同bank读数据返回，确定他的目标thd都能收走，都能收这笔ack就ready;
+收走的响应放入隔离fifo,当收集到当前1笔指令全部tmaks线程数据时，能够将一笔指令响应整体发出。
+对于读搭车策略描述如下：
+每个线程向后看，看后面有哪些线程和当前线程地址相同，作为当前线程的属性
+每个线程向前看，看是否有bank冲突，没有就可以发，同时把搭车线程一起下发
+RguShmExt模块
+4.2.1功能描述
+RguShmExt负责将axi接口请求转成sram接口请求，由于axi访问天然无bank冲突，所以无需拆分指令；对于strb的抽象如下： 1)strb全0的线程请求会下发至shmbank 2)不会写入，但是会有对应线程的写响应 3)对atom会有读返回值及读响应。
+子模块架构如下图所示。
+4.2.2接口描述
+RguShmExt接收（简化）axi接口格式请求，拆分成1条32bank请求下发，并按需读响应及atom附加写通道响应。
+
+Port | I/O | Width | Description
+Clock & Reset
+clk | I | 1 | 
+rst_n | I | 1 | 
+Axi write Interface
+exts_wvalid | I | 1 | AXI写请求使能
+exts_waddr | I | [ADDR_W-1:0] | AXI写请求地址
+exts_wdata | I | [AXI_DW-1:0] | AXI写请求数据
+exts_wstrb | I | [AXI_SW-1:0] | AXI写请求strb
+exts_wuser | I | [AUSR_W-1:0] | AXI写请求info
+exts_wready | O | 1 | AXI写请求ready
+exts_bvalid | O | 1 | AXI写响应使能
+exts_bresp | O | [1:0] | AXI写响应
+exts_bready | I | 1 | AXI写响应ready
+Axi read Interface
+exts_arvalid | I | 1 | AXI读请求使能
+exts_araddr | I | [ADDR_W-1:0] | AXI读请求地址
+exts_arready | O | 1 | AXI读请求ready
+exts_rdata | O | [AXI_DW-1:0] | AXI读响应数据
+exts_rresp | O | [1:0] | AXI读响应
+exts_rvalid | O | 1 | AXI读响应使能
+exts_rready | I | 1 | AXI读响应ready
+Bank req Interface
+bank_vld | O | [BANK_N-1:0] | Bank访问请求有效
+bank_rdy | I | [BANK_N-1:0] | Bank访问请求ready
+bank_type | O | [BANK_N-1:0][1:0] | Bank访问请求类型 NORM_STORE = 2'd0 NORM_LOAD = 2'd1 ATOM_WRITE = 2'd2 ATOM_READ = 2'd3
+bank_addr | O | [BANK_N-1:0][ADDR_W- $clog2(BANK_N)-1:0] | Bank访问请求地址
+bank_info | O | [BANK_N-1:0][6:0] | Bank访问请求信息
+bank_wstrb | O | [BANK_N-1:0][VAL_W/8-1:0] | Bank写访问请求strb
+bank_wdata | O | [BANK_N-1:0][VAL_W-1:0] | Bank写访问请求数据
+Bank ack Interface
+bank_rvld | I | [BANK_N-1:0] | Bank读响应有效
+bank_rrdy | O | [BANK_N-1:0] | Bank读响应ready
+bank_rdata | I | [BANK_N-1:0][VAL_W-1:0] | Bank读响应数据
+
+4.2.3数据流描述
+RguShmExt接收到请求后，对请求的类型及strb进行判断，如果一条指令是atom需写后指令，但是相关线程strb全部为0，则将这一线程的类型修饰成普通读指令；
+RguShmExt接收到trywait指令时，记录信息并去重，同时阻塞无法下发的trywait指令；
+RguShmExt接收到经过去重后的读写两路请求后，经过仲裁存入fifo;
+同时将相关信息存入旁路fifo,存在2个旁路fifo，fifo0存写rid;fif0存非try wait读+atom写回的rid；这2个fifo所存储信息、作用、读取时刻、深度等信息如下表所示：
+
+ | 存储信息 | 作用 | 读取时刻 | 深度
+Fifo0 | 写rid | 给B通道rid | 一条写指令完全下发时刻 | RINS_OTF
+Fifo1 | 非try wait读+atom写回rid | 给R通道rid | 读数据返回并传输时刻 | RINS_OTF
+
+Ififo与这两个旁路fifo任意一个full时，将反压输入请求；
+Ififo向下传输，同时将已下发的bank记录在旁路fifo中，当旁路fifo满时，将反压请求下发；当旁路fifo收集到32bank下发记录时，能够进行写响应返回；
+Ext接收到两路读数据通路，一路是不固定延时的trywait读，一路是固定延时的常规读+atom读回，对两路请求进行仲裁返回r通路；
+其中，tack通路可能一次返回多条twait的返回，选择一个bank的返回并广播给所有线程,找到tab中对应记录项的rid作为旁路信息一起参与仲裁。
+RguShmMem模块
+4.3.1功能描述
+RguShmMem存在的原因是cache期望复用shm内部的sram资源。RguShmMem负责将cache发来的mem接口请求转成多bank访问请求， 读延时为3周期。
+子模块架构如下图所示。
+4.2.2接口描述
+RguShmPort接收（简化）axi接口格式请求，拆分成1条32bank请求下发，并按需返回读响应及atom附加写通道响应。
+
+Port | I/O | Width | Description
+Clock & Reset
+clk | I | 1 | RguUcoreClock.
+rst_n | I | 1 | RguUcoreReset.
+MEM write Interface
+mem_wvalid | I | 1 | MEM写请求使能
+mem_waddr | I | [ADDR_W-1:0] | MEM写请求地址
+mem_wdata | I | [AXI_DW-1:0] | MEM写请求数据
+mem_wstrb | I | [AXI_SW-1:0] | MEM写请求strb
+mem_wready | O | 1 | MEM写请求ready
+MEMread Interface
+mem_rvalid | I | 1 | MEM读请求使能
+mem_rready | O | 1 | MEM读请求ready
+mem_raddr | I | [ADDR_W-1:0] | MEM读请求地址
+mem_rdata | O | [AXI_DW-1:0] | MEM读响应数据
+Bank req Interface
+bank_vld | O | [BANK_N-1:0] | Bank访问请求有效
+bank_rdy | I | [BANK_N-1:0] | Bank访问请求ready
+bank_type | O | [BANK_N-1:0][1:0] | Bank访问请求类型 NORM_STORE = 2'd0 NORM_LOAD = 2'd1 ATOM_WRITE = 2'd2 ATOM_READ = 2'd3
+bank_addr | O | [BANK_N-1:0][ADDR_W- $clog2(BANK_N)-1:0] | Bank访问请求地址
+bank_info | O | [BANK_N-1:0][6:0] | Bank访问请求信息
+bank_wstrb | O | [BANK_N-1:0][VAL_W/8-1:0] | Bank写访问请求strb
+bank_wdata | O | [BANK_N-1:0][VAL_W-1:0] | Bank写访问请求数据
+Bank ack Interface
+bank_rvld | I | [BANK_N-1:0] | Bank读响应有效
+bank_rrdy | O | [BANK_N-1:0] | Bank读响应ready
+bank_rdata | I | [BANK_N-1:0][VAL_W-1:0] | Bank读响应数据
+
+4.3.3数据流描述
+1) RguShmMem接收到读写两路请求进行仲裁，选择出一路准备广播给多个bank
+2）直到所有bank全部接收请求，这笔请求下发完成，进行下一次仲裁。
+4.3.4接口时序描述
+Mem请求时序如下图，vld&&rdy后三个周期回数据：
+RguShmBank模块
+4.3.1功能描述
+RguShmBank处理1个bank的访问请求，对多路port请求进行检查与仲裁，不同口之间可能发生2种冲突：
+Bank口冲突
+Atom计算资源冲突
+其中，算上atom写回口，一共有5个口参与竞争，且atom写回口优先级最高。
+内部支持atom功能，支持各种atom操作，同时能过自动将atom拆分成一条读和一条写；读为固定3周期延时；atom计算固定2周期延时；对atom的写结果可间隔两拍访问。子模块架构如下图所示。
+关于64bit atom(cas/arrive)的特殊说明：
+atom cas/arrive优先级次高， atom写回优先级最高，奇偶bank都没有atom写回时才能一起发atom cas/arrive；
+有一半的bank是用来取数的，不会触发shm的写
+用来取数的bank返回未知值
+相邻bank之间有数据交互，交互数据为atom计算入口处数据
+关于try wait的特殊说明：
+每个bank维护一个4深度table（每个 port一个）,记录正在等待的地址，
+Try wait指令进来后先去读，读回数据如果是等待数据则等待成功
+如果不是则一直等待，直到等到写入数据是等待数据；或等到时间阈值或者nolimit模式下hardware timeout产生，将数据返回；写入数据32bit必须是完整更新wstrb=4’b1111，才会被trywait监测到；
+Trywait引入的改动如图中黄色标志所示：
+4.3.2接口描述
+RguShmBank接收多个port口的请求，拆分成1条32bank请求下发（1024地址连续，所以无bank冲突），并按需返回读响应及atom附加写通道响应。
+
+Port | I/O | Width | Description
+Clock & Reset
+clk | I | 1 | 
+rst_n | I | 1 | 
+cfg information
+mem_ctrl | I | 32 | memory ctrl information
+spd_time1 | I | 32 | twait suspend time1
+spd_time2 | I | 32 | twait suspend time2
+spd_time3 | I | 32 | twait suspend time3
+Req Interface
+ireq_vld | I | [PORT_N-1:0] | PORT访问请求使能
+ireq_rdy | O | [PORT_N-1:0] | PORT访问请求ready
+ireq_type | I | [PORT_N-1:0][1:0] | PORT访问请求类型 NORM_STORE = 2'd0 NORM_LOAD = 2'd1 ATOM_WRITE = 2'd2 ATOM_READ = 2'd3
+ireq_addr | I | [PORT_N-1:0][ADDR_W-1:0] | PORT访问请求地址
+ireq_info | I | [PORT_N-1:0][29:0] | PORT访问请求信息 [29:19]isid; [18:12]prio; [11]twait_en [10:9]twait_spd_level [8]twait_cmpval 7: atom_cas_fst 6: atom_artrn_en [5:2]atom_opcode [1:0]atom_dtype
+ireq_wstrb | I | [PORT_N-1:0][VAL_W/8-1:0] | PORT写请求strb
+ireq_wdata | I | [PORT_N-1:0][VAL_W-1:0] | PORT写请求数据
+Sack Interface
+sack_rrdy | I | [PORT_N-1:0] | PORT读响应ready
+sack_rvld | O | [PORT_N-1:0] | PORT读响应使能
+sack_rdata | O | [PORT_N-1:0][VAL_W-1:0] | PORT读响应数据
+Tack interface
+tack_rrdy | I | [PORT_N-1:0] | PORT读响应ready
+tack_rvld | O | [PORT_N-1:0] | PORT读响应使能
+tack_rdata | O | [PORT_N-1:0][VAL_W-1:0] | PORT读响应数据
+adjacent bank interface
+areq_vld | I | PORT_N | 
+areq_rdy | I | PORT_N | 
+areq_isid | I | PORT_N*TRID_W | 
+ablock_en | I | PORT_N | 
+abank_rval | I | VAL_W | 
+abank_wval | I | VAL_W | 
+awrite_busy | I | 1 | 
+current bank interface
+creq_vld | O | PORT_N | 
+creq_rdy | O | PORT_N | 
+creq_isid | O | PORT_N*TRID_W | 
+cblock_en | O | PORT_N | 
+cbank_rval | O | VAL_W | 
+cbank_wval | O | VAL_W | 
+cwrite_busy | O | 1 | 
+
+4.3.3数据流描述
+常规写：
+对多路进来的请求进行检查，历史atom写队列中有任意地址与各写请求一致，则该写请求有数据依赖冲突，不能参与仲裁；
+每个sbank对无数据依赖冲突的请求进行轮询仲裁，仲裁出的相关信息打一拍优化时序后发至sbank。
+常规读：
+对多路进来的请求进行检查，atom写队列[0]与读地址一致，则该读请求有数据依赖冲突，不能参与仲裁；（原因在后续时序图中说明）
+每个sbank对无数据依赖冲突的请求进行轮询仲裁，仲裁出的相关信息打一拍优化时序后发至sbank。
+Sbank将数据读出后打一拍做时序优化，然后发至选择器进行前传数据选择，被选择数据的源头有4个：sbank读数据，atom写数据，atom写数据ff1, atom写数据ff2;
+选择出的数据进入crossbar写回至各个port的ofifo中。同时，ofifo需要流控处理，当流水线中的读指令个数+ofifo中个数 =ofifo深度时，会反压RguShmBank请求。
+Atom读：
+对多路进来的请求进行检查，atom写队列[0]与读地址一致，则该读请求有数据依赖冲突，不能参与仲裁；（原因在后续时序图中说明）
+4个sbank只允许1个atom下发，仲裁出的atom写地址相关信息存入固定流水线APIPE，atom操作数相关信息存入固定流水线DPIPE,两个流水线深度分别为5和3；
+同时仲裁出的结果打拍后向sbank发起读操作，3个周期后数据返回并于DPIPE出口中的结果一起参与atom计算；计算固定位2拍；
+在计算结果计算出来的前一排，将APIPE中次出口的信息回传至RguShmBank，并占据独立竞争通道，且优先级永远最高，至此atom被拆成下一笔atom写；
+后续数据流与普通写一致，不再赘述。
+AXI ATOM:
+Axi atom与常规atom类似，只不过写回过程不发生在shm,因此不会产生下一笔atom写。
+4.3.4流水线描述
+SHM读写以及atom为固定流水线，其中atom流水线波形如下图所示：
+多port仲裁固定1周期
+读数据固定2周期
+Atom计算固定2周期
+写固定1周期
+当atom连续发出且前后具有数据依赖性时，理论上应该等到写周期结束后再发起下一次请求，即p5波形；为了让指令发射更加紧凑，模块内部支持前传机制，上一次的计算结果被计算出来后既能参与下一次计算，即p1波形；在p3波形中如果间隔4个周期发射atom指令将导致sram读写口冲突，这里统一认为是bank冲突，不再支持。
+死锁问题分析
+两条路径相互等待的问题称为死锁问题。Asynccopy指令行为是从a中读出数据再写入b中，其中ab可能都为SHM(单条/多条之间)，当前设计存在死锁风险，死锁过程如下：假设asynccopy期望将SHM[99:0]的数据搬运到SHM[199:100]，硬件行为是TMA向SHM连续发出多笔读请求，读数据返回后TMA向SHM发起写请求，读写请求排成一个队列访问SHM; 当读数据积攒很多，还未来得及写入，却已经填满流水线时，后续写将会被卡住，此时发生死锁。
+为解决以上问题，shm的接口从以前的3组读写共用接口改为2组读写共用接口+1组读接口+1组写接口，这样读写有了各自独立的通道就不再会死锁；
+（死锁的本质是打断master/slave中各个通路的相关性，理论上，只要打断一遍，死锁就破了；而slave的相关性在于整个通路+slave,在一个复杂系统中，不能假设外面的master行为是怎样的，所以要把整个数据通路的相关性打断，shmext只是一个通路，所以其出口也要被打断成读写两路）
+寄存器描述
+启动流程
+物理实现
+SRAM列表
+
+Port (Mandatory) 1p11/2p11/2p22 | Number (NA) | Width (NB) (Mandatory) | Depth (NW) (Mandatory)
+1p11 | 128 | 32 | 512
+
+布局参考
+性能

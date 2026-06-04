@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1460" height="760" viewBox="0 0 1460 760">
+<defs>
+  <marker id="arrow" markerWidth="14" markerHeight="14" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+  </marker>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+  </filter>
+</defs>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="730" y="48" text-anchor="middle" font-size="30" font-weight="800" fill="#0f172a">RT-Thread console 输出路径</text>
+
+<g>
+  <rect x="80" y="135" width="230" height="100" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="195" y="171" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">任意代码</text>
+  <text x="108" y="191" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_kprintf(&quot;...&quot;)</text>
+<text x="108" y="220" text-anchor="start" font-size="18" font-weight="500" fill="#334155">shell 回显也走这里</text>
+</g>
+<g>
+  <rect x="390" y="135" width="260" height="100" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="520" y="171" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">rt_kprintf()</text>
+  <text x="418" y="191" text-anchor="start" font-size="18" font-weight="500" fill="#334155">格式化到 rt_log_buf</text>
+<text x="418" y="220" text-anchor="start" font-size="18" font-weight="500" fill="#334155">检查 _console_device</text>
+</g>
+<g>
+  <rect x="760" y="95" width="270" height="118" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+  <text x="895" y="131" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">_console_device 已设置</text>
+  <text x="788" y="151" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_console_set_device()</text>
+<text x="788" y="180" text-anchor="start" font-size="18" font-weight="500" fill="#334155">find/open usartN</text>
+<text x="788" y="209" text-anchor="start" font-size="18" font-weight="500" fill="#334155">把全局 console 指针指向它</text>
+</g>
+<g>
+  <rect x="760" y="315" width="270" height="118" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  <text x="895" y="351" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">_console_device 为空</text>
+  <text x="788" y="371" text-anchor="start" font-size="18" font-weight="500" fill="#334155">走 fallback</text>
+<text x="788" y="400" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_hw_console_output()</text>
+<text x="788" y="429" text-anchor="start" font-size="18" font-weight="500" fill="#334155">board/lib/console.c</text>
+</g>
+<g>
+  <rect x="1120" y="95" width="260" height="118" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="1250" y="131" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">device write</text>
+  <text x="1148" y="151" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_device_write()</text>
+<text x="1148" y="180" text-anchor="start" font-size="18" font-weight="500" fill="#334155">dev-&gt;write</text>
+<text x="1148" y="209" text-anchor="start" font-size="18" font-weight="500" fill="#334155">drv_usart_write()</text>
+</g>
+<g>
+  <rect x="1120" y="315" width="260" height="118" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+  <text x="1250" y="351" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">裸 console 输出</text>
+  <text x="1148" y="371" text-anchor="start" font-size="18" font-weight="500" fill="#334155">usart_put_char()</text>
+<text x="1148" y="400" text-anchor="start" font-size="18" font-weight="500" fill="#334155">直接字符输出</text>
+<text x="1148" y="429" text-anchor="start" font-size="18" font-weight="500" fill="#334155">只作为兜底路径</text>
+</g>
+<g>
+  <rect x="1120" y="545" width="260" height="125" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="1250" y="581" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">USART TX</text>
+  <text x="1148" y="601" text-anchor="start" font-size="18" font-weight="500" fill="#334155">drv_usart_send_data()</text>
+<text x="1148" y="630" text-anchor="start" font-size="18" font-weight="500" fill="#334155">等待 TX FIFO 不满</text>
+<text x="1148" y="659" text-anchor="start" font-size="18" font-weight="500" fill="#334155">写 txdata</text>
+</g>
+<g>
+  <polyline points="310,185 390,185" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="650,185 760,154" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="705" y="142" text-anchor="middle" font-size="18" font-weight="700" fill="#ea580c">正常路径</text>
+</g>
+<g>
+  <polyline points="650,185 710,185 710,374 760,374" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="704" y="286" text-anchor="middle" font-size="18" font-weight="700" fill="#64748b">fallback</text>
+</g>
+<g>
+  <polyline points="1030,154 1120,154" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="1030,374 1120,374" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="1380,154 1425,154 1425,482 1250,482 1250,545" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1345" y="505" text-anchor="middle" font-size="18" font-weight="700" fill="#2563eb">逐字节写 TX FIFO</text>
+</g>
+<g>
+  <polyline points="1250,433 1250,545" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<text x="90" y="595" text-anchor="start" font-size="21" font-weight="700" fill="#334155">console 的作用不是“另一个串口驱动”，而是把系统打印统一路由到当前选中的 device。</text>
+<text x="90" y="627" text-anchor="start" font-size="21" font-weight="700" fill="#334155">USART device 注册后，输出路径优先走 rt_device_write；fallback 只在 console 未设置时使用。</text>
+
+<text x="1430" y="736" text-anchor="end" font-size="16" fill="#64748b">source: 192.168.80.116:/home/shuaishuai.zhu/fw @ 541207a</text>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "accentColor": "#2563eb",
+  "cssTheme": "",
+  "enabledCssSnippets": [
+    "for-ai-wiki",
+    "vault-colors",
+    "image-zoom"
+  ],
+  "theme": "obsidian"
+}

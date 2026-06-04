@@ -1,0 +1,30 @@
+flowchart LR
+  Old["current<br/>drv_usart_init = HW + register"]:::old
+  Split["split responsibility"]:::split
+
+  subgraph IMC["IMC responsibility"]
+    HWOnly["drv_usart_hw_init_only"]:::imc
+    U0["USART0 local console"]:::imc
+    U15["USART1..5 HW init"]:::imc
+  end
+
+  subgraph CP["CP responsibility"]
+    RegOnly["drv_usart_register"]:::cp
+    Local["local usartN device<br/>HAL + console"]:::cp
+  end
+
+  Old --> Split
+  Split --> HWOnly
+  Split --> RegOnly
+  HWOnly --> U0
+  HWOnly --> U15
+  RegOnly --> Local
+
+  Warn["inference / future direction<br/>not current tracked source"]:::warn
+  Split -. boundary .-> Warn
+
+  classDef old fill:#fee2e2,stroke:#dc2626,color:#111827;
+  classDef split fill:#eef2ff,stroke:#4f46e5,color:#111827;
+  classDef imc fill:#ecfeff,stroke:#0891b2,color:#111827;
+  classDef cp fill:#f0fdf4,stroke:#16a34a,color:#111827;
+  classDef warn fill:#fff7ed,stroke:#ea580c,color:#111827;

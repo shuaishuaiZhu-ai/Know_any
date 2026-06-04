@@ -1,0 +1,11 @@
+flowchart TD
+    A["当前线程调用 rt_thread_yield()"] --> B["关中断"]
+    B --> C["thread = rt_current_thread"]
+    C --> D{"当前线程 READY 且 ready queue 中不止自己?"}
+    D -- "否" --> E["开中断"]
+    E --> F["返回 RT_EOK，不发生实际让出"]
+    D -- "是" --> G["从 ready list 删除当前线程"]
+    G --> H["插入当前优先级 ready queue 队尾"]
+    H --> I["开中断"]
+    I --> J["调用 rt_schedule()"]
+    J --> K["调度器选择最高 ready 优先级的队头线程"]

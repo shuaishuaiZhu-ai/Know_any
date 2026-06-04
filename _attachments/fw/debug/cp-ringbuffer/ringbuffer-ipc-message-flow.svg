@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="950" viewBox="0 0 1680 950">
+<defs>
+  <marker id="arrow" markerWidth="14" markerHeight="14" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+  </marker>
+</defs>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="840" y="48" text-anchor="middle" font-size="30" font-weight="900" fill="#0f172a">IPC 消息生命周期：put RB、触发 IRQ、接收线程处理</text>
+
+<g>
+  <rect x="70" y="115" width="170" height="48" rx="24" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="155" y="146" text-anchor="middle" font-size="20" font-weight="800" fill="#075985">Sender</text>
+</g>
+<g>
+  <rect x="315" y="95" width="300" height="110" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="465" y="129" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">ipc_msg_send()</text>
+  <text x="341" y="165" text-anchor="start" font-size="18" font-weight="500" fill="#334155">header check</text>
+<text x="341" y="194" text-anchor="start" font-size="18" font-weight="500" fill="#334155">payload bytes = size * 4</text>
+</g>
+<g>
+  <rect x="735" y="95" width="320" height="110" rx="10" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+  <text x="895" y="129" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">space check</text>
+  <text x="761" y="165" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_ringbuffer_space_len()</text>
+<text x="761" y="194" text-anchor="start" font-size="18" font-weight="500" fill="#334155">不足则入 send_wait_list</text>
+</g>
+<g>
+  <rect x="1170" y="95" width="330" height="110" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="1335" y="129" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">写 RB + 触发 IRQ</text>
+  <text x="1196" y="165" text-anchor="start" font-size="18" font-weight="500" fill="#334155">关中断区 rt_ringbuffer_put()</text>
+<text x="1196" y="194" text-anchor="start" font-size="18" font-weight="500" fill="#334155">ipc_msg_trigger_int()</text>
+</g>
+<g>
+  <polyline points="240,139 315,139" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="615,139 735,139" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <polyline points="1055,139 1170,139" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  
+</g>
+<g>
+  <rect x="735" y="305" width="350" height="150" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="910" y="339" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">send_wait_list[pri]</text>
+  <text x="761" y="375" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rb 空间不足时先复制消息</text>
+<text x="761" y="404" text-anchor="start" font-size="18" font-weight="500" fill="#334155">ipc_msg_thread_send()</text>
+<text x="761" y="433" text-anchor="start" font-size="18" font-weight="500" fill="#334155">空间够后重试 ipc_msg_send()</text>
+</g>
+<g>
+  <polyline points="895,205 895,305" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="930" y="265" text-anchor="middle" font-size="17" font-weight="800" fill="#ea580c">不足</text>
+</g>
+<g>
+  <rect x="120" y="560" width="350" height="140" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+  <text x="295" y="594" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">Target IRQ handler</text>
+  <text x="146" y="630" text-anchor="start" font-size="18" font-weight="500" fill="#334155">ipc_msg_irq_handler()</text>
+<text x="146" y="659" text-anchor="start" font-size="18" font-weight="500" fill="#334155">clear IRQ</text>
+<text x="146" y="688" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_mb_send(src | dst &lt;&lt; 8)</text>
+</g>
+<g>
+  <rect x="600" y="560" width="360" height="140" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="780" y="594" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">rcv_sync thread</text>
+  <text x="626" y="630" text-anchor="start" font-size="18" font-weight="500" fill="#334155">rt_mb_recv()</text>
+<text x="626" y="659" text-anchor="start" font-size="18" font-weight="500" fill="#334155">找到 event_type 和 rb</text>
+<text x="626" y="688" text-anchor="start" font-size="18" font-weight="500" fill="#334155">读取 header + payload</text>
+</g>
+<g>
+  <rect x="1090" y="535" width="360" height="145" rx="10" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+  <text x="1270" y="569" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">处理分流</text>
+  <text x="1116" y="605" text-anchor="start" font-size="18" font-weight="500" fill="#334155">sync: ipc_msg_handler() 直接处理</text>
+<text x="1116" y="634" text-anchor="start" font-size="18" font-weight="500" fill="#334155">async: 挂 ipc_rcv_wait_list[pri]</text>
+<text x="1116" y="663" text-anchor="start" font-size="18" font-weight="500" fill="#334155">release ipc_msg_rcv_sem</text>
+</g>
+<g>
+  <polyline points="1335,205 1335,300 285,300 285,560" fill="none" stroke="#0891b2" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="700" y="285" text-anchor="middle" font-size="17" font-weight="800" fill="#0891b2">目标端 IRQ</text>
+</g>
+<g>
+  <polyline points="470,630 600,630" fill="none" stroke="#0891b2" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="535" y="605" text-anchor="middle" font-size="17" font-weight="800" fill="#0891b2">mailbox</text>
+</g>
+<g>
+  <polyline points="960,630 1090,630" fill="none" stroke="#db2777" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1025" y="605" text-anchor="middle" font-size="17" font-weight="800" fill="#db2777">sync/async</text>
+</g>
+<g>
+  <rect x="1090" y="760" width="360" height="110" rx="10" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="1270" y="794" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">rcv_async thread</text>
+  <text x="1116" y="830" text-anchor="start" font-size="18" font-weight="500" fill="#334155">按优先级取 wait_list</text>
+<text x="1116" y="859" text-anchor="start" font-size="18" font-weight="500" fill="#334155">handler 返回 TRY_AGAIN 则重新入队</text>
+</g>
+<g>
+  <polyline points="1270,680 1270,760" fill="none" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrow)" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1320" y="735" text-anchor="middle" font-size="17" font-weight="800" fill="#7c3aed">async</text>
+</g>
+<text x="80" y="900" text-anchor="start" font-size="22" font-weight="800" fill="#334155">queue create 调试不要只看 RB：发送侧 space/check、目标 IRQ、mailbox、sync/async handler 都可能是断点。</text>
+
+<text x="1652" y="926" text-anchor="end" font-size="16" fill="#64748b">source: 192.168.80.116:/home/shuaishuai.zhu/fw @ 541207a</text>
+</svg>
