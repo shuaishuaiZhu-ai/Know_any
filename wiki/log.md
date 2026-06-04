@@ -9,6 +9,14 @@ tags:
 status: active
 ---
 
+## 2026-06-04 - maintain - Obsidian Git and plugin stack installed
+
+- Initialized `C:\home\for_ai` as a local Git repository on branch `main`.
+- Installed/enabled `obsidian-git`, `omnisearch`, `text-extractor`, `recent-files-obsidian`, `table-editor-obsidian`, `templater-obsidian`, and `quickadd`; kept `for-ai-image-zoom`.
+- Added `.gitattributes` LF rules for Markdown/wiki files.
+- Backup before plugin install: `C:\tmp\for-ai-obsidian-before-plugins-20260604-102125.zip`.
+- No remote/upstream is configured yet, so Obsidian Git currently provides local version history until remote backup is added.
+
 ## [2026-06-03] fix | Diagram skill line-spacing guard and v3 figure cleanup
 
 - Enhanced `technical-diagram-generator` with card text-stack layout rules, `svg-card-layout.cjs`, and a regression fixture for baseline overlap.
