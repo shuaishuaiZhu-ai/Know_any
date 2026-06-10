@@ -2,7 +2,7 @@
 type: learning-guide
 title: "C2C 互联学习文档"
 created: 2026-05-25
-updated: 2026-05-29
+updated: 2026-06-08
 tags:
   - fw
   - interconnect
@@ -183,6 +183,7 @@ dst = va2  // device0 VA that maps remote device1 pa1
 | 项目 | 信息 |
 |---|---|
 | C2C 物理实现 | adapter + OISA MAC + PCS + 112G SerDes |
+| C2C 子系统结构图 | [C2C 子系统结构图拆解](<./c2c-macphy-wrapper-subsystem.md>) | 将 MACPHY_WRAPPER 拆成 Adapter0/1/2、LLRMAC、PCS/FEC/RlmHSX8、Hss112GX4Wrapper、CSR/SRAM/APB。 |
 | C2C 端口配置 | 支持 x2/x4，可形成 6 x 200G 或 3 x 400G；后续若无 SerDes lane 问题，可能按 3 x 400G 讨论 |
 | D2D 实现 | uxcs + adapter + 24G SerDes |
 | D2D 端口 | 2 ports，每 port 8 links |
@@ -202,6 +203,8 @@ dst = va2  // device0 VA that maps remote device1 pa1
 10.6 的核心观点：C2C 不能只设计数据通路，还要能测、能定位、能统计。
 
 ### AXI monitor 视角
+
+更系统的 AXI5 协议背景、五通道握手、atomic 和 C2C 中 AXI 的边界作用，见 [AXI5 协议详解与 C2C 中 AXI 的作用](<./axi5-protocol-and-c2c-role.md>)。
 
 | 名称 | 含义 |
 |---|---|
@@ -337,6 +340,8 @@ VLAN 场景还会加入 TPID、TCI、PCP、DEI、VID 等字段。
 ### 13.8 面试速记
 
 可以这样回答：OISA 是内部互联协议语义，C2C L2 是为了在二层交换环境里承载这种语义。前者保证 GPU 事务和链路控制正确，后者保证报文能被 switch 按预期转发。
+
+更细的逐层解释见 [C2C transaction routing 与 OISA/L2 封装](<./c2c-transaction-routing-and-encapsulation.md>)：它把 `GPU/SDMA/TMA -> NoC -> AMT/top/mesh_router -> portmap -> C2C adapter -> OISA/L2 -> SerDes` 的运行时路径拆开说明。
 
 ## 14. GPU ID / 集群 ID 基础设施
 

@@ -2,7 +2,7 @@
 type: meta
 title: "Hot Cache"
 created: 2026-05-09
-updated: 2026-06-04
+updated: 2026-06-08
 tags:
   - meta
   - hot-cache
@@ -23,6 +23,8 @@ status: active
 - Codex 总结反思：[2026-06-01 Codex 总结反思](<./codex-reflection/projects/2026-06-01-codex-summary-reflection.md>)
 - Codex 项目 Session 复盘：[2026-06-01 项目 Session 复盘](<./codex-reflection/projects/2026-06-01-session-project-review.md>)
 - Codex Daily Review Skill：[Daily Codex Self-Review Skill](<./codex-reflection/evolution/2026-06-01-codex-daily-self-review-skill.md>)
+- Codex 工作流质量门：[两周对话工作流质量门优化](<./codex-reflection/evolution/2026-06-04-workflow-quality-gates.md>)
+- Codex 6月5-8工作流复盘：[6月5日到6月8日 Codex 工作流复盘](<./codex-reflection/evolution/2026-06-08-june5-8-workflow-retrospective.md>)
 - 总入口：[Wiki 总索引](<./index.md>)
 - FW 入口：[FW 技术知识库](<./fw/index.md>)
 - IMC 入口：[IMC 索引](<./fw/imc/index.md>)
@@ -44,11 +46,15 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 - RguGCtrl: [RguGCtrl 学习文档：从 Kernel 到 Core 的两级调度](<./mas/RguCore/02-rgu-gctrl.md>)
 - GPGPU DVFS：[GPGPU FW DVFS 学习文档](<./fw/performance/dvfs-gpgpu-fw.md>)，重点看状态机、OPP/VF、timing 和面试问答。
 - C2C 互联：[C2C 互联学习文档](<./fw/interconnect/c2c-dingtalk-study.md>)，重点看 LD/ST 互联、topo discovery、AMT route、peer mapping 中 `va0/va1/va2` 的归属、MSS/SerDes、loopback/RAS。
+- C2C 发包路径：[C2C transaction routing 与 OISA/L2 封装](<./fw/interconnect/c2c-transaction-routing-and-encapsulation.md>)，用于回答 GPU/SDMA/TMA 发起 memory transaction 后，NoC、AMT/top/mesh_router、portmap、C2C adapter、OISA MAC 和 switch L2 外壳分别做什么。
+- C2C 子系统结构图：[C2C 子系统结构图拆解](<./fw/interconnect/c2c-macphy-wrapper-subsystem.md>)，用于回答 MACPHY_WRAPPER、Adapter0/1/2、LLRMAC、PCS/FEC、Hss112GX4Wrapper 和 112G SerDes 分层。
+- C2C 中的 AXI5：[AXI5 协议详解与 C2C 中 AXI 的作用](<./fw/interconnect/axi5-protocol-and-c2c-role.md>)，用于回答 AXI5 五通道、VALID/READY、burst/ID/atomic，以及 AXI monitor/adapter/NoC 边界在 C2C 中的定位。
 - C2C loopback：[近端环回与远端环回详解](<./fw/interconnect/c2c-loopback-near-far.md>)，用于区分 NEP/NES/NES-ext/FEP/FES/FEP-err、Top/Adapter/LLRMAC 环回和测试场景。
 - DVFS 更新提醒：DVFS 状态机图已恢复为紧凑的 stateDiagram-v2，保留单行状态名和状态含义表。
 - RguGCtrl 阅读提醒：`logic cluster -> block -> core` 是 ClusCtrl 的 cluster 内部调度；GlbCtrl 只负责到 physical cluster 的全局分配。
 
 - IMC 启动：[IMC 启动到 main 流程](<./fw/imc/startup-to-main.md>)
+- CP USART/IMC 初始化：[CP USART 移到 IMC 统一初始化：代码修改和原因](<./fw/cli/cp-usart-imc-unified-init.md>)，用于查看 `zss/MoveUsart` 当前代码中 IMC 统一初始化 CP USART 硬件、CP 只注册 device/console/shell 的修改原因和图解。
 - CLI 卡顿/行编辑：[agc_shell CLI 输入输出路径与 cp master 卡顿分析](<./fw/cli/agc_shell-cli-path.md>)，用于查看输入 ringbuffer、Backspace/Delete、`this_line` 当前行字符串和 argv 组装。
 - USART 路径：[Grace USART、RT-Thread console 与 agc_shell 完整链路](<./fw/cli/grace-usart-console-cli.md>)，用于查看 USART 硬件初始化、RT-Thread device 注册、console 输出、shell 输入中断、ringbuffer 和完整触发链路；图解已按 technical-diagram-generator workflow 生成 SVG/PNG 资产。
 - CP ringbuffer IPC：[CP ringbuffer IPC 与 queue create 调试](<./fw/debug/CP ringbuffer IPC 与 queue create 调试.md>)，用于区分 IPC shared RB 与 CLI 本地 RB、is_ipc_rb 地址转换、IPC 发送/接收和 queue create 调试流程；图解已按 technical-diagram-generator workflow 生成 SVG/PNG 资产。

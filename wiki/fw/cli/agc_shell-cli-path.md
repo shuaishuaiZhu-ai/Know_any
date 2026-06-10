@@ -183,6 +183,7 @@ consume 'd'   -> this_line = "agd", position = 3, curpos = 3
 ![this_line 保存、删除和组装命令](../../../_attachments/fw/cli/agc_shell-cli-path/line-editing/agc-shell-line-buffer-edit.png)
 
 > 图解源文件：[`agc-shell-line-buffer-edit.svg`](../../../_attachments/fw/cli/agc_shell-cli-path/line-editing/agc-shell-line-buffer-edit.svg)。上半部分对应 `agc -> Backspace -> d` 的尾部删除；下半部分对应光标位于中间时的 `memmove` 插入/删除，以及回车后 `argv` 的临时组装。
+
 ## rt_sem_release 不等于 shell 立即执行
 
 `rt_sem_release()` 的关键逻辑：

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="780" viewBox="0 0 1360 780" role="img" aria-label="USART 地址视角：IMC 物理 base 与 CP IO window">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L8,4 L0,8 Z" fill="#52647a"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1360" height="780" fill="#f6f8fb"/>
+<text x="680" y="44" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#111827">USART 地址视角：IMC 物理 base 与 CP IO window</text>
+<g>
+<rect x="70" y="118" width="260" height="158" rx="8" fill="#eaf3ff" stroke="#2f65a7" stroke-width="2"/>
+<text x="88" y="154" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">IMC 视角</text>
+<text x="88" y="184" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART0 = 0x02002000</text>
+<text x="88" y="207" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART1 = 0x02003000</text>
+<text x="88" y="230" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART2 = 0x02026000</text>
+<text x="88" y="253" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART3..5 递增</text>
+</g>
+<g>
+<rect x="70" y="422" width="260" height="158" rx="8" fill="#fffaf1" stroke="#b87923" stroke-width="2"/>
+<text x="88" y="458" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">CP 视角</text>
+<text x="88" y="488" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">MEMORY_MAP_IO_BASE=0x50000000</text>
+<text x="88" y="511" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">CP Master: USART1 + IO_BASE</text>
+<text x="88" y="534" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">CP User: USART2 + IO_BASE</text>
+<text x="88" y="557" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">+ 0x1000 * core_id</text>
+</g>
+<g>
+<rect x="502" y="122" width="330" height="152" rx="8" fill="#ffffff" stroke="#2f65a7" stroke-width="2"/>
+<text x="520" y="158" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">IMC 硬件初始化必须用物理 base</text>
+<text x="520" y="188" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">board_cp_usart_hw_init()</text>
+<text x="520" y="211" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_hw_init_only(USART1_BASE)</text>
+<text x="520" y="234" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">不用 MEMORY_MAP_IO_BASE</text>
+<text x="520" y="257" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">直接配置真实 USART 寄存器</text>
+</g>
+<g>
+<rect x="502" y="424" width="330" height="152" rx="8" fill="#ffffff" stroke="#b87923" stroke-width="2"/>
+<text x="520" y="460" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">CP 软件注册使用自己的地址</text>
+<text x="520" y="490" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_register(USART_DEVICE_ADDR)</text>
+<text x="520" y="513" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">device-&gt;reg 保存 CP 可访问地址</text>
+<text x="520" y="536" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">read/write/control 用这个 reg</text>
+<text x="520" y="559" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">console/shell 走 RT device</text>
+</g>
+<g>
+<rect x="982" y="258" width="286" height="172" rx="8" fill="#eef6f2" stroke="#3a7c62" stroke-width="2"/>
+<text x="1000" y="294" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">drv_usart_get_id(reg)</text>
+<text x="1000" y="324" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">base = reg &amp; USART_ADDR_MASK</text>
+<text x="1000" y="347" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">屏蔽 CP IO window 高位</text>
+<text x="1000" y="370" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART1_BASE -&gt; id1</text>
+<text x="1000" y="393" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART2_BASE+n*stride -&gt; id2..5</text>
+</g>
+<polyline points="330,198 502,198" fill="none" stroke="#2f65a7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="330,500 502,500" fill="none" stroke="#b87923" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="832,198 982,322" fill="none" stroke="#2f65a7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="832,500 982,368" fill="none" stroke="#b87923" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<g><rect x="540" y="642" width="170" height="42" rx="6" fill="#eaf3ff" stroke="#2f65a7" stroke-width="1.5"/><text x="625" y="668" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#17345f">硬件 owner: IMC</text></g>
+<g><rect x="742" y="642" width="170" height="42" rx="6" fill="#fffaf1" stroke="#b87923" stroke-width="1.5"/><text x="827" y="668" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#5b3411">软件 owner: CP</text></g>
+<g><rect x="944" y="642" width="214" height="42" rx="6" fill="#eef6f2" stroke="#3a7c62" stroke-width="1.5"/><text x="1051" y="668" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#173b2f">id 解析兼容两种地址</text></g>
+</svg>

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+  </marker>
+  <style>
+    text { font-family: "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #111827; }
+    .mono { font-family: Consolas, "Microsoft YaHei", monospace; }
+  </style>
+</defs>
+<rect width="1500" height="900" fill="#F8FAFC"/>
+<text x="750" y="52" font-size="30" font-weight="700" text-anchor="middle" fill="#0F172A">AXI5 五个独立通道：地址、数据、响应解耦</text>
+<text x="750" y="86" font-size="18" font-weight="500" text-anchor="middle" fill="#475569">每个通道都用 VALID / READY 握手；只有两者同时为 1，当前 beat 才真正传输</text>
+<g>
+  <rect x="60" y="160" width="300" height="560" rx="10" fill="#E0F2FE" stroke="#0284C7" stroke-width="3"/>
+  <text x="210" y="199.6" font-size="24" font-weight="700" text-anchor="middle">Manager</text>
+<text x="84" y="227.92" font-size="18" font-weight="400" text-anchor="start">GPU / DMA / CP 等发起方</text>
+<text x="84" y="252.39999999999998" font-size="18" font-weight="400" text-anchor="start">发起 read / write</text>
+<text x="84" y="276.88" font-size="18" font-weight="400" text-anchor="start">给地址、属性、ID</text>
+<text x="84" y="301.36" font-size="18" font-weight="400" text-anchor="start">遇到 READY=0 要等待</text>
+</g>
+<g>
+  <rect x="1140" y="160" width="300" height="560" rx="10" fill="#ECFDF5" stroke="#16A34A" stroke-width="3"/>
+  <text x="1290" y="199.6" font-size="24" font-weight="700" text-anchor="middle">Subordinate</text>
+<text x="1164" y="227.92" font-size="18" font-weight="400" text-anchor="start">Memory / MMIO / Adapter</text>
+<text x="1164" y="252.39999999999998" font-size="18" font-weight="400" text-anchor="start">接收请求并返回数据</text>
+<text x="1164" y="276.88" font-size="18" font-weight="400" text-anchor="start">用响应码报告状态</text>
+<text x="1164" y="301.36" font-size="18" font-weight="400" text-anchor="start">也可以反压 READY</text>
+</g>
+<g>
+  <rect x="460" y="150" width="580" height="126" rx="10" fill="#EFF6FF" stroke="#2563EB" stroke-width="3"/>
+  <text x="750" y="186.9" font-size="21" font-weight="700" text-anchor="middle">AW 写地址通道</text>
+<text x="484" y="211.68" font-size="16" font-weight="400" text-anchor="start">Manager -&gt; Subordinate</text>
+<text x="484" y="233.44" font-size="16" font-weight="400" text-anchor="start">AWADDR / AWID / AWLEN / AWSIZE / AWBURST</text>
+<text x="484" y="255.2" font-size="16" font-weight="400" text-anchor="start">AXI5 可带 AWATOP / trace / MMU sideband</text>
+</g>
+<line x1="360" y1="206" x2="454" y2="206" stroke="#2563EB" stroke-width="3"  marker-end="url(#arrow)"/>
+<line x1="1046" y1="206" x2="1134" y2="206" stroke="#2563EB" stroke-width="3"  marker-end="url(#arrow)"/>
+<g>
+  <rect x="460" y="270" width="580" height="126" rx="10" fill="#ECFEFF" stroke="#0EA5E9" stroke-width="3"/>
+  <text x="750" y="306.9" font-size="21" font-weight="700" text-anchor="middle">W 写数据通道</text>
+<text x="484" y="331.67999999999995" font-size="16" font-weight="400" text-anchor="start">Manager -&gt; Subordinate</text>
+<text x="484" y="353.43999999999994" font-size="16" font-weight="400" text-anchor="start">WDATA / WSTRB / WLAST</text>
+<text x="484" y="375.19999999999993" font-size="16" font-weight="400" text-anchor="start">AXI5 可带 WPOISON / WTRACE</text>
+</g>
+<line x1="360" y1="326" x2="454" y2="326" stroke="#0EA5E9" stroke-width="3"  marker-end="url(#arrow)"/>
+<line x1="1046" y1="326" x2="1134" y2="326" stroke="#0EA5E9" stroke-width="3"  marker-end="url(#arrow)"/>
+<g>
+  <rect x="460" y="390" width="580" height="126" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="3"/>
+  <text x="750" y="426.9" font-size="21" font-weight="700" text-anchor="middle">B 写响应通道</text>
+<text x="484" y="451.67999999999995" font-size="16" font-weight="400" text-anchor="start">Subordinate -&gt; Manager</text>
+<text x="484" y="473.43999999999994" font-size="16" font-weight="400" text-anchor="start">BID / BRESP</text>
+<text x="484" y="495.19999999999993" font-size="16" font-weight="400" text-anchor="start">表示写事务是否完成或出错</text>
+</g>
+<line x1="1140" y1="446" x2="1046" y2="446" stroke="#F97316" stroke-width="3"  marker-end="url(#arrow)"/>
+<line x1="460" y1="446" x2="366" y2="446" stroke="#F97316" stroke-width="3"  marker-end="url(#arrow)"/>
+<g>
+  <rect x="460" y="510" width="580" height="126" rx="10" fill="#F5F3FF" stroke="#7C3AED" stroke-width="3"/>
+  <text x="750" y="546.9" font-size="21" font-weight="700" text-anchor="middle">AR 读地址通道</text>
+<text x="484" y="571.68" font-size="16" font-weight="400" text-anchor="start">Manager -&gt; Subordinate</text>
+<text x="484" y="593.4399999999999" font-size="16" font-weight="400" text-anchor="start">ARADDR / ARID / ARLEN / ARSIZE / ARBURST</text>
+<text x="484" y="615.1999999999999" font-size="16" font-weight="400" text-anchor="start">描述要读哪里、读多宽、读几拍</text>
+</g>
+<line x1="360" y1="566" x2="454" y2="566" stroke="#7C3AED" stroke-width="3"  marker-end="url(#arrow)"/>
+<line x1="1046" y1="566" x2="1134" y2="566" stroke="#7C3AED" stroke-width="3"  marker-end="url(#arrow)"/>
+<g>
+  <rect x="460" y="630" width="580" height="126" rx="10" fill="#F0FDF4" stroke="#16A34A" stroke-width="3"/>
+  <text x="750" y="666.9" font-size="21" font-weight="700" text-anchor="middle">R 读数据通道</text>
+<text x="484" y="691.68" font-size="16" font-weight="400" text-anchor="start">Subordinate -&gt; Manager</text>
+<text x="484" y="713.4399999999999" font-size="16" font-weight="400" text-anchor="start">RID / RDATA / RRESP / RLAST</text>
+<text x="484" y="735.1999999999999" font-size="16" font-weight="400" text-anchor="start">返回读数据，多拍 burst 最后一拍置 RLAST</text>
+</g>
+<line x1="1140" y1="686" x2="1046" y2="686" stroke="#16A34A" stroke-width="3"  marker-end="url(#arrow)"/>
+<line x1="460" y1="686" x2="366" y2="686" stroke="#16A34A" stroke-width="3"  marker-end="url(#arrow)"/>
+<g>
+  <rect x="210" y="770" width="500" height="84" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="3"/>
+  <text x="460" y="806" font-size="20" font-weight="700" text-anchor="middle">写事务 mental model</text>
+<text x="234" y="829.6" font-size="16" font-weight="400" text-anchor="start">AW 给地址 + W 给数据；Subordinate 最后用 B 返回写响应</text>
+</g>
+<g>
+  <rect x="790" y="770" width="500" height="84" rx="10" fill="#F0FDF4" stroke="#16A34A" stroke-width="3"/>
+  <text x="1040" y="806" font-size="20" font-weight="700" text-anchor="middle">读事务 mental model</text>
+<text x="814" y="829.6" font-size="16" font-weight="400" text-anchor="start">AR 给地址；Subordinate 用 R 返回一拍或多拍数据</text>
+</g>
+</svg>

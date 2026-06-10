@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="830" viewBox="0 0 1500 830">
+<defs>
+  <style>
+    text { font-family: "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; }
+  </style>
+</defs>
+<rect width="1500" height="830" fill="#f8fafc"/>
+<text x="750" y="50" font-size="30" font-weight="800" fill="#0f172a" text-anchor="middle">AXI VALID / READY 通用握手波形</text>
+<text x="750" y="84" font-size="18" font-weight="500" fill="#475569" text-anchor="middle">所有 AXI channel 都遵循同一条规则：VALID 与 READY 同周期为 1 才传输一个 beat</text>
+<line x1="220" y1="130" x2="220" y2="146" stroke="#94a3b8" stroke-width="2" />
+<line x1="220" y1="574" x2="220" y2="590" stroke="#94a3b8" stroke-width="2" />
+<text x="280" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C0</text>
+<line x1="340" y1="130" x2="340" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="340" y1="574" x2="340" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="400" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C1</text>
+<line x1="460" y1="130" x2="460" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="460" y1="574" x2="460" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="520" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C2</text>
+<line x1="580" y1="130" x2="580" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="580" y1="574" x2="580" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="640" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C3</text>
+<line x1="700" y1="130" x2="700" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="700" y1="574" x2="700" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="760" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C4</text>
+<line x1="820" y1="130" x2="820" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="820" y1="574" x2="820" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="880" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C5</text>
+<line x1="940" y1="130" x2="940" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="940" y1="574" x2="940" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="1000" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C6</text>
+<line x1="1060" y1="130" x2="1060" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="1060" y1="574" x2="1060" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="1120" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C7</text>
+<line x1="1180" y1="130" x2="1180" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="1180" y1="574" x2="1180" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="1240" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C8</text>
+<line x1="1300" y1="130" x2="1300" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="1300" y1="574" x2="1300" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<text x="1360" y="112" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">C9</text>
+<line x1="1420" y1="130" x2="1420" y2="146" stroke="#e2e8f0" stroke-width="1" />
+<line x1="1420" y1="574" x2="1420" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<line x1="220" y1="590" x2="1420" y2="590" stroke="#e2e8f0" stroke-width="1" />
+<rect x="468" y="130" width="104" height="460" fill="#dcfce7" opacity="0.75"/>
+<rect x="828" y="130" width="104" height="460" fill="#dcfce7" opacity="0.75"/>
+<text x="46" y="167" font-size="18" font-weight="700" fill="#334155" text-anchor="start">ACLK</text>
+<path d="M 220 144 L 340 144 L 340 176 L 460 176 L 460 144 L 580 144 L 580 176 L 700 176 L 700 144 L 820 144 L 820 176 L 940 176 L 940 144 L 1060 144 L 1060 176 L 1180 176 L 1180 144 L 1300 144 L 1300 176 L 1420 176" fill="none" stroke="#475569" stroke-width="4" stroke-linejoin="round"/>
+<text x="46" y="247" font-size="18" font-weight="700" fill="#334155" text-anchor="start">xVALID</text>
+<path d="M 220 256 L 340 256 L 340 224 L 460 224 L 580 224 L 700 224 L 820 224 L 940 224 L 940 256 L 1060 256 L 1180 256 L 1300 256 L 1420 256" fill="none" stroke="#2563eb" stroke-width="4" stroke-linejoin="round"/>
+<text x="46" y="327" font-size="18" font-weight="700" fill="#334155" text-anchor="start">xREADY</text>
+<path d="M 220 336 L 340 336 L 460 336 L 460 304 L 580 304 L 580 336 L 700 336 L 820 336 L 820 304 L 940 304 L 1060 304 L 1060 336 L 1180 336 L 1300 336 L 1420 336" fill="none" stroke="#16a34a" stroke-width="4" stroke-linejoin="round"/>
+<text x="46" y="422" font-size="18" font-weight="700" fill="#334155" text-anchor="start">payload</text>
+<rect x="348" y="391" width="224" height="48" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="460" y="422" font-size="17" font-weight="700" fill="#7c3aed" text-anchor="middle">D0 保持稳定</text>
+<rect x="588" y="391" width="344" height="48" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="760" y="422" font-size="17" font-weight="700" fill="#7c3aed" text-anchor="middle">D1 保持稳定直到 READY</text>
+<text x="220" y="650" font-size="24" font-weight="800" fill="#0f172a" text-anchor="start">看图要点</text>
+<text x="220" y="690" font-size="20" font-weight="600" fill="#334155" text-anchor="start">1. 只有 VALID 和 READY 同周期为 1，当前 beat 才完成。</text>
+<text x="220" y="728" font-size="20" font-weight="600" fill="#334155" text-anchor="start">2. VALID=1 但 READY=0 时，payload 不能随便变化，必须等握手完成。</text>
+<text x="220" y="766" font-size="20" font-weight="600" fill="#334155" text-anchor="start">3. READY 可以提前拉高，也可以晚到；这是下游反压的核心表现。</text>
+</svg>

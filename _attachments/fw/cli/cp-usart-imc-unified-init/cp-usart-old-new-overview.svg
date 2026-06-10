@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="780" viewBox="0 0 1360 780" role="img" aria-label="CP USART 移植到 IMC：硬件初始化与软件注册分离">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L8,4 L0,8 Z" fill="#52647a"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1360" height="780" fill="#f6f8fb"/>
+<text x="680" y="44" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#111827">CP USART 移植到 IMC：硬件初始化与软件注册分离</text>
+<g>
+<rect x="46" y="88" width="586" height="608" rx="10" fill="#fff8ef" stroke="#c58b3a" stroke-width="1.5" stroke-dasharray="8 8"/>
+<text x="64" y="120" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#334155">修改前：CP 自己完整 init</text>
+</g>
+<g>
+<rect x="730" y="88" width="586" height="608" rx="10" fill="#f1f7ff" stroke="#4d7dbd" stroke-width="1.5" stroke-dasharray="8 8"/>
+<text x="748" y="120" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#334155">修改后：IMC 初始化硬件，CP 注册软件对象</text>
+</g>
+<g>
+<rect x="88" y="160" width="238" height="128" rx="8" fill="#fffaf1" stroke="#b87923" stroke-width="2"/>
+<text x="106" y="196" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">CP Master</text>
+<text x="106" y="226" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_init(USART1 + IO_BASE)</text>
+<text x="106" y="249" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">硬件配置</text>
+<text x="106" y="272" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">RT device 注册</text>
+</g>
+<g>
+<rect x="88" y="370" width="238" height="128" rx="8" fill="#fffaf1" stroke="#b87923" stroke-width="2"/>
+<text x="106" y="406" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">CP User coreN</text>
+<text x="106" y="436" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_init(USART2+N)</text>
+<text x="106" y="459" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">硬件配置</text>
+<text x="106" y="482" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">RT device 注册</text>
+</g>
+<g>
+<rect x="390" y="248" width="190" height="150" rx="8" fill="#ffffff" stroke="#7c5b2b" stroke-width="2"/>
+<text x="408" y="284" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">旧 drv_usart_init()</text>
+<text x="408" y="314" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">hw init</text>
+<text x="408" y="337" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">dev init</text>
+<text x="408" y="360" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">rt_device_register</text>
+<text x="408" y="383" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">irq register</text>
+</g>
+<polyline points="326,224 390,306" fill="none" stroke="#9a641d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="326,434 390,346" fill="none" stroke="#9a641d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<g>
+<rect x="772" y="136" width="264" height="150" rx="8" fill="#eaf3ff" stroke="#2f65a7" stroke-width="2"/>
+<text x="790" y="172" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">IMC</text>
+<text x="790" y="202" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_init(USART0)</text>
+<text x="790" y="225" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">board_cp_usart_hw_init()</text>
+<text x="790" y="248" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART1-5 hw_init_only</text>
+</g>
+<g>
+<rect x="1084" y="126" width="190" height="170" rx="8" fill="#ffffff" stroke="#2f65a7" stroke-width="2"/>
+<text x="1102" y="162" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">硬件层</text>
+<text x="1102" y="192" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">baud/clk</text>
+<text x="1102" y="215" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">reset</text>
+<text x="1102" y="238" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">rx fifo clear</text>
+<text x="1102" y="261" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">RX interrupt enable</text>
+</g>
+<g>
+<rect x="772" y="400" width="232" height="128" rx="8" fill="#eef6f2" stroke="#3a7c62" stroke-width="2"/>
+<text x="790" y="436" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">CP Master/User</text>
+<text x="790" y="466" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_register()</text>
+<text x="790" y="489" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">注册 usartN device</text>
+<text x="790" y="512" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">绑定本地 IRQ handler</text>
+</g>
+<g>
+<rect x="1084" y="390" width="190" height="150" rx="8" fill="#ffffff" stroke="#3a7c62" stroke-width="2"/>
+<text x="1102" y="426" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">软件层</text>
+<text x="1102" y="456" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">rt_device_register</text>
+<text x="1102" y="479" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">rt_console_set_device</text>
+<text x="1102" y="502" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">hal_usart_init</text>
+<text x="1102" y="525" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">agc_shell 绑定</text>
+</g>
+<polyline points="1036,210 1084,210" fill="none" stroke="#2f65a7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1004,464 1084,464" fill="none" stroke="#3a7c62" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="684,96 684,690" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="10 10" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="684" y="748" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="middle" fill="#334155">核心变化：CP 仍然使用 USART，但不再重复做硬件寄存器初始化</text>
+</svg>

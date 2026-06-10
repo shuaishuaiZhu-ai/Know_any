@@ -2,12 +2,49 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-04
+updated: 2026-06-08
 tags:
   - meta
   - log
 status: active
 ---
+
+## [2026-06-08] add | AXI5 协议详解与 C2C 中 AXI 的作用
+
+- Added [AXI5 协议详解与 C2C 中 AXI 的作用](<./fw/interconnect/axi5-protocol-and-c2c-role.md>) under FW Interconnect / C2C.
+- Covered AXI5 five channels, VALID/READY, read/write flows, burst/ID/response, AXI5 optional capabilities, atomic/AWATOP, C2C AXI monitor, and interview Q&A.
+- Generated editable SVG plus PNG render assets under `_attachments/fw/interconnect/c2c/axi5-protocol/` and linked the page from C2C 总览、transaction routing、FW/Interconnect 索引、Wiki 总索引和 Hot Cache。
+- Added AXI waveform SVG/PNG diagrams for VALID/READY handshake, write AW/W/B timing, and read AR/R timing with RRESP on the R channel.
+
+## [2026-06-08] add | C2C 子系统结构图拆解
+
+- Added [C2C 子系统结构图拆解](<./fw/interconnect/c2c-macphy-wrapper-subsystem.md>) based on the high-resolution `c2c.jpg` source image.
+- Preserved the original source image and generated two SVG/PNG learning diagrams for MACPHY_WRAPPER overview and Adapter internal datapath.
+- Linked the new page from C2C 总览、transaction routing、FW/Interconnect 索引和 hot cache。
+- Expanded [C2C 子系统结构图拆解](<./fw/interconnect/c2c-macphy-wrapper-subsystem.md>) with a front-loaded terminology section covering every visible term in the MACPHY_WRAPPER diagram.
+
+## [2026-06-08] improve | Codex June 5-8 workflow retrospective
+
+- Added [6月5日到6月8日 Codex 工作流复盘](<./codex-reflection/evolution/2026-06-08-june5-8-workflow-retrospective.md>).
+- Updated Codex reflection, daily review, and Obsidian vault maintenance skills with read-only exception, missing-daily incident handling, and diagram-skill routing.
+
+## [2026-06-08] add | C2C transaction routing 与 OISA/L2 封装
+
+- Added [C2C transaction routing 与 OISA/L2 封装](<./fw/interconnect/c2c-transaction-routing-and-encapsulation.md>) to explain the runtime path from GPU/SDMA/TMA memory transaction through NoC, AMT/top/mesh_router, portmap, C2C adapter, OISA MAC, optional C2C L2 encapsulation, PCS, and SerDes.
+- Generated editable SVG plus PNG diagrams under `_attachments/fw/interconnect/c2c/transaction-routing/`.
+- Updated [FW 互联索引](<./fw/interconnect/index.md>), [C2C 互联学习文档](<./fw/interconnect/c2c-dingtalk-study.md>), [FW 技术知识库](<./fw/index.md>), [Wiki 总索引](<./index.md>), and [Hot Cache](<./hot.md>).
+
+## [2026-06-04] improve | Codex workflow quality gates
+
+- Added [两周对话工作流质量门优化](<./codex-reflection/evolution/2026-06-04-workflow-quality-gates.md>).
+- Updated Codex reflection, daily review, automation registry, session bootstrap, memory, and Obsidian maintenance skills with read-only boundaries, watchdog checks, acceptance matrices, and source-of-truth gates.
+
+## [2026-06-04] update | CP USART moved to IMC init wiki
+
+- Source: `shuaishuai.zhu@192.168.80.116:/home/shuaishuai.zhu/fw/` current source, branch `zss/MoveUsart`, HEAD `944c37c`, with USART migration diff in CP/IMC board files and `drv_usart.c`.
+- Added [CP USART 移到 IMC 统一初始化：代码修改和原因](<./fw/cli/cp-usart-imc-unified-init.md>) with detailed function roles, code modification explanation, address mapping, boot sequence, and debug checklist.
+- Added editable SVG plus PNG render assets for old/new ownership, driver API split, USART address view, and boot sequence under `_attachments/fw/cli/cp-usart-imc-unified-init/`.
+- Updated [Grace USART、RT-Thread console 与 agc_shell 完整链路](<./fw/cli/grace-usart-console-cli.md>), [CLI 索引](<./fw/cli/index.md>), [FW 技术知识库](<./fw/index.md>), [Wiki 总索引](<./index.md>), and [Hot Cache](<./hot.md>).
 
 ## [2026-06-04] update | agc_shell CLI Backspace 与 line buffer 图解
 
@@ -15,6 +52,7 @@ status: active
 - Updated [agc_shell CLI 输入输出路径与 cp master 卡顿分析](<./fw/cli/agc_shell-cli-path.md>) with Backspace/Delete handling, `input_buff` raw-byte FIFO semantics, `this_line` current-line string maintenance, and Enter-time `argv` assembly.
 - Added editable SVG plus PNG render assets for buffer ownership, Backspace flow, and line-buffer edit examples under `_attachments/fw/cli/agc_shell-cli-path/line-editing/`.
 - Updated [CLI 索引](<./fw/cli/index.md>), [FW 技术知识库](<./fw/index.md>), [Wiki 总索引](<./index.md>), and [Hot Cache](<./hot.md>).
+
 ## 2026-06-04 - maintain - Obsidian Git and plugin stack installed
 
 - Initialized `C:\home\for_ai` as a local Git repository on branch `main`.

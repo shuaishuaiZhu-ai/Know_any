@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#334155" />
+    </marker>
+    <marker id="arrow-blue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#2563eb" />
+    </marker>
+    <marker id="arrow-green" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#16a34a" />
+    </marker>
+    <marker id="arrow-pink" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#db2777" />
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <text x="640" y="38" text-anchor="middle" font-size="24" font-weight="800" fill="#111827">C2C 发包运行时流水线：从 memory transaction 到直连 / switch 出口</text>
+  
+  <g>
+    <text x="42" y="78" font-size="16" font-weight="800" fill="#2563eb">源 GPU / die：发起侧</text>
+    
+  <g class="card">
+    <rect x="38" y="95" width="185" height="118" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.4"/>
+    <text x="56" y="123" text-anchor="start" font-size="18" font-weight="700" fill="#111827">GPU / SDMA / TMA</text>
+    <text x="56" y="151" text-anchor="start" font-size="15" fill="#475569">只发 memory transaction</text>
+<text x="56" y="173" text-anchor="start" font-size="15" fill="#475569">不直接拼 OISA/L2 包</text>
+  </g>
+    
+  <g class="card">
+    <rect x="260" y="95" width="150" height="118" rx="8" fill="#ecfeff" stroke="#0891b2" stroke-width="2.4"/>
+    <text x="278" y="123" text-anchor="start" font-size="18" font-weight="700" fill="#111827">NoC</text>
+    <text x="278" y="151" text-anchor="start" font-size="15" fill="#475569">片上互联</text>
+<text x="278" y="173" text-anchor="start" font-size="15" fill="#475569">按地址送到出口</text>
+  </g>
+    
+  <g class="card">
+    <rect x="448" y="95" width="240" height="118" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.4"/>
+    <text x="466" y="123" text-anchor="start" font-size="18" font-weight="700" fill="#111827">AMT / top / mesh_router</text>
+    <text x="466" y="151" text-anchor="start" font-size="15" fill="#475569">判断 local / D2D / C2C</text>
+<text x="466" y="173" text-anchor="start" font-size="15" fill="#475569">读取目标 GPU / die / range</text>
+  </g>
+    
+  <g class="card">
+    <rect x="728" y="95" width="230" height="118" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2.4"/>
+    <text x="746" y="123" text-anchor="start" font-size="18" font-weight="700" fill="#111827">route / port decision</text>
+    <text x="746" y="151" text-anchor="start" font-size="15" fill="#475569">查 c2c_port_map / d2d_map</text>
+<text x="746" y="173" text-anchor="start" font-size="15" fill="#475569">switch 模式看硬件轮询配置</text>
+  </g>
+    
+  <g class="card">
+    <rect x="1000" y="95" width="230" height="118" rx="8" fill="#fdf2f8" stroke="#db2777" stroke-width="2.4"/>
+    <text x="1018" y="123" text-anchor="start" font-size="18" font-weight="700" fill="#111827">C2C adapter</text>
+    <text x="1018" y="151" text-anchor="start" font-size="15" fill="#475569">NoC 事务适配到 C2C</text>
+<text x="1018" y="173" text-anchor="start" font-size="15" fill="#475569">选择 adapter/port 出口</text>
+  </g>
+    <line x1="223" y1="154" x2="260" y2="154" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)" />
+    <line x1="410" y1="154" x2="448" y2="154" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)" />
+    <line x1="688" y1="154" x2="728" y2="154" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)" />
+    <line x1="958" y1="154" x2="1000" y2="154" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)" />
+
+    <text x="70" y="270" font-size="16" font-weight="800" fill="#16a34a">直连模式：静态下一跳</text>
+    
+  <g class="card">
+    <rect x="65" y="292" width="250" height="104" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.4"/>
+    <text x="83" y="320" text-anchor="start" font-size="18" font-weight="700" fill="#111827">Direct path</text>
+    <text x="83" y="348" text-anchor="start" font-size="15" fill="#475569">表项回答：去目标 GPU</text>
+<text x="83" y="370" text-anchor="start" font-size="15" fill="#475569">第一跳从哪个 serdes port 出去</text>
+  </g>
+    
+  <g class="card">
+    <rect x="370" y="292" width="205" height="104" rx="8" fill="#ecfeff" stroke="#0891b2" stroke-width="2.4"/>
+    <text x="388" y="320" text-anchor="start" font-size="18" font-weight="700" fill="#111827">OISA MAC / PCS</text>
+    <text x="388" y="348" text-anchor="start" font-size="15" fill="#475569">保留事务语义</text>
+<text x="388" y="370" text-anchor="start" font-size="15" fill="#475569">流控 / 错误 / 顺序</text>
+  </g>
+    
+  <g class="card">
+    <rect x="628" y="292" width="210" height="104" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.4"/>
+    <text x="646" y="320" text-anchor="start" font-size="18" font-weight="700" fill="#111827">SerDes direct link</text>
+    <text x="646" y="348" text-anchor="start" font-size="15" fill="#475569">点到点链路</text>
+<text x="646" y="370" text-anchor="start" font-size="15" fill="#475569">到对端 C2C</text>
+  </g>
+    <line x1="1115" y1="213" x2="1115" y2="228" stroke="#16a34a" stroke-width="2.5" />
+    <line x1="1115" y1="228" x2="35" y2="228" stroke="#16a34a" stroke-width="2.5" />
+    <line x1="35" y1="228" x2="35" y2="344" stroke="#16a34a" stroke-width="2.5" />
+    <line x1="35" y1="344" x2="65" y2="344" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-green)" />
+    <line x1="315" y1="344" x2="370" y2="344" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-green)" />
+    <line x1="575" y1="344" x2="628" y2="344" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-green)" />
+
+    <text x="70" y="455" font-size="16" font-weight="800" fill="#db2777">Switch 模式：出口轮询 + L2 外壳</text>
+    
+  <g class="card">
+    <rect x="65" y="478" width="250" height="122" rx="8" fill="#fdf2f8" stroke="#db2777" stroke-width="2.4"/>
+    <text x="83" y="506" text-anchor="start" font-size="18" font-weight="700" fill="#111827">Switch port select</text>
+    <text x="83" y="534" text-anchor="start" font-size="15" fill="#475569">跨 GPU：硬件轮询可用 serdes</text>
+<text x="83" y="556" text-anchor="start" font-size="15" fill="#475569">同 GPU 跨 die：仍查 D2D</text>
+  </g>
+    
+  <g class="card">
+    <rect x="370" y="478" width="235" height="122" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2.4"/>
+    <text x="388" y="506" text-anchor="start" font-size="18" font-weight="700" fill="#111827">C2C L2 encapsulation</text>
+    <text x="388" y="534" text-anchor="start" font-size="15" fill="#475569">给 switch 看 DA / SA / EthType</text>
+<text x="388" y="556" text-anchor="start" font-size="15" fill="#475569">保留 OISA/C2C 事务语义</text>
+  </g>
+    
+  <g class="card">
+    <rect x="660" y="478" width="205" height="122" rx="8" fill="#f1f5f9" stroke="#334155" stroke-width="2.4"/>
+    <text x="678" y="506" text-anchor="start" font-size="18" font-weight="700" fill="#111827">SerDes -&gt; switch</text>
+    <text x="678" y="534" text-anchor="start" font-size="15" fill="#475569">外部 fabric 转发</text>
+<text x="678" y="556" text-anchor="start" font-size="15" fill="#475569">按 MAC/VLAN/私有 ID</text>
+  </g>
+    
+  <g class="card">
+    <rect x="920" y="478" width="250" height="122" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.4"/>
+    <text x="938" y="506" text-anchor="start" font-size="18" font-weight="700" fill="#111827">Target GPU ingress</text>
+    <text x="938" y="534" text-anchor="start" font-size="15" fill="#475569">到目标 C2C adapter</text>
+<text x="938" y="556" text-anchor="start" font-size="15" fill="#475569">若目标 die 不同再查 D2D</text>
+  </g>
+    <line x1="1115" y1="213" x2="1115" y2="405" stroke="#db2777" stroke-width="2.5" />
+    <line x1="1115" y1="405" x2="35" y2="405" stroke="#db2777" stroke-width="2.5" />
+    <line x1="35" y1="405" x2="35" y2="539" stroke="#db2777" stroke-width="2.5" />
+    <line x1="35" y1="539" x2="65" y2="539" stroke="#db2777" stroke-width="2.5" marker-end="url(#arrow-pink)" />
+    <line x1="315" y1="539" x2="370" y2="539" stroke="#db2777" stroke-width="2.5" marker-end="url(#arrow-pink)" />
+    <line x1="605" y1="539" x2="660" y2="539" stroke="#db2777" stroke-width="2.5" marker-end="url(#arrow-pink)" />
+    <line x1="865" y1="539" x2="920" y2="539" stroke="#db2777" stroke-width="2.5" marker-end="url(#arrow-pink)" />
+
+    
+  <g class="card">
+    <rect x="70" y="650" width="500" height="108" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.4"/>
+    <text x="88" y="678" text-anchor="start" font-size="18" font-weight="700" fill="#111827">配置者</text>
+    <text x="88" y="706" text-anchor="start" font-size="15" fill="#475569">KMD/FW/IMC：topo discovery、GPU/chip/port ID</text>
+<text x="88" y="728" text-anchor="start" font-size="15" fill="#475569">写 top_cfg、c2c_port_map0~7、d2d_map、switch 相关表</text>
+  </g>
+    
+  <g class="card">
+    <rect x="640" y="650" width="500" height="108" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.4"/>
+    <text x="658" y="678" text-anchor="start" font-size="18" font-weight="700" fill="#111827">运行时执行者</text>
+    <text x="658" y="706" text-anchor="start" font-size="15" fill="#475569">硬件：NoC/AMT/top/mesh_router/C2C adapter/OISA MAC</text>
+<text x="658" y="728" text-anchor="start" font-size="15" fill="#475569">每笔请求按已配置表项查表、选口、封装、发出</text>
+  </g>
+  </g>
+  <text x="1256" y="782" text-anchor="end" font-size="12" fill="#64748b">source: local C2C wiki/raw + public NVSwitch/Ethernet analogies</text>
+</svg>
