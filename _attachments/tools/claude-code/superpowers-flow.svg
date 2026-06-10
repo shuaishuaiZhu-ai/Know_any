@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="320" viewBox="0 0 1180 320" role="img" aria-labelledby="t d">
+  <title id="t">superpowers 工作流水线</title>
+  <desc id="d">一句需求被 brainstorming、writing-plans、TDD、executing-plans、code-review、verification 串成流水线。</desc>
+  <defs>
+    <style>
+      .title{font:800 27px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .sub{font:500 15px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .skill{font:700 14px ui-monospace,Menlo,Consolas,monospace;fill:#102027}
+      .small{font:600 12px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .req{fill:#102027}
+      .reqt{font:800 16px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .s1{fill:#e8f1fd;stroke:#6fa8e6;stroke-width:1.5}
+      .s2{fill:#e6fffa;stroke:#68d8c2;stroke-width:1.5}
+      .s3{fill:#fff8e6;stroke:#edc870;stroke-width:1.5}
+      .s4{fill:#f0ecfb;stroke:#a98fe0;stroke-width:1.5}
+      .s5{fill:#fdecf4;stroke:#e08fb8;stroke-width:1.5}
+      .s6{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.5}
+      .line{stroke:#8da2ad;stroke-width:2.6;fill:none;stroke-linecap:round}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="320" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="54" class="title">superpowers：一句需求 → 一条好习惯流水线</text>
+  <text x="50" y="82" class="sub">装上 superpowers 后，“加个登录功能”会被自动串成下面这串 skill</text>
+
+  <rect x="44" y="118" width="150" height="74" rx="15" class="req"/>
+  <text x="119" y="150" text-anchor="middle" class="reqt">你说</text>
+  <text x="119" y="174" text-anchor="middle" class="small" fill="#c9d6dd">“加个登录功能”</text>
+
+  <path d="M198 155 H228" class="line" marker-end="url(#ar)"/>
+  <rect x="232" y="118" width="158" height="74" rx="14" class="s1"/>
+  <text x="311" y="150" text-anchor="middle" class="skill">brainstorming</text>
+  <text x="311" y="174" text-anchor="middle" class="small">问清需求/方案</text>
+
+  <path d="M394 155 H424" class="line" marker-end="url(#ar)"/>
+  <rect x="428" y="118" width="158" height="74" rx="14" class="s2"/>
+  <text x="507" y="150" text-anchor="middle" class="skill">writing-plans</text>
+  <text x="507" y="174" text-anchor="middle" class="small">写分步计划</text>
+
+  <path d="M590 155 H620" class="line" marker-end="url(#ar)"/>
+  <rect x="624" y="118" width="170" height="74" rx="14" class="s3"/>
+  <text x="709" y="150" text-anchor="middle" class="skill">test-driven-dev</text>
+  <text x="709" y="174" text-anchor="middle" class="small">先写测试</text>
+
+  <path d="M798 155 H828" class="line" marker-end="url(#ar)"/>
+  <rect x="832" y="118" width="160" height="74" rx="14" class="s4"/>
+  <text x="912" y="150" text-anchor="middle" class="skill">executing-plans</text>
+  <text x="912" y="174" text-anchor="middle" class="small">按计划实现</text>
+
+  <path d="M912 192 V224 H507 V224" class="line"/>
+  <path d="M507 224 V250" class="line" marker-end="url(#ar)"/>
+  <rect x="360" y="252" width="294" height="56" rx="14" class="s5"/>
+  <text x="507" y="278" text-anchor="middle" class="skill">requesting-code-review</text>
+  <text x="507" y="298" text-anchor="middle" class="small">完成前自审</text>
+
+  <path d="M654 280 H700" class="line" marker-end="url(#ar)"/>
+  <rect x="704" y="252" width="300" height="56" rx="14" class="s6"/>
+  <text x="854" y="278" text-anchor="middle" class="skill">verification-before-completion</text>
+  <text x="854" y="298" text-anchor="middle" class="small">跑验证再交付</text>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="560" viewBox="0 0 1180 560" role="img" aria-labelledby="t d">
+  <title id="t">Claude Code 全景</title>
+  <desc id="d">你提需求，Claude Code 在你的项目里读写文件、跑命令、提交 git，外圈被权限、CLAUDE.md、settings 三层约束。</desc>
+  <defs>
+    <style>
+      .title{font:800 30px ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 16px ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:#526672}
+      .head{font:800 21px ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:#102027}
+      .body{font:600 15px ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:#2f3e46}
+      .small{font:600 13px ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:#526672}
+      .blue{fill:#e8f1fd;stroke:#6fa8e6;stroke-width:1.4}
+      .box{fill:#ffffff;stroke:#d0d7de;stroke-width:1.3}
+      .amber{fill:#fff8e6;stroke:#edc870;stroke-width:1.4}
+      .dark{fill:#102027}
+      .line{stroke:#8da2ad;stroke-width:2.6;fill:none;stroke-linecap:round}
+      .dash{stroke:#b08b2e;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-dasharray:7 7}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="arg" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#b08b2e"/></marker>
+  </defs>
+  <rect width="1180" height="560" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="56" class="title">Claude Code 全景：你提需求，它在你的项目里干活</text>
+  <text x="50" y="86" class="sub">外圈“三层约束”决定它能做什么</text>
+
+  <rect x="56" y="210" width="180" height="110" rx="16" class="blue"/>
+  <text x="146" y="258" text-anchor="middle" class="head">你</text>
+  <text x="146" y="288" text-anchor="middle" class="small">大白话提需求</text>
+
+  <rect x="420" y="196" width="250" height="150" rx="18" class="dark"/>
+  <text x="545" y="268" text-anchor="middle" class="head" fill="#ffffff">Claude Code</text>
+  <text x="545" y="298" text-anchor="middle" class="small" fill="#9fb3bd">能动你键盘的结对程序员</text>
+
+  <path d="M236 265 H418" class="line" marker-start="url(#ar)" marker-end="url(#ar)"/>
+
+  <rect x="850" y="110" width="276" height="66" rx="14" class="box"/>
+  <text x="988" y="150" text-anchor="middle" class="body">读文件 / 搜代码</text>
+  <rect x="850" y="190" width="276" height="66" rx="14" class="box"/>
+  <text x="988" y="230" text-anchor="middle" class="body">改文件（先给你看 diff）</text>
+  <rect x="850" y="270" width="276" height="66" rx="14" class="box"/>
+  <text x="988" y="310" text-anchor="middle" class="body">跑命令（测试 / 构建）</text>
+  <rect x="850" y="350" width="276" height="66" rx="14" class="box"/>
+  <text x="988" y="390" text-anchor="middle" class="body">git 提交 / 开 PR</text>
+
+  <path d="M670 268 C 760 200, 770 143, 848 143" class="line" marker-end="url(#ar)"/>
+  <path d="M670 270 C 770 250, 770 223, 848 223" class="line" marker-end="url(#ar)"/>
+  <path d="M670 274 C 770 300, 770 303, 848 303" class="line" marker-end="url(#ar)"/>
+  <path d="M670 278 C 760 350, 770 383, 848 383" class="line" marker-end="url(#ar)"/>
+
+  <rect x="56" y="404" width="700" height="124" rx="18" class="amber"/>
+  <text x="80" y="440" class="head">三层约束（决定它能做什么）</text>
+  <rect x="80" y="458" width="200" height="48" rx="14" fill="#ffffff" stroke="#edc870" stroke-width="1.2"/>
+  <text x="180" y="488" text-anchor="middle" class="body">① 权限模式</text>
+  <rect x="300" y="458" width="200" height="48" rx="14" fill="#ffffff" stroke="#edc870" stroke-width="1.2"/>
+  <text x="400" y="488" text-anchor="middle" class="body">② CLAUDE.md</text>
+  <rect x="520" y="458" width="200" height="48" rx="14" fill="#ffffff" stroke="#edc870" stroke-width="1.2"/>
+  <text x="620" y="488" text-anchor="middle" class="body">③ settings.json</text>
+
+  <path d="M545 404 V350" class="dash" marker-end="url(#arg)"/>
+</svg>

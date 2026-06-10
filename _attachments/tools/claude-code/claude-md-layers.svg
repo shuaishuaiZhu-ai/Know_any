@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="470" viewBox="0 0 1180 470" role="img" aria-labelledby="t d">
+  <title id="t">CLAUDE.md 层级</title>
+  <desc id="d">企业、个人 user、项目、子目录、本地覆盖五层自上而下叠加，越靠下越贴近当前项目。</desc>
+  <defs>
+    <style>
+      .title{font:800 28px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .sub{font:500 15px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .head{font:800 18px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .path{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#1d6fc0}
+      .small{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .tag{font:700 12px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .row{fill:#ffffff;stroke:#d0d7de;stroke-width:1.3}
+      .blue{fill:#e8f1fd;stroke:#6fa8e6;stroke-width:1.8}
+      .green{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.8}
+      .line{stroke:#8da2ad;stroke-width:2.6;fill:none;stroke-linecap:round}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="470" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="56" class="title">CLAUDE.md 的五层（自动叠加）</text>
+  <text x="50" y="84" class="sub">启动时从上到下全部生效；越靠下越“贴近当前项目”，冲突时下层细化上层</text>
+
+  <rect x="80" y="110" width="820" height="52" rx="13" class="row"/>
+  <rect x="96" y="123" width="62" height="26" rx="13" fill="#9aa7b1"/><text x="127" y="141" text-anchor="middle" class="tag">企业</text>
+  <text x="176" y="135" class="head">组织级</text>
+  <text x="176" y="153" class="small">IT 下发的系统目录 · 硬性不可绕过</text>
+
+  <rect x="80" y="172" width="820" height="60" rx="13" class="blue"/>
+  <rect x="96" y="186" width="86" height="26" rx="13" fill="#1d6fc0"/><text x="139" y="204" text-anchor="middle" class="tag">个人 user</text>
+  <text x="200" y="198" class="path">~/.claude/CLAUDE.md</text>
+  <text x="200" y="220" class="small">你这台机器上所有项目的个人偏好（不入库）</text>
+
+  <rect x="80" y="242" width="820" height="60" rx="13" class="green"/>
+  <rect x="96" y="256" width="62" height="26" rx="13" fill="#2f9e57"/><text x="127" y="274" text-anchor="middle" class="tag">项目</text>
+  <text x="176" y="268" class="path">./CLAUDE.md</text>
+  <text x="176" y="290" class="small">本项目所有人共享的规矩：构建/测试命令、约定、禁区（入库）</text>
+
+  <rect x="80" y="312" width="820" height="52" rx="13" class="row"/>
+  <rect x="96" y="325" width="74" height="26" rx="13" fill="#9aa7b1"/><text x="133" y="343" text-anchor="middle" class="tag">子目录</text>
+  <text x="188" y="337" class="path">src/CLAUDE.md</text>
+  <text x="188" y="355" class="small">读到该目录文件时才按需加载</text>
+
+  <rect x="80" y="374" width="820" height="52" rx="13" class="row"/>
+  <rect x="96" y="387" width="74" height="26" rx="13" fill="#9aa7b1"/><text x="133" y="405" text-anchor="middle" class="tag">本地</text>
+  <text x="188" y="399" class="path">./CLAUDE.local.md</text>
+  <text x="188" y="417" class="small">个人的项目级临时偏好（加进 .gitignore，不入库）</text>
+
+  <path d="M960 130 V406" class="line" marker-end="url(#ar)"/>
+  <text x="1000" y="150" class="small">越靠下</text>
+  <text x="1000" y="172" class="small">越贴近</text>
+  <text x="1000" y="194" class="small">当前项目</text>
+  <text x="1000" y="392" class="head">最具体</text>
+</svg>

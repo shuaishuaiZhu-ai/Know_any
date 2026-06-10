@@ -41,7 +41,7 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 
 
 - Codex Skills：[使用地图](<./tools/codex-skills-map.md>)，用于查当前安装 skills、触发场景、选择流程和重名来源。
-- Claude Code CLI：[使用教程](<./tools/Claude Code CLI 使用教程.md>)，入门到精通：安装登录、权限模型、slash 命令、CLAUDE.md、skills/subagents/hooks/MCP、settings 和排错。
+- Claude Code CLI：[使用教程](<./tools/Claude Code CLI 使用教程.md>)，**新手友好长文 + 手工 SVG 图解**：五分钟上手、权限模型、CLAUDE.md（user vs 项目级、`/init`）、skills 与 plugins（含 superpowers 实战、官方 marketplace 地址）、hooks/MCP/settings 和排错。
 - claude-code-proxy：[项目 Wiki](<./tools/claude-code-proxy/index.md>)，用于回看 ccproxy 安装、provider/model 切换、订阅登录和故障排查。
 
 - RguGCtrl: [RguGCtrl 学习文档：从 Kernel 到 Core 的两级调度](<./mas/RguCore/02-rgu-gctrl.md>)

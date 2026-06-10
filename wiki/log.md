@@ -9,6 +9,14 @@ tags:
 status: active
 ---
 
+## [2026-06-10] improve | Claude Code 教程改写为新手友好版 + 手工 SVG 图解
+
+- 把 [Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>) 重写为面向完全新手的长文：加“怎么读/五分钟跑通第一次”、全程更细更白话。
+- 新增 **CLAUDE.md 专章**：user 级（`~/.claude/CLAUDE.md`）vs 项目级（`./CLAUDE.md`）区别对照、配置用法、`/init` 初始化工作目录全流程、可直接抄的范例。
+- 新增 **skills 与 plugins 专章**：讲清 skill/命令/subagent/hooks/MCP 与 plugin 的关系，附官方地址（anthropics/claude-plugins-official、claude.com/plugins），并**以 superpowers 为例**端到端讲安装与工作流（核实 5.1.0 共 14 个 skill）。
+- 按 vault 惯例把 9 张 mermaid 全部替换为**手工 SVG**，存于 `_attachments/tools/claude-code/`（panorama、first-run、work-loop、permission-modes、claude-md-layers、init-flow、skills-plugins、superpowers-flow、context-mgmt）。
+- 同步更新 [Hot Cache](<./hot.md>)。
+
 ## [2026-06-10] add | Claude Code CLI 使用教程
 
 - Added [Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>) under 工具链知识库，通用入门到精通教程。

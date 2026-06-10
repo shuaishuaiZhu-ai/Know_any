@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="360" viewBox="0 0 1180 360" role="img" aria-labelledby="t d">
+  <title id="t">权限模式</title>
+  <desc id="d">default、acceptEdits、plan 三种模式用 Shift+Tab 循环切换；bypassPermissions 危险，仅隔离环境用。</desc>
+  <defs>
+    <style>
+      .title{font:800 28px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .head{font:800 19px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .key{font:700 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#1d6fc0}
+      .blue{fill:#e8f1fd;stroke:#6fa8e6;stroke-width:1.6}
+      .teal{fill:#e6fffa;stroke:#68d8c2;stroke-width:1.6}
+      .amber{fill:#fff8e6;stroke:#edc870;stroke-width:1.6}
+      .red{fill:#fdecec;stroke:#e69a9a;stroke-width:1.6}
+      .line{stroke:#6fa8e6;stroke-width:2.8;fill:none;stroke-linecap:round}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#6fa8e6"/></marker>
+  </defs>
+  <rect width="1180" height="360" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="58" class="title">权限模式 · 按 Shift+Tab 循环切换</text>
+
+  <rect x="80" y="120" width="270" height="120" rx="18" class="blue"/>
+  <text x="215" y="166" text-anchor="middle" class="head">default</text>
+  <text x="215" y="196" text-anchor="middle" class="small">每个操作都问你</text>
+  <text x="215" y="220" text-anchor="middle" class="small">刚上手 / 改重要仓库</text>
+
+  <rect x="455" y="120" width="270" height="120" rx="18" class="teal"/>
+  <text x="590" y="166" text-anchor="middle" class="head">acceptEdits</text>
+  <text x="590" y="196" text-anchor="middle" class="small">自动批准编辑，你看 diff 流过</text>
+  <text x="590" y="220" text-anchor="middle" class="small">盯着、快速迭代</text>
+
+  <rect x="830" y="120" width="270" height="120" rx="18" class="amber"/>
+  <text x="965" y="166" text-anchor="middle" class="head">plan</text>
+  <text x="965" y="196" text-anchor="middle" class="small">只出方案，绝不动代码</text>
+  <text x="965" y="220" text-anchor="middle" class="small">探索 / 定方案</text>
+
+  <path d="M350 165 H453" class="line" marker-end="url(#ar)"/>
+  <text x="402" y="153" text-anchor="middle" class="key">Shift+Tab</text>
+  <path d="M725 165 H828" class="line" marker-end="url(#ar)"/>
+  <text x="777" y="153" text-anchor="middle" class="key">Shift+Tab</text>
+  <path d="M965 242 C 965 300, 215 300, 215 242" class="line" marker-end="url(#ar)"/>
+  <text x="590" y="318" text-anchor="middle" class="key">Shift+Tab（回到 default）</text>
+
+  <rect x="455" y="262" width="270" height="62" rx="16" class="red"/>
+  <text x="590" y="290" text-anchor="middle" class="head">bypassPermissions</text>
+  <text x="590" y="312" text-anchor="middle" class="small">全放行 · 仅隔离容器/VM</text>
+</svg>

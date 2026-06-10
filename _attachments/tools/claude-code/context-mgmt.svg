@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="340" viewBox="0 0 1180 340" role="img" aria-labelledby="t d">
+  <title id="t">上下文管理</title>
+  <desc id="d">换任务用 /clear，快满用 /compact，探索脏活派 subagent，否则继续。</desc>
+  <defs>
+    <style>
+      .title{font:800 28px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .q{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .mono{font:700 14px ui-monospace,Menlo,Consolas,monospace;fill:#1d6fc0}
+      .diamond{fill:#fff8e6;stroke:#edc870;stroke-width:1.6}
+      .act{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.6}
+      .start{fill:#102027}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+      .yes{font:700 12px ui-sans-serif,sans-serif;fill:#2f9e57}
+      .no{font:700 12px ui-sans-serif,sans-serif;fill:#a06060}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="340" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="56" class="title">上下文管理：聊得越久越贵越易忘事</text>
+
+  <rect x="44" y="140" width="150" height="64" rx="15" class="start"/>
+  <text x="119" y="178" text-anchor="middle" class="q" fill="#ffffff">上下文在涨</text>
+  <path d="M198 172 H236" class="line" marker-end="url(#ar)"/>
+
+  <polygon points="246,172 326,134 406,172 326,210" class="diamond"/>
+  <text x="326" y="168" text-anchor="middle" class="q">换不相关</text>
+  <text x="326" y="186" text-anchor="middle" class="q">任务?</text>
+  <path d="M326 210 V250" class="line" marker-end="url(#ar)"/><text x="338" y="234" class="yes">是</text>
+  <rect x="246" y="252" width="160" height="56" rx="14" class="act"/>
+  <text x="326" y="278" text-anchor="middle" class="mono">/clear</text>
+  <text x="326" y="298" text-anchor="middle" class="small">清空，保留记忆</text>
+  <path d="M406 172 H452" class="line" marker-end="url(#ar)"/><text x="424" y="160" class="no">否</text>
+
+  <polygon points="462,172 542,134 622,172 542,210" class="diamond"/>
+  <text x="542" y="178" text-anchor="middle" class="q">快满了?</text>
+  <path d="M542 210 V250" class="line" marker-end="url(#ar)"/><text x="554" y="234" class="yes">是</text>
+  <rect x="462" y="252" width="160" height="56" rx="14" class="act"/>
+  <text x="542" y="278" text-anchor="middle" class="mono">/compact</text>
+  <text x="542" y="298" text-anchor="middle" class="small">压缩腾空间</text>
+  <path d="M622 172 H668" class="line" marker-end="url(#ar)"/><text x="640" y="160" class="no">否</text>
+
+  <polygon points="678,172 766,130 854,172 766,214" class="diamond"/>
+  <text x="766" y="168" text-anchor="middle" class="q">探索/搜索</text>
+  <text x="766" y="186" text-anchor="middle" class="q">脏活?</text>
+  <path d="M766 214 V250" class="line" marker-end="url(#ar)"/><text x="778" y="236" class="yes">是</text>
+  <rect x="678" y="252" width="176" height="56" rx="14" class="act"/>
+  <text x="766" y="278" text-anchor="middle" class="q">派 subagent</text>
+  <text x="766" y="298" text-anchor="middle" class="small">独立上下文里做</text>
+  <path d="M854 172 H900" class="line" marker-end="url(#ar)"/><text x="872" y="160" class="no">否</text>
+
+  <rect x="908" y="144" width="180" height="56" rx="15" fill="#ffffff" stroke="#d0d7de" stroke-width="1.3"/>
+  <text x="998" y="178" text-anchor="middle" class="q">继续当前会话</text>
+</svg>

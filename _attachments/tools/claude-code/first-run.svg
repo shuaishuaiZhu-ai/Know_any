@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="300" viewBox="0 0 1180 300" role="img" aria-labelledby="t d">
+  <title id="t">五分钟跑通第一次</title>
+  <desc id="d">cd 进项目，启动 claude 登录，/init，提问，让它改一处看 diff。</desc>
+  <defs>
+    <style>
+      .title{font:800 28px ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:#102027}
+      .num{font:800 22px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .head{font:800 17px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .step{fill:#ffffff;stroke:#d0d7de;stroke-width:1.3}
+      .badge{fill:#102027}
+      .line{stroke:#8da2ad;stroke-width:2.8;fill:none;stroke-linecap:round}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="300" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="62" class="title">五分钟跑通第一次</text>
+
+  <g>
+    <rect x="44" y="108" width="200" height="128" rx="16" class="step"/>
+    <circle cx="84" cy="148" r="20" class="badge"/><text x="84" y="156" text-anchor="middle" class="num">1</text>
+    <text x="64" y="192" class="head">cd 进项目</text>
+    <text x="64" y="216" class="small">进入要干活的目录</text>
+  </g>
+  <path d="M252 172 H290" class="line" marker-end="url(#ar)"/>
+  <g>
+    <rect x="298" y="108" width="200" height="128" rx="16" class="step"/>
+    <circle cx="338" cy="148" r="20" class="badge"/><text x="338" y="156" text-anchor="middle" class="num">2</text>
+    <text x="318" y="192" class="head">claude 启动</text>
+    <text x="318" y="216" class="small">首次弹浏览器登录</text>
+  </g>
+  <path d="M506 172 H544" class="line" marker-end="url(#ar)"/>
+  <g>
+    <rect x="552" y="108" width="200" height="128" rx="16" class="step"/>
+    <circle cx="592" cy="148" r="20" class="badge"/><text x="592" y="156" text-anchor="middle" class="num">3</text>
+    <text x="572" y="192" class="head">/init</text>
+    <text x="572" y="216" class="small">让它认识这个项目</text>
+  </g>
+  <path d="M760 172 H798" class="line" marker-end="url(#ar)"/>
+  <g>
+    <rect x="806" y="108" width="200" height="128" rx="16" class="step"/>
+    <circle cx="846" cy="148" r="20" class="badge"/><text x="846" y="156" text-anchor="middle" class="num">4</text>
+    <text x="826" y="192" class="head">用大白话提问</text>
+    <text x="826" y="216" class="small">先让它讲一遍</text>
+  </g>
+  <path d="M1014 172 H1052" class="line" marker-end="url(#ar)"/>
+  <g>
+    <rect x="1060" y="108" width="88" height="128" rx="16" fill="#e8f7ec" stroke="#74c98a" stroke-width="1.4"/>
+    <circle cx="1104" cy="148" r="20" fill="#2f9e57"/><text x="1104" y="156" text-anchor="middle" class="num">5</text>
+    <text x="1104" y="192" text-anchor="middle" class="head">改一处</text>
+    <text x="1104" y="216" text-anchor="middle" class="small">看 diff</text>
+  </g>
+</svg>
