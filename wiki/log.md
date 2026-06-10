@@ -9,6 +9,13 @@ tags:
 status: active
 ---
 
+## [2026-06-10] add | Claude Code CLI 使用教程
+
+- Added [Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>) under 工具链知识库，通用入门到精通教程。
+- Covered 安装/更新、登录认证、会话交互与快捷键、核心工作循环、权限模型（模式 + allow/deny 规则）、slash 命令与自定义命令、CLAUDE.md 多层记忆、上下文管理、skills、subagents、hooks、MCP、settings.json、插件、模型选择、Git/GitHub/CI 集成、无头模式/SDK、最佳实践与排错速查。
+- 事实经 claude-code-guide 专家 agent 核实；版本易变细节（hooks JSON 格式、settings 键、模型版本）按官方最稳写法处理，并指向 `/help`、`/config`、官方文档为最终事实源。
+- Linked the new page from [工具链知识库](<./tools/index.md>) 和 [Hot Cache](<./hot.md>)。按现有惯例未单列进 Wiki 总索引。
+
 ## [2026-06-08] add | AXI5 协议详解与 C2C 中 AXI 的作用
 
 - Added [AXI5 协议详解与 C2C 中 AXI 的作用](<./fw/interconnect/axi5-protocol-and-c2c-role.md>) under FW Interconnect / C2C.

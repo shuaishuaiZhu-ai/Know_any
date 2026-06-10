@@ -16,3 +16,4 @@ status: active
 - [AI 协作远程编辑经验](<../synthesis/AI 协作远程编辑经验.md>)
 - [工具与登录环境经验](<../synthesis/工具与登录环境经验.md>)
 - [Codex Skills 使用地图](<./codex-skills-map.md>)
+- [Claude Code CLI 使用教程](<./Claude Code CLI 使用教程.md>)
