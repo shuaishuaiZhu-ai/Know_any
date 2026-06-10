@@ -9,6 +9,13 @@ tags:
 status: active
 ---
 
+## [2026-06-10] fix | Claude Code 教程复审修订
+
+- 复审 [Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)。
+- §14 扩为“模型与思考强度”：新增 thinking/effort（`think`/`think harder`/`ultrathink` 关键词 + `/config` 调 effort），并辨析 `ultrathink`（提高思考强度）≠ `/ultraplan`（云端精炼计划）。
+- 修正权限规则语法不一致/不准确：统一为官方冒号前缀式 `Bash(命令:*)`（原 §4.2 `Bash(npm run *)`、§16 `Bash(git *)` 空格通配不可靠）。
+- §8 增加一句交叉引用：让它“想得更深”用关键词而非 slash 命令。
+
 ## [2026-06-10] improve | Claude Code 教程改写为新手友好版 + 手工 SVG 图解
 
 - 把 [Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>) 重写为面向完全新手的长文：加“怎么读/五分钟跑通第一次”、全程更细更白话。
