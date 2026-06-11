@@ -1,32 +1,43 @@
----
-type: reference
-title: "Claude Code CLI 使用教程"
-created: 2026-06-10
-updated: 2026-06-10
-tags:
-  - tools
-  - claude
-  - claude-code
-  - cli
-  - tutorial
-  - superpowers
-  - plugins
-status: active
-related:
-  - "[[tools/index|工具链知识库]]"
-  - "[[tools/codex-skills-map|Codex Skills 使用地图]]"
-  - "[[tools/claude-code-proxy/index|claude-code-proxy 项目 Wiki]]"
-source:
-  - https://docs.claude.com/en/docs/claude-code
-  - https://github.com/anthropics/claude-plugins-official
-  - https://github.com/obra/superpowers
----
-
 # Claude Code CLI 使用教程
 
 > 这份教程**面向完全没用过 Claude Code 的人**。从“它是什么”讲到能独立用好，配大量图解和可直接照抄的例子。
 > Claude Code 迭代很快，命令/界面细节以本机 **`/help`、`/config`** 和官方文档
 > `docs.claude.com/en/docs/claude-code` 为最终标准。生成/更新日期：2026-06-10。
+
+---
+
+## 命令速查（先收藏一份）
+
+> 不用记全，先扫一眼知道"有哪些招"，详细见后文对应章节。
+
+**会话里输入 `/` 触发的常用命令：**
+
+| 命令 | 作用 |
+|---|---|
+| `/help` | 列出所有命令和能力 |
+| `/init` | 扫描项目、自动生成 `CLAUDE.md` |
+| `/clear` | 清空对话历史（换任务时用） |
+| `/compact` | 压缩对话、腾出上下文 |
+| `/model` | 切换模型 / 看可用型号 |
+| `/config` | 交互式配置界面 |
+| `/permissions` | 查看和管理权限规则 |
+| `/memory` | 查看 / 编辑生效的 `CLAUDE.md` |
+| `/agents` | 查看和管理 subagent |
+| `/plugin` | 管理插件和 marketplace |
+| `/mcp` | 查看已连接的 MCP server |
+| `/cost`、`/usage` | 看 token 消耗与花费 |
+| `/review` | 内置代码审查 |
+
+**最该先会的键位 / 符号：**
+
+| 操作 | 作用 |
+|---|---|
+| `Shift+Tab` | 循环切换权限模式（default → acceptEdits → plan） |
+| `Esc` | 立刻打断它当前的动作（最常用） |
+| `Ctrl+D` | 退出 |
+| `@路径` | 主动把某个文件喂给它，例如 `@src/main.c` |
+| `#一句话` | 把这句话追加进项目记忆（写入 `CLAUDE.md`） |
+| `think` / `ultrathink` | 让它这一步"想得更深"（思考强度关键词） |
 
 ---
 
@@ -174,7 +185,7 @@ claude            # 首次启动拉起浏览器走登录；弹不出浏览器时
 | `ANTHROPIC_BASE_URL` | 走自建网关/代理（如 claude-code-proxy） |
 | `CLAUDE_CODE_OAUTH_TOKEN` | 长期 token（`claude setup-token` 生成），给脚本/CI 用 |
 
-> 想把后端换成 DeepSeek / Kimi / GLM / 本地模型，见本库 [[tools/claude-code-proxy/index|claude-code-proxy 项目 Wiki]]。
+> 想把后端换成 DeepSeek / Kimi / GLM / 本地模型，见 [claude-code-proxy](https://github.com/shuaishuaiZhu-ai/claude-code-proxy)。
 
 ---
 
@@ -201,18 +212,22 @@ claude            # 首次启动拉起浏览器走登录；弹不出浏览器时
 | 适合写什么 | 你的通用偏好：回答用中文、改动要小而准、提交前先问 | 这个项目的事实：构建命令、目录结构、命名约定、踩过的坑 |
 | 典型例子 | “所有代码注释用中文”“没把握的方案先列出来再动手” | “构建跑 `./build.sh`；测试跑 `pytest -q`；不要碰 `legacy/` 目录” |
 
-> 本库根目录的 `CLAUDE.md`、`WIKI.md` 就是**项目级**的真实例子：它把“这是 Obsidian vault、先读 hot.md/index.md、写新页要更新哪些索引”固化成了规矩。而你 `~/.claude/CLAUDE.md` 里写的是跨项目的个人风格。
+> 举个真实例子：一个 Obsidian 知识库项目，根目录的 `CLAUDE.md` 把“先读哪个索引、写新页要同步更新哪些文件”固化成规矩——这就是**项目级**。而你 `~/.claude/CLAUDE.md` 里写的是跨项目的个人风格。
 
-**可直接照抄的个人级 `~/.claude/CLAUDE.md`：**
+**个人级 `~/.claude/CLAUDE.md` 别从零手写——直接用现成的好模板。** 推荐 Andrej Karpathy 风格的这份（社区整理），它把新手最容易踩的坑固化成 4 条铁律：
 
-```markdown
-# 我的通用偏好
+- **想清楚再写**：有歧义先问、别假装确定，多个方案先摆出来让你选；
+- **够用就好**：只写解决问题的最小代码，不过度设计、不堆没要求的"灵活性"；
+- **外科手术式改动**：只动与需求直接相关的代码，别顺手重构/格式化无关部分；
+- **目标驱动**：先定义"怎样算做对"（可验证的成功标准），再动手、循环到达标。
 
-- 默认用中文回答和写注释。
-- 改动要小而精准，只动与需求直接相关的代码，别顺手重构无关部分。
-- 多个方案时先列出来让我选，不要自己闷头选一个。
-- 没把握就停下来问，别假装确定。
+一行装好（下载到个人级目录）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/multica-ai/andrej-karpathy-skills/main/CLAUDE.md -o ~/.claude/CLAUDE.md
 ```
+
+仓库 [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)，装完可再按自己习惯增删（比如加一句"默认用中文回答"）。
 
 **可直接照抄的项目级 `./CLAUDE.md`：**
 
@@ -264,8 +279,6 @@ claude            # 首次启动拉起浏览器走登录；弹不出浏览器时
 | **Slash 命令** | 可复用的 prompt 模板 | 你主动敲 `/名字` |
 | **Subagent** | 带独立上下文的专职小助手 | Claude 按需派活，或 `/agents` |
 | **Plugin** | 把上面这些打包，从 marketplace 安装 | `/plugin install …` |
-
-> Skill 的思想在 Codex 侧的落地见本库 [[tools/codex-skills-map|Codex Skills 使用地图]]，可对照看。
 
 ### 7.2 怎么用 plugin（含官方地址）
 
@@ -529,14 +542,12 @@ claude doctor      # 配置/网络/权限体检（会话外跑）
 
 ## 17. 关联资源
 
-- 官方文档：`https://docs.claude.com/en/docs/claude-code`
-- 官方插件：[anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) ｜ 目录页 `https://claude.com/plugins`
+- 官方文档：https://docs.claude.com/en/docs/claude-code
+- 官方插件市场：[anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) ｜ 网页目录 https://claude.com/plugins
 - superpowers：[obra/superpowers](https://github.com/obra/superpowers) ｜ [obra/superpowers-marketplace](https://github.com/obra/superpowers-marketplace)
-- 本库工具入口：[[tools/index|工具链知识库]]
-- Codex 侧对照：[[tools/codex-skills-map|Codex Skills 使用地图]]
-- 换后端供应商：[[tools/claude-code-proxy/index|claude-code-proxy 项目 Wiki]]
-- AI 协作经验：[[synthesis/AI 协作远程编辑经验]]
+- 换后端供应商（DeepSeek / Kimi / GLM…）：[claude-code-proxy](https://github.com/shuaishuaiZhu-ai/claude-code-proxy)
+- 个人级 CLAUDE.md 模板：[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)
 
-## 18. 维护说明
+---
 
-新增/修改本页后需同步更新 [[tools/index|工具链知识库]]、[[log|Wiki Log]] 和 [[hot|Hot Cache]]。详细规则见 [[meta/wiki-maintenance-rules|Wiki 维护规则]]。Claude Code 迭代快，发现命令/配置/插件地址与本机实际不符时，以 `/help`、`/config` 和官方文档为准并回写本页。
+> Claude Code 迭代很快。若文中命令 / 配置 / 插件地址与你本机不一致，以会话内 `/help`、`/config` 和官方文档 `docs.claude.com/en/docs/claude-code` 为准。

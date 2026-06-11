@@ -9,6 +9,13 @@ tags:
 status: active
 ---
 
+## [2026-06-11] improve | Claude Code 教程改造为发布版 + 修正全景图箭头 + 引入 karpathy CLAUDE.md
+
+- 把 [Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>) 改造为面向知乎/博客外部读者的**单一发布版**：删 frontmatter 与全部 `[[wikilink]]`、删 §18 维护说明，§17 仅留公开 URL；顶部新增**命令/键位速查表**。
+- §5：换后端模型的链接由 Obsidian 内链改为 GitHub 地址 `https://github.com/shuaishuaiZhu-ai/claude-code-proxy`。
+- §6：个人级 `~/.claude/CLAUDE.md` 由手写范例改为推荐现成模板 [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)（含一行 curl 安装）。
+- 用新建的个人 skill `svg-diagrams`（渲染→视觉校对→修正）逐张核对 9 张图：仅 `panorama.svg` 的“你↔Claude”双向箭头在 resvg 下渲染异常（`auto-start-end` 起点头未反向），已改用显式左向 marker + `orient="auto"` 修正；并为全部 9 张图渲染 PNG 存于 `_attachments/tools/claude-code/`（供发布上传）。
+
 ## [2026-06-10] fix | Claude Code 教程复审修订
 
 - 复审 [Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)。

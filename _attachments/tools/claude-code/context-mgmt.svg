@@ -14,7 +14,7 @@
       .yes{font:700 12px ui-sans-serif,sans-serif;fill:#2f9e57}
       .no{font:700 12px ui-sans-serif,sans-serif;fill:#a06060}
     </style>
-    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
   </defs>
   <rect width="1180" height="340" rx="28" fill="#f6f8fa"/>
   <text x="50" y="56" class="title">上下文管理：聊得越久越贵越易忘事</text>

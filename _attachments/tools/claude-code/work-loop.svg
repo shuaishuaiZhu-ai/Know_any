@@ -14,8 +14,8 @@
       .back{stroke:#e0a3a3;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-dasharray:7 7}
       .lbl{font:700 12px ui-sans-serif,system-ui,sans-serif;fill:#526672}
     </style>
-    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
-    <marker id="arr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#e0a3a3"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="arr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e0a3a3"/></marker>
   </defs>
   <rect width="1180" height="340" rx="28" fill="#f6f8fa"/>
   <text x="50" y="58" class="title">核心工作循环</text>

@@ -14,7 +14,7 @@
       .green{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.8}
       .line{stroke:#8da2ad;stroke-width:2.6;fill:none;stroke-linecap:round}
     </style>
-    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
   </defs>
   <rect width="1180" height="470" rx="28" fill="#f6f8fa"/>
   <text x="50" y="56" class="title">CLAUDE.md 的五层（自动叠加）</text>

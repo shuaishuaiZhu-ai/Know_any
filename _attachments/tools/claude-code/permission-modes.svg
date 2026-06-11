@@ -13,7 +13,7 @@
       .red{fill:#fdecec;stroke:#e69a9a;stroke-width:1.6}
       .line{stroke:#6fa8e6;stroke-width:2.8;fill:none;stroke-linecap:round}
     </style>
-    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-end"><path d="M0 0 L10 5 L0 10 z" fill="#6fa8e6"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6fa8e6"/></marker>
   </defs>
   <rect width="1180" height="360" rx="28" fill="#f6f8fa"/>
   <text x="50" y="58" class="title">权限模式 · 按 Shift+Tab 循环切换</text>

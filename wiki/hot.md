@@ -18,6 +18,7 @@ status: active
 ## 当前主入口
 
 
+- Claude Code 教程（发布版，面向知乎/博客）：[Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)
 - Codex 反思与进化：[Codex 反思与进化](<./codex-reflection/index.md>)
 - Codex 全局复盘：[全局 Codex 工作流复盘](<./codex-reflection/projects/2026-05-26-global-codex-workflow-review.md>)
 - Codex 总结反思：[2026-06-01 Codex 总结反思](<./codex-reflection/projects/2026-06-01-codex-summary-reflection.md>)
