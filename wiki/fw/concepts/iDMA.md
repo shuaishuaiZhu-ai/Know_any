@@ -32,4 +32,3 @@ source:
 
 - [[Interaction-Buffer]]
 - [[CP command processing flow]]
-- [[CP event atomic wait host handling]]

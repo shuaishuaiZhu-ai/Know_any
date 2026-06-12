@@ -23,6 +23,14 @@ status: active
 - 用户明确说处于 plan mode 时，以用户 UI 声明为准，再调查标记为什么没传递。
 - 大文档重写前先确认目标边界；适合整篇替换的就整篇替换，局部补丁不稳定时不要硬切。
 
+## 工具与登录环境经验
+
+> 本节由原 `工具与登录环境经验` 页合并而来（来源同属下方 ajthunk learnings/retros）。
+
+- 浏览器自动化在 Windows 上可优先考虑 Edge/profile/CDP 方案。
+- 飞书/语雀等私有文档需要登录态，不能用未认证 HTTP 直接抓取。
+- SSH one-liner 中 Windows PATH/反斜杠/分号容易被 shell 层破坏，复杂命令应拆解或使用脚本。
+
 ## 来源
 
 - **agent-browser Installation Without sudo** — `.raw/local-md/C-home-shuaishuai.zhu/ajthunk\.claude\learnings\agent-browser-no-sudo-install.md`

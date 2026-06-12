@@ -11,7 +11,7 @@ tags:
 status: active
 source:
   - "[[fw CP user firmware code summary]]"
-  - "[[CP cmd_entry Candidate V7 调度设计]]"
+  - ".raw/local-md/C-home-shuaishuai.zhu/fw/cmd_entry_roundrobin_design.md"
 ---
 
 # cmd_entry — CP User 调度器
@@ -125,3 +125,23 @@ RT_ASSERT(hcqd_id < IB_MAX_HCQD_NUM_PER_CORE);
 - `ib_get_candidate_bitmask` 锁外 OK：`rd_rb_candidate` 是状态寄存器，idempotent read
 - `CPE_FW_HCQD_STOPPED` 必须 RMW：直接 writel 覆盖其他 HCQD 的 stopped bit
 - exception handler 的 `while(1)` 后必须 `continue`：否则 fall-through 进正常调度
+
+---
+
+## Candidate-Driven 设计要点（V7）
+
+> 本节由原 `CP cmd_entry Candidate V7 调度设计` 专题页合并而来，描述从逐个扫描 HCQD 演进到 candidate bitmask + pending_mask + ctz/round-robin 的调度模型。
+
+- `candidate` 表示当前可尝试的 HCQD active 集合；每次 consume 一个 bit，避免重复 MMIO 扫描。
+- `pending_mask` 表示已 peek 到命令但不能立即完成的 HCQD；event/wait 类命令尤其需要避免重复 peek。
+- round-robin 通过 `next_hcqd + ctz` 在 active bitmask 上选下一个候选，在效率与公平之间平衡。
+- V7 顺序：refresh candidate → 处理 pending → 选 hcqd → peek/dispatch → 按状态 set/clear pending。
+
+### 原始来源（`.raw/local-md/...`）
+
+- `fw/.claude/learnings/2026-03-31-hcqd-v3.md` — HCQD Round-Robin V3 Design Patterns
+- `fw/.claude/learnings/candidate-cache-pattern.md` — Candidate Bitmask Caching Pattern
+- `fw/.claude/learnings/local-pointer-extraction.md` — pending_mask Bitmask Pattern
+- `fw/.claude/learnings/struct-deduplication.md` — Per-HCQD vs Global Pending
+- `fw/.claude/retros/2026-03-31-1916.md`、`2026-04-07-candidate-cache.md`、`2026-04-08-v7-candidate-driven.md`、`2026-04-08-v7-context.md`、`2026-04-08-v7-doc-update.md`
+- `fw/cmd_entry_roundrobin_design.md` — CP User cmd_entry Candidate-Driven Dispatch 设计说明 V7

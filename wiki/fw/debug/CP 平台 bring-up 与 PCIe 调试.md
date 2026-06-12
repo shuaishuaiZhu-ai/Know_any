@@ -35,4 +35,4 @@ source:
 
 - [[CP SDMA copy 与 kernel command 调试]]
 - [[CP ringbuffer IPC 与 queue create 调试]]
-- [[CP 多队列多上下文与 HCQD MCQD]]
+- [[CP command processing flow]]

@@ -11,9 +11,8 @@ status: active
 
 这里放 hot path、分支布局、cache、预取、调度开销相关页面。
 
-- [CP candidate peek 热路径优化](<./CP candidate peek 热路径优化.md>)
+- [CP cmd_entry 热路径与分支布局优化](<./CP cmd_entry 热路径与分支布局优化.md>)：candidate peek hot loop + 分支预取/wrong-path fetch + goto 布局。
 - [GPGPU FW DVFS 学习文档](<./dvfs-gpgpu-fw.md>)：OPP/VF 频点、状态机、timing、面试问题。
-- [CP 分支预取与 cmd_entry 布局优化](<./CP 分支预取与 cmd_entry 布局优化.md>)
 
 ## 相关入口
 

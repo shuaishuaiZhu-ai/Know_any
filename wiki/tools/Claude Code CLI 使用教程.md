@@ -542,6 +542,7 @@ claude doctor      # 配置/网络/权限体检（会话外跑）
 
 ## 17. 关联资源
 
+- 进阶篇：《Claude Code CLI 进阶教程》（同系列：无头模式、会话回滚、hooks/skills 编写、并行多开、CI 集成）
 - 官方文档：https://docs.claude.com/en/docs/claude-code
 - 官方插件市场：[anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) ｜ 网页目录 https://claude.com/plugins
 - superpowers：[obra/superpowers](https://github.com/obra/superpowers) ｜ [obra/superpowers-marketplace](https://github.com/obra/superpowers-marketplace)

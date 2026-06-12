@@ -43,8 +43,24 @@ status: active
 | 工具链 | `wiki/tools/` |
 | 原始材料和镜像 | `wiki/sources/` 或 `.raw/` |
 
+## 命名规范（统一约定）
+
+本 vault 用 [[wikilink]] 按文件名（basename）解析，因此**文件名即标识符**，确定后不要轻易改名（改名要同步重写全库所有 `[[旧名]]` 反链，成本高、易漏）。命名遵循两层约定：
+
+| 页面类型 | 命名风格 | 示例 |
+|---|---|---|
+| 代码符号页（函数/模块/寄存器名直接对应代码） | 保持代码原样：snake/kebab、ASCII | `cmd_entry.md`、`ib.md`、`top_reg.md`、`qdma.md`、`rt_thread_yield.md`、`cmd_entry-branch-layout.md` |
+| 概念词条（被多页 `[[...]]` 当锚点） | 短、ASCII、连字符 | `HCQD.md`、`MCQD.md`、`Interaction-Buffer.md`、`Event-Table.md`、`CP-Command-Packet.md` |
+| 主题/流程/调试/性能分析页 | 描述性中文/英文短语，允许空格 | `CP command processing flow.md`、`CP stop flush 与 queue 切换.md`、`CP cmd_entry 热路径与分支布局优化.md` |
+
+附加约定：
+
+- **概念词条保持原子**，不要合并进大页——它们是全库 `[[HCQD]]`/`[[iDMA]]` 等反链的锚点，合并会断链。
+- 新增主题页若与既有页主题重叠 ≥70%，优先合并进既有 canonical 页（保留被链接最多的文件名），而不是新建近义页。
+- 含空格的文件名在 md-link 里必须用 `<...>` 包裹，例如 `[文字](<./页面 名.md>)`。
+
 ## 删除规则
 
 - 可以删除空目录和只做兼容跳转的旧索引页。
-- 不删除 `sources/` 和 `.raw/` 的原始证据，除非用户明确要求。
+- 不删除 `sources/` 和 `.raw/` 的原始证据，除非用户明确要求。**批量脚本替换时注意 Windows 下 `os.walk` 的路径分隔符是 `\`，排除 `sources/` 要用 `os.sep` 判断，否则会误改原始镜像。**
 - 如果删除重复页，必须先确认有保留页承接内容，并更新旧链接。

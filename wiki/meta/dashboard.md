@@ -29,8 +29,7 @@ status: active
 | [[wiki/fw/cp-user/cmd_entry|cmd_entry]] | CP User hot loop |
 | [[wiki/fw/concepts/Interaction-Buffer|Interaction-Buffer]] | HCQD 与 firmware 接口 |
 | [[wiki/fw/concepts/iDMA|iDMA]] | fast dispatch path |
-| [[wiki/fw/cp-user/CP stop flush 与 queue 切换|CP stop flush 与 queue 切换]] | stop/flush |
-| [[wiki/fw/flows/CP event atomic wait host handling|CP event atomic wait host handling]] | event/atomic/wait_host |
+| [[wiki/fw/cp-user/CP stop flush 与 queue 切换|CP stop flush 与 queue 切换]] | stop/flush（含调度优先级视角） |
 | [[wiki/fw/cli/agc_shell-cli-path|agc_shell CLI 输入输出路径]] | CLI 卡顿路径 |
 
 ## Folder Model

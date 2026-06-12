@@ -12,7 +12,7 @@ tags:
 status: active
 source:
   - "[[HCQD]]"
-  - "[[CP cmd_entry Candidate V7 调度设计]]"
+  - "[[cmd_entry]]"
 ---
 
 # HCQD 调度设计与版本演进

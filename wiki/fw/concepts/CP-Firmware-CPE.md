@@ -32,4 +32,4 @@ source:
 
 - [[cmd_entry]]
 - [[CP-Command-Packet]]
-- [[CP event atomic wait host handling]]
+- [[CP command processing flow]]

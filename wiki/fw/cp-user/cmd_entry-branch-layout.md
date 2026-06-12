@@ -15,7 +15,7 @@ tags:
 status: active
 source:
   - "[[wiki/fw/cp-user/cmd_entry|CP User — cmd_entry 调度器]]"
-  - "[[CP 分支预取与 cmd_entry 布局优化]]"
+  - "[[CP cmd_entry 热路径与分支布局优化]]"
 related:
   - "[[cmd_entry]]"
 last_verified: 2026-05-11
@@ -392,5 +392,4 @@ echo "OK: cmd_entry layout OK ($FORWARD_COUNT forward branches, $SIZE insns)"
 
 - [[cmd_entry]] — entity 定义
 - [[wiki/fw/cp-user/cmd_entry|CP User — cmd_entry 调度器]] — 当前实现
-- [[CP 分支预取与 cmd_entry 布局优化]] — 历史经验汇总
-- [[CP candidate peek 热路径优化]] — 同一热路径的另一项优化
+- [[CP cmd_entry 热路径与分支布局优化]] — candidate peek 热路径 + 分支预取/布局历史经验汇总

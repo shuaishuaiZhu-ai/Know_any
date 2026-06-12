@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="400" viewBox="0 0 1180 400" role="img" aria-labelledby="t d">
+  <title id="t">hook 工作协议</title>
+  <desc id="d">事件触发 hook 脚本，stdin 收 JSON，exit 0 放行，exit 2 阻止并把 stderr 反馈给 Claude。</desc>
+  <defs>
+    <style>
+      .qw{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .smw{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#b8c7d0}
+      .title{font:800 28px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .q{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .mono{font:700 13.5px ui-monospace,Menlo,Consolas,monospace;fill:#1d6fc0}
+      .monosm{font:600 12px ui-monospace,Menlo,Consolas,monospace;fill:#526672}
+      .box{fill:#ffffff;stroke:#d0d7de;stroke-width:1.3}
+      .core{fill:#102027}
+      .allow{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.6}
+      .deny{fill:#fdecec;stroke:#e08c8c;stroke-width:1.6}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+      .fb{stroke:#c06868;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-dasharray:7 6}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="arR" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c06868"/></marker>
+  </defs>
+  <rect width="1180" height="400" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="56" class="title">hook 不是配置，是可编程的关卡</text>
+  <text x="50" y="88" class="small">CLAUDE.md 是建议（模型可能忘），hook 是法律（必定执行）。</text>
+
+  <!-- event -->
+  <rect x="50" y="140" width="220" height="100" rx="15" class="core"/>
+  <text x="160" y="172" text-anchor="middle" class="qw">事件发生</text>
+  <text x="160" y="196" text-anchor="middle" class="smw">如 PreToolUse：</text>
+  <text x="160" y="216" text-anchor="middle" class="smw">Claude 想 Edit .env</text>
+  <path d="M274 190 H332" class="line" marker-end="url(#ar)"/>
+  <text x="296" y="176" text-anchor="middle" class="small">matcher 匹配</text>
+
+  <!-- hook script -->
+  <rect x="340" y="128" width="300" height="124" rx="15" class="box"/>
+  <text x="490" y="158" text-anchor="middle" class="q">你的 hook 脚本</text>
+  <text x="360" y="186" class="monosm">stdin ← JSON：</text>
+  <text x="360" y="206" class="monosm">{ session_id, tool_name,</text>
+  <text x="360" y="226" class="monosm">  tool_input: { file_path … } }</text>
+  <text x="490" y="246" text-anchor="middle" class="small">自由判断：路径黑名单 / 跑 lint / 发通知</text>
+
+  <!-- exit 0 -->
+  <path d="M644 162 H716" class="line" marker-end="url(#ar)"/>
+  <rect x="724" y="134" width="200" height="56" rx="14" class="allow"/>
+  <text x="824" y="160" text-anchor="middle" class="mono">exit 0</text>
+  <text x="824" y="180" text-anchor="middle" class="small">放行，操作照常执行</text>
+
+  <!-- exit 2 -->
+  <path d="M644 218 H716" class="line" marker-end="url(#ar)"/>
+  <rect x="724" y="190" width="200" height="56" rx="14" class="deny"/>
+  <text x="824" y="216" text-anchor="middle" class="mono">exit 2</text>
+  <text x="824" y="236" text-anchor="middle" class="small">阻止该操作</text>
+
+  <!-- stderr feedback -->
+  <path d="M924 232 C 1010 248, 1010 320, 560 320 C 350 320, 240 300, 200 248" class="fb" marker-end="url(#arR)"/>
+  <text x="600" y="344" text-anchor="middle" class="q" fill="#c06868">stderr 的内容反馈给 Claude —— 它会读到原因并调整行为</text>
+
+  <!-- advanced -->
+  <rect x="960" y="140" width="180" height="106" rx="15" class="box"/>
+  <text x="1050" y="168" text-anchor="middle" class="q">高级：stdout JSON</text>
+  <text x="1050" y="192" text-anchor="middle" class="small">permissionDecision:</text>
+  <text x="1050" y="210" text-anchor="middle" class="small">allow / deny / ask</text>
+  <text x="1050" y="228" text-anchor="middle" class="small">additionalContext 注入</text>
+</svg>

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="420" viewBox="0 0 1180 420" role="img" aria-labelledby="t d">
+  <title id="t">权限决策链</title>
+  <desc id="d">一次工具调用依次过 deny、PreToolUse hook、ask、allow，都未命中则按当前权限模式处理。</desc>
+  <defs>
+    <style>
+      .qw{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .smw{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#b8c7d0}
+      .title{font:800 28px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .q{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .mono{font:700 13px ui-monospace,Menlo,Consolas,monospace;fill:#1d6fc0}
+      .diamond{fill:#fff8e6;stroke:#edc870;stroke-width:1.6}
+      .deny{fill:#fdecec;stroke:#e08c8c;stroke-width:1.6}
+      .allow{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.6}
+      .askbox{fill:#eef3fb;stroke:#9ab4d8;stroke-width:1.6}
+      .start{fill:#102027}
+      .endbox{fill:#ffffff;stroke:#d0d7de;stroke-width:1.3}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+      .yes{font:700 12px ui-sans-serif,sans-serif;fill:#2f9e57}
+      .no{font:700 12px ui-sans-serif,sans-serif;fill:#a06060}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="420" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="56" class="title">一次工具调用的权限决策链</text>
+  <text x="50" y="88" class="small">铁律：deny &gt; allow；hook 是规则之外最后一道程序化关卡。</text>
+
+  <!-- start -->
+  <rect x="40" y="146" width="148" height="64" rx="15" class="start"/>
+  <text x="114" y="174" text-anchor="middle" class="qw">Claude 想用工具</text>
+  <text x="114" y="194" text-anchor="middle" class="smw">Edit / Bash / …</text>
+  <path d="M192 178 H222" class="line" marker-end="url(#ar)"/>
+
+  <!-- deny -->
+  <polygon points="230,178 306,140 382,178 306,216" class="diamond"/>
+  <text x="306" y="174" text-anchor="middle" class="q">deny 规则</text>
+  <text x="306" y="192" text-anchor="middle" class="q">命中?</text>
+  <path d="M306 216 V256" class="line" marker-end="url(#ar)"/><text x="318" y="240" class="yes">是</text>
+  <rect x="226" y="258" width="160" height="56" rx="14" class="deny"/>
+  <text x="306" y="284" text-anchor="middle" class="q">直接拒绝</text>
+  <text x="306" y="304" text-anchor="middle" class="small">任何模式都拦不住</text>
+  <path d="M382 178 H412" class="line" marker-end="url(#ar)"/><text x="394" y="166" class="no">否</text>
+
+  <!-- hook -->
+  <polygon points="420,178 502,136 584,178 502,220" class="diamond"/>
+  <text x="502" y="170" text-anchor="middle" class="q">PreToolUse</text>
+  <text x="502" y="188" text-anchor="middle" class="q">hook 拦截?</text>
+  <path d="M502 220 V256" class="line" marker-end="url(#ar)"/><text x="514" y="242" class="yes">是</text>
+  <rect x="422" y="258" width="160" height="56" rx="14" class="askbox"/>
+  <text x="502" y="284" text-anchor="middle" class="q">按 hook 裁决</text>
+  <text x="502" y="304" text-anchor="middle" class="small">exit 2 = 阻止</text>
+  <path d="M584 178 H614" class="line" marker-end="url(#ar)"/><text x="596" y="166" class="no">否</text>
+
+  <!-- ask -->
+  <polygon points="622,178 698,140 774,178 698,216" class="diamond"/>
+  <text x="698" y="174" text-anchor="middle" class="q">ask 规则</text>
+  <text x="698" y="192" text-anchor="middle" class="q">命中?</text>
+  <path d="M698 216 V256" class="line" marker-end="url(#ar)"/><text x="710" y="240" class="yes">是</text>
+  <rect x="618" y="258" width="160" height="56" rx="14" class="askbox"/>
+  <text x="698" y="284" text-anchor="middle" class="q">必弹确认</text>
+  <text x="698" y="304" text-anchor="middle" class="small">允许但要看一眼</text>
+  <path d="M774 178 H804" class="line" marker-end="url(#ar)"/><text x="786" y="166" class="no">否</text>
+
+  <!-- allow -->
+  <polygon points="812,178 888,140 964,178 888,216" class="diamond"/>
+  <text x="888" y="174" text-anchor="middle" class="q">allow 规则</text>
+  <text x="888" y="192" text-anchor="middle" class="q">命中?</text>
+  <path d="M888 216 V256" class="line" marker-end="url(#ar)"/><text x="900" y="240" class="yes">是</text>
+  <rect x="808" y="258" width="160" height="56" rx="14" class="allow"/>
+  <text x="888" y="284" text-anchor="middle" class="q">直接放行</text>
+  <text x="888" y="304" text-anchor="middle" class="small">不再打扰你</text>
+  <path d="M964 178 H996" class="line" marker-end="url(#ar)"/><text x="976" y="166" class="no">否</text>
+
+  <!-- mode -->
+  <rect x="1004" y="142" width="136" height="120" rx="15" class="endbox"/>
+  <text x="1072" y="170" text-anchor="middle" class="q">按权限模式</text>
+  <text x="1072" y="190" text-anchor="middle" class="q">处理</text>
+  <text x="1072" y="214" text-anchor="middle" class="small">default 问你</text>
+  <text x="1072" y="232" text-anchor="middle" class="small">acceptEdits 批编辑</text>
+  <text x="1072" y="250" text-anchor="middle" class="small">plan 拒绝写操作</text>
+
+  <text x="50" y="378" class="mono">"permissions": { "allow": [...], "ask": [...], "deny": [...] }</text>
+  <text x="640" y="378" class="small">deny 里写 Read(./.env)、Read(./secrets/**) 保护敏感文件，比口头叮嘱可靠。</text>
+</svg>

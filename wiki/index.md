@@ -2,7 +2,7 @@
 type: meta
 title: "Wiki 总索引"
 created: 2026-05-09
-updated: 2026-06-08
+updated: 2026-06-12
 tags:
   - meta
   - index
@@ -13,13 +13,28 @@ status: active
 
 这是当前知识库的唯一总入口。不要从文件夹树随机翻文件，先从这里进入，再进入对应专区索引。
 
+## 当前结构
+
+```text
+wiki/
+├── index.md          # 唯一总索引（本页）
+├── hot.md            # 近期上下文
+├── log.md            # 维护日志
+├── fw/               # FW 技术知识库
+├── synthesis/        # 跨源综合、面试、工作笔记
+├── sources/          # 原始/镜像材料索引和证据（查证层，非首读）
+├── tools/            # 工具链知识
+├── canvases/         # Obsidian canvas
+└── meta/             # 维护规则和审计
+```
+
 ## 入口优先级
 
 1. [FW 技术知识库](<./fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。
 2. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
 3. [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>)：工作笔记主线。
 4. [本地 Markdown 知识图谱](<./synthesis/C-home-shuaishuai-zhu Markdown 知识图谱.md>)：历史本地材料总览。
-5. [工具链知识库](<./tools/index.md>)：image_tool、claude-code-proxy、Codex Skills、AI 协作、登录环境等工具经验。
+5. [工具链知识库](<./tools/index.md>)：image_tool、claude-code-proxy、Codex Skills、钉钉到飞书迁移、AI 协作、登录环境等工具经验。
 6. [MAS 文档知识库](<./mas/index.md>)：RguCore/RGU 设计文档、GCtrl 两级调度学习、模块关系、控制流与调试问答。
 7. [Source 索引](<./sources/本地 Markdown 文件索引.md>)：查证原始材料时使用。
 
@@ -46,9 +61,8 @@ status: active
 |---|---|---|
 | 语雀工作笔记 | [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>) | 工作经历、问题链路、复盘材料。 |
 | 面试材料 | [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>) | 面试讲述用的项目总结。 |
-| AI 协作经验 | [AI 协作远程编辑经验](<./synthesis/AI 协作远程编辑经验.md>) | SSH、远程编辑、协作注意事项。 |
-| 登录与环境 | [工具与登录环境经验](<./synthesis/工具与登录环境经验.md>) | 浏览器、飞书、SSH PATH 等经验。 |
-| 工具链 | [tools](<./tools/index.md>) | image_tool、Codex Skills、AI 协作等工具说明。 |
+| AI 协作经验 | [AI 协作远程编辑经验](<./synthesis/AI 协作远程编辑经验.md>) | SSH、远程编辑、协作注意事项，含浏览器/飞书/SSH PATH 登录环境经验。 |
+| 工具链 | [tools](<./tools/index.md>) | image_tool、Codex Skills、钉钉到飞书迁移、AI 协作等工具说明。 |
 | MAS 文档 | [MAS 文档知识库](<./mas/index.md>) | RGU/RguCore 设计文档、模块关系、调度、SHM、UCore。 |
 
 ## 证据层

@@ -31,6 +31,6 @@ source:
 
 ## 延伸
 
-- [[CP event atomic wait host handling]]
+- [[CP command processing flow]]
 - [[CP-Command-Packet]]
 - [[cmd_entry]]

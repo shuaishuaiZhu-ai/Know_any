@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="430" viewBox="0 0 1180 430" role="img" aria-labelledby="t d">
+  <title id="t">会话生命周期</title>
+  <desc id="d">会话由检查点串成；claude -c 续写，--fork-session 分叉平行分支，/rewind 回滚到历史检查点。</desc>
+  <defs>
+    <style>
+      .qw{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .smw{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#b8c7d0}
+      .title{font:800 28px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .q{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .mono{font:700 14px ui-monospace,Menlo,Consolas,monospace;fill:#1d6fc0}
+      .node{fill:#ffffff;stroke:#d0d7de;stroke-width:1.3}
+      .nodefork{fill:#fff8e6;stroke:#edc870;stroke-width:1.6}
+      .act{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.6}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+      .rew{stroke:#c06868;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-dasharray:7 6}
+      .fork{stroke:#d9a83c;stroke-width:2.4;fill:none;stroke-linecap:round}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="arR" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c06868"/></marker>
+    <marker id="arF" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d9a83c"/></marker>
+  </defs>
+  <rect width="1180" height="430" rx="28" fill="#f6f8fa"/>
+  <text x="50" y="56" class="title">会话生命周期：续写、分叉、回滚</text>
+
+  <!-- main session chain -->
+  <text x="50" y="150" class="q">会话 A</text>
+  <rect x="130" y="120" width="170" height="56" rx="14" class="node"/>
+  <text x="215" y="146" text-anchor="middle" class="q">消息 1</text>
+  <text x="215" y="166" text-anchor="middle" class="small">checkpoint ①</text>
+  <path d="M304 148 H352" class="line" marker-end="url(#ar)"/>
+  <rect x="360" y="120" width="170" height="56" rx="14" class="node"/>
+  <text x="445" y="146" text-anchor="middle" class="q">消息 2</text>
+  <text x="445" y="166" text-anchor="middle" class="small">checkpoint ②</text>
+  <path d="M534 148 H582" class="line" marker-end="url(#ar)"/>
+  <rect x="590" y="120" width="170" height="56" rx="14" class="node"/>
+  <text x="675" y="146" text-anchor="middle" class="q">消息 3</text>
+  <text x="675" y="166" text-anchor="middle" class="small">checkpoint ③</text>
+
+  <!-- continue -->
+  <path d="M764 148 H830" class="line" marker-end="url(#ar)"/>
+  <rect x="838" y="120" width="290" height="56" rx="14" class="act"/>
+  <text x="983" y="146" text-anchor="middle" class="mono">claude -c / claude -r</text>
+  <text x="983" y="166" text-anchor="middle" class="small">接着写（无头模式也能续：-c -p "..."）</text>
+
+  <!-- rewind back arrow -->
+  <path d="M660 120 C 600 78, 290 78, 228 116" class="rew" marker-end="url(#arR)"/>
+  <text x="445" y="68" text-anchor="middle" class="q" fill="#c06868">/rewind 或 Esc Esc：回滚代码 / 对话到检查点 ①</text>
+
+  <!-- fork branch -->
+  <path d="M445 176 C 445 230, 500 256, 562 268" class="fork" marker-end="url(#arF)"/>
+  <text x="404" y="246" text-anchor="end" class="mono">claude -r "&lt;id&gt;" --fork-session</text>
+  <text x="404" y="266" text-anchor="end" class="small">保留 A，从 ② 开平行分支试另一条路</text>
+
+  <text x="50" y="306" class="q">会话 A′</text>
+  <rect x="572" y="248" width="170" height="56" rx="14" class="nodefork"/>
+  <text x="657" y="274" text-anchor="middle" class="q">方案 B 消息 3′</text>
+  <text x="657" y="294" text-anchor="middle" class="small">独立的新会话</text>
+  <path d="M746 276 H794" class="line" marker-end="url(#ar)"/>
+  <rect x="802" y="248" width="170" height="56" rx="14" class="nodefork"/>
+  <text x="887" y="274" text-anchor="middle" class="q">方案 B 消息 4′</text>
+  <text x="887" y="294" text-anchor="middle" class="small">A 的上下文不丢</text>
+
+  <text x="50" y="368" class="small">每次改动前自动打检查点（checkpoint），会话持久化在 ~/.claude/projects/。</text>
+  <text x="50" y="392" class="small">注意：checkpoint 只跟踪 Claude 的文件编辑；bash 副作用（rm、数据库写入）不在回滚范围 —— 重要节点照常 git commit。</text>
+</svg>

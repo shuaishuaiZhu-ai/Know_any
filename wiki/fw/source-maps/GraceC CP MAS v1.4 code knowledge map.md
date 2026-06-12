@@ -56,5 +56,4 @@ MAS 描述的是 CP 的硬件/固件协同协议：[[HCQD]] 负责 fetch command
 - [[GraceC-CP]]
 - [[CP command processing flow]]
 - [[CP stop flush 与 queue 切换]]
-- [[CP event atomic wait host handling]]
 - [[cmd_entry]]

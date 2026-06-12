@@ -11,9 +11,7 @@ status: active
 
 这里放端到端流程和跨模块链路。
 
-- [CP command processing flow](<./CP command processing flow.md>)
-- [CP event atomic wait host handling](<./CP event atomic wait host handling.md>)
-- [CP 多队列多上下文与 HCQD MCQD](<./CP 多队列多上下文与 HCQD MCQD.md>)
+- [CP command processing flow](<./CP command processing flow.md>)：Host→FW 命令主链路，含 event/atomic/wait_host packet 特殊处理、多队列/多上下文 HCQD-MCQD bring-up（已合并原三页）。
 
 ## 相关入口
 

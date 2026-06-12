@@ -24,7 +24,7 @@ status: active
 
 ## 与现有图谱关系
 
-- [[CP event atomic wait host handling]]：无超时等待和 wait_host 风险。
+- [[CP command processing flow]]：无超时等待和 wait_host 风险。
 - [[CP stop flush 与 queue 切换]]：stop/flush ISR 与竞态。
 - [[CP ringbuffer IPC 与 queue create 调试]]：IPC/ringbuffer 越界和可见性问题。
 

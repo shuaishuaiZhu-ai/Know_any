@@ -94,10 +94,46 @@ stop/flush 的难点不在于"多处理两个中断"，而在于它们会打断 
 - atomic `cmp_swap` 相关的 `stopped_on_loop` / `ato_osd_dec` 行为在 `sf.c` 中是重点风险，需要和 MAS 的 queue stop 语义保持一致。
 - `stop_bitmask` 的 set/clear 仍是直接 RMW（`stop_bitmask |= hcqd_bitmap; stop_bitmask &= ~BIT(hcqd_id);`）。如果 stop ISR 和 `sf_handle_stop/flush()` 的 clear 窗口重叠，理论上有 stale write 覆盖新 bit 的风险。后续修代码时应优先封装 stop bit set/clear，并用同一类临界区保护。
 
+## 调度优先级视角（queue scheduling）
+
+> 本节由原 `CP queue scheduling stop flush` 专题页合并而来：从调度器角度解释 stop/flush 为何这样排序，以及它们如何影响 `active` bitmap、`pending_mask`、candidate cache。
+
+核心问题不是"有没有 stop/flush 处理函数"，而是 stop/flush 能否在多 HCQD、多 context、candidate 缓存、pending 状态同时存在时，仍保持正确的优先级和隔离性。
+
+![CP queue scheduling stop flush 图解](../../../_attachments/fw/cp-user/CP queue scheduling stop flush/whiteboard-mermaid/01-CP-queue-scheduling-stop-flush-flowchart.png)
+
+stop/flush 是"改变 queue 有效性"的控制事件，不是普通 packet。旧逻辑若把它们与普通 dispatch 混在一起，会有三个问题：stop 可能要依赖 candidate 才被看见（但 stop 应能主动唤醒对应 HCQD）；flush 是 context 事件，单一全局 flush 信息会被连续 flush 互相覆盖；flush 后全量清 `cmd_status` 会误伤其他未被 flush 的 HCQD。
+
+### 四类维度的调度含义
+
+| 场景 | 维度 | 对 queue 的含义 | `cmd_entry()` 动作 |
+|---|---|---|---|
+| 普通 candidate | HCQD | 该 HCQD 有新 packet | peek 后按 packet 类型处理 |
+| pending | HCQD | packet 已 peek，但依赖未满足 | 不重复 peek，继续推进状态机 |
+| stop | HCQD | 单个 HCQD 需打断/drop | 进入 `active`，优先于 pending/candidate |
+| flush | context | 一个 context 下相关 HCQD 都要失效 | 先按 context drain，再精确清 HCQD bit |
+
+![调度优先级图解](../../../_attachments/fw/cp-user/CP queue scheduling stop flush/whiteboard-mermaid/02-调度优先级-flowchart.png)
+
+### 为什么 flush 不放进 active
+
+![为什么 flush 不放进 active 图解](../../../_attachments/fw/cp-user/CP queue scheduling stop flush/whiteboard-mermaid/03-为什么-flush-不放进-active-flowchart.png)
+
+`active` 只包含 HCQD bit。flush 是 context space 的控制面事件，必须先转成 `flush_hcqd_bitmap[cxt_id]`，才能清 HCQD 状态；stop 是 HCQD space 事件，可直接进入 `active`；pending 代表"同一 HCQD 的当前 packet 还没完成"，不代表 queue 里有新 packet。
+
+### 复习检查点
+
+- 能解释 `active` 为什么只包含 HCQD bit。
+- 能解释 stop 为什么即使没有 candidate 也要被调度。
+- 能解释 flush 为什么在 Phase 2 内优先，并一次 drain 多个 context。
+- 能解释 `pending_mask` 如何避免 event/wait_host 重复 peek。
+
+> 图解源文件均在 `_attachments/fw/cp-user/CP queue scheduling stop flush/whiteboard-mermaid/`（lark-whiteboard 从 Mermaid 渲染）。
+
 ## 关联
 
-- [[CP cmd_entry Candidate V7 调度设计]]
-- [[CP candidate peek 热路径优化]]
+- [[cmd_entry]]（含 Candidate V7 调度设计与分支布局）
+- [[CP cmd_entry 热路径与分支布局优化]]
 - [[CP command processing flow]]
 - [[Interaction-Buffer]]
 - [[HCQD]]

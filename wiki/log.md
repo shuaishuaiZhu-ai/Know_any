@@ -2,13 +2,49 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-08
+updated: 2026-06-12
 tags:
   - meta
   - log
 status: active
 ---
 
+## [2026-06-12] reorg | wiki 激进档：flows 三合一 + 命名规范固化
+
+- **fw/flows 三页合一**：`CP event atomic wait host handling`（event/atomic/wait_host 处理）+ `CP 多队列多上下文与 HCQD MCQD`（多 context bring-up）并入 canonical 页 `CP command processing flow.md`，删除前两页。全量修复反链（concepts ×4、cp-master/cp-user/flows index、debug ×2、source-maps、dashboard、synthesis ×2），并 dedup 相邻重复 wikilink。
+- **未强合 cmd_entry-branch-layout**：该页是 12k 实测/反汇编深度页（6 变体 + CI 脚本），与 `cmd_entry` 总览职责不同，强合并会降质——保持独立，仅收紧交叉链接。concepts 原子词条同理保持不合并。
+- **命名规范固化**：在 [Wiki 维护规则](<./meta/wiki-maintenance-rules.md>) 写入三层命名约定（代码符号页 / 概念词条 / 主题页）与"概念词条保持原子、近义页优先合并、含空格文件名 md-link 用 `<>` 包裹"等规则。判断：对 Obsidian vault 做大规模改名会断 `[[wikilink]]` 图谱、属降质 churn，故以规范文档统一而非改名。
+- 修正一次脚本事故：Windows `os.walk` 路径分隔符导致误改 3 个 `sources/` 文件，已 `git checkout` 回退，并把该坑写进删除规则。
+- 本档净删除 2 文件（累计本日两档：删 8 增 1，174 → 167）。
+
+## [2026-06-12] reorg | wiki 中等力度整理：合并冗余页 + 优化排布
+
+- **fw/cp-user stop/flush**：`CP queue scheduling stop flush.md` 的"调度优先级视角"+3 张图并入 `CP stop flush 与 queue 切换.md`，删除前者。
+- **fw/cp-user cmd_entry**：`CP cmd_entry Candidate V7 调度设计.md`（桩页）的设计要点 + `.raw` 来源清单并入 `cmd_entry.md`，删除桩页。
+- **fw/performance**：`CP candidate peek 热路径优化.md` + `CP 分支预取与 cmd_entry 布局优化.md` 两碎页合并为新页 `CP cmd_entry 热路径与分支布局优化.md`，删除原两页。
+- **synthesis**：`工具与登录环境经验.md`（来源是 `AI 协作远程编辑经验.md` 的子集）并入后者的"工具与登录环境经验"小节，删除前者。
+- **顶层**：`overview.md` 的结构树并入 `index.md`（新增"当前结构"节），删除 `overview.md`。
+- 共删除 6 个文件、新增 1 个。已同步更新 [CP User 索引](<./fw/cp-user/index.md>)、[FW 性能索引](<./fw/performance/index.md>)、[Wiki 总索引](<./index.md>) 的"非 FW 内容"表，并全量修复阅读层反向链接（hcqd-scheduling、cmd_entry-branch-layout、两份 synthesis 知识图谱、面试总结、tools/index）。`sources/local-md` 原始镜像与 dated audit/log 历史快照未改动。
+
+## [2026-06-12] add | 新增钉钉到飞书迁移脚本与 Skills 调用手册
+
+- 新增 [钉钉到飞书迁移脚本与 Skills 调用手册](<./tools/dingtalk-feishu-migration-workflow.md>)：沉淀 DWS + lark-cli 迁移工作流、脚本地图、权限脚本、附件卡片原位恢复、流程图/图片修复、审计验收和 Claude 调用注意事项。
+- 记录 Feishu profile/App ID `cli_aa9d4e8d9eb91cc4`、固件组群聊 ID `oc_4f95921bd0d4d21abac09c0090b21ce9`、关键 skill 路径和常用命令模板；App Secret 只记录为从 profile/环境变量 `FEISHU_APP_SECRET` 读取，未明文写入 wiki。
+- 同步更新 [工具链知识库](<./tools/index.md>)、[Wiki 总索引](<./index.md>) 和 [Hot Cache](<./hot.md>)。
+
+## [2026-06-12] add+merge | CP USART/Clock IMC 统一初始化设计评审文档（合并旧逐函数页）
+
+- 新增并合并为单一文档 [CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计评审 + 实现详解](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)：基于 `zss/MoveUsart` 当前未提交 diff（HEAD 944c37c），面向 review 人员。
+- Part A 设计评审：USART 三层拆分（`hw_config`/`hw_init_only`/`register`/`init`）+ IMC 统一初始化 USART1..5 + core clock 按 `FW_IMC` 编译期分流（IMC 读 boot_info，CP 推导 600M/REF_2）+ `FW_BACKDOOR` guard 移除；含权衡、兼容性、5 项风险（R1-R5）、测试与 checklist。（`test/SConscript` 注释为本地调试、不合入，排除在评审范围外。）
+- Part B 实现详解：由原 `cp-usart-imc-unified-init.md` 合并而来，含地址映射、逐函数职责、启动串联、调试顺序与 SVG/PNG 图解。
+- **删除** 旧页 `cp-usart-imc-unified-init.md`（内容已并入本文档；`_attachments/fw/cli/cp-usart-imc-unified-init/` 图解目录保留）。同步更新 [CLI 索引](<./fw/cli/index.md>)、[Hot Cache](<./hot.md>) 及旧链接。
+
+## [2026-06-12] add | 新增 Claude Code CLI 进阶教程（发布版）
+
+- 新增 [Claude Code CLI 进阶教程](<./tools/Claude Code CLI 进阶教程.md>)：与基础版同系列的发布版长文（无 frontmatter / wikilink，面向知乎与博客）。
+- 覆盖：无头模式与 CLI 参数全解（`-p`、output-format、allowedTools）、会话管理（`-c`/`-r`/fork/`/rewind` checkpoint）、交互隐藏技巧（`!` bash 模式、Ctrl+B 后台、贴图）、权限决策链与规则语法全解、settings/环境变量、自定义命令进阶（`!` 预执行、`$1`、allowed-tools）、Skill/Subagent/Hook 编写（含 PreToolUse 拦截脚本与自动格式化实例）、MCP 作用域与 plugin 打包、git worktree 并行多开、CI/cron 集成、Agent SDK、`/context`/`/cost`/OTEL 观测、进阶排错表。
+- 同步更新 [工具链知识库](<./tools/index.md>) 与 [Hot Cache](<./hot.md>)。
+- 为进阶教程手绘 5 张 SVG 图解（沿用基础版视觉风格），存于 `_attachments/tools/claude-code/`：`headless-pipeline.svg`（无头模式管道）、`session-lifecycle.svg`（续/分叉/回滚）、`permission-decision.svg`（权限决策链，替换原 ASCII 图）、`hooks-protocol.svg`（hook stdin JSON + exit 0/2 协议）、`worktree-parallel.svg`（worktree 并行多开）。已安装 `@resvg/resvg-js-cli`（npm 全局，命令 `resvg-js`）批量渲染 PNG 并逐张视觉校对；修复 resvg 下 CSS class fill 覆盖 `fill="#ffffff"` 属性导致深色框白字不可见的问题（新增 `.qw`/`.smw` 白字类），并微调 session-lifecycle 回滚标签与 worktree/hooks 两处文字遮挡。5 张 PNG 已就绪，可直接上传知乎/博客。
 ## [2026-06-11] improve | Claude Code 教程改造为发布版 + 修正全景图箭头 + 引入 karpathy CLAUDE.md
 
 - 把 [Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>) 改造为面向知乎/博客外部读者的**单一发布版**：删 frontmatter 与全部 `[[wikilink]]`、删 §18 维护说明，§17 仅留公开 URL；顶部新增**命令/键位速查表**。
@@ -71,7 +107,7 @@ status: active
 ## [2026-06-04] update | CP USART moved to IMC init wiki
 
 - Source: `shuaishuai.zhu@192.168.80.116:/home/shuaishuai.zhu/fw/` current source, branch `zss/MoveUsart`, HEAD `944c37c`, with USART migration diff in CP/IMC board files and `drv_usart.c`.
-- Added [CP USART 移到 IMC 统一初始化：代码修改和原因](<./fw/cli/cp-usart-imc-unified-init.md>) with detailed function roles, code modification explanation, address mapping, boot sequence, and debug checklist.
+- Added [CP USART 移到 IMC 统一初始化：代码修改和原因] (页面已于 2026-06-12 合并入 [设计评审 + 实现详解](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)) with detailed function roles, code modification explanation, address mapping, boot sequence, and debug checklist.
 - Added editable SVG plus PNG render assets for old/new ownership, driver API split, USART address view, and boot sequence under `_attachments/fw/cli/cp-usart-imc-unified-init/`.
 - Updated [Grace USART、RT-Thread console 与 agc_shell 完整链路](<./fw/cli/grace-usart-console-cli.md>), [CLI 索引](<./fw/cli/index.md>), [FW 技术知识库](<./fw/index.md>), [Wiki 总索引](<./index.md>), and [Hot Cache](<./hot.md>).
 
