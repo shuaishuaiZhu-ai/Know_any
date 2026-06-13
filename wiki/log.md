@@ -9,6 +9,16 @@ tags:
 status: active
 ---
 
+## [2026-06-13] add | 新增 tiny-kmd 架构知识库（+ ajthunk kmd 模块化抽取于远端代码仓）
+
+- **新增专区 `wiki/tiny-kmd/`**（8 页，扁平结构）：为最小骨架驱动 tiny-kmd（`/data3/shuaishuai.zhu/tiny_kmd`，
+  GitLab `fw/tiny_kmd.git` 分支 `dev`，~2600 行）建架构知识库。覆盖：probe 序列与 `aigc_device` 根结构、
+  **ringbuffer IPC（双镜像、64 位消息头、host↔IMC/CP_Master、同步/异步、订阅分发）**、设备/BAR/PCIe ATU/DMA、
+  misc 设备与 6 个 ioctl、MSI-X 中断，以及 [[tiny-kmd 对照 ajthunk 的缺口]]（缺页表/队列/调度/fence/HAL/OS 抽象 +
+  移植顺序）。全部含 mermaid + `文件:行` 引用。同步更新 [Wiki 总索引](<./index.md>)（结构树 + 入口优先级 + tiny-kmd 快速入口表）与 [Hot Cache](<./hot.md>)。
+- **配套（不在本 vault）**：在远端建 `~/aigc-kmd-modular/`——把 ajthunk kmd 按模块忠实抽取成源码树（mem/pagetable/
+  queue/sched/interrupt/ctx/ioctl/hal/os）+ 模块文档 + 移植指南 + tiny-kmd 重构指南；由用户用脚本推到 GitHub。
+
 ## [2026-06-13] add | 新增 KMD 内核驱动知识库 + kmd 代码评审与注释改进
 
 - **新增专区 `wiki/kmd/`**：为 AIGCIC Grace GPU 的 Linux 内核驱动 `aigc.ko` 建立完整知识库，镜像 `wiki/fw/` 风格、面向应届生。含 hub `index.md` + `env.md` + 10 个子目录（arch/concepts/ioctl/memory/queue/interrupt/os/hal/flows/review，每目录有 `index.md`），共约 30 页：三层架构与请求路径、5 个核心数据结构原子词条（[[aigc_lib_device]]/[[aigc_vdev]]/[[aigc_ctx]]/[[aigc_vm]]/[[mem_handle]]）、ioctl 两级派发与 ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、OS 抽象与 conftest、Grace HAL bring-up 状态、saxpy 端到端流程、代码评审。全部含 mermaid 图 + `[[wikilink]]` + `文件:行` 引用；不含测试套件。

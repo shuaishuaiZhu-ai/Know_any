@@ -22,6 +22,7 @@ wiki/
 ├── log.md            # 维护日志
 ├── fw/               # FW 技术知识库
 ├── kmd/              # KMD 内核驱动知识库
+├── tiny-kmd/         # tiny-kmd 最小驱动架构知识库
 ├── synthesis/        # 跨源综合、面试、工作笔记
 ├── sources/          # 原始/镜像材料索引和证据（查证层，非首读）
 ├── tools/            # 工具链知识
@@ -33,6 +34,7 @@ wiki/
 
 1. [FW 技术知识库](<./fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。
 1. [KMD 内核驱动知识库](<./kmd/index.md>)：`aigc.ko` 内核态驱动——ioctl/ABI、内存与页表、命令队列与调度、中断与 fence、Grace HAL。
+1. [tiny-kmd 架构知识库](<./tiny-kmd/index.md>)：最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），以及把 ajthunk 核心移植进来的缺口对照。
 2. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
 3. [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>)：工作笔记主线。
 4. [本地 Markdown 知识图谱](<./synthesis/C-home-shuaishuai-zhu Markdown 知识图谱.md>)：历史本地材料总览。
@@ -73,6 +75,19 @@ wiki/
 | 流程 | [端到端流程](<./kmd/flows/index.md>) | 从 `Thunk_*` 到硬件完成的 saxpy 全链路。 |
 | 评审 | [代码评审意见](<./kmd/review/index.md>) | kmd 代码评审记录与注释改进项。 |
 | 环境 | [服务器环境与构建](<./kmd/env.md>) | 远端源码路径、构建/加载命令。 |
+
+## tiny-kmd 快速入口
+
+| 分类 | 入口 | 适合解决的问题 |
+|---|---|---|
+| 总览 | [tiny-kmd 架构知识库](<./tiny-kmd/index.md>) | 不知道从哪开始看这个最小驱动；与 ajthunk 的关系。 |
+| 架构 | [架构总览](<./tiny-kmd/architecture.md>) | probe 序列、`aigc_device` 根结构、请求路径。 |
+| IPC | [IPC 消息环](<./tiny-kmd/ipc.md>) | ringbuffer 双镜像、消息头位域、host↔IMC/CP_Master、同步/异步、订阅。 |
+| 设备 | [设备与内存](<./tiny-kmd/device.md>) | BAR 映射、IMC 共享内存区、PCIe ATU、DMA 分配。 |
+| ioctl | [misc 设备与 ioctl](<./tiny-kmd/ioctl.md>) | 6 个 ioctl、file_ops、订阅机制。 |
+| 中断 | [中断](<./tiny-kmd/interrupt.md>) | MSI-X 分配、IPC 向量 108-111、enable/disable 桩。 |
+| 缺口 | [对照 ajthunk 的缺口](<./tiny-kmd/gap-vs-ajthunk.md>) | 缺页表/队列/调度/fence/HAL/OS 抽象；移植顺序与接入点。 |
+| 环境 | [环境与构建](<./tiny-kmd/env.md>) | 路径、GitLab 远程、make。 |
 
 ## 非 FW 内容
 

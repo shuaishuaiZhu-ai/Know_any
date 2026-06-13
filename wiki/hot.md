@@ -19,6 +19,7 @@ status: active
 
 
 - **KMD 内核驱动知识库（新增）**：[KMD 内核驱动知识库](<./kmd/index.md>)，`aigc.ko` 内核态驱动——三层架构、ioctl/ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、Grace HAL；面向应届生、含 mermaid 图与 `文件:行` 引用。配套 [代码评审意见](<./kmd/review/kmd-code-review.md>)。
+- **tiny-kmd 架构知识库（新增）**：[tiny-kmd 架构知识库](<./tiny-kmd/index.md>)，最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），含 [对照 ajthunk 的缺口](<./tiny-kmd/gap-vs-ajthunk.md>) 与移植顺序。配套远端代码仓 `aigc-kmd-modular`（ajthunk kmd 模块化抽取 + 移植/重构指南）。
 - CP USART/Clock IMC 统一初始化（`zss/MoveUsart`）：[CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计评审 + 实现详解](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)
 - Claude Code 教程（发布版，面向知乎/博客）：[Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)
 - Claude Code 进阶教程（发布版，面向知乎/博客）：[Claude Code CLI 进阶教程](<./tools/Claude Code CLI 进阶教程.md>)
