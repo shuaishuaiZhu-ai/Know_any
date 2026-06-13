@@ -107,11 +107,17 @@ source:
 | `aigc_drv.c:884/891/1332/1426` | 两处 firmware-ack 向量 `/*FIXME*/` 注明含义；两处 `workround for xilinx` 写清是哪个平台绕过。 |
 | `aigc_gcache.c:164/464` | `/*FIXME*/` 注明「slab 暂固定 NUMA node 0」；`/*TODO: fix it*/` 写清「gpuva 翻译未实现，暂返回新页」。 |
 
-**尚未落地（保留为建议）**：P1 中「`aigc_page_table.c` VM 强制清理三层循环的行内不变量注释」——该函数已有前置
-头注释，行内补充需在多处 `for` 循环精确锚定，为避免误改代码留待后续；P2 中给整段停用子系统的 `#if 0`
-批量补 `/* DISABLED: ... */` 同理可作为下一轮。
+**后续追加（P1/P2，第二轮 commit）**：
 
-（落地清单以远端 `git diff` 为准。）
+- **P1 已落地**：给 `aigc_page_table.c` 的 `_vm_pgt_cleanup()` 补了函数头 + 三层循环的行内不变量注释
+  （深度优先 root→PL0→PL1→PL2、先放子节点再清父槽、VM 销毁时无并发遍历故强制释放安全）。
+- **P2 已落地（34 处）**：给停用的 `#if 0` 批量补 `/* DISABLED: <原因> */`——`aigc_fops.c`×19（SDMA、chunk VA、
+  kernel-vdev 提交、signal-fence/trap、超额分配/对齐检查等）、`aigc_page_table.c`×9（遗留 PTL1 映射、peer-minor
+  stamping 等）、`aigc_devm.c`×6（遗留 mem-layout 方案，已被 NUMA 池取代）。
+- **仍可继续**：其余文件的 `#if 0`（如 `aigc.c`×13、`os_interface.c`×6、`aigc_lib_sysfs.c`×6、`aigc_ctx.c`×5 等）
+  尚未逐一标注；这些多为平台/历史变体，可在下一轮按同样方式补充。
+
+> 三轮注释改动均**仅注释、不改代码**，每轮 `make FALLBACK_ENABLE=y -j` 通过（exit 0），落地清单以远端 `git diff` 为准。
 
 ## 延伸
 
