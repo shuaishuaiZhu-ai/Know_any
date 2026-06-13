@@ -2,7 +2,7 @@
 type: meta
 title: "Hot Cache"
 created: 2026-05-09
-updated: 2026-06-12
+updated: 2026-06-13
 tags:
   - meta
   - hot-cache
@@ -18,6 +18,7 @@ status: active
 ## 当前主入口
 
 
+- **KMD 内核驱动知识库（新增）**：[KMD 内核驱动知识库](<./kmd/index.md>)，`aigc.ko` 内核态驱动——三层架构、ioctl/ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、Grace HAL；面向应届生、含 mermaid 图与 `文件:行` 引用。配套 [代码评审意见](<./kmd/review/kmd-code-review.md>)。
 - CP USART/Clock IMC 统一初始化（`zss/MoveUsart`）：[CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计评审 + 实现详解](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)
 - Claude Code 教程（发布版，面向知乎/博客）：[Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)
 - Claude Code 进阶教程（发布版，面向知乎/博客）：[Claude Code CLI 进阶教程](<./tools/Claude Code CLI 进阶教程.md>)

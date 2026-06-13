@@ -21,6 +21,7 @@ wiki/
 ├── hot.md            # 近期上下文
 ├── log.md            # 维护日志
 ├── fw/               # FW 技术知识库
+├── kmd/              # KMD 内核驱动知识库
 ├── synthesis/        # 跨源综合、面试、工作笔记
 ├── sources/          # 原始/镜像材料索引和证据（查证层，非首读）
 ├── tools/            # 工具链知识
@@ -31,6 +32,7 @@ wiki/
 ## 入口优先级
 
 1. [FW 技术知识库](<./fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。
+1. [KMD 内核驱动知识库](<./kmd/index.md>)：`aigc.ko` 内核态驱动——ioctl/ABI、内存与页表、命令队列与调度、中断与 fence、Grace HAL。
 2. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
 3. [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>)：工作笔记主线。
 4. [本地 Markdown 知识图谱](<./synthesis/C-home-shuaishuai-zhu Markdown 知识图谱.md>)：历史本地材料总览。
@@ -54,6 +56,23 @@ wiki/
 | 互联 | [FW Interconnect 索引](<./fw/interconnect/index.md>) | C2C、AXI5、OISA、PCIe/HWJ 对比、topo discovery、AMT route、[portmap 路由表](<./fw/interconnect/portmap-routing-table.md>)、[近端/远端环回](<./fw/interconnect/c2c-loopback-near-far.md>)、loopback/RAS。 |
 | 调试 | [FW 调试索引](<./fw/debug/index.md>) | PCIe bring-up、ringbuffer IPC/CLI 地址转换图解、SDMA、aigc_sdk 扫描。 |
 | 来源映射 | [FW 来源映射](<./fw/source-maps/index.md>) | MAS 文档与代码知识图谱、源材料对应关系。 |
+
+## KMD 快速入口
+
+| 分类 | 入口 | 适合解决的问题 |
+|---|---|---|
+| 总览 | [KMD 内核驱动知识库](<./kmd/index.md>) | 不知道从哪里开始看 `aigc.ko` 内核驱动。 |
+| 架构 | [架构总览](<./kmd/arch/index.md>) | 三层架构、一次 ioctl 的端到端路径、OS 抽象规则。 |
+| 数据结构 | [核心数据结构](<./kmd/concepts/index.md>) | aigc_lib_device/vdev/ctx/vm/mem_handle 的职责与所有权树。 |
+| ioctl | [ioctl 接口与 ABI](<./kmd/ioctl/index.md>) | `AIP_*` 操作集、两级派发、ABI 稳定性。 |
+| 内存 | [内存与页表](<./kmd/memory/index.md>) | 堆/NUMA/UMA/DSMEM、mem_handle 生命周期、4 级页表、TLB 失效。 |
+| 队列调度 | [命令队列与调度](<./kmd/queue/index.md>) | MCQD/HQD、CP ring/doorbell、调度 kthread。 |
+| 中断 | [中断与 Fence](<./kmd/interrupt/index.md>) | MSI-X 向量、上/下半部、事件环、fence 完成模型。 |
+| OS 抽象 | [OS 抽象层](<./kmd/os/index.md>) | os_interface 缝隙 + NVIDIA 式 conftest。 |
+| HAL | [Grace HAL](<./kmd/hal/index.md>) | CP/arch/IMC/L2C/TCU/互联 bring-up 状态、寄存器映射。 |
+| 流程 | [端到端流程](<./kmd/flows/index.md>) | 从 `Thunk_*` 到硬件完成的 saxpy 全链路。 |
+| 评审 | [代码评审意见](<./kmd/review/index.md>) | kmd 代码评审记录与注释改进项。 |
+| 环境 | [服务器环境与构建](<./kmd/env.md>) | 远端源码路径、构建/加载命令。 |
 
 ## 非 FW 内容
 

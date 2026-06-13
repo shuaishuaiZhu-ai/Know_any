@@ -2,12 +2,18 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-12
+updated: 2026-06-13
 tags:
   - meta
   - log
 status: active
 ---
+
+## [2026-06-13] add | 新增 KMD 内核驱动知识库 + kmd 代码评审与注释改进
+
+- **新增专区 `wiki/kmd/`**：为 AIGCIC Grace GPU 的 Linux 内核驱动 `aigc.ko` 建立完整知识库，镜像 `wiki/fw/` 风格、面向应届生。含 hub `index.md` + `env.md` + 10 个子目录（arch/concepts/ioctl/memory/queue/interrupt/os/hal/flows/review，每目录有 `index.md`），共约 30 页：三层架构与请求路径、5 个核心数据结构原子词条（[[aigc_lib_device]]/[[aigc_vdev]]/[[aigc_ctx]]/[[aigc_vm]]/[[mem_handle]]）、ioctl 两级派发与 ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、OS 抽象与 conftest、Grace HAL bring-up 状态、saxpy 端到端流程、代码评审。全部含 mermaid 图 + `[[wikilink]]` + `文件:行` 引用；不含测试套件。
+- **kmd 代码评审 + 注释改进**（远端 `~/ajthunk/kmd`，分支 `docs/kmd-commenting`）：产出 [[kmd-code-review]]；据评审在 5 个核心 .c 做 7 处**仅注释**修改（中文逗号→英文、删与新注释重复的旧式单行注释、笼统 `TODO`/`FIXME` 补说明、`fill_mcqd_info` 字段说明、HAL 多后端 TODO 澄清）。改完远端 `make FALLBACK_ENABLE=y -j` 通过、`git diff` 仅注释、`grep` 无残留中文字符。
+- 已同步更新 [Wiki 总索引](<./index.md>)（结构树 + 入口优先级 + KMD 快速入口表）和 [Hot Cache](<./hot.md>)。
 
 ## [2026-06-12] reorg | wiki 激进档：flows 三合一 + 命名规范固化
 
