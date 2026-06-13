@@ -114,10 +114,13 @@ source:
 - **P2 已落地（34 处）**：给停用的 `#if 0` 批量补 `/* DISABLED: <原因> */`——`aigc_fops.c`×19（SDMA、chunk VA、
   kernel-vdev 提交、signal-fence/trap、超额分配/对齐检查等）、`aigc_page_table.c`×9（遗留 PTL1 映射、peer-minor
   stamping 等）、`aigc_devm.c`×6（遗留 mem-layout 方案，已被 NUMA 池取代）。
-- **仍可继续**：其余文件的 `#if 0`（如 `aigc.c`×13、`os_interface.c`×6、`aigc_lib_sysfs.c`×6、`aigc_ctx.c`×5 等）
-  尚未逐一标注；这些多为平台/历史变体，可在下一轮按同样方式补充。
+- **P2 全覆盖完成**：第三轮把其余 14 个文件的 `#if 0` 也都标注了（`aigc.c`、`os_interface.c`、`aigc_lib_sysfs.c`、
+  `aigc_ctx.c`、`aigc_sched.c`、`aigc_lib_dev.c`、`aigc_interrupt_ring.c`、`aigc_default_scheduler.c`、`aigc_cmd.c`、
+  `aigc_hal.c`、`aigc_cp_ring.c`、`aigc_mem_handle.c`、`aigc_cp_cmd_pkt.c`、`aigc_drv.c`，共 49 处）。**至此核心层
+  约 83 处 `#if 0` 全部带上 `/* DISABLED: 原因 */`**（`aigc_queue_manager.c:191` 原本已有 `//GCACHE_TEST` 标记，保留）。
 
-> 三轮注释改动均**仅注释、不改代码**，每轮 `make FALLBACK_ENABLE=y -j` 通过（exit 0），落地清单以远端 `git diff` 为准。
+> 多轮注释改动均**仅注释、不改代码**，每轮 `make FALLBACK_ENABLE=y -j` 通过（exit 0）、`git diff` 仅注释、无残留中文。
+> 远端 `docs/kmd-commenting` 提交：`0c2596e`（13 处澄清）、`49bc1fa`（cleanup 行内 + 34 处 DISABLED）、`f9ac555`（其余 49 处 DISABLED）。
 
 ## 延伸
 
