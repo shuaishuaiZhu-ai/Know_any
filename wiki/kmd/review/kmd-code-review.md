@@ -94,15 +94,24 @@ source:
 
 ## 4. 本次已落地的注释修改
 
-> 原则：**只动注释，不改代码语义**；改完远端 `make FALLBACK_ENABLE=y -j` 通过，`git diff` 仅注释变更。
+> 原则：**只动注释，不改代码语义**；改完远端 `make FALLBACK_ENABLE=y -j` 通过（exit 0），`git diff`
+> 仅注释变更，`grep` 无残留中文字符。本次共 **13 处、覆盖 7 个核心 .c**：
 
-- `aigc_mem_handle.c:359`：中文逗号「，」→ 英文，并把 TODO 说清（"FIX: use dva to compute dev_addr"）。
-- `aigc_interrupt.c:207`：删除与上方英文注释重复的旧式单行 `/*will not happen on emu*/`。
-- `aigc_fops.c`、`aigc_queue_manager.c`、`aigc_page_table.c`：把若干裸 `/*TODO:*/`/`/*FIXME*/` 补成有信息量的说明。
-- `aigc_hal.c`：把「多后端派发未实现」的 TODO 写清现状。
-- 关键复杂函数（页表强制清理、`fill_mcqd_info`、中断 top/bottom-half）补行内解释。
+| 文件 | 改动 |
+|---|---|
+| `aigc_mem_handle.c:359` | TODO 里的中文逗号「，」→ 英文分号，并写清「use mem->dva to compute dev_addr」。 |
+| `aigc_interrupt.c:207` | 删除与上方英文注释重复的旧式单行 `/*will not happen on emu*/`。 |
+| `aigc_hal.c:20/28` | 两处 `/*TODO: FIXME in the future*/` → 写清「多后端派发未实现，目前无条件走 Grace」。 |
+| `aigc_fops.c:1041/2373` | 两处裸 `/*TODO:*/` → 说清「返回 per-queue hw-engine ops，未实现」「错误路径补 cleanup/unwind」。 |
+| `aigc_queue_manager.c:69` | `fill_mcqd_info` 裸 `/*TODO:*/` → 解释 MCQD 字段（doorbell_id=vmid*32+qid、asid=vmid 等）。 |
+| `aigc_drv.c:884/891/1332/1426` | 两处 firmware-ack 向量 `/*FIXME*/` 注明含义；两处 `workround for xilinx` 写清是哪个平台绕过。 |
+| `aigc_gcache.c:164/464` | `/*FIXME*/` 注明「slab 暂固定 NUMA node 0」；`/*TODO: fix it*/` 写清「gpuva 翻译未实现，暂返回新页」。 |
 
-（落地清单以远端 `git diff` 为准；后续若继续推进 P2/P3，可在本页追加。）
+**尚未落地（保留为建议）**：P1 中「`aigc_page_table.c` VM 强制清理三层循环的行内不变量注释」——该函数已有前置
+头注释，行内补充需在多处 `for` 循环精确锚定，为避免误改代码留待后续；P2 中给整段停用子系统的 `#if 0`
+批量补 `/* DISABLED: ... */` 同理可作为下一轮。
+
+（落地清单以远端 `git diff` 为准。）
 
 ## 延伸
 
