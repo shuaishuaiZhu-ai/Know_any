@@ -67,3 +67,4 @@ sequenceDiagram
 - [[wiki/kmd/ioctl/index|ioctl 接口与 ABI]]
 - [[aigc_vdev]]：`file->private_data` 里到底放了什么。
 - [[wiki/kmd/flows/index|端到端流程]]：把这条路径放进一次完整的 saxpy 计算里看。
+- 单个 ioctl 处理函数内部的函数链，见各逐操作流程页：[[mem-create-flow]]、[[queue-create-flow]]、[[context-create-flow]]、[[command-submission-flow]]、[[completion-interrupt-flow]]。

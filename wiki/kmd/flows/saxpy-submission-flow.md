@@ -55,6 +55,17 @@ sequenceDiagram
 | 9 | 下半部/event ring 推事件，fence 值释放等待者，用户读回 y | [[wiki/kmd/interrupt/index|中断与 Fence]] |
 | 10 | 依次 destroy mem/queue/context，引用计数归零层层释放 | [[wiki/kmd/concepts/index|核心数据结构]] |
 
+## 逐步深入：每步的代码流程页
+
+把上面时间线的关键步骤各自展开成一页「函数级调用链」，点进去顺着真实函数名读源码：
+
+- 设备就绪（open 之前的 probe）：[[device-probe-flow]] → [[device-init-flow]]
+- 步 2 建 context：[[context-create-flow]]
+- 步 3 分显存 + 写页表：[[mem-create-flow]] → [[pgtable-mapping-flow]]
+- 步 4 建队列：[[queue-create-flow]]
+- 步 5/6 提交与下发：[[command-submission-flow]]
+- 步 8/9 完成与中断：[[completion-interrupt-flow]]
+
 ## 给应届生：从这条线能学到的设计直觉
 
 - **句柄而非指针**：用户态全程拿打包整数句柄（ctx/mem/queue），内核侧查 IDR 还原对象——跨进程安全。
@@ -65,4 +76,5 @@ sequenceDiagram
 ## 延伸
 
 - [[wiki/kmd/arch/request-path]]：单步 ioctl 的内核路径。
+- [[wiki/kmd/flows/index|端到端流程索引]]：所有逐操作代码流程页。
 - [[wiki/kmd/index|KMD 内核驱动知识库]]

@@ -9,6 +9,17 @@ tags:
 status: active
 ---
 
+## [2026-06-15] add | KMD flows 区新增 8 个逐操作代码流程页（函数级调用链）
+
+- **新增 `wiki/kmd/flows/` 8 页**：把 kmd 代码流程从「时间线」细化到「函数级调用链」，配套远端 ajthunk
+  `docs/kmd-step-comments` 分支刚补的函数内 step 注释。新增页：[[device-probe-flow]]、[[device-init-flow]]、
+  [[context-create-flow]]、[[mem-create-flow]]、[[pgtable-mapping-flow]]、[[queue-create-flow]]、
+  [[command-submission-flow]]、[[completion-interrupt-flow]]。每页含 mermaid 调用链 + 关键步骤（真实函数名/文件）+
+  「给应届生」直觉 + 延伸。
+- **扩充**：[[saxpy-submission-flow]] 增「逐步深入：每步的代码流程页」导航段并交叉链到上述新页；
+  [[wiki/kmd/arch/request-path]] 延伸补链逐操作页；改写 [[wiki/kmd/flows/index|flows 索引]]（总览 + 逐操作两组）。
+- 同步更新 [Hot Cache](<./hot.md>)。两份 wiki 都更新：本 vault（Know_any）+ 同步回 ajthunk 仓 `wiki/kmd/`。
+
 ## [2026-06-13] add | 新增 tiny-kmd 架构知识库（+ ajthunk kmd 模块化抽取于远端代码仓）
 
 - **新增专区 `wiki/tiny-kmd/`**（8 页，扁平结构）：为最小骨架驱动 tiny-kmd（`/data3/shuaishuai.zhu/tiny_kmd`，
