@@ -10,6 +10,16 @@ Use Obsidian by default. The vault root is:
 
 Open this folder as an Obsidian vault. Do not regenerate or rely on standalone HTML graph files unless explicitly requested.
 
+## Working in Claude Code (this environment)
+
+When the vault is opened by Claude Code (headless Linux) instead of the Obsidian desktop app:
+
+- Working copy is `/root/workspace/wiki`; the Windows vault root `C:\home\for_ai` is the same vault on another machine. In-repo paths (`wiki/`, `.raw/`, `_attachments/`) are relative and match either way.
+- No Obsidian UI runs here: edit Markdown directly and resolve `[[wikilinks]]` by file basename yourself. Do not expect plugins, graph view, or Templater to execute.
+- Single branch `wiki` (no `main`/`master`). Commit and push to `origin/wiki`; access is over SSH (`git@github.com:shuaishuaiZhu-ai/Know_any.git`).
+- `.gitattributes` enforces `eol=lf`. Files authored on Windows may show as modified right after checkout — that is CRLF→LF normalization, not a content change; don't "fix" it unless asked.
+- Reference firmware source is remote: `shuaishuai.zhu@192.168.80.116:/home/shuaishuai.zhu/fw/` (per `wiki/hot.md`).
+
 ## Read Order
 
 When needing context from this vault:

@@ -466,3 +466,9 @@ status: active
 
 - Added [Codex Skills 使用地图](<./tools/codex-skills-map.md>) with the current global and enabled-plugin skills inventory, usage rules, scenario lookup table, and Mermaid selection flow.
 - Updated the tools index, wiki root index, and Hot Cache for navigation.
+
+## [2026-06-16] add | Claude Code session strategy & cross-session memory
+
+- Added [Claude Code 会话策略与跨 session 记忆机制](<./tools/claude-code-session-and-memory.md>): 默认"每任务新开 session"的结论与 context rot 原因、新开 vs 长 session 对比表、`/clear`·`/compact`·`/rewind`·subagent 的进程内上下文管理,以及跨 session 记忆六层机制(`--continue`/`--resume`、CLAUDE.md、自动记忆 Session Memory、`/remember` 交接、wiki 落盘、MCP 记忆)与选型速查。
+- Updated the tools index and Hot Cache for navigation.
+- Key insight: 新开 session 后内容并非真丢——要带给下一个任务的东西应沉淀到 CLAUDE.md / 自动记忆 / 交接文件 / wiki,而不是留在会话历史里。

@@ -24,6 +24,7 @@ status: active
 - CP USART/Clock IMC 统一初始化（`zss/MoveUsart`）：[CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计评审 + 实现详解](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)
 - Claude Code 教程（发布版，面向知乎/博客）：[Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)
 - Claude Code 进阶教程（发布版，面向知乎/博客）：[Claude Code CLI 进阶教程](<./tools/Claude Code CLI 进阶教程.md>)
+- Claude Code 会话策略与记忆（新增，2026-06-16）：[Claude Code 会话策略与跨 session 记忆机制](<./tools/claude-code-session-and-memory.md>)，用于回答"每任务新开 vs 长 session"以及新开后如何用 `--continue`/`--resume`、CLAUDE.md、自动记忆、`/remember` 交接、wiki 落盘把有用的东西带给下一个任务。
 - Codex 反思与进化：[Codex 反思与进化](<./codex-reflection/index.md>)
 - Codex 全局复盘：[全局 Codex 工作流复盘](<./codex-reflection/projects/2026-05-26-global-codex-workflow-review.md>)
 - Codex 总结反思：[2026-06-01 Codex 总结反思](<./codex-reflection/projects/2026-06-01-codex-summary-reflection.md>)

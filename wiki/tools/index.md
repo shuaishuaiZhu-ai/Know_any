@@ -19,3 +19,4 @@ status: active
 - [钉钉到飞书迁移脚本与 Skills 调用手册](<./dingtalk-feishu-migration-workflow.md>)
 - [Claude Code CLI 使用教程](<./Claude Code CLI 使用教程.md>)
 - [Claude Code CLI 进阶教程](<./Claude Code CLI 进阶教程.md>)
+- [Claude Code 会话策略与跨 session 记忆机制](<./claude-code-session-and-memory.md>)
