@@ -472,3 +472,10 @@ status: active
 - Added [Claude Code 会话策略与跨 session 记忆机制](<./tools/claude-code-session-and-memory.md>): 默认"每任务新开 session"的结论与 context rot 原因、新开 vs 长 session 对比表、`/clear`·`/compact`·`/rewind`·subagent 的进程内上下文管理,以及跨 session 记忆六层机制(`--continue`/`--resume`、CLAUDE.md、自动记忆 Session Memory、`/remember` 交接、wiki 落盘、MCP 记忆)与选型速查。
 - Updated the tools index and Hot Cache for navigation.
 - Key insight: 新开 session 后内容并非真丢——要带给下一个任务的东西应沉淀到 CLAUDE.md / 自动记忆 / 交接文件 / wiki,而不是留在会话历史里。
+
+## [2026-06-16] add | all_skills cross-machine shared skills repo
+
+- Added [all_skills:跨机器共享 Claude/Codex Skills 仓库](<./tools/all-skills-shared-repo.md>): 单一真相源 `SKILL.md` + 零依赖 `sync.py` 编译器(install/collect/push/add/doctor/uninstall);Claude 复制进 `~/.claude/skills/` + `claude plugin install`,Codex 在 `~/.codex/AGENTS.md` 生成路由(插件 skill 指向缓存正本);`manifest.json` 单文件安装清单;贡献流程 `collect → 多选框 → push`;去重原则"插件声明依赖不复制、撞名仓库优先"。
+- 配套远端仓库 `git@github.com:shuaishuaiZhu-ai/all_skills.git`(分支 `main`),本机已 install 验证 + 清掉 9 个 Cloudflare 个人重复副本。
+- Updated the tools index, wiki root index, and Hot Cache for navigation.
+- Key insight: 跨工具共享 skills 的关键是"插件归插件、仓库归仓库"——有插件形态的只声明依赖让云端做正本,仓库只 vendor 手写、插件没有的 skill。

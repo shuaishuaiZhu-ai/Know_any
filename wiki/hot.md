@@ -48,6 +48,7 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 
 
 - Codex Skills：[使用地图](<./tools/codex-skills-map.md>)，用于查当前安装 skills、触发场景、选择流程和重名来源。
+- 跨机器共享 skills（新增，2026-06-16）：[all_skills:跨机器共享 Claude/Codex Skills 仓库](<./tools/all-skills-shared-repo.md>)，用于回答"一个仓库怎么让多机器的 Claude 和 Codex 都用上同一批 skills"——`sync.py` 编译器、`manifest.json` 安装清单、`collect→多选框→push` 贡献流程、"插件声明依赖不复制 / 撞名仓库优先"去重原则。远端 `git@github.com:shuaishuaiZhu-ai/all_skills.git`。
 - 钉钉到飞书迁移：[脚本与 Skills 调用手册](<./tools/dingtalk-feishu-migration-workflow.md>)，用于 Claude/Codex 复用 DWS + lark-cli 迁移流程、权限脚本、附件卡片和流程图修复审计。
 - Claude Code CLI：[使用教程](<./tools/Claude Code CLI 使用教程.md>)，**新手友好长文 + 手工 SVG 图解**：五分钟上手、权限模型、CLAUDE.md（user vs 项目级、`/init`）、skills 与 plugins（含 superpowers 实战、官方 marketplace 地址）、hooks/MCP/settings 和排错。
 - claude-code-proxy：[项目 Wiki](<./tools/claude-code-proxy/index.md>)，用于回看 ccproxy 安装、provider/model 切换、订阅登录和故障排查。

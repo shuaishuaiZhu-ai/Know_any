@@ -38,7 +38,7 @@ wiki/
 2. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
 3. [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>)：工作笔记主线。
 4. [本地 Markdown 知识图谱](<./synthesis/C-home-shuaishuai-zhu Markdown 知识图谱.md>)：历史本地材料总览。
-5. [工具链知识库](<./tools/index.md>)：image_tool、claude-code-proxy、Codex Skills、钉钉到飞书迁移、AI 协作、登录环境等工具经验。
+5. [工具链知识库](<./tools/index.md>)：image_tool、claude-code-proxy、Codex Skills、跨机器共享 skills 仓库(all_skills)、钉钉到飞书迁移、AI 协作、登录环境等工具经验。
 6. [MAS 文档知识库](<./mas/index.md>)：RguCore/RGU 设计文档、GCtrl 两级调度学习、模块关系、控制流与调试问答。
 7. [Source 索引](<./sources/本地 Markdown 文件索引.md>)：查证原始材料时使用。
 
@@ -96,7 +96,7 @@ wiki/
 | 语雀工作笔记 | [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>) | 工作经历、问题链路、复盘材料。 |
 | 面试材料 | [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>) | 面试讲述用的项目总结。 |
 | AI 协作经验 | [AI 协作远程编辑经验](<./synthesis/AI 协作远程编辑经验.md>) | SSH、远程编辑、协作注意事项，含浏览器/飞书/SSH PATH 登录环境经验。 |
-| 工具链 | [tools](<./tools/index.md>) | image_tool、Codex Skills、钉钉到飞书迁移、AI 协作等工具说明。 |
+| 工具链 | [tools](<./tools/index.md>) | image_tool、Codex Skills、跨机器共享 skills 仓库(all_skills)、钉钉到飞书迁移、AI 协作等工具说明。 |
 | MAS 文档 | [MAS 文档知识库](<./mas/index.md>) | RGU/RguCore 设计文档、模块关系、调度、SHM、UCore。 |
 
 ## 证据层
