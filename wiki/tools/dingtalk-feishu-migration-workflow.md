@@ -2,7 +2,7 @@
 type: tool
 title: "钉钉到飞书迁移脚本与 Skills 调用手册"
 created: 2026-06-12
-updated: 2026-06-12
+updated: 2026-06-18
 tags:
   - tools
   - dingtalk
@@ -23,7 +23,7 @@ status: active
 | 本地工作目录                       | `C:\Users\18355\Documents\learning`                           |
 | 迁移脚本目录                       | `C:\Users\18355\Documents\learning\dingtalk-feishu-migration` |
 | Feishu/Lark profile / App ID | `cli_aa9d4e8d9eb91cc4`                                        |
-| App Secret                   | Fnvvh33dNp3U4zkSUUgpOgX7lugAAqUa                              |
+| App Secret                   | <已省略；使用既有 profile 或 FEISHU_APP_SECRET>                              |
 | 固件组群聊 ID                     | `oc_4f95921bd0d4d21abac09c0090b21ce9`                         |
 | 常用所有者 open_id                | `ou_6f65235a41b26d50707d8670c1fc9b30`                         |
 | Firmware 目标文件夹 token         | `W6RRfr6l8lXMqkdCSvPctQ1Gn5d`                                 |
@@ -75,11 +75,26 @@ PowerShell 下调用 `lark-cli --params` 时优先使用 `@params.json`，避免
 | `insert_feishu_attachments.py` | 把本地文件作为飞书文档附件卡片插入目标 block。 |
 | `reconcile_dingtalk_attachments.py` | 对齐附件提取、下载、插入结果。 |
 | `grant_firmware_chat_permissions.py` | 给固件组群聊 `oc_4f95921bd0d4d21abac09c0090b21ce9` 增加协作者/可管理权限。 |
+| `grant_wiki_subtree_chat_edit.py` | 给飞书 Wiki 节点子树增加固件组 `edit` 权限；支持 dry-run、失败项 backing docx fallback、写入响应校验。 |
 | `set_folder_collaborator_only_permissions.py` | 递归把文件夹下内容设为仅协作者可访问。 |
 | `revoke_shared_permissions.py` | 收回旧共享链接或公开权限。 |
 | `verify_feishu_tree_against_manifest.py` | 按 manifest 对比飞书线上目录层级和文件存在性。 |
 | `scan_empty_placeholder_pages.py` | 扫描钉钉源不存在或源空但飞书异常的占位页。 |
 | `delete_replaced_old_feishu_docs.py` | 替换页验证通过后删除旧坏页。 |
+
+
+## Wiki 权限批处理 Guardrail
+
+飞书 Wiki 或迁移产物权限写操作前，先执行本地证据恢复，不要直接用默认 profile 搜群或猜主体：
+
+1. 先查本仓库 index、manifest、report 和现有脚本，确认目标目录、profile、identity 和协作者主体。
+2. 本项目默认 profile 是 `cli_aa9d4e8d9eb91cc4`；不要使用未确认的默认 profile。
+3. “固件组”默认使用 `openchat oc_4f95921bd0d4d21abac09c0090b21ce9`，不要先在线搜索群名。
+4. 批量写权限必须先 dry-run 并保存报告，确认节点数、token/type、权限和主体后再 `--yes`。
+5. Wiki 子树优先按 `type=wiki` + `node_token` 授权；遇到 `1063002 Permission denied` 时，对失败项改用 backing `obj_token/obj_type` 补授。
+6. 验证优先读成员列表；若缺 `docs:permission.member:retrieve` 等读取 scope，则至少校验写入响应中的 `member_type/member_id/perm`，并在报告中标明验证限制。
+
+本规则来自 [飞书 Wiki 权限批处理工作流复盘](<../codex-reflection/evolution/2026-06-17-feishu-permission-workflow.md>)。
 
 ## 标准迁移流程
 
@@ -169,3 +184,94 @@ python dingtalk-feishu-migration\audit_and_repair_firmware_migration.py `
 - 飞书新建/导入文档可能显示 `Untitled`；迁移后必须统一 patch title。
 - 飞书文件夹的公开权限需要递归处理子资源；不要只 patch 父文件夹就认为链接访问关闭。
 - 空占位页会导致飞书里出现连续问号乱码或无源文档；用 `scan_empty_placeholder_pages.py` 找出并确认删除。
+- CDP 抓钉钉流程图时虚拟滚动会把相邻两张图抓成同一张（md5 相同）；必须对照 SVG 消息文本区分，必要时从 SVG 还原 mermaid 源重新渲染，不要直接用抓混的 PNG。
+- DWS docx 导出会把多行 C 代码压成单行（换行信息丢失）；补代码框时必须按 C 语法手工重建换行/缩进，不能原样塞进 pre。
+- `docs +update block_replace` 后原 block_id 会变成新 id；验证改动的正确方式是按内容关键词匹配，不要再按旧 block_id 查找。
+- `block_replace` 替换图片块会重新绑定媒体，新图的 `src` token 与 `media-insert` 返回的 token 可能不同；以块属性（name/caption/dims）更新为准。
+
+## 迁移后补全：代码框与损坏图修复工作流
+
+迁移完成后，飞书页面常有两类遗留质量问题：① docx 导入时代码段散落在普通 `<p>` 里没框成 `<pre>`；② 流程图/示意图导入后是损坏占位图（空白或抓混）。本节是批量探测 + 精修的工作流。
+
+### 1. 列出目标 wiki 子树
+
+```powershell
+# 解析 wiki 节点 token 拿 space_id
+lark-cli.cmd --profile cli_aa9d4e8d9eb91cc4 wiki spaces get_node `
+  --params '{"token":"<wiki_node_token>"}' --format json
+# 递归列子节点（需 space_id + parent_node_token，page_size 上限 50，翻 page_token）
+lark-cli.cmd --profile cli_aa9d4e8d9eb91cc4 wiki nodes list `
+  --params '{"space_id":"<space_id>","parent_node_token":"<node>","page_size":50}' --format json
+```
+
+递归脚本：对每个 `obj_type=docx` 的叶子收集 `node_token`/`obj_token`，写入 `*-leaves.json` 供后续批处理。`sheet`/`file` 类型不属于代码框范畴，跳过。
+
+### 2. 批量探测含未框代码的文档
+
+对每个 docx 叶子做 lightweight fetch（不带 `--detail`），统计现有 `<pre>` 数 + 未在 pre 内的代码特征段数。**关键：探测正则会误报**，必须给 suspect 打分并设置阈值：
+
+```python
+CODE = re.compile(r'uint32_t|uint16_t|#define|typedef\s+struct|->|0x[0-9a-fA-F]{2,}|\bfor\s*\(|\breturn\s+[a-z]')
+# 对每个 <p>/<li>（先剔除 <pre> 内容）：
+score = len(CODE.findall(txt)) + (2 if re.search(r'[{}]', txt) else 0) + (1 if txt.count(';')>=2 else 0)
+# score>=2 才算候选
+```
+
+110 篇文档跑出来 21 篇候选，但逐条核对 suspect 文本后真正需要框的只有个位数。
+
+### 3. 鉴别真代码 vs 误报（最重要）
+
+逐条看候选的 suspect 文本，区分四类：
+
+| 类型 | 特征 | 处理 |
+|---|---|---|
+| 真裸代码 | CJK 字符 < 15 且代码 token ≥ 3（`#define`/`typedef`/`struct`/`uint32_t`/`->`/`;`/`{}`/`0x`） | 框成 pre |
+| 中文步骤含地址 | "SW polling pcie_link_up 寄存器(Address: 0x0500_101c)..." CJK 多 | 不框 |
+| 流程箭头 | "Decoder API -> DWL -> Driver -> Hardware" | 不框 |
+| 单行命令在解释性列表项 | "示例：drscan mytap 8 0xAA -endstate DRPAUSE → 从 mytap 的 DR 移入..." 命令+中文解释混在 `<li>` | 不框（框了丢解释、断列表） |
+| 配置由表格承载 | AdapterNetCtl 字段值、地址范围表 | 不框（表格已是合理呈现） |
+
+铁律：**CJK < 15 且代码 token ≥ 3** 才框。中文段落里偶然出现单个 `0x` 或 `->` 不算代码。
+
+### 4. 补框：block_replace 包入 pre
+
+先 `docs +fetch --detail with-ids` 定位目标 block_id，从 docx 源（`word/document.xml` 按 `<w:t>` run 切分）或钉钉原页恢复代码原文。docx 源若已压成单行，按 C 语法手工重建换行/缩进，写成 `.txt` 再转 XML：
+
+```python
+esc = code.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;').replace('\n','<br/>')
+xml = f'<pre lang="c" caption="说明"><code>{esc}</code></pre>'
+# 写到文件，用 --content @file.xml 传入，避免 shell 转义
+```
+
+```powershell
+lark-cli.cmd --profile cli_aa9d4e8d9eb91cc4 docs +update --api-version v2 `
+  --doc "https://hcnl90h70f1g.feishu.cn/wiki/<node>" `
+  --command block_replace --block-id <blkid> --content "@fix.xml"
+```
+
+转义规则：标签本身不转义，只有标签内文本的 `<>&` 转义，换行 → `<br/>`。`--content` 优先用 `@file` 传文件，避免 PowerShell JSON 引号转义污染。
+
+### 5. 修复损坏流程图
+
+docx 导入的图块可能是损坏占位图（空白/抓混）。修复路径：
+
+1. `docs +fetch --scope section --start-block-id <标题id> --detail with-ids` 定位 `<img>` 块，看 `name`/`caption` 是否还是源文件名（如 `image21.png` 是导入占位名，`event-barrier.png` 是修复后名）。
+2. 若 CDP 抓的 PNG 抓混（相邻图 md5 相同），对照对应 `.svg` 的消息文本（`messageText`/`noteText` 的 `<tspan>`）确认每张图真实内容，从 SVG 还原 mermaid 源。
+3. 用 `cdp_render_mermaid_to_png.mjs <html> <out.png> 9222`（CDP 9222 在线）渲染干净 PNG。
+4. `docs +media-insert --file <png>` 上传拿 `file_token`，再 `block_replace` 把损坏 `<img>` 块替换为 `<img name="..." caption="..." src="<token>" width="480"/>`，最后 `block_delete` 删掉 media-insert 在文末产生的临时块。
+
+### 6. 验证
+
+```powershell
+lark-cli.cmd --profile cli_aa9d4e8d9eb91cc4 docs +fetch --api-version v2 `
+  --doc "https://hcnl90h70f1g.feishu.cn/wiki/<node>" --format json > verify.json
+```
+
+按内容关键词匹配确认代码/图已入 pre/img，不要按旧 block_id（block_replace 后 id 已变）。`pre` 块计数应增加且目标关键词出现在某个 `<pre>` 内。
+
+### 反思
+
+- **探测的目的不是自动框，而是缩小范围**。批量 fetch 100+ 篇只为筛出 < 20 篇候选，最终是否框必须人/逐条核对文本决定。直接按正则命中框会把大量中文说明误框，破坏可读性。
+- **不框也是一种正确决策**。这次 9 篇目标里 7 篇判定不动（命令在解释性列表项、配置在表格、suspect 是中文步骤含地址）。宁可少框不可错框。
+- **损坏图要查根因再修**。CDP 抓混、docx 压行都是已知坑，修复时要从 SVG 源/语法重建，不能拿损坏产物直接回插。
+- **lark-cli 1.0.42 fetch 输出含 `_notice` 字段**，管道 stdin 直传 Python 偶发 JSON 解析失败；改写文件再解析更稳。`media-download` 缺 `docs:document.media:download` scope 时，改用 SVG 源重渲染绕过，不强求补 scope。
