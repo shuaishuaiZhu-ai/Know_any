@@ -99,6 +99,8 @@ wiki/
 | 工具链 | [tools](<./tools/index.md>) | image_tool、Codex Skills、跨机器共享 skills 仓库(all_skills)、钉钉到飞书迁移、AI 协作等工具说明。 |
 | MAS 文档 | [MAS 文档知识库](<./mas/index.md>) | RGU/RguCore 设计文档、模块关系、调度、SHM、UCore。 |
 
+工具链新增入口：[AI 使用飞书 lark-cli 创建文档：从零安装、授权到验证](<./tools/lark-cli-ai-document-guide.md>)，供其他 AI Agent 从空环境完成安装、授权、创建和回读验证。
+
 ## 证据层
 
 `sources/` 是查证层，不是首读层。默认阅读整理页；需要确认原文时再看这里。

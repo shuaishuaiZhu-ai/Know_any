@@ -46,6 +46,7 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 
 ## 最近活跃主题
 
+- 飞书 lark-cli AI 建文档（新增，2026-06-18）：[从零安装、授权到验证](<./tools/lark-cli-ai-document-guide.md>)。面向未配置任何工具的 AI Agent，要求自行安装 CLI/Skills、读取 `lark-shared`/`lark-doc`、发起链接与二维码授权、使用 v2 创建文档并回读验收。
 
 - Codex Skills：[使用地图](<./tools/codex-skills-map.md>)，用于查当前安装 skills、触发场景、选择流程和重名来源。
 - 跨机器共享 skills（新增，2026-06-16）：[all_skills:跨机器共享 Claude/Codex Skills 仓库](<./tools/all-skills-shared-repo.md>)，用于回答"一个仓库怎么让多机器的 Claude 和 Codex 都用上同一批 skills"——`sync.py` 编译器、`manifest.json` 安装清单、`collect→多选框→push` 贡献流程、"插件声明依赖不复制 / 撞名仓库优先"去重原则。远端 `git@github.com:shuaishuaiZhu-ai/all_skills.git`。

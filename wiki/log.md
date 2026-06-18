@@ -9,6 +9,11 @@ tags:
 status: active
 ---
 
+## [2026-06-18] add | AI 使用飞书 lark-cli 创建文档
+
+- 新增 [AI 使用飞书 lark-cli 创建文档：从零安装、授权到验证](<./tools/lark-cli-ai-document-guide.md>)：面向没有任何预配置的 AI Agent，覆盖 Node.js、`lark-cli + AI Skills` 安装、Skills 读取、应用配置、OAuth split-flow、user/bot 身份边界、v2 Markdown 创建、回读验收、权限与版本漂移处理。
+- 新增可编辑 SVG 与 PNG 流程图 `lark-cli-ai-document-flow`，同步更新 [工具链知识库](<./tools/index.md>)、[Wiki 总索引](<./index.md>) 和 [Hot Cache](<./hot.md>)。
+
 ## [2026-06-15] add | KMD flows 区新增 8 个逐操作代码流程页（函数级调用链）
 
 - **新增 `wiki/kmd/flows/` 8 页**：把 kmd 代码流程从「时间线」细化到「函数级调用链」，配套远端 ajthunk

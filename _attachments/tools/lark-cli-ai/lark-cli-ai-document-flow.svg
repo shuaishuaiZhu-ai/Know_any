@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .title { font: 700 30px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .subtitle { font: 16px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #536079; }
+      .lane { fill: #ffffff; stroke: #cfd7e6; stroke-width: 2; rx: 18; }
+      .laneTitle { font: 700 18px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #33415f; }
+      .cardBlue { fill: #eaf2ff; stroke: #5b8def; stroke-width: 2; rx: 14; }
+      .cardGreen { fill: #e9f8f0; stroke: #38a169; stroke-width: 2; rx: 14; }
+      .cardOrange { fill: #fff4e5; stroke: #dd8b22; stroke-width: 2; rx: 14; }
+      .cardPurple { fill: #f2edff; stroke: #805ad5; stroke-width: 2; rx: 14; }
+      .cardTitle { font: 700 17px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #1f2a44; }
+      .cardBody { font: 14px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #46536d; }
+      .step { font: 700 14px "Segoe UI", sans-serif; fill: #ffffff; }
+      .stepCircle { fill: #365fa0; }
+      .arrow { fill: none; stroke: #5f6f89; stroke-width: 3; marker-end: url(#arrow); }
+      .returnArrow { fill: none; stroke: #38a169; stroke-width: 3; stroke-dasharray: 8 6; marker-end: url(#arrowGreen); }
+      .note { fill: #fffbe8; stroke: #d6b84c; stroke-width: 1.5; rx: 12; }
+      .noteText { font: 14px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #655416; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#5f6f89"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#38a169"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1280" height="720"/>
+  <text class="title" x="56" y="54">AI 使用 lark-cli 创建飞书文档：端到端闭环</text>
+  <text class="subtitle" x="56" y="84">AI 执行终端步骤；用户只完成浏览器中的应用配置和 OAuth 授权</text>
+
+  <rect class="lane" x="45" y="115" width="1190" height="220"/>
+  <text class="laneTitle" x="70" y="148">AI Agent / Terminal</text>
+
+  <rect class="lane" x="45" y="370" width="1190" height="155"/>
+  <text class="laneTitle" x="70" y="403">用户 / 浏览器</text>
+
+  <rect class="lane" x="45" y="560" width="1190" height="115"/>
+  <text class="laneTitle" x="70" y="593">飞书云端</text>
+
+  <rect class="cardBlue" x="85" y="175" width="200" height="112"/>
+  <circle class="stepCircle" cx="108" cy="197" r="15"/>
+  <text class="step" x="104" y="202">1</text>
+  <text class="cardTitle" x="133" y="203">检测与安装</text>
+  <text class="cardBody" x="105" y="232">Node.js / npm / npx</text>
+  <text class="cardBody" x="105" y="255">CLI + AI Skills</text>
+
+  <rect class="cardBlue" x="330" y="175" width="200" height="112"/>
+  <circle class="stepCircle" cx="353" cy="197" r="15"/>
+  <text class="step" x="349" y="202">2</text>
+  <text class="cardTitle" x="378" y="203">读取 Skills</text>
+  <text class="cardBody" x="350" y="232">lark-shared</text>
+  <text class="cardBody" x="350" y="255">lark-doc + references</text>
+
+  <rect class="cardOrange" x="575" y="175" width="200" height="112"/>
+  <circle class="stepCircle" cx="598" cy="197" r="15"/>
+  <text class="step" x="594" y="202">3</text>
+  <text class="cardTitle" x="623" y="203">发起配置</text>
+  <text class="cardBody" x="595" y="232">config init --new</text>
+  <text class="cardBody" x="595" y="255">输出链接与二维码</text>
+
+  <rect class="cardPurple" x="820" y="175" width="200" height="112"/>
+  <circle class="stepCircle" cx="843" cy="197" r="15"/>
+  <text class="step" x="839" y="202">4</text>
+  <text class="cardTitle" x="868" y="203">发起登录</text>
+  <text class="cardBody" x="840" y="232">auth login --no-wait</text>
+  <text class="cardBody" x="840" y="255">后续用 device-code 完成</text>
+
+  <rect class="cardGreen" x="1065" y="175" width="140" height="112"/>
+  <circle class="stepCircle" cx="1088" cy="197" r="15"/>
+  <text class="step" x="1084" y="202">5</text>
+  <text class="cardTitle" x="1113" y="203">创建与回读</text>
+  <text class="cardBody" x="1085" y="232">docs +create v2</text>
+  <text class="cardBody" x="1085" y="255">docs +fetch v2</text>
+
+  <path class="arrow" d="M285 231 H318"/>
+  <path class="arrow" d="M530 231 H563"/>
+  <path class="arrow" d="M775 231 H808"/>
+  <path class="arrow" d="M1020 231 H1053"/>
+
+  <rect class="cardOrange" x="395" y="420" width="235" height="72"/>
+  <text class="cardTitle" x="420" y="450">完成应用配置页面</text>
+  <text class="cardBody" x="420" y="475">确认应用、权限与租户</text>
+
+  <rect class="cardPurple" x="690" y="420" width="235" height="72"/>
+  <text class="cardTitle" x="715" y="450">完成 OAuth 授权</text>
+  <text class="cardBody" x="715" y="475">只批准必要 scopes</text>
+
+  <path class="arrow" d="M675 287 V350 H370 V456 H383"/>
+  <path class="returnArrow" d="M642 456 H660 V310 H675 V299"/>
+  <path class="arrow" style="marker-end:none" d="M920 287 V350"/>
+  <path class="arrow" style="marker-end:none" d="M920 350 H650"/>
+  <path class="arrow" style="marker-end:none" d="M650 350 V456"/>
+  <path class="arrow" d="M650 456 H672"/>
+  <path class="returnArrow" style="marker-end:none" d="M807 504 V520"/>
+  <path class="returnArrow" style="marker-end:none" d="M807 520 H650"/>
+  <path class="returnArrow" style="marker-end:none" d="M650 520 V330"/>
+  <path class="returnArrow" style="marker-end:none" d="M650 330 H900"/>
+  <path class="returnArrow" d="M900 330 V299"/>
+
+  <rect class="cardGreen" x="470" y="600" width="340" height="50"/>
+  <text class="cardTitle" x="495" y="631">文档 URL / token + 可回读的正确内容</text>
+  <path class="arrow" style="marker-end:none" d="M1135 287 V545"/>
+  <path class="arrow" style="marker-end:none" d="M1135 545 H420"/>
+  <path class="arrow" style="marker-end:none" d="M420 545 V625"/>
+  <path class="arrow" d="M420 625 H452"/>
+
+  <rect class="note" x="875" y="585" width="330" height="68"/>
+  <text class="noteText" x="895" y="613">完成标准：create 成功还不够；</text>
+  <text class="noteText" x="895" y="637">必须 fetch 回读标题、中文和正文。</text>
+</svg>
