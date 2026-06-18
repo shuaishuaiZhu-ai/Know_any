@@ -39,7 +39,7 @@ status: active
 | 端到端流程 | `wiki/grace/fw/flows/` |
 | 性能优化 | `wiki/grace/fw/performance/` |
 | 调试复盘 | `wiki/grace/fw/debug/` |
-| 源材料映射 | `wiki/grace/fw/source-maps/` |
+| 源材料映射（MAS↔代码知识图谱） | `wiki/grace/fw/`（`GraceC CP MAS v1.4 code knowledge map.md`，已折叠 source-maps 子目录） |
 | 工具链 | `wiki/tools/` |
 | 原始材料和镜像 | `wiki/sources/` 或 `.raw/` |
 
