@@ -484,3 +484,9 @@ status: active
 - 配套远端仓库 `git@github.com:shuaishuaiZhu-ai/all_skills.git`(分支 `main`),本机已 install 验证 + 清掉 9 个 Cloudflare 个人重复副本。
 - Updated the tools index, wiki root index, and Hot Cache for navigation.
 - Key insight: 跨工具共享 skills 的关键是"插件归插件、仓库归仓库"——有插件形态的只声明依赖让云端做正本,仓库只 vendor 手写、插件没有的 skill。
+
+## [2026-06-17] update | all_skills v2:交互式 TUI(install 选启用集 + push 选提交)
+
+- 更新 [all_skills:跨机器共享 Claude/Codex Skills 仓库](<./tools/all-skills-shared-repo.md>) 到 v2:install/push 改用 **Textual TUI**(分类 tab + 复选框,←/→ 切分类、↑/↓ + 空格勾选);未装 textual / 非 TTY / `--no-tui` 自动降级为 stdlib 编号选择。
+- install 先选**本机启用集**(存 `~/.agent-skills/selection.json`,不改共享 manifest;勾的复制、取消的移除、Codex 路由只列勾选);分类=混合(默认按来源,manifest `category` 覆盖)。新增 `push.py` 贡献脚本(自动收集 新增/更新 → 复选框 → commit&push)。
+- Key insight: TUI 标准化在脚本里(Textual + run_test 可 headless 验证),比"交给代理渲染复选框"更通用;`--only` 须用 `is not None` 判定,空串别当交互(踩过坑:误提交)。
