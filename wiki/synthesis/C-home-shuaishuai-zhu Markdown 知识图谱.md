@@ -34,7 +34,7 @@ graph TD
 
 ## 三条主线
 
-1. **CP firmware 主线**：[[cmd_entry]]、[[CP stop flush 与 queue 切换]]、[[aigc_sdk Bug 扫描与修复优先级]]。
+1. **CP firmware 主线**：[[cmd_entry]]、[[CP stop flush 与 queue 切换]]、[[CP 平台 bring-up 复盘合集]]。
 2. **AI 协作方法主线**：[[AI 协作远程编辑经验]]，重点是远程文件编辑、字节级替换、plan mode 边界和 retros。
 3. **工具链主线**：[[image_tool 固件镜像打包工具]]，连接固件镜像打包、签名、CRC、PyInstaller 和服务器工作流。
 

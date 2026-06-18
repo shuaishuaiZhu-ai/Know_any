@@ -36,8 +36,8 @@ status: active
 ## 推荐入口（AI 整理后的 wiki 页）
 
 - [C-home-shuaishuai-zhu Markdown 知识图谱](<../synthesis/C-home-shuaishuai-zhu Markdown 知识图谱.md>) — 三条主线（CP / image_tool / 协作经验）综合视图
-- [cmd_entry](<../fw/cp-user/cmd_entry.md>) — 汇总 cmd_entry、candidate、pending、round-robin
-- [aigc_sdk Bug 扫描与修复优先级](<../fw/debug/aigc_sdk Bug 扫描与修复优先级.md>) — 汇总两份 bug/check 报告
+- [cmd_entry](<../grace/fw/cp-user/cmd_entry.md>) — 汇总 cmd_entry、candidate、pending、round-robin
+- [CP 平台 bring-up 复盘合集](<../grace/fw/debug/CP 平台 bring-up 复盘合集.md>) — 汇总两份 bug/check 报告
 - [AI 协作远程编辑经验](<../synthesis/AI 协作远程编辑经验.md>) — 汇总 .claude/learnings 与 retros 中的可复用方法
 - [image_tool 固件镜像打包工具](<../tools/image_tool 固件镜像打包工具.md>) — 汇总 image_tool README 与架构文档
 

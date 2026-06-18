@@ -54,5 +54,4 @@ related:
 
 - [[CP command processing flow]]
 - [[CP stop flush 与 queue 切换]]
-- [[CP event atomic wait host handling]]
 - [[GraceC CP MAS v1.4 code knowledge map]]

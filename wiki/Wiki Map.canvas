@@ -1,21 +1,25 @@
-﻿{
+{
 	"nodes":[
-		{"id":"synthesis","type":"file","file":"wiki/fw/source-maps/GraceC CP MAS v1.4 code knowledge map.md","x":360,"y":0,"width":320,"height":120,"color":"6"},
-		{"id":"flow","type":"file","file":"wiki/fw/flows/CP command processing flow.md","x":720,"y":-160,"width":320,"height":120,"color":"4"},
-		{"id":"cmd","type":"file","file":"wiki/fw/cp-user/cmd_entry.md","x":720,"y":0,"width":280,"height":120,"color":"3"},
-		{"id":"ib","type":"file","file":"wiki/fw/concepts/Interaction-Buffer.md","x":720,"y":160,"width":300,"height":120,"color":"3"},
-		{"id":"idma","type":"file","file":"wiki/fw/concepts/iDMA.md","x":1080,"y":80,"width":260,"height":120,"color":"3"},
-		{"id":"event","type":"file","file":"wiki/fw/flows/CP event atomic wait host handling.md","x":1080,"y":-160,"width":340,"height":120,"color":"4"},
-		{"id":"stopflush","type":"file","file":"wiki/fw/cp-user/CP stop flush 与 queue 切换.md","x":1080,"y":240,"width":340,"height":120,"color":"4"},
-		{"id":"entry","type":"file","file":"00 CP MAS 知识图谱入口.md","x":-20,"y":0,"width":300,"height":120,"color":"5"}
+		{"id":"index","type":"file","file":"wiki/index.md","x":-20,"y":0,"width":300,"height":120,"color":"5"},
+		{"id":"hot","type":"file","file":"wiki/hot.md","x":-20,"y":160,"width":300,"height":100,"color":"1"},
+		{"id":"grace","type":"file","file":"wiki/grace/index.md","x":360,"y":0,"width":320,"height":120,"color":"6"},
+		{"id":"mas","type":"file","file":"wiki/grace/mas/index.md","x":760,"y":-240,"width":280,"height":100,"color":"2"},
+		{"id":"fw","type":"file","file":"wiki/grace/fw/index.md","x":760,"y":-120,"width":280,"height":100,"color":"4"},
+		{"id":"kmd","type":"file","file":"wiki/grace/kmd/index.md","x":760,"y":0,"width":280,"height":100,"color":"3"},
+		{"id":"tinykmd","type":"file","file":"wiki/grace/tiny-kmd/index.md","x":760,"y":120,"width":280,"height":100,"color":"3"},
+		{"id":"tools","type":"file","file":"wiki/tools/index.md","x":360,"y":180,"width":280,"height":100,"color":"1"},
+		{"id":"codex","type":"file","file":"wiki/codex-reflection/index.md","x":360,"y":320,"width":300,"height":100,"color":"1"},
+		{"id":"sources","type":"file","file":"wiki/sources/本地 Markdown 文件索引.md","x":760,"y":260,"width":300,"height":100,"color":"0"},
+		{"id":"meta","type":"file","file":"wiki/meta/wiki-maintenance-rules.md","x":-20,"y":300,"width":300,"height":100,"color":"0"}
 	],
 	"edges":[
-		{"id":"e-entry-synthesis","fromNode":"entry","fromSide":"right","toNode":"synthesis","toSide":"left"},
-		{"id":"e-synthesis-flow","fromNode":"synthesis","fromSide":"right","toNode":"flow","toSide":"left"},
-		{"id":"e-synthesis-cmd","fromNode":"synthesis","fromSide":"right","toNode":"cmd","toSide":"left"},
-		{"id":"e-cmd-ib","fromNode":"cmd","fromSide":"bottom","toNode":"ib","toSide":"top"},
-		{"id":"e-ib-idma","fromNode":"ib","fromSide":"right","toNode":"idma","toSide":"left"},
-		{"id":"e-flow-event","fromNode":"flow","fromSide":"right","toNode":"event","toSide":"left"},
-		{"id":"e-ib-stopflush","fromNode":"ib","fromSide":"right","toNode":"stopflush","toSide":"left"}
+		{"id":"e1","fromNode":"index","fromSide":"right","toNode":"grace","toSide":"left"},
+		{"id":"e2","fromNode":"grace","fromSide":"right","toNode":"mas","toSide":"left"},
+		{"id":"e3","fromNode":"grace","fromSide":"right","toNode":"fw","toSide":"left"},
+		{"id":"e4","fromNode":"grace","fromSide":"right","toNode":"kmd","toSide":"left"},
+		{"id":"e5","fromNode":"grace","fromSide":"right","toNode":"tinykmd","toSide":"left"},
+		{"id":"e6","fromNode":"index","fromSide":"bottom","toNode":"tools","toSide":"top"},
+		{"id":"e7","fromNode":"tools","fromSide":"bottom","toNode":"codex","toSide":"top"},
+		{"id":"e8","fromNode":"index","fromSide":"bottom","toNode":"meta","toSide":"right"}
 	]
 }

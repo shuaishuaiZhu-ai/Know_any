@@ -2,7 +2,7 @@
 type: index
 title: "Codex 反思与进化"
 created: 2026-05-22
-updated: 2026-06-08
+updated: 2026-06-17
 tags:
   - codex
   - reflection
@@ -32,6 +32,8 @@ status: active
 - 涉及 token、账号、密钥、私密路径时只写“发现疑似敏感信息，已省略具体值”。
 
 ## 最近入口
+
+- [2026-06-17 飞书 Wiki 权限批处理工作流复盘](<./evolution/2026-06-17-feishu-permission-workflow.md>)
 
 - [2026-06-08 6月5日到6月8日 Codex 工作流复盘](<./evolution/2026-06-08-june5-8-workflow-retrospective.md>)
 - [2026-06-04 两周对话工作流质量门优化](<./evolution/2026-06-04-workflow-quality-gates.md>)

@@ -1,4 +1,4 @@
-﻿{
+{
   "nodes": [
     {
       "id": "source",
@@ -33,17 +33,17 @@
     {
       "id": "candidate",
       "type": "file",
-      "file": "wiki/fw/performance/CP candidate peek 热路径优化.md",
+      "file": "wiki/grace/fw/performance/CP cmd_entry 热路径与分支布局优化.md",
       "x": 360,
       "y": -180,
-      "width": 320,
+      "width": 340,
       "height": 120,
       "color": "4"
     },
     {
       "id": "branch",
       "type": "file",
-      "file": "wiki/fw/performance/CP 分支预取与 cmd_entry 布局优化.md",
+      "file": "wiki/grace/fw/cp-user/cmd_entry-branch-layout.md",
       "x": 720,
       "y": -180,
       "width": 340,
@@ -53,7 +53,7 @@
     {
       "id": "stopflush",
       "type": "file",
-      "file": "wiki/fw/cp-user/CP stop flush 与 queue 切换.md",
+      "file": "wiki/grace/fw/cp-user/CP stop flush 与 queue 切换.md",
       "x": 1080,
       "y": -180,
       "width": 320,
@@ -63,7 +63,7 @@
     {
       "id": "mcqd",
       "type": "file",
-      "file": "wiki/fw/flows/CP 多队列多上下文与 HCQD MCQD.md",
+      "file": "wiki/grace/fw/flows/CP command processing flow.md",
       "x": 360,
       "y": 180,
       "width": 340,
@@ -73,7 +73,7 @@
     {
       "id": "ringbuffer",
       "type": "file",
-      "file": "wiki/fw/debug/CP ringbuffer IPC 与 queue create 调试.md",
+      "file": "wiki/grace/fw/debug/CP ringbuffer IPC 与 queue create 调试.md",
       "x": 720,
       "y": 180,
       "width": 340,
@@ -83,22 +83,12 @@
     {
       "id": "bringup",
       "type": "file",
-      "file": "wiki/fw/debug/CP 平台 bring-up 与 PCIe 调试.md",
+      "file": "wiki/grace/fw/debug/CP 平台 bring-up 复盘合集.md",
       "x": 1080,
       "y": 180,
       "width": 340,
       "height": 120,
       "color": "3"
-    },
-    {
-      "id": "sdma",
-      "type": "file",
-      "file": "wiki/fw/debug/CP SDMA copy 与 kernel command 调试.md",
-      "x": 1080,
-      "y": 0,
-      "width": 340,
-      "height": 120,
-      "color": "2"
     }
   ],
   "edges": [
@@ -109,8 +99,6 @@
     {"id":"e5","fromNode":"branch","fromSide":"right","toNode":"stopflush","toSide":"left","toEnd":"arrow"},
     {"id":"e6","fromNode":"map","fromSide":"bottom","toNode":"mcqd","toSide":"top","toEnd":"arrow"},
     {"id":"e7","fromNode":"mcqd","fromSide":"right","toNode":"ringbuffer","toSide":"left","toEnd":"arrow"},
-    {"id":"e8","fromNode":"ringbuffer","fromSide":"right","toNode":"bringup","toSide":"left","toEnd":"arrow"},
-    {"id":"e9","fromNode":"sdma","fromSide":"top","toNode":"stopflush","toSide":"bottom","toEnd":"arrow"},
-    {"id":"e10","fromNode":"sdma","fromSide":"bottom","toNode":"bringup","toSide":"top","toEnd":"arrow"}
+    {"id":"e8","fromNode":"ringbuffer","fromSide":"right","toNode":"bringup","toSide":"left","toEnd":"arrow"}
   ]
 }

@@ -2,18 +2,42 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-13
+updated: 2026-06-18
 tags:
   - meta
   - log
 status: active
 ---
 
+## [2026-06-18] reorg | Wiki 大整理：域名重组 + 合并去重 + 质量清理
+
+- **域名重组**：把 `fw/`、`kmd/`、`tiny-kmd/`、`mas/` 四域 `git mv` 进 `wiki/grace/`，新增 [GraceC 芯片软硬件栈](<./grace/index.md>) 统一入口（MAS→FW→KMD 栈图 + 四域入口 + 放置规则）。全库重写跨域 md-link 路径与 `[[wiki/...]]` 路径 wikilink（加 `grace/` 前缀），修 grace/ 下 25 个文件 236 处 `_attachments` 图片相对深度（`../../../`→`../../../../`）。`log.md` 与日期审计快照的历史路径按规则保留原样。
+- **合并去重**：[Interaction-Buffer](<./grace/fw/concepts/Interaction-Buffer.md>) 作 canonical 吸收 [ib](<./grace/fw/cp-user/ib.md>) 寄存器/语义，ib.md 瘦身为 CP-User 代码侧 API+锁表；[master-user-interaction](<./grace/fw/cp-master/master-user-interaction.md>) 的 stop/flush 详情段改指 [CP stop flush 与 queue 切换](<./grace/fw/cp-user/CP stop flush 与 queue 切换.md>)；CLI 三页（grace-usart-console-cli / cp-usart-clock / agc_shell-cli-path）顶部加分工说明，以 grace-usart 为 canonical USART 基础；`fw/source-maps/` 折叠（leaf 上移到 `grace/fw/` 根，删 source-maps/index）。
+- **低质量页**：3 篇稀薄 debug 页（CP SDMA copy / aigc_sdk Bug / CP 平台 bring-up 与 PCIe）合并为 [CP 平台 bring-up 复盘合集](<./grace/fw/debug/CP 平台 bring-up 复盘合集.md>)（时间线 + 待补证据标注），删原 3 篇并改全部反链；[MCQD](<./grace/fw/concepts/MCQD.md>) 扩写去 stub；[硬件基础 RAM ROM Flash](<./synthesis/硬件基础 RAM ROM Flash.md>) 从 fw/concepts 移到 synthesis（主题错位修正）。
+- **瑕疵修复**：[tools/index](<./tools/index.md>) 去重复链接；[dashboard](<./meta/dashboard.md>) 删 `[[wiki/overview]]` 死链、Folder Model 更新到 grace/ 四域；`mas/RguCore/` 7 页补全 frontmatter；[kmd/concepts/index](<./grace/kmd/concepts/index.md>) 补列 aigc 词条；重画 [Wiki Map](<./Wiki Map.canvas>) 与 [语雀工作笔记知识图谱 canvas](<./canvases/语雀工作笔记知识图谱.canvas>)（补全域名 + 修过期/已删页引用）。
+- 同步更新 [Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)、各子域 index、[dashboard](<./meta/dashboard.md>)。
+
 ## [2026-06-18] add | AI 使用飞书 lark-cli 创建文档
 
 - 新增 [AI 使用飞书 lark-cli 创建文档：从零安装、授权到验证](<./tools/lark-cli-ai-document-guide.md>)：面向没有任何预配置的 AI Agent，覆盖 Node.js、`lark-cli + AI Skills` 安装、Skills 读取、应用配置、OAuth split-flow、user/bot 身份边界、v2 Markdown 创建、回读验收、权限与版本漂移处理。
 - 新增可编辑 SVG 与 PNG 流程图 `lark-cli-ai-document-flow`，同步更新 [工具链知识库](<./tools/index.md>)、[Wiki 总索引](<./index.md>) 和 [Hot Cache](<./hot.md>)。
 
+## [2026-06-18] add | Git fetch known_hosts 与 Docker 共享 SSH 排查
+
+- 新增 [Git fetch known_hosts 与 Docker 共享 SSH 排查](<./fw/debug/Git fetch known_hosts 与 Docker 共享 SSH 排查.md>)：80.116 `~/fw` `git fetch` 报 `known_hosts: Permission denied`，根因不是 known_hosts 内容，而是 `claude-code` 容器以 root 共享 `~/.ssh`、用"写临时文件+rename"原子更新把 `known_hosts` 属主写成 root，宿主读不了。解法：宿主用独立 `~/.ssh/known_hosts.local` + 仓库级 `core.sshCommand`，容器（不挂 `~/fw`）不受影响。**勿用全局 `~/.ssh/config`/`--global`**——会被容器共享，属主检查冲突反而破坏容器 ssh。
+- 同步更新 [FW 调试索引](<./fw/debug/index.md>)、[服务器环境 & 构建](<./fw/env.md>)、[Hot Cache](<./hot.md>)。
+
+## [2026-06-18] improve | Codex 画图与图解 Skills 更新
+
+- Updated [Codex Skills 使用地图](<./tools/codex-skills-map.md>) with a dedicated drawing-skills section.
+- Documented the boundary between `technical-diagram-generator` and `imagegen`, plus `lark-whiteboard`, SVG, Graphviz DOT, Mermaid, PNG delivery, link checks, overlap linting, and visible review.
+- Updated [工具链知识库](<./tools/index.md>), [Wiki 总索引](<./index.md>), and [Hot Cache](<./hot.md>).
+
+## [2026-06-17] add+improve | 飞书 Wiki 权限批处理复盘与工具手册 guardrail
+
+- 新增 [飞书 Wiki 权限批处理工作流复盘](<./codex-reflection/evolution/2026-06-17-feishu-permission-workflow.md>)：记录一次给飞书 Wiki 子树增加固件组 `edit` 权限时的工作流偏差和修正。核心规则：先查本仓库 index/manifest/profile/既有脚本；本项目默认 profile `cli_aa9d4e8d9eb91cc4`；固件组默认 `openchat oc_4f95921bd0d4d21abac09c0090b21ce9`；Wiki node 授权遇到 `1063002` 时 fallback 到 backing `obj_token/obj_type`。
+- 更新 [钉钉到飞书迁移脚本与 Skills 调用手册](<./tools/dingtalk-feishu-migration-workflow.md>)：加入 `grant_wiki_subtree_chat_edit.py` 和 Wiki 权限批处理 guardrail；移除页面中既有 App Secret 明文，改为只记录使用既有 profile 或 `FEISHU_APP_SECRET`。
+- 同步更新 [Codex 反思与进化](<./codex-reflection/index.md>)、[工具链知识库](<./tools/index.md>)、[Wiki 总索引](<./index.md>) 和 [Hot Cache](<./hot.md>)。
 ## [2026-06-15] add | KMD flows 区新增 8 个逐操作代码流程页（函数级调用链）
 
 - **新增 `wiki/kmd/flows/` 8 页**：把 kmd 代码流程从「时间线」细化到「函数级调用链」，配套远端 ajthunk
