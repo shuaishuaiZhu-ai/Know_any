@@ -21,3 +21,4 @@ status: active
 - [Claude Code CLI 使用教程](<./Claude Code CLI 使用教程.md>)
 - [Claude Code CLI 进阶教程](<./Claude Code CLI 进阶教程.md>)
 - [Claude Code 会话策略与跨 session 记忆机制](<./claude-code-session-and-memory.md>)
+- [容器内 Claude Code 交互模式 401 根因与修复](<./容器内 Claude Code 交互模式 401 根因与修复.md>)：docker 容器内 `claude` 输密码后交互 TUI 报 `Please run /login · 401`（`-p` 正常）；根因是 2.1.18x 交互优先读过期 `claudeAiOauth` 而非注入 token，修复=删该块 + 密码门/heal 自动剔除保险。

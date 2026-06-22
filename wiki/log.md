@@ -9,6 +9,12 @@ tags:
 status: active
 ---
 
+## [2026-06-22] add | 容器内 Claude Code 交互模式 401 根因与修复
+
+- Added [容器内 Claude Code 交互模式 401 根因与修复](<./tools/容器内 Claude Code 交互模式 401 根因与修复.md>)：docker 容器 `claude` 输密码后交互 TUI 报 `Please run /login · API Error: 401`，但 `claude -p` 正常。根因实测坐实——Claude Code 2.1.18x 交互模式优先读 `.credentials.json` 的过期 `claudeAiOauth` 而非密码门注入的 `CLAUDE_CODE_OAUTH_TOKEN`（旧版 2.1.173 优先 env token，故"更新后才坏"）。修复=删除过期 `claudeAiOauth` 块（保留 `mcpOAuth`），并新增 `strip-stale-oauth.sh` 接入密码门/`reinstall.sh`/`heal-claude.sh`（base64 自重建）做免维护自动剔除，已验证复发自愈。
+- Updated the tools index and Hot Cache for navigation.
+- Key insight: token 没坏、密码门没坏——是新版改了交互认证优先级去读磁盘过期凭证；修复点在"清掉过期 claudeAiOauth 让其回退注入 token"，不是重装密码门也不是重新登录。
+
 ## [2026-06-18] reorg | Wiki 大整理：域名重组 + 合并去重 + 质量清理
 
 - **域名重组**：把 `fw/`、`kmd/`、`tiny-kmd/`、`mas/` 四域 `git mv` 进 `wiki/grace/`，新增 [GraceC 芯片软硬件栈](<./grace/index.md>) 统一入口（MAS→FW→KMD 栈图 + 四域入口 + 放置规则）。全库重写跨域 md-link 路径与 `[[wiki/...]]` 路径 wikilink（加 `grace/` 前缀），修 grace/ 下 25 个文件 236 处 `_attachments` 图片相对深度（`../../../`→`../../../../`）。`log.md` 与日期审计快照的历史路径按规则保留原样。

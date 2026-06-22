@@ -25,6 +25,7 @@ status: active
 - Claude Code 教程（发布版，面向知乎/博客）：[Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)
 - Claude Code 进阶教程（发布版，面向知乎/博客）：[Claude Code CLI 进阶教程](<./tools/Claude Code CLI 进阶教程.md>)
 - Claude Code 会话策略与记忆（新增，2026-06-16）：[Claude Code 会话策略与跨 session 记忆机制](<./tools/claude-code-session-and-memory.md>)，用于回答"每任务新开 vs 长 session"以及新开后如何用 `--continue`/`--resume`、CLAUDE.md、自动记忆、`/remember` 交接、wiki 落盘把有用的东西带给下一个任务。
+- 容器 Claude 交互 401 修复（新增，2026-06-22）：[容器内 Claude Code 交互模式 401 根因与修复](<./tools/容器内 Claude Code 交互模式 401 根因与修复.md>)，docker 容器 `claude` 输密码后交互 TUI 报 `Please run /login · 401`（`-p` 正常），根因是 2.1.18x 交互优先读过期 `claudeAiOauth`；修复=删该块,并在密码门/`heal-claude.sh` 加自动剔除保险。
 - Codex 反思与进化：[Codex 反思与进化](<./codex-reflection/index.md>)
 - Codex 全局复盘：[全局 Codex 工作流复盘](<./codex-reflection/projects/2026-05-26-global-codex-workflow-review.md>)
 - Codex 总结反思：[2026-06-01 Codex 总结反思](<./codex-reflection/projects/2026-06-01-codex-summary-reflection.md>)
