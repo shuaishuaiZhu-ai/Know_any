@@ -21,7 +21,7 @@ status: active
 - **KMD 内核驱动知识库（新增）**：[KMD 内核驱动知识库](<./kmd/index.md>)，`aigc.ko` 内核态驱动——三层架构、ioctl/ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、Grace HAL；面向应届生、含 mermaid 图与 `文件:行` 引用。配套 [代码评审意见](<./kmd/review/kmd-code-review.md>)。
 - **KMD 逐操作代码流程（新增，2026-06-15）**：[端到端流程索引](<./kmd/flows/index.md>) 下新增 8 个**函数级调用链**页（probe / 设备初始化 / context / mem-create / 页表写入 / queue-create / 命令提交下发 / 完成中断），与远端 `docs/kmd-step-comments` 分支的函数内 step 注释配套，可对着真实函数名读源码。
 - **tiny-kmd 架构知识库（新增）**：[tiny-kmd 架构知识库](<./tiny-kmd/index.md>)，最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），含 [对照 ajthunk 的缺口](<./tiny-kmd/gap-vs-ajthunk.md>) 与移植顺序。配套远端代码仓 `aigc-kmd-modular`（ajthunk kmd 模块化抽取 + 移植/重构指南）。
-- CP USART/Clock IMC 统一初始化（`zss/MoveUsart`）：[CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计评审 + 实现详解](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)
+- CP USART/Clock IMC 统一初始化（`zss/MoveUsart` commit `d18bc36`）：[CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计文档](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)
 - Claude Code 教程（发布版，面向知乎/博客）：[Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)
 - Claude Code 进阶教程（发布版，面向知乎/博客）：[Claude Code CLI 进阶教程](<./tools/Claude Code CLI 进阶教程.md>)
 - Claude Code 会话策略与记忆（新增，2026-06-16）：[Claude Code 会话策略与跨 session 记忆机制](<./tools/claude-code-session-and-memory.md>)，用于回答"每任务新开 vs 长 session"以及新开后如何用 `--continue`/`--resume`、CLAUDE.md、自动记忆、`/remember` 交接、wiki 落盘把有用的东西带给下一个任务。
@@ -64,7 +64,7 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 - RguGCtrl 阅读提醒：`logic cluster -> block -> core` 是 ClusCtrl 的 cluster 内部调度；GlbCtrl 只负责到 physical cluster 的全局分配。
 
 - IMC 启动：[IMC 启动到 main 流程](<./fw/imc/startup-to-main.md>)
-- CP USART/Clock IMC 初始化：[CP USART 与 Core Clock 解耦 IMC 统一初始化（设计评审 + 实现详解）](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)，`zss/MoveUsart` 单一文档，含 IMC 统一初始化 USART1..5、CP 只注册 device/console/shell、core clock 按 `FW_IMC` 分流的设计评审、风险与逐函数图解。
+- CP USART/Clock IMC 初始化：[CP USART 与 Core Clock 解耦 IMC 统一初始化（设计文档）](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)，`zss/MoveUsart` commit `d18bc36`，含 IMC 统一初始化 USART1..5、CP 只注册 device/console/shell、core clock 按 `FW_IMC && !FW_BACKDOOR` 分流的设计、权衡、风险与 SVG/PNG 图解。
 - CLI 卡顿/行编辑：[agc_shell CLI 输入输出路径与 cp master 卡顿分析](<./fw/cli/agc_shell-cli-path.md>)，用于查看输入 ringbuffer、Backspace/Delete、`this_line` 当前行字符串和 argv 组装。
 - USART 路径：[Grace USART、RT-Thread console 与 agc_shell 完整链路](<./fw/cli/grace-usart-console-cli.md>)，用于查看 USART 硬件初始化、RT-Thread device 注册、console 输出、shell 输入中断、ringbuffer 和完整触发链路；图解已按 technical-diagram-generator workflow 生成 SVG/PNG 资产。
 - CP ringbuffer IPC：[CP ringbuffer IPC 与 queue create 调试](<./fw/debug/CP ringbuffer IPC 与 queue create 调试.md>)，用于区分 IPC shared RB 与 CLI 本地 RB、is_ipc_rb 地址转换、IPC 发送/接收和 queue create 调试流程；图解已按 technical-diagram-generator workflow 生成 SVG/PNG 资产。

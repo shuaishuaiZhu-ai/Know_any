@@ -37,7 +37,7 @@ related:
 > Source snapshot: 2026-06-03 从 `192.168.80.116:/home/shuaishuai.zhu/fw` 当前源码读取，当前 HEAD `541207a`。  
 > Scope: 本页解释 USART 在 Grace FW 里的完整软件链路：地址选择、硬件初始化、RT-Thread device 注册、console 输出、agc_shell 输入、中断触发、ringbuffer 缓冲和调试顺序。不证明板上实际波形、外部 host 终端配置或硬件时序。
 > Diagram note: 本页图解按 `technical-diagram-generator` workflow 重新生成，每张图均保留 SVG 源文件和 PNG 渲染图。
-> Current MoveUsart note: 当前 `zss/MoveUsart` 分支已把 CP USART 的硬件初始化迁到 IMC，CP 侧只保留 RT-Thread device/console/shell 软件注册。core clock 也由 `drv_clk_get_core_clock()` 按 `FW_IMC` 分流。详细见 [CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计评审 + 实现详解](<./cp-usart-clock-imc-init-design-review.md>)。
+> Current MoveUsart note: 当前 `zss/MoveUsart` 分支已把 CP USART 的硬件初始化迁到 IMC，CP 侧只保留 RT-Thread device/console/shell 软件注册。core clock 也由 `drv_clk_get_core_clock()` 按 `FW_IMC && !FW_BACKDOOR` 分流。详细见 [CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计文档](<./cp-usart-clock-imc-init-design-review.md>)。
 
 ## 1. 一句话理解
 
