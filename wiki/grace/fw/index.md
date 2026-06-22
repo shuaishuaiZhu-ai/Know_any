@@ -24,12 +24,17 @@ status: active
 7. [CLI 索引](<./cli/index.md>)：看 agc_shell、USART、UART、RT-Thread 调度、输入 ringbuffer、Backspace 行编辑和 CP USART 移到 IMC 统一初始化。
 8. [RT-Thread 索引](<./rt-thread/index.md>)：看 yield/delay/ready queue 语义。
 9. [GPGPU FW DVFS 学习文档](<./performance/dvfs-gpgpu-fw.md>)：理解 OPP/VF 频点、DVFS 状态机、timing 和面试问法。
-10. [C2C 互联学习文档](<./interconnect/c2c-dingtalk-study.md>)：理解 LD/ST 互联、topo discovery、AMT route、OISA/L2 封装、loopback 和 RAS。
-11. [C2C PHY 近端环回与远端环回详解](<./interconnect/c2c-loopback-near-far.md>)：理解 NEP/NES/NES-ext/FEP/FES/FEP-err、Top/Adapter/LLRMAC 环回和调试选择顺序。
-12. [Portmap 路由表数字图解](<./interconnect/portmap-routing-table.md>)：理解 C2C/D2D portmap 表项如何由拓扑、下一跳策略和 serdes/ucie 编码得到。
-13. [C2C transaction routing 与 OISA/L2 封装](<./interconnect/c2c-transaction-routing-and-encapsulation.md>)：逐层解释 GPU/SDMA/TMA memory transaction 经过 NoC、AMT/top/mesh_router、portmap、C2C adapter、OISA MAC、switch L2 外壳和 SerDes 的运行时路径。
-14. [C2C 子系统结构图拆解](<./interconnect/c2c-macphy-wrapper-subsystem.md>)：按高分辨率 MACPHY_WRAPPER 图拆解 Adapter、LLRMAC、Hss112GX4Wrapper、x2/x4 port 和调试分层。
-15. [AXI5 协议详解与 C2C 中 AXI 的作用](<./interconnect/axi5-protocol-and-c2c-role.md>)：理解 AXI5 五通道、VALID/READY、burst、ID、atomic，以及 AXI 在 C2C adapter、AXI monitor、NoC 边界中的作用。
+10. **【C2C 权威层·先读】** [C2C_SS 架构总览（MAS v0.8）](<./interconnect/c2c-ss-architecture-overview.md>)：C2C_SS 是什么、直连/switch 拓扑、分层协议栈、两种 MACPHY wrapper、精确规格、data/config 双通路。
+11. **【C2C 权威层】** [C2C 帧格式详解：OISA 与标准以太](<./interconnect/c2c-frame-format-oisa-l2.md>)：帧头逐字段、PktType/frame_type 编码、4 VC、组包、拓扑/延时帧。
+12. **【C2C 权威层】** [C2C Adapter 内部数据通路](<./interconnect/c2c-adapter-internals.md>)：InputCtl/PktComb/PktEdit/PktSplit/OutputCtl、Credit/PFC、Early response、Atomic、FA、buffer 深度。
+13. **【C2C 权威层】** [C2C 时钟、复位与初始化](<./interconnect/c2c-clock-reset-init.md>)：时钟域/CRG/PLL、分级复位、bring-up、PHY power state、APB Matrix、JTAG。
+14. **【C2C 权威层】** [C2C 接口信号速查 + 中断与 RAS](<./interconnect/c2c-interface-signals-and-ras.md>)：全部对外信号分组、7 根中断线 + C2C_INT_STATUS、RAS 注错。
+15. [C2C 互联学习文档](<./interconnect/c2c-dingtalk-study.md>)：理解 LD/ST 互联、topo discovery、AMT route、OISA/L2 封装、loopback 和 RAS（钉钉来源·概念层）。
+16. [C2C PHY 近端环回与远端环回详解](<./interconnect/c2c-loopback-near-far.md>)：理解 NEP/NES/NES-ext/FEP/FES/FEP-err、Top/Adapter/LLRMAC 环回和调试选择顺序。
+17. [Portmap 路由表数字图解](<./interconnect/portmap-routing-table.md>)：理解 C2C/D2D portmap 表项如何由拓扑、下一跳策略和 serdes/ucie 编码得到。
+18. [C2C transaction routing 与 OISA/L2 封装](<./interconnect/c2c-transaction-routing-and-encapsulation.md>)：逐层解释 GPU/SDMA/TMA memory transaction 经过 NoC、AMT/top/mesh_router、portmap、C2C adapter、OISA MAC、switch L2 外壳和 SerDes 的运行时路径。
+19. [C2C 子系统结构图拆解](<./interconnect/c2c-macphy-wrapper-subsystem.md>)：按高分辨率 MACPHY_WRAPPER 图拆解 Adapter、LLRMAC、Hss112GX4Wrapper、x2/x4 port 和调试分层。
+20. [AXI5 协议详解与 C2C 中 AXI 的作用](<./interconnect/axi5-protocol-and-c2c-role.md>)：理解 AXI5 五通道、VALID/READY、burst、ID、atomic，以及 AXI 在 C2C adapter、AXI monitor、NoC 边界中的作用。
 
 ## 总图
 
@@ -62,7 +67,7 @@ flowchart LR
 | Concepts | [FW 概念索引](<./concepts/index.md>) | HCQD、MCQD、IB、iDMA、Command Packet、Event Table。 |
 | Flows | [FW 流程索引](<./flows/index.md>) | 命令处理、多队列多 context、event/atomic/wait host。 |
 | Performance | [FW 性能索引](<./performance/index.md>) | candidate peek、分支预取、hot path、GPGPU DVFS、OPP/VF、timing。 |
-| Interconnect | [FW Interconnect 索引](<./interconnect/index.md>) | C2C、AXI5、OISA、PCIe/HWJ 对比、topo discovery、AMT route、portmap 路由表、loopback/RAS、近端/远端环回。 |
+| Interconnect | [FW Interconnect 索引](<./interconnect/index.md>) | **C2C_SS MAS v0.8 权威层**（架构总览/帧格式/Adapter 内部/时钟复位初始化/接口信号 RAS）+ AXI5、OISA、PCIe/HWJ 对比、topo discovery、portmap、loopback/RAS。本目录本地专属（gitignore）。 |
 | Debug | [FW 调试索引](<./debug/index.md>) | ringbuffer IPC/CLI 地址转换图解、SDMA、PCIe bring-up、aigc_sdk bug scan。 |
 | Source Maps | [GraceC CP MAS v1.4 code knowledge map](<./GraceC CP MAS v1.4 code knowledge map.md>) | MAS 文档与代码主线映射、源材料对应关系。 |
 | Learnings | [FW Learnings 索引](<./learnings/index.md>) | HCQD 调度版本演进、review 规则。 |

@@ -11,3 +11,7 @@
 Thumbs.db
 desktop.ini
 .obsidian/plugins/*/data.json
+
+# C2C / interconnect 知识层本地专属（含权威 MAS 内容），不上传 GitHub
+wiki/grace/fw/interconnect/
+_attachments/fw/interconnect/

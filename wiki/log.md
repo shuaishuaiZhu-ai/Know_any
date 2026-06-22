@@ -9,6 +9,16 @@ tags:
 status: active
 ---
 
+## [2026-06-22] add | C2C_SS MAS v0.8 权威层（5 新页 + 订正 6 页 + 整目录本地化）
+
+- 依据官方架构规范 `C:\work\mas\C2C\Grace_c2c_ss_mas_v0.8.docx`（C2C_SS Architecture Specification v0.8）新增 5 篇权威小白页（`wiki/grace/fw/interconnect/`）：
+  - **新增** [C2C_SS 架构总览](<./grace/fw/interconnect/c2c-ss-architecture-overview.md>)、[C2C 帧格式详解：OISA 与标准以太](<./grace/fw/interconnect/c2c-frame-format-oisa-l2.md>)、[C2C Adapter 内部数据通路](<./grace/fw/interconnect/c2c-adapter-internals.md>)、[C2C 时钟、复位与初始化](<./grace/fw/interconnect/c2c-clock-reset-init.md>)、[C2C 接口信号速查 + 中断与 RAS](<./grace/fw/interconnect/c2c-interface-signals-and-ras.md>)。
+- **订正** 现有 6 页（加 MAS 权威层 callout + 双向链接）：dingtalk-study（§17 缺口逐行标注已补齐）、transaction-routing、loopback-near-far（FES 项目不支持）、macphy-wrapper（双/单 400G 命名）、axi5-protocol（1024b@900M/384 outstanding/user 信号）、portmap（port_map / Memory barrier 固定端口转发 + DLB RR）。
+- **配图**：从 docx `word/media/` 抽取复用 78 张图，EMF（24 张矢量）经 .NET System.Drawing 转 PNG，存 `_attachments/fw/interconnect/c2c/mas/`，语义化命名，正常 `![]()` 内嵌（Obsidian 本地渲染）。
+- **本地化**：`.gitignore` 追加 `wiki/grace/fw/interconnect/` + `_attachments/fw/interconnect/`，并 `git rm -r --cached` 取消跟踪已提交内容——整个 C2C/互联层**只在本地、不上 GitHub**（GitHub 上对应链接会 404，本地 Obsidian 正常）。因此无需脱敏，可写精确规格/寄存器/内网 datasheet 路径。
+- **关键订正记录**：MAS §1.3 Features 把 VC 概括成"VC2:rd_rsp、VC3:wr_rsp"与详细设计表 3.3 矛盾；以详细设计为准 **VC2=写响应、VC3=读响应**（依据帧头开销取自 B/R 通道）。
+- 同步更新 [FW Interconnect 索引](<./grace/fw/interconnect/index.md>)（分权威层/概念层两组）、[FW 技术知识库](<./grace/fw/index.md>)（阅读顺序 10–14 插入权威层）、[Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)。
+
 ## [2026-06-22] update | CP USART/Clock 页重写为设计文档（对齐 commit d18bc36）
 
 - **更新** [CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计文档](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)：原页基于未提交 diff（HEAD `944c37c`），现该改动已合入 commit **`d18bc36`**。按提交定稿对齐：

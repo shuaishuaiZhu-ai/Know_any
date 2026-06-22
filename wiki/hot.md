@@ -48,6 +48,7 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 
 ## 最近活跃主题
 
+- **C2C_SS MAS v0.8 权威层（新增，2026-06-22）**：依据官方架构规范 `Grace_c2c_ss_mas_v0.8.docx` 新写 5 篇权威小白页 + 订正 6 篇旧页。先读 [C2C_SS 架构总览](<./grace/fw/interconnect/c2c-ss-architecture-overview.md>)，再到 [帧格式 OISA/L2](<./grace/fw/interconnect/c2c-frame-format-oisa-l2.md>)、[Adapter 内部](<./grace/fw/interconnect/c2c-adapter-internals.md>)、[时钟复位初始化](<./grace/fw/interconnect/c2c-clock-reset-init.md>)、[接口信号 + 中断/RAS](<./grace/fw/interconnect/c2c-interface-signals-and-ras.md>)。复用了 docx 原图（EMF→PNG）。⚠️ **整个 `wiki/grace/fw/interconnect/` + `_attachments/fw/interconnect/` 已加 `.gitignore`，本地专属、不上 GitHub**（故无需脱敏，可写满精度）。重要订正：VC2=写响应/VC3=读响应（MAS §1.3 概括有笔误）；远端环回 FES 项目不支持。
 - **Wiki 大整理（2026-06-18）**：把 `fw/`、`kmd/`、`tiny-kmd/`、`mas/` 四域迁入 `wiki/grace/`，新增 [GraceC 芯片软硬件栈](<./grace/index.md>) 统一入口；合并 IB/stop-flush/CLI 重叠页，3 篇稀薄 debug 页合成 [CP 平台 bring-up 复盘合集](<./grace/fw/debug/CP 平台 bring-up 复盘合集.md>)，`source-maps/` 折叠，`硬件基础 RAM ROM Flash` 移到 synthesis；修全库路径/wikilink/图片深度，重画 Wiki Map。详见 [Wiki Log](<./log.md>)。
 - 飞书 lark-cli AI 建文档（新增，2026-06-18）：[从零安装、授权到验证](<./tools/lark-cli-ai-document-guide.md>)。面向未配置任何工具的 AI Agent，要求自行安装 CLI/Skills、读取 `lark-shared`/`lark-doc`、发起链接与二维码授权、使用 v2 创建文档并回读验收。
 - **Git fetch known_hosts 与 Docker 共享 SSH 排查**（2026-06-18）：[排查页](<./grace/fw/debug/Git fetch known_hosts 与 Docker 共享 SSH 排查.md>)。80.116 `git fetch` 报 `known_hosts: Permission denied` 时，根因是 `claude-code` 容器以 root 共享 `~/.ssh` 污染属主（不是首次连接）；解法为宿主用独立 `~/.ssh/known_hosts.local` + 仓库级 `core.sshCommand`，勿用全局 config。
