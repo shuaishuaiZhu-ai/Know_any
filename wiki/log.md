@@ -2,26 +2,22 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-18
+updated: 2026-06-22
 tags:
   - meta
   - log
 status: active
 ---
 
-## [2026-06-22] add | 容器内 Claude Code 交互模式 401 根因与修复
+## [2026-06-22] update | CP USART/Clock 页重写为设计文档（对齐 commit d18bc36）
 
-- Added [容器内 Claude Code 交互模式 401 根因与修复](<./tools/容器内 Claude Code 交互模式 401 根因与修复.md>)：docker 容器 `claude` 输密码后交互 TUI 报 `Please run /login · API Error: 401`，但 `claude -p` 正常。根因实测坐实——Claude Code 2.1.18x 交互模式优先读 `.credentials.json` 的过期 `claudeAiOauth` 而非密码门注入的 `CLAUDE_CODE_OAUTH_TOKEN`（旧版 2.1.173 优先 env token，故"更新后才坏"）。修复=删除过期 `claudeAiOauth` 块（保留 `mcpOAuth`），并新增 `strip-stale-oauth.sh` 接入密码门/`reinstall.sh`/`heal-claude.sh`（base64 自重建）做免维护自动剔除，已验证复发自愈。
-- Updated the tools index and Hot Cache for navigation.
-- Key insight: token 没坏、密码门没坏——是新版改了交互认证优先级去读磁盘过期凭证；修复点在"清掉过期 claudeAiOauth 让其回退注入 token"，不是重装密码门也不是重新登录。
-
-## [2026-06-18] reorg | Wiki 大整理：域名重组 + 合并去重 + 质量清理
-
-- **域名重组**：把 `fw/`、`kmd/`、`tiny-kmd/`、`mas/` 四域 `git mv` 进 `wiki/grace/`，新增 [GraceC 芯片软硬件栈](<./grace/index.md>) 统一入口（MAS→FW→KMD 栈图 + 四域入口 + 放置规则）。全库重写跨域 md-link 路径与 `[[wiki/...]]` 路径 wikilink（加 `grace/` 前缀），修 grace/ 下 25 个文件 236 处 `_attachments` 图片相对深度（`../../../`→`../../../../`）。`log.md` 与日期审计快照的历史路径按规则保留原样。
-- **合并去重**：[Interaction-Buffer](<./grace/fw/concepts/Interaction-Buffer.md>) 作 canonical 吸收 [ib](<./grace/fw/cp-user/ib.md>) 寄存器/语义，ib.md 瘦身为 CP-User 代码侧 API+锁表；[master-user-interaction](<./grace/fw/cp-master/master-user-interaction.md>) 的 stop/flush 详情段改指 [CP stop flush 与 queue 切换](<./grace/fw/cp-user/CP stop flush 与 queue 切换.md>)；CLI 三页（grace-usart-console-cli / cp-usart-clock / agc_shell-cli-path）顶部加分工说明，以 grace-usart 为 canonical USART 基础；`fw/source-maps/` 折叠（leaf 上移到 `grace/fw/` 根，删 source-maps/index）。
-- **低质量页**：3 篇稀薄 debug 页（CP SDMA copy / aigc_sdk Bug / CP 平台 bring-up 与 PCIe）合并为 [CP 平台 bring-up 复盘合集](<./grace/fw/debug/CP 平台 bring-up 复盘合集.md>)（时间线 + 待补证据标注），删原 3 篇并改全部反链；[MCQD](<./grace/fw/concepts/MCQD.md>) 扩写去 stub；[硬件基础 RAM ROM Flash](<./synthesis/硬件基础 RAM ROM Flash.md>) 从 fw/concepts 移到 synthesis（主题错位修正）。
-- **瑕疵修复**：[tools/index](<./tools/index.md>) 去重复链接；[dashboard](<./meta/dashboard.md>) 删 `[[wiki/overview]]` 死链、Folder Model 更新到 grace/ 四域；`mas/RguCore/` 7 页补全 frontmatter；[kmd/concepts/index](<./grace/kmd/concepts/index.md>) 补列 aigc 词条；重画 [Wiki Map](<./Wiki Map.canvas>) 与 [语雀工作笔记知识图谱 canvas](<./canvases/语雀工作笔记知识图谱.canvas>)（补全域名 + 修过期/已删页引用）。
-- 同步更新 [Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)、各子域 index、[dashboard](<./meta/dashboard.md>)。
+- **更新** [CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计文档](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)：原页基于未提交 diff（HEAD `944c37c`），现该改动已合入 commit **`d18bc36`**。按提交定稿对齐：
+  - 函数命名更正——`drv_usart_init` 移除，统一为对称三函数 `drv_usart_hw_init` / `drv_usart_register` / `drv_usart_full_init`（旧草稿的 `hw_config` / `hw_init_only` 不复存在）。
+  - core clock 分流条件更正为 `FW_IMC && !FW_BACKDOOR`（IMC backdoor 与 CP 一起走寄存器推导）。
+  - 兼容性章节更正：API 为源级改名（全树 3 个调用点已更新），非"零改动"。
+  - **重排为设计文档**：删减原 Part B 逐函数代码讲解，保留职责分层、地址映射、启动时序、权衡、风险、checklist 与图解。
+- **同步更新 4 张 SVG/PNG 图**（`_attachments/fw/cli/cp-usart-imc-unified-init/`）的函数名；driver-split 图按新三函数结构重绘，已用 resvg 重渲并视觉校验。
+- 同步更新 [CLI 索引](<./fw/cli/index.md>) 与 [Hot Cache](<./hot.md>) 的条目描述。
 
 ## [2026-06-18] add | AI 使用飞书 lark-cli 创建文档
 
@@ -514,3 +510,9 @@ status: active
 - 配套远端仓库 `git@github.com:shuaishuaiZhu-ai/all_skills.git`(分支 `main`),本机已 install 验证 + 清掉 9 个 Cloudflare 个人重复副本。
 - Updated the tools index, wiki root index, and Hot Cache for navigation.
 - Key insight: 跨工具共享 skills 的关键是"插件归插件、仓库归仓库"——有插件形态的只声明依赖让云端做正本,仓库只 vendor 手写、插件没有的 skill。
+
+## [2026-06-17] update | all_skills v2:交互式 TUI(install 选启用集 + push 选提交)
+
+- 更新 [all_skills:跨机器共享 Claude/Codex Skills 仓库](<./tools/all-skills-shared-repo.md>) 到 v2:install/push 改用 **Textual TUI**(分类 tab + 复选框,←/→ 切分类、↑/↓ + 空格勾选);未装 textual / 非 TTY / `--no-tui` 自动降级为 stdlib 编号选择。
+- install 先选**本机启用集**(存 `~/.agent-skills/selection.json`,不改共享 manifest;勾的复制、取消的移除、Codex 路由只列勾选);分类=混合(默认按来源,manifest `category` 覆盖)。新增 `push.py` 贡献脚本(自动收集 新增/更新 → 复选框 → commit&push)。
+- Key insight: TUI 标准化在脚本里(Textual + run_test 可 headless 验证),比"交给代理渲染复选框"更通用;`--only` 须用 `is not None` 判定,空串别当交互(踩过坑:误提交)。

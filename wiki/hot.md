@@ -18,10 +18,10 @@ status: active
 ## 当前主入口
 
 
-- **KMD 内核驱动知识库（新增）**：[KMD 内核驱动知识库](<./grace/kmd/index.md>)，`aigc.ko` 内核态驱动——三层架构、ioctl/ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、Grace HAL；面向应届生、含 mermaid 图与 `文件:行` 引用。配套 [代码评审意见](<./grace/kmd/review/kmd-code-review.md>)。
-- **KMD 逐操作代码流程（新增，2026-06-15）**：[端到端流程索引](<./grace/kmd/flows/index.md>) 下新增 8 个**函数级调用链**页（probe / 设备初始化 / context / mem-create / 页表写入 / queue-create / 命令提交下发 / 完成中断），与远端 `docs/kmd-step-comments` 分支的函数内 step 注释配套，可对着真实函数名读源码。
-- **tiny-kmd 架构知识库（新增）**：[tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)，最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），含 [对照 ajthunk 的缺口](<./grace/tiny-kmd/gap-vs-ajthunk.md>) 与移植顺序。配套远端代码仓 `aigc-kmd-modular`（ajthunk kmd 模块化抽取 + 移植/重构指南）。
-- CP USART/Clock IMC 统一初始化（`zss/MoveUsart`）：[CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计评审 + 实现详解](<./grace/fw/cli/cp-usart-clock-imc-init-design-review.md>)
+- **KMD 内核驱动知识库（新增）**：[KMD 内核驱动知识库](<./kmd/index.md>)，`aigc.ko` 内核态驱动——三层架构、ioctl/ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、Grace HAL；面向应届生、含 mermaid 图与 `文件:行` 引用。配套 [代码评审意见](<./kmd/review/kmd-code-review.md>)。
+- **KMD 逐操作代码流程（新增，2026-06-15）**：[端到端流程索引](<./kmd/flows/index.md>) 下新增 8 个**函数级调用链**页（probe / 设备初始化 / context / mem-create / 页表写入 / queue-create / 命令提交下发 / 完成中断），与远端 `docs/kmd-step-comments` 分支的函数内 step 注释配套，可对着真实函数名读源码。
+- **tiny-kmd 架构知识库（新增）**：[tiny-kmd 架构知识库](<./tiny-kmd/index.md>)，最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），含 [对照 ajthunk 的缺口](<./tiny-kmd/gap-vs-ajthunk.md>) 与移植顺序。配套远端代码仓 `aigc-kmd-modular`（ajthunk kmd 模块化抽取 + 移植/重构指南）。
+- CP USART/Clock IMC 统一初始化（`zss/MoveUsart` commit `d18bc36`）：[CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计文档](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)
 - Claude Code 教程（发布版，面向知乎/博客）：[Claude Code CLI 使用教程](<./tools/Claude Code CLI 使用教程.md>)
 - Claude Code 进阶教程（发布版，面向知乎/博客）：[Claude Code CLI 进阶教程](<./tools/Claude Code CLI 进阶教程.md>)
 - Claude Code 会话策略与记忆（新增，2026-06-16）：[Claude Code 会话策略与跨 session 记忆机制](<./tools/claude-code-session-and-memory.md>)，用于回答"每任务新开 vs 长 session"以及新开后如何用 `--continue`/`--resume`、CLAUDE.md、自动记忆、`/remember` 交接、wiki 落盘把有用的东西带给下一个任务。
@@ -52,10 +52,8 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 - 飞书 lark-cli AI 建文档（新增，2026-06-18）：[从零安装、授权到验证](<./tools/lark-cli-ai-document-guide.md>)。面向未配置任何工具的 AI Agent，要求自行安装 CLI/Skills、读取 `lark-shared`/`lark-doc`、发起链接与二维码授权、使用 v2 创建文档并回读验收。
 - **Git fetch known_hosts 与 Docker 共享 SSH 排查**（2026-06-18）：[排查页](<./grace/fw/debug/Git fetch known_hosts 与 Docker 共享 SSH 排查.md>)。80.116 `git fetch` 报 `known_hosts: Permission denied` 时，根因是 `claude-code` 容器以 root 共享 `~/.ssh` 污染属主（不是首次连接）；解法为宿主用独立 `~/.ssh/known_hosts.local` + 仓库级 `core.sshCommand`，勿用全局 config。
 
-
-- Codex 飞书权限复盘（新增，2026-06-17）：[飞书 Wiki 权限批处理工作流复盘](<./codex-reflection/evolution/2026-06-17-feishu-permission-workflow.md>)，用于提醒飞书权限写操作前先查项目 index/manifest/profile，固件组默认 `openchat oc_4f95921bd0d4d21abac09c0090b21ce9`，Wiki node 失败时 fallback 到 backing docx。
-- Codex Skills：[使用地图](<./tools/codex-skills-map.md>)，用于查当前安装 skills、触发场景和选择流程；已补画图专章，区分技术图解 `technical-diagram-generator`、普通位图 `imagegen`、飞书画板 `lark-whiteboard` 以及 SVG/Graphviz/Mermaid 渲染路径。
-- 跨机器共享 skills（新增，2026-06-16）：[all_skills:跨机器共享 Claude/Codex Skills 仓库](<./tools/all-skills-shared-repo.md>)，用于回答"一个仓库怎么让多机器的 Claude 和 Codex 都用上同一批 skills"——`sync.py` 编译器、`manifest.json` 安装清单、`collect→多选框→push` 贡献流程、"插件声明依赖不复制 / 撞名仓库优先"去重原则。远端 `git@github.com:shuaishuaiZhu-ai/all_skills.git`。
+- Codex Skills：[使用地图](<./tools/codex-skills-map.md>)，用于查当前安装 skills、触发场景、选择流程和重名来源。
+- 跨机器共享 skills（2026-06-16 建，**2026-06-17 v2**）：[all_skills:跨机器共享 Claude/Codex Skills 仓库](<./tools/all-skills-shared-repo.md>)，用于回答"一个仓库怎么让多机器的 Claude 和 Codex 都用上同一批 skills"——`sync.py` 编译器、`manifest.json` 全量目录 + 本机启用集、**v2 交互式 TUI**(Textual:分类 tab + 复选框;install 选启用、`push.py` 选提交;无 TTY/未装 textual 自动降级)、"插件声明依赖不复制 / 撞名仓库优先"去重。远端 `git@github.com:shuaishuaiZhu-ai/all_skills.git`。
 - 钉钉到飞书迁移：[脚本与 Skills 调用手册](<./tools/dingtalk-feishu-migration-workflow.md>)，用于 Claude/Codex 复用 DWS + lark-cli 迁移流程、权限脚本、附件卡片和流程图修复审计。
 - Claude Code CLI：[使用教程](<./tools/Claude Code CLI 使用教程.md>)，**新手友好长文 + 手工 SVG 图解**：五分钟上手、权限模型、CLAUDE.md（user vs 项目级、`/init`）、skills 与 plugins（含 superpowers 实战、官方 marketplace 地址）、hooks/MCP/settings 和排错。
 - claude-code-proxy：[项目 Wiki](<./tools/claude-code-proxy/index.md>)，用于回看 ccproxy 安装、provider/model 切换、订阅登录和故障排查。
@@ -70,16 +68,16 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 - DVFS 更新提醒：DVFS 状态机图已恢复为紧凑的 stateDiagram-v2，保留单行状态名和状态含义表。
 - RguGCtrl 阅读提醒：`logic cluster -> block -> core` 是 ClusCtrl 的 cluster 内部调度；GlbCtrl 只负责到 physical cluster 的全局分配。
 
-- IMC 启动：[IMC 启动到 main 流程](<./grace/fw/imc/startup-to-main.md>)
-- CP USART/Clock IMC 初始化：[CP USART 与 Core Clock 解耦 IMC 统一初始化（设计评审 + 实现详解）](<./grace/fw/cli/cp-usart-clock-imc-init-design-review.md>)，`zss/MoveUsart` 单一文档，含 IMC 统一初始化 USART1..5、CP 只注册 device/console/shell、core clock 按 `FW_IMC` 分流的设计评审、风险与逐函数图解。
-- CLI 卡顿/行编辑：[agc_shell CLI 输入输出路径与 cp master 卡顿分析](<./grace/fw/cli/agc_shell-cli-path.md>)，用于查看输入 ringbuffer、Backspace/Delete、`this_line` 当前行字符串和 argv 组装。
-- USART 路径：[Grace USART、RT-Thread console 与 agc_shell 完整链路](<./grace/fw/cli/grace-usart-console-cli.md>)，用于查看 USART 硬件初始化、RT-Thread device 注册、console 输出、shell 输入中断、ringbuffer 和完整触发链路；图解已按 technical-diagram-generator workflow 生成 SVG/PNG 资产。
-- CP ringbuffer IPC：[CP ringbuffer IPC 与 queue create 调试](<./grace/fw/debug/CP ringbuffer IPC 与 queue create 调试.md>)，用于区分 IPC shared RB 与 CLI 本地 RB、is_ipc_rb 地址转换、IPC 发送/接收和 queue create 调试流程；图解已按 technical-diagram-generator workflow 生成 SVG/PNG 资产。
-- RT-Thread yield：[RT-Thread rt_thread_yield 实现与使用风险](<./grace/fw/rt-thread/rt_thread_yield.md>)
-- CP User 调度：[cmd_entry — CP User 调度器](<./grace/fw/cp-user/cmd_entry.md>)
-- 分支布局：[cmd_entry branch layout](<./grace/fw/cp-user/cmd_entry-branch-layout.md>)
-- stop/flush：[CP stop flush 与 queue 切换](<./grace/fw/cp-user/CP stop flush 与 queue 切换.md>)
-- L2C remapping：[L2C Remapping 机制](<./grace/mas/L2C/remapping.md>)
+- IMC 启动：[IMC 启动到 main 流程](<./fw/imc/startup-to-main.md>)
+- CP USART/Clock IMC 初始化：[CP USART 与 Core Clock 解耦 IMC 统一初始化（设计文档）](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)，`zss/MoveUsart` commit `d18bc36`，含 IMC 统一初始化 USART1..5、CP 只注册 device/console/shell、core clock 按 `FW_IMC && !FW_BACKDOOR` 分流的设计、权衡、风险与 SVG/PNG 图解。
+- CLI 卡顿/行编辑：[agc_shell CLI 输入输出路径与 cp master 卡顿分析](<./fw/cli/agc_shell-cli-path.md>)，用于查看输入 ringbuffer、Backspace/Delete、`this_line` 当前行字符串和 argv 组装。
+- USART 路径：[Grace USART、RT-Thread console 与 agc_shell 完整链路](<./fw/cli/grace-usart-console-cli.md>)，用于查看 USART 硬件初始化、RT-Thread device 注册、console 输出、shell 输入中断、ringbuffer 和完整触发链路；图解已按 technical-diagram-generator workflow 生成 SVG/PNG 资产。
+- CP ringbuffer IPC：[CP ringbuffer IPC 与 queue create 调试](<./fw/debug/CP ringbuffer IPC 与 queue create 调试.md>)，用于区分 IPC shared RB 与 CLI 本地 RB、is_ipc_rb 地址转换、IPC 发送/接收和 queue create 调试流程；图解已按 technical-diagram-generator workflow 生成 SVG/PNG 资产。
+- RT-Thread yield：[RT-Thread rt_thread_yield 实现与使用风险](<./fw/rt-thread/rt_thread_yield.md>)
+- CP User 调度：[cmd_entry — CP User 调度器](<./fw/cp-user/cmd_entry.md>)
+- 分支布局：[cmd_entry branch layout](<./fw/cp-user/cmd_entry-branch-layout.md>)
+- stop/flush：[CP stop flush 与 queue 切换](<./fw/cp-user/CP stop flush 与 queue 切换.md>)
+- L2C remapping：[L2C Remapping 机制](<./mas/L2C/remapping.md>)
 
 ## 写作提醒
 

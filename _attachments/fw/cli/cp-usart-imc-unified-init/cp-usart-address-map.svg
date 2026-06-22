@@ -27,7 +27,7 @@
 <rect x="502" y="122" width="330" height="152" rx="8" fill="#ffffff" stroke="#2f65a7" stroke-width="2"/>
 <text x="520" y="158" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">IMC 硬件初始化必须用物理 base</text>
 <text x="520" y="188" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">board_cp_usart_hw_init()</text>
-<text x="520" y="211" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_hw_init_only(USART1_BASE)</text>
+<text x="520" y="211" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_hw_init(USART1_BASE)</text>
 <text x="520" y="234" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">不用 MEMORY_MAP_IO_BASE</text>
 <text x="520" y="257" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">直接配置真实 USART 寄存器</text>
 </g>
