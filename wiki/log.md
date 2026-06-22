@@ -19,6 +19,13 @@ status: active
 - **同步更新 4 张 SVG/PNG 图**（`_attachments/fw/cli/cp-usart-imc-unified-init/`）的函数名；driver-split 图按新三函数结构重绘，已用 resvg 重渲并视觉校验。
 - 同步更新 [CLI 索引](<./fw/cli/index.md>) 与 [Hot Cache](<./hot.md>) 的条目描述。
 
+## [2026-06-22] add | 容器内 Claude Code 交互模式 401 根因与修复
+
+- Added [容器内 Claude Code 交互模式 401 根因与修复](<./tools/容器内 Claude Code 交互模式 401 根因与修复.md>)：docker 容器 `claude` 输密码后交互 TUI 报 `Please run /login · API Error: 401`，但 `claude -p` 正常。根因实测坐实——Claude Code 2.1.18x 交互模式优先读 `.credentials.json` 的过期 `claudeAiOauth` 而非密码门注入的 `CLAUDE_CODE_OAUTH_TOKEN`（旧版 2.1.173 优先 env token，故"更新后才坏"）。修复=删除过期 `claudeAiOauth` 块（保留 `mcpOAuth`），并新增 `strip-stale-oauth.sh` 接入密码门/`reinstall.sh`/`heal-claude.sh`（base64 自重建）做免维护自动剔除，已验证复发自愈。
+- Updated the tools index and Hot Cache for navigation.
+- Key insight: token 没坏、密码门没坏——是新版改了交互认证优先级去读磁盘过期凭证；修复点在"清掉过期 claudeAiOauth 让其回退注入 token"，不是重装密码门也不是重新登录。
+- 注：本条曾随 [commit `68b9cc8`] 提交，但在合并远端 `Know_any/wiki` 时丢失，2026-06-22 补回（page / tools 索引 / Hot Cache 条目未受影响）。
+
 ## [2026-06-18] add | AI 使用飞书 lark-cli 创建文档
 
 - 新增 [AI 使用飞书 lark-cli 创建文档：从零安装、授权到验证](<./tools/lark-cli-ai-document-guide.md>)：面向没有任何预配置的 AI Agent，覆盖 Node.js、`lark-cli + AI Skills` 安装、Skills 读取、应用配置、OAuth split-flow、user/bot 身份边界、v2 Markdown 创建、回读验收、权限与版本漂移处理。
