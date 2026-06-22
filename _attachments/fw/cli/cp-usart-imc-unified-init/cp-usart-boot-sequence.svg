@@ -26,7 +26,7 @@
 <g>
 <rect x="370" y="150" width="230" height="138" rx="8" fill="#eaf3ff" stroke="#2f65a7" stroke-width="2"/>
 <text x="388" y="186" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">2. IMC console</text>
-<text x="388" y="216" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_init(USART0)</text>
+<text x="388" y="216" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">drv_usart_full_init(USART0)</text>
 <text x="388" y="239" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">hw init + register</text>
 <text x="388" y="262" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">IMC 自己可打印</text>
 </g>
@@ -34,7 +34,7 @@
 <rect x="226" y="344" width="274" height="136" rx="8" fill="#eaf3ff" stroke="#2f65a7" stroke-width="2"/>
 <text x="244" y="380" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#162033">3. CP USART 硬件</text>
 <text x="244" y="410" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">board_cp_usart_hw_init()</text>
-<text x="244" y="433" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART1-5 hw_init_only</text>
+<text x="244" y="433" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">USART1-5 hw_init</text>
 <text x="244" y="456" font-family="Microsoft YaHei, Noto Sans CJK SC, Segoe UI, Arial, sans-serif" font-size="14" fill="#27364c">完成 baud/reset/fifo/RXIE</text>
 </g>
 <polyline points="322,226 370,226" fill="none" stroke="#2f65a7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>

@@ -2,12 +2,22 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-13
+updated: 2026-06-22
 tags:
   - meta
   - log
 status: active
 ---
+
+## [2026-06-22] update | CP USART/Clock 页重写为设计文档（对齐 commit d18bc36）
+
+- **更新** [CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计文档](<./fw/cli/cp-usart-clock-imc-init-design-review.md>)：原页基于未提交 diff（HEAD `944c37c`），现该改动已合入 commit **`d18bc36`**。按提交定稿对齐：
+  - 函数命名更正——`drv_usart_init` 移除，统一为对称三函数 `drv_usart_hw_init` / `drv_usart_register` / `drv_usart_full_init`（旧草稿的 `hw_config` / `hw_init_only` 不复存在）。
+  - core clock 分流条件更正为 `FW_IMC && !FW_BACKDOOR`（IMC backdoor 与 CP 一起走寄存器推导）。
+  - 兼容性章节更正：API 为源级改名（全树 3 个调用点已更新），非"零改动"。
+  - **重排为设计文档**：删减原 Part B 逐函数代码讲解，保留职责分层、地址映射、启动时序、权衡、风险、checklist 与图解。
+- **同步更新 4 张 SVG/PNG 图**（`_attachments/fw/cli/cp-usart-imc-unified-init/`）的函数名；driver-split 图按新三函数结构重绘，已用 resvg 重渲并视觉校验。
+- 同步更新 [CLI 索引](<./fw/cli/index.md>) 与 [Hot Cache](<./hot.md>) 的条目描述。
 
 ## [2026-06-18] add | AI 使用飞书 lark-cli 创建文档
 
