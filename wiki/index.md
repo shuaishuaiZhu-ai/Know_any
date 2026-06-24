@@ -28,8 +28,8 @@ wiki/
 │   └── tiny-kmd/     # tiny-kmd 最小骨架驱动
 ├── synthesis/        # 跨源综合、面试、工作笔记
 ├── sources/          # 原始/镜像材料索引和证据（查证层，非首读）
-├── tools/            # 工具链知识
-├── codex-reflection/ # Codex 工作流反思与进化
+├── tools/            # non-AI tool notes
+├── ai/               # AI agent tools, bugs, reflections, templates, secrets
 ├── canvases/         # Obsidian canvas
 └── meta/             # 维护规则和审计
 ```
@@ -101,12 +101,12 @@ wiki/
 | 语雀工作笔记 | [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>) | 工作经历、问题链路、复盘材料。 |
 | 面试材料 | [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>) | 面试讲述用的项目总结。 |
 | 硬件基础 | [硬件基础 RAM ROM Flash](<./synthesis/硬件基础 RAM ROM Flash.md>) | RAM/ROM/Flash 基础概念，面试讲 boot/firmware/存储介质的背景。 |
-| AI 协作经验 | [AI 协作远程编辑经验](<./synthesis/AI 协作远程编辑经验.md>) | SSH、远程编辑、协作注意事项，含浏览器/飞书/SSH PATH 登录环境经验。 |
+| AI 协作经验 | [AI 协作远程编辑经验](<ai/workflows/AI 协作远程编辑经验.md>) | SSH、远程编辑、协作注意事项，含浏览器/飞书/SSH PATH 登录环境经验。 |
 | 工具链 | [tools](<./tools/index.md>) | image_tool、Codex Skills（含 technical-diagram-generator 与 imagegen）、跨机器共享 skills 仓库(all_skills)、钉钉到飞书迁移、AI 协作等工具说明。 |
-| Codex 反思 | [Codex 反思与进化](<./codex-reflection/index.md>) | Codex 工作流复盘、技能规则演进和操作事故复盘。 |
+| Codex 反思 | [Codex 反思与进化](<ai/reflections/codex/index.md>) | Codex 工作流复盘、技能规则演进和操作事故复盘。 |
 | MAS 文档 | [MAS 文档知识库](<./grace/mas/index.md>) | RGU/RguCore 设计文档、模块关系、调度、SHM、UCore。 |
 
-工具链新增入口：[AI 使用飞书 lark-cli 创建文档：从零安装、授权到验证](<./tools/lark-cli-ai-document-guide.md>)，供其他 AI Agent 从空环境完成安装、授权、创建和回读验证。
+工具链新增入口：[AI 使用飞书 lark-cli 创建文档：从零安装、授权到验证](<ai/tools/lark-cli-ai-document-guide.md>)，供其他 AI Agent 从空环境完成安装、授权、创建和回读验证。
 
 ## 证据层
 

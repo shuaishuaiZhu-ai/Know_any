@@ -1,47 +1,33 @@
-﻿# for_ai — Obsidian Knowledge Vault
+# Claude Code Entry for Know_any
 
-Purpose: persistent engineering knowledge base for GraceC CP MAS, FW CP firmware, and related investigations.
+Claude Code CLI should use this file as its entry point, then delegate to the cross-agent contract in `AGENTS.md`.
+
+## Required Startup
+
+When Claude Code opens this repository:
+
+1. Read `AGENTS.md` first. It is the authoritative cross-agent bootstrap contract.
+2. Follow the repository-relative read order from `AGENTS.md`: `wiki/index.md`, then `wiki/ai/index.md` when relevant, then `wiki/hot.md`.
+3. Use the Claude-specific notes below only as environment context; they do not override `AGENTS.md`.
+
+## Repository Purpose
+
+Know_any is a persistent Obsidian knowledge base for GraceC CP MAS, FW firmware, KMD, AI tool workflows, solved bugs, and project reflections.
 
 ## Default Interface
 
-Use Obsidian by default. The vault root is:
+Use Obsidian by default when a UI is available. Markdown files are the durable knowledge product. Do not regenerate or rely on standalone HTML graph files unless explicitly requested.
 
-`C:\home\for_ai`
+## Claude Code Environment Notes
 
-Open this folder as an Obsidian vault. Do not regenerate or rely on standalone HTML graph files unless explicitly requested.
+- Paths in wiki links are repository-relative. The same repository may be checked out as `C:\home\for_ai`, `/root/workspace/wiki`, or another path on another machine.
+- No Obsidian UI is available in headless Claude Code environments: edit Markdown directly and resolve `[[wikilinks]]` by file basename yourself.
+- Check the actual branch and remote before any Git operation; do not assume a fixed branch name across machines.
+- Reference firmware source may live on a remote host such as `shuaishuai.zhu@192.168.80.116:/home/shuaishuai.zhu/fw/`; verify current access and path before using it.
+- `.gitattributes` may enforce line endings. Do not rewrite files only to normalize CRLF/LF unless asked.
 
-## Working in Claude Code (this environment)
+## Claude-Specific Safety
 
-When the vault is opened by Claude Code (headless Linux) instead of the Obsidian desktop app:
-
-- Working copy is `/root/workspace/wiki`; the Windows vault root `C:\home\for_ai` is the same vault on another machine. In-repo paths (`wiki/`, `.raw/`, `_attachments/`) are relative and match either way.
-- No Obsidian UI runs here: edit Markdown directly and resolve `[[wikilinks]]` by file basename yourself. Do not expect plugins, graph view, or Templater to execute.
-- Single branch `wiki` (no `main`/`master`). Commit and push to `origin/wiki`; access is over SSH (`git@github.com:shuaishuaiZhu-ai/Know_any.git`).
-- `.gitattributes` enforces `eol=lf`. Files authored on Windows may show as modified right after checkout — that is CRLF→LF normalization, not a content change; don't "fix" it unless asked.
-- Reference firmware source is remote: `shuaishuai.zhu@192.168.80.116:/home/shuaishuai.zhu/fw/` (per `wiki/hot.md`).
-
-## Read Order
-
-When needing context from this vault:
-
-1. Read `wiki/hot.md`.
-2. Read `wiki/index.md`.
-3. For FW topics, read `wiki/fw/index.md` and then the relevant sub-index.
-4. Read source material under `wiki/sources/` only when checking evidence.
-5. Keep edits surgical and update cross-links.
-
-## Write Rules
-
-- Put raw inputs in `.raw/`.
-- Put AI-written knowledge in `wiki/`.
-- Put FW technical pages under `wiki/fw/`.
-- Do not modify `.raw/` source material.
-- Use wikilinks, frontmatter, and short focused pages.
-- Any new analysis, technical document, or debugging conclusion must update:
-  - `wiki/index.md`
-  - the relevant domain index, for example `wiki/fw/index.md`
-  - the relevant sub-index, for example `wiki/fw/cli/index.md`
-  - `wiki/log.md`
-  - `wiki/hot.md` if it is recent active context
-
-Detailed maintenance rules: `wiki/meta/wiki-maintenance-rules.md`.
+- Keep edits surgical and preserve user changes in a dirty worktree.
+- For wiki writes, follow the verification rules in `AGENTS.md` and `wiki/meta/wiki-maintenance-rules.md`.
+- Do not paste secrets into chat responses. If server passwords are needed, use `wiki/ai/secrets/server-passwords.md` according to the user's explicit policy.

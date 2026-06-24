@@ -1,19 +1,13 @@
-# claude-code-proxy
+---
+type: moved
+title: "claude-code-proxy"
+updated: 2026-06-24
+tags: [moved, ai]
+status: moved
+target: "ai/tools/claude-code/claude-code-proxy/zh-CN/_Sidebar.md"
+---
 
-- [首页](Home.md)
-- [快速开始](Quick-Start.md)
-- [供应商与模型](Providers-And-Models.md)
-- [订阅登录](Subscription-Login.md)
-- [故障排查](Troubleshooting.md)
-- [架构](Architecture.md)
-- [测试](Testing.md)
+# Moved
 
-## English
-
-- [Home](../Home.md)
-- [Quick Start](../Quick-Start.md)
-- [Providers And Models](../Providers-And-Models.md)
-- [Subscription Login](../Subscription-Login.md)
-- [Troubleshooting](../Troubleshooting.md)
-- [Architecture](../Architecture.md)
-- [Testing](../Testing.md)
+Canonical page: [claude-code-proxy](<../../../ai/tools/claude-code/claude-code-proxy/zh-CN/_Sidebar.md>).
+This old path is kept only for compatibility with historical links.
