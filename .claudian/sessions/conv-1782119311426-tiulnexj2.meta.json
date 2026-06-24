@@ -1,0 +1,24 @@
+{
+  "id": "conv-1782119311426-tiulnexj2",
+  "providerId": "claude",
+  "title": "Test system",
+  "titleGenerationStatus": "success",
+  "createdAt": 1782119311427,
+  "updatedAt": 1782119353857,
+  "lastResponseAt": 1782119353857,
+  "sessionId": "26084500-db67-4abf-9899-24d065f98672",
+  "providerState": {
+    "providerSessionId": "26084500-db67-4abf-9899-24d065f98672"
+  },
+  "currentNote": "wiki/grace/fw/cli/cp-usart-clock-imc-init-design-review.md",
+  "usage": {
+    "model": "opus",
+    "inputTokens": 2,
+    "cacheCreationInputTokens": 18323,
+    "cacheReadInputTokens": 25908,
+    "contextWindow": 1000000,
+    "contextTokens": 44233,
+    "percentage": 4,
+    "contextWindowIsAuthoritative": true
+  }
+}

@@ -1,9 +1,0 @@
-{
-  "id": "for-ai-image-zoom",
-  "name": "For AI Image Zoom",
-  "version": "1.0.0",
-  "minAppVersion": "1.0.0",
-  "description": "Click images to open a zoomable overlay with wheel zoom and drag pan.",
-  "author": "Local",
-  "isDesktopOnly": false
-}

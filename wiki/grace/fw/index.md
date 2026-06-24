@@ -29,6 +29,7 @@ status: active
 12. **【C2C 权威层】** [C2C Adapter 内部数据通路](<./interconnect/c2c-adapter-internals.md>)：InputCtl/PktComb/PktEdit/PktSplit/OutputCtl、Credit/PFC、Early response、Atomic、FA、buffer 深度。
 13. **【C2C 权威层】** [C2C 时钟、复位与初始化](<./interconnect/c2c-clock-reset-init.md>)：时钟域/CRG/PLL、分级复位、bring-up、PHY power state、APB Matrix、JTAG。
 14. **【C2C 权威层】** [C2C 接口信号速查 + 中断与 RAS](<./interconnect/c2c-interface-signals-and-ras.md>)：全部对外信号分组、7 根中断线 + C2C_INT_STATUS、RAS 注错。
+    - **【C2C 面试·冲刺】** [C2C 面试题精讲（按重要度分梯队）](<./interconnect/c2c-interview-questions.md>)：12 道高频题分三梯队 + 参考答案 + 考点 + 追问 + 图解。
 15. [C2C 互联学习文档](<./interconnect/c2c-dingtalk-study.md>)：理解 LD/ST 互联、topo discovery、AMT route、OISA/L2 封装、loopback 和 RAS（钉钉来源·概念层）。
 16. [C2C PHY 近端环回与远端环回详解](<./interconnect/c2c-loopback-near-far.md>)：理解 NEP/NES/NES-ext/FEP/FES/FEP-err、Top/Adapter/LLRMAC 环回和调试选择顺序。
 17. [Portmap 路由表数字图解](<./interconnect/portmap-routing-table.md>)：理解 C2C/D2D portmap 表项如何由拓扑、下一跳策略和 serdes/ucie 编码得到。

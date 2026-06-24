@@ -1,10 +1,12 @@
 [
-  "for-ai-image-zoom",
   "obsidian-git",
   "omnisearch",
   "text-extractor",
   "recent-files-obsidian",
   "table-editor-obsidian",
   "templater-obsidian",
-  "quickadd"
+  "quickadd",
+  "realclaudian",
+  "obsidian-style-settings",
+  "obsidian-image-toolkit"
 ]

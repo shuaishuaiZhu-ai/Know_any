@@ -2,7 +2,7 @@
 type: note
 title: "Git fetch known_hosts 与 Docker 共享 SSH 排查"
 created: 2026-06-18
-updated: 2026-06-18
+updated: 2026-06-24
 tags:
   - fw
   - debug
@@ -11,7 +11,7 @@ tags:
   - docker
   - git
 status: active
-last_verified: 2026-06-18
+last_verified: 2026-06-24
 ---
 
 # Git fetch known_hosts 与 Docker 共享 SSH 排查
@@ -154,3 +154,76 @@ fatal: Could not read from remote repository.
 - 报错第一行 `Permission denied` 才是根因信号，不要被后面的"未知主机"提示带偏去 `ssh-keyscan`/手动 yes。
 - "宿主普通用户 + 容器 root 共享同一 `~/.ssh`" 是冲突源；凡是会被 root 进程原子重写的文件（`known_hosts`、`config`），属主都可能被抢。
 - 共享 `~/.ssh/config`、`~/.gitconfig` 在"容器 root + 宿主普通用户"下属主检查会冲突，全局方案不可行 → 用**仓库级**配置把影响面收窄到不被容器挂载的 `~/fw`。
+
+---
+
+## 复发记录（2026-06-24）
+
+2026-06-23/24 同一症状在 `~/fw` `git pull` 再次出现（用户原话"又出问题"）。排查结论：**`core.sshCommand` 方案仍有效（fw git pull 正常），但主 `known_hosts` 被容器分钟级实时重写成 root**。
+
+### 复发表现
+
+`~/.ssh` 下三个 known_hosts 文件**又全是 `root:root 600`**：
+
+```
+-rw------- 1 root root  known_hosts         (6月18 12:02)
+-rw------- 1 root root  known_hosts.old
+-rw------- 1 root root  known_hosts.root.bak
+```
+
+宿主 `shuaishuai.zhu` 读不了 → ssh `hostkeys_foreach` 报 `Permission denied` → 退回"未知主机"问 yes/no。`known_hosts.local`（上次方案产物）属主仍是 `shuaishuai.zhu`、正确。
+
+### 验证：core.sshCommand 仍有效（fw git pull 不受影响）
+
+`core.sshCommand` 配置仍在、`known_hosts.local` 仍有 90.119、属主正确。模拟该 sshCommand 跑 `ssh -v`：
+
+```
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file   # 只查系统级
+debug1: Found key in /home/shuaishuai.zhu/.ssh/known_hosts.local:2     # 命中独立文件，不碰 ~/.ssh/known_hosts
+Authenticated to 192.168.90.119 using "publickey".                     # 认证成功
+```
+
+`git -C ~/fw pull` 实测 exit 0、无 Permission denied。**fw 仓库的 git pull 走 `known_hosts.local`，主 known_hosts 是否 root 属主不影响它。**
+
+### 决定性证据：主 known_hosts 被容器分钟级实时重写
+
+排查时把 root 属主的主 `known_hosts` 移走、SSH 以宿主身份重建（属主恢复为 `shuaishuai.zhu`）。**几分钟后再查，属主又变回 `root:root 600`**——坐实 `claude-code-shuaishuai.zhu` 容器（当时 `Up 2 days`，root 共享 `~/.ssh`）只要有 ssh/git 操作就以 root 原子重写主 `known_hosts`。这是**持续、实时**的复发源，不是偶发。
+
+### 复发触发条件（待定）
+
+`core.sshCommand` 在 + `known_hosts.local` 有 90.119 时，fw git pull 走独立文件、不报错（上节已证）。那报错的那次为何读主 `known_hosts`？**只能说明那次 `git pull` 没走 `core.sshCommand`**，疑似：
+
+- 用了 `sudo git pull`（root 身份，走默认 known_hosts）；
+- 设了 `GIT_SSH_COMMAND` / `GIT_SSH` 环境变量覆盖了 `core.sshCommand`；
+- 在容器内 `/root/workspace` 操作（容器走默认 `~/.ssh/known_hosts`）；
+- 当时 `core.sshCommand` 被某次 `git config` 清掉后又恢复。
+
+→ 下次复发先查 `git -C ~/fw config --get core.sshCommand` 是否非空且带 `UserKnownHostsFile=...known_hosts.local`。
+
+### 免 sudo 应急修复（本次已执行）
+
+`sudo` 需密码，但**删/改文件名只需所在目录 `~/.ssh` 的写权限**（属主=自己、700），不需文件写权限：
+
+```bash
+TS=$(date +%Y%m%d-%H%M%S)
+for f in known_hosts known_hosts.old known_hosts.root.bak; do
+  [ -e ~/.ssh/$f ] && [ "$(stat -c %U ~/.ssh/$f)" = root ] && mv ~/.ssh/$f ~/.ssh/$f.rootowned-$TS
+done
+```
+
+移走后 SSH 以宿主身份重建主 `known_hosts`。**注意**：这只是让"主 known_hosts 暂时可读"，**不防复发**——容器很快又写成 root。对 fw git pull 也非必需（它走 `known_hosts.local`）。仅在需要宿主直接 `ssh git@90.119`（非 git）时临时救急。
+
+### 根治（需 sudo / 结构性改造，未决）
+
+- 容器 `claude-code-shuaishuai.zhu` 仍 `Up 2 days` 以 root 共享 `~/.ssh`，是复发根因。只要它跑，主 `known_hosts` 就反复 root 化。
+- 彻底解（任选）：
+  1. 有 sudo：定期 `sudo chown $USER ~/.ssh/known_hosts*`（治标，容器一跑又变 root）；
+  2. 让宿主**所有** ssh（不止 git）都走独立文件——但旧坑已证 `~/.ssh/config` 被容器共享、属主检查冲突会破坏容器 ssh（见上"不要用全局 config"），**不可行**；
+  3. 改容器：让 `claude-code` 容器不以 root 运行、或不共享宿主 `~/.ssh`（改 docker run/compose）——最干净，但要改部署；
+  4. 宿主直接 ssh 时手动加 `-o UserKnownHostsFile=~/.ssh/known_hosts.local`（旧文已记）。
+
+### 复盘补充
+
+- `core.sshCommand + known_hosts.local` 方案**只保护 git 一条路径**；主 `known_hosts` 仍持续被容器污染。保护范围 = `~/fw` 仓库级，**不覆盖**宿主直接 ssh、`~/.ssh/config` 全局、其他仓库。
+- 验证复发是否真挡住，看 `ssh -v ... | grep "Found key in"` 是否落在 `known_hosts.local`，而非主 `known_hosts`。
+- 报错第一行 `Permission denied` 才是根因信号，不要被后面的"未知主机"提示带偏去手动 yes——手动 yes 也写不回 root 属主的主文件，下次还问。
