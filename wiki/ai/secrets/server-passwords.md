@@ -20,10 +20,10 @@ The user confirmed on 2026-06-24 that all servers use the same login user/passwo
 
 ## Known Servers
 
-| server | host | user | password | purpose | last_verified | notes |
-|---|---|---|---|---|---|---|
-| Grace/FW/KMD remote | 192.168.80.116 | shuaishuai.zhu | REDACTED_FOR_CLOUD_PUSH | firmware source verification; KMD/tiny-kmd work; ctrlclaw/ComfyUI maintenance; fw_kernel_launch_test verification | 2026-06-24 | User provided the shared password in chat, but it is not committed to the GitHub-pushed version. |
-| GitLab / registry host | 192.168.90.119 | shuaishuai.zhu | REDACTED_FOR_CLOUD_PUSH | GitLab remotes and Docker registry host referenced by FW/KMD/tiny-kmd workflows | 2026-06-24 | User provided the shared password in chat, but it is not committed to the GitHub-pushed version. Git remotes may still use `git@...` and publickey auth for repository access. |
+| server                 | host           | user           | password                     | purpose                                                                                                           | last_verified | notes                                                                                                                                                                          |
+| ---------------------- | -------------- | -------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Grace/FW/KMD remote    | 192.168.80.116 | shuaishuai.zhu | shuaishuai.zhu@aigcic.j2k3d4 | firmware source verification; KMD/tiny-kmd work; ctrlclaw/ComfyUI maintenance; fw_kernel_launch_test verification | 2026-06-24    | User provided the shared password in chat, but it is not committed to the GitHub-pushed version.                                                                               |
+| GitLab / registry host | 192.168.90.119 | shuaishuai.zhu | shuaishuai.zhu@aigcic.j2k3d4 | GitLab remotes and Docker registry host referenced by FW/KMD/tiny-kmd workflows                                   | 2026-06-24    | User provided the shared password in chat, but it is not committed to the GitHub-pushed version. Git remotes may still use `git@...` and publickey auth for repository access. |
 
 ## Update Rules
 

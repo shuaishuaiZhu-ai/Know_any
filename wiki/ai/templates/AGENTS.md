@@ -4,7 +4,7 @@
 
 When entering any project or vault, inspect the top-level `CLAUDE.md` and `AGENTS.md` first. If neither file contains a read-order constraint for the relevant wiki or documentation indexes, add that constraint before doing substantive work, or explicitly report that it is missing when edits are not allowed.
 
-For this vault, the required constraint is: read `wiki/index.md`, then `wiki/ai/index.md` when the task involves AI tools, solved bugs, workflows, reflections, templates, or server passwords, then `wiki/hot.md` for recent context. Do not rely on random file-tree browsing when a relevant index exists.
+For this vault, the required constraint is: read `wiki/index.md`, then `wiki/ai/index.md` when the task involves AI tools, solved bugs, workflows, reflections, project-scoped AI notes, templates, or server passwords; if a task names a concrete project, check `wiki/ai/projects/index.md`; then read `wiki/hot.md` for recent context. Do not rely on random file-tree browsing when a relevant index exists.
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
@@ -41,3 +41,4 @@ For multi-step work, use verifiable goals:
 - Add build/test commands here.
 - Add deployment or remote-host boundaries here.
 - Add documentation/index update rules here.
+- Add project-scoped AI knowledge under `wiki/ai/projects/<project>/` when retrieval should start from the project name.

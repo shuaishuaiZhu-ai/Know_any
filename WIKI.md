@@ -9,7 +9,8 @@ This vault uses Obsidian as the default UI. Markdown files are the persistent kn
 - `AGENTS.md` - cross-agent bootstrap contract.
 - `CLAUDE.md` - Claude Code CLI bridge to `AGENTS.md`.
 - `wiki/index.md` - single master wiki index.
-- `wiki/ai/index.md` - AI-facing tools, solved bugs, workflows, reflections, templates, and secrets.
+- `wiki/ai/index.md` - AI-facing tools, solved bugs, workflows, reflections, project-scoped notes, templates, and secrets.
+- `wiki/ai/projects/index.md` - optional project-first routing for AI knowledge.
 - `wiki/grace/index.md` - GraceC chip-stack entry.
 - `wiki/hot.md` - recent context cache.
 - `wiki/log.md` - maintenance log.
@@ -27,6 +28,7 @@ repo-root/
 |-- wiki/              # authored knowledge base
 |   |-- index.md       # master catalog
 |   |-- ai/            # AI-facing operations knowledge
+|   |   `-- projects/   # optional project-first AI routing
 |   |-- hot.md         # recent context cache
 |   |-- log.md         # operation log
 |   |-- grace/         # GraceC MAS/FW/KMD/tiny-kmd stack
@@ -45,7 +47,7 @@ repo-root/
 - Default view is Obsidian, not generated HTML.
 - `.raw/` is read-only source material.
 - `wiki/` pages may be created and maintained by AI agents.
-- AI operational knowledge belongs under `wiki/ai/`.
+- AI operational knowledge belongs under `wiki/ai/`. Use `wiki/ai/projects/<project>/` when project-first retrieval is clearer than type-first retrieval.
 - GraceC technical content belongs under `wiki/grace/`.
 - New analysis or technical docs must update `wiki/index.md` and the relevant domain/subdomain index.
 - Prefer repository-relative Markdown links, frontmatter, and short focused pages.

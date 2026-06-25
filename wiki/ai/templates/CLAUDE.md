@@ -4,7 +4,7 @@
 
 When entering any project or vault, inspect the top-level `CLAUDE.md` and `AGENTS.md` first. If neither file contains a read-order constraint for the relevant wiki or documentation indexes, add that constraint before doing substantive work, or explicitly report that it is missing when edits are not allowed.
 
-For this vault, the required constraint is: read `wiki/index.md`, then `wiki/ai/index.md` when the task involves AI tools, solved bugs, workflows, reflections, templates, or server passwords, then `wiki/hot.md` for recent context. Do not rely on random file-tree browsing when a relevant index exists.
+For this vault, the required constraint is: read `wiki/index.md`, then `wiki/ai/index.md` when the task involves AI tools, solved bugs, workflows, reflections, project-scoped AI notes, templates, or server passwords; if a task names a concrete project, check `wiki/ai/projects/index.md`; then read `wiki/hot.md` for recent context. Do not rely on random file-tree browsing when a relevant index exists.
 
 Purpose: persistent project instructions for Claude Code and compatible AI coding agents.
 

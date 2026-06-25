@@ -2,12 +2,19 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-24
+updated: 2026-06-25
 tags:
   - meta
   - log
 status: active
 ---
+
+## [2026-06-25] update | Add project-first AI routing option
+
+- Added [AI Projects](<./ai/projects/index.md>) as an optional project-first route for AI-facing knowledge.
+- Clarified the selection rule: reusable cross-project knowledge stays in `tools/`, `bugs/`, `workflows/`, or `reflections/`; project-bound material may use `wiki/ai/projects/<project>/` with one canonical page and cross-links.
+- Updated `AGENTS.md`, AI templates, `WIKI.md`, and [AI Section](<./ai/index.md>) so other cloned copies know this routing option.
+
 
 ## [2026-06-24] update | Repo-relative AI bootstrap contract for Know_any
 
