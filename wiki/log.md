@@ -9,6 +9,15 @@ tags:
 status: active
 ---
 
+## [2026-06-25] add | Kernel 端到端执行流程科普长文（跨 UMD→KMD→CP→硬件）
+
+- **新增** [一个 Kernel 的奇幻漂流：从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)（新建 `wiki/grace/overview/` 子域 + 其 index）：面向组内分享的通俗长文，以 UMD `test_saxpy_op.cu` 为贯穿案例，把 UMD（aigc-driver）→ KMD（aigc.ko）→ CP（fw）→ 硬件执行 + 完成回路串成一个故事。1 张最大全景框图 + 多张分阶段框图（编译链 / 三层架构 / kernel launch 组包 / ioctl 两级派发 / CP ring+doorbell / CP 主链路 / 分派决策 / 完成回路 + 端到端大时序）。
+- **UMD 段基于 80.116 `~/aigc-driver` 真实源码**（SSH 读取）：确认 aigc-driver = AMD HIP/ROCm 运行时改名移植（`hip*`→`aica*`、ROCt→`ajthunk`、COMGR）；`.cu` 由 `/usr/local/aica/bin/clang -x aica` 单趟编译，device kernel 以 `__CLANG_OFFLOAD_BUNDLE__` fatbin 内嵌进 host ELF（独立形态 `.co`，机器名 ChipON KungFu32）；`<<<>>>` 降为 `__aicaPushCallConfiguration`+`aicaLaunchKernel`；命令 = `aica_kernel_dispatch_packet_t` 写 ring buffer + doorbell；UMD→KMD 边界 = `Thunk_*` 对 `/dev/aigcN` 的 `ioctl(AIP_*)`。
+- **纠正旧文档**：KMD 笔记里的 `aigc_kernel.o_binary` 在 aigc-driver 源码树**不存在**（`aigc_kernel` 只是 C++ 变量名）；kernel 计算完成走 **MSI-X 向量 40**（非 39/111）；`add1` 是 job 包 `0x10`，走 iDMA direct → CLS FIFO。
+- KMD/CP 段复用本地既有文档（`wiki/grace/kmd/*`、`wiki/grace/fw/*`）通俗化改写并交叉链接。
+- **配图状态**：当前为 Mermaid 内嵌（GitHub/Obsidian 可直接看）；PNG 渲染待办——本机 chromium 缺 `libglib-2.0.so.0` 等系统库，定稿搬飞书前在可渲染环境批量出 PNG/SVG（遵循 `-vN` 破缓存约定）。
+- 同步更新 [GraceC 芯片软硬件栈](<./grace/index.md>)、[Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)。
+
 ## [2026-06-25] update | Add project-first AI routing option
 
 - Added [AI Projects](<./ai/projects/index.md>) as an optional project-first route for AI-facing knowledge.

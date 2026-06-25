@@ -1,0 +1,8 @@
+flowchart TD
+  CU["test_saxpy_op.cu"] --> CLANG["clang -x aica（单趟编译）"]
+  CLANG --> HOST["host x86 机器码<br/>main / aicaMalloc 调用…"]
+  CLANG --> DEV["device kernel 二进制<br/>add1 → ChipON KungFu32 指令"]
+  DEV --> BUNDLE["打包成 fatbin<br/>__CLANG_OFFLOAD_BUNDLE__"]
+  HOST --> ELF["可执行 ELF：xxx.out"]
+  BUNDLE -->|"内嵌进同一个文件"| ELF
+  ELF --> RT["运行时由 COMGR 库<br/>从肚子里把 kernel 二进制拆出来加载"]

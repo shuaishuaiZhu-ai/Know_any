@@ -1,0 +1,7 @@
+flowchart TD
+  U["用户态 thunk 发 ioctl(fd, AIP_*, args)"] --> E["第一级 aigc_ioctl()<br/>安检：编号在表内 + 编码精确匹配<br/>不合格直接 -EINVAL"]
+  E --> D["第二级 aigc_lib_ioctl()<br/>分诊：按编号取 aigc_ioctl_xxx() 处理"]
+  D --> CTX["AIP_CONTEXT_CREATE → 建 context"]
+  D --> MEM["AIP_MEM_CREATE → 分显存 + 写页表"]
+  D --> QUE["AIP_QUEUE_CREATE → 建队列 + 给门铃地址"]
+  D --> SUB["提交命令 → 组 CP 包（IB）"]

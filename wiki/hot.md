@@ -18,6 +18,7 @@ status: active
 ## 当前主入口
 
 
+- **Kernel 端到端执行流程（新增，2026-06-25）**：[一个 Kernel 的奇幻漂流：从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)。跨 UMD（aigc-driver）→ KMD（aigc.ko）→ CP（fw）→ 硬件 的通俗科普长文，以 UMD `test_saxpy_op.cu`（实为最简 `add1` kernel）为例，含 1 张全景框图 + 9 张分阶段 Mermaid 图，面向组内分享，后续搬飞书。关键事实：UMD = HIP/ROCm 改名移植（`.cu` 由 `clang -x aica` 单趟编译、kernel 二进制 fatbin 内嵌）；纠正旧 KMD 文档的 `aigc_kernel.o_binary`（源码树不存在）；kernel 完成走 MSI-X **向量 40**；`add1` 是 job 包 `0x10` 走 iDMA direct → CLS FIFO。**当前图为 Mermaid 内嵌，PNG 待渲（本机 chromium 缺系统库）。**
 - **KMD 内核驱动知识库（新增）**：[KMD 内核驱动知识库](<./grace/kmd/index.md>)，`aigc.ko` 内核态驱动——三层架构、ioctl/ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、Grace HAL；面向应届生、含 mermaid 图与 `文件:行` 引用。配套 [代码评审意见](<./grace/kmd/review/kmd-code-review.md>)。
 - **KMD 逐操作代码流程（新增，2026-06-15）**：[端到端流程索引](<./grace/kmd/flows/index.md>) 下新增 8 个**函数级调用链**页（probe / 设备初始化 / context / mem-create / 页表写入 / queue-create / 命令提交下发 / 完成中断），与远端 `docs/kmd-step-comments` 分支的函数内 step 注释配套，可对着真实函数名读源码。
 - **tiny-kmd 架构知识库（新增）**：[tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)，最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），含 [对照 ajthunk 的缺口](<./grace/tiny-kmd/gap-vs-ajthunk.md>) 与移植顺序。配套远端代码仓 `aigc-kmd-modular`（ajthunk kmd 模块化抽取 + 移植/重构指南）。

@@ -1,0 +1,15 @@
+flowchart LR
+  APP["你的程序<br/>test_saxpy_op.cu"] --> UMD
+  subgraph 用户态["用户态（普通进程，能崩但崩不了系统）"]
+    UMD["UMD = aigc-driver<br/>用户态运行时库 libaicart.so<br/>'把 CUDA 风格的调用翻译成命令包'"]
+  end
+  subgraph 内核态["内核态（aigc.ko，崩了整机重启）"]
+    KMD["KMD = ajthunk 的内核模块<br/>aigc.ko<br/>'管显存/页表/队列/中断，安全地下发到硬件'"]
+  end
+  subgraph 芯片上["芯片上（固件，跑在芯片内的小核）"]
+    CP["CP = fw 固件<br/>Command Processor<br/>'取命令、分拣、投递给计算阵列'"]
+  end
+  HW["GPU 硬件执行单元<br/>真正算数的地方"]
+  UMD -->|"ioctl 系统调用"| KMD
+  KMD -->|"门铃 + 共享环"| CP
+  CP -->|"iDMA 投递"| HW

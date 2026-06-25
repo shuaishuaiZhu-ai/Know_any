@@ -1,0 +1,8 @@
+flowchart LR
+  PK["偷看包头，读 operator 类型"] --> Q{"是什么命令？"}
+  Q -->|"job 0x10（计算 kernel）"| J["快车道 iDMA → CLS FIFO（GPU 计算阵列）"]
+  Q -->|"sdma 0x11（搬数据）"| S["快车道 iDMA → SDMA FIFO"]
+  Q -->|"atomic 0x20/21/22"| A["iDMA → ATO FIFO<br/>cmp_swap 可能要重试"]
+  Q -->|"event 0x30/0x31（同步）"| E["慢车道 firmware<br/>查依赖表，没满足就挂起重试"]
+  Q -->|"wait_host 0x40（等 CPU）"| W["慢车道 firmware<br/>两阶段：通知 CPU → 轮询等回应"]
+  Q -->|"nop 0xEE"| N["firmware：读一下就完成"]

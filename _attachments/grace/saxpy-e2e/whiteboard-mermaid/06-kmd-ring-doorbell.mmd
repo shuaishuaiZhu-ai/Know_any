@@ -1,0 +1,6 @@
+flowchart LR
+  K["后台调度 kthread（生产者）"] -->|"aigc_insert_ring 拷包"| RING["CP ring 环形传送带<br/>固定长度、按槽切分"]
+  K -->|"aigc_cp_update_ring_wptr"| DB["写 CP_REG_WPTR 寄存器 = 门铃"]
+  RING -->|"CP 取包"| RP["rptr 读指针（CP 是消费者）"]
+  DB -->|"叮！来活了"| CP["CP 固件"]
+  CP --> RP

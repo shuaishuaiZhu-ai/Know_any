@@ -1,0 +1,7 @@
+flowchart TD
+  LAUNCH["源码里：add1 三尖括号 launch (deviceA)"] --> PUSH["编译器拆成两步：<br/>① __aicaPushCallConfiguration<br/>② aicaLaunchKernel( &add1, ... )"]
+  PUSH --> LOOKUP["用 host 指针 &add1 查表<br/>找到 device kernel + init_pc"]
+  LOOKUP --> PKT["填命令包 dispatch packet：<br/>grid/block 维度 + init_pc<br/>+ shared mem + 参数指针"]
+  PKT --> RING["写进 stream 的 ring buffer 槽位<br/>推进 write index"]
+  RING --> DOOR["敲 doorbell（写一个映射的门铃地址）"]
+  DOOR --> KMD["接力给 KMD / 硬件"]

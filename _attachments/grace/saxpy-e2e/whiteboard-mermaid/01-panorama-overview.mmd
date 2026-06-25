@@ -1,0 +1,36 @@
+flowchart TD
+  subgraph S0["① 写代码 + 编译（开发机）"]
+    A1["test_saxpy_op.cu<br/>__global__ kernel + main()"]
+    A2["clang -x aica 单趟编译<br/>host 机器码 + device kernel 二进制"]
+    A1 --> A2
+  end
+
+  subgraph S1["② UMD 用户态运行时 aigc-driver"]
+    B1["aicaMalloc / aicaMemcpy<br/>申请显存、搬数据"]
+    B2["kernel 三尖括号 launch<br/>组装成命令包 dispatch packet"]
+    B3["写进 stream 的 ring buffer<br/>敲 doorbell"]
+    B1 --> B2 --> B3
+  end
+
+  subgraph S2["③ KMD 内核驱动 aigc.ko"]
+    C1["ioctl 进内核<br/>建 context / 显存 / 页表 / 队列"]
+    C2["调度 kthread 把命令包<br/>拷进 CP 环 + 敲门铃寄存器"]
+    C1 --> C2
+  end
+
+  subgraph S3["④ CP 命令处理固件 fw"]
+    D1["CP Master 把队列绑上硬件槽位"]
+    D2["cmd_entry 取包、看类型、分派"]
+    D3["iDMA 把 job 包投递给 GPU 计算阵列"]
+    D1 --> D2 --> D3
+  end
+
+  E1["⑤ 硬件执行单元真正跑 kernel"]
+  F1["⑥ 完成回路：写 fence 计数 + 抬中断<br/>一路唤醒用户程序，读回结果"]
+
+  A2 ==> B1
+  B3 ==>|"用户态 → 内核态边界（ioctl）"| C1
+  C2 ==>|"内核 → 芯片边界（doorbell）"| D1
+  D3 ==> E1
+  E1 ==> F1
+  F1 -.->|"用户读回 y"| B1

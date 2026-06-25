@@ -31,6 +31,12 @@ flowchart TD
 - **KMD**：跑在 Host CPU 上的完整 Linux 内核驱动 `aigc.ko`。三层架构、ioctl/ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、Grace HAL。
 - **tiny-kmd**：最小骨架驱动，只做 PCI 注册 + ringbuffer IPC + DMA + misc ioctl，是后续把 ajthunk 核心移植进来的"底座"。
 
+## 端到端总览（不知道从哪看？先读这篇）
+
+跨四个子域、把一段 kernel 从源码到硬件的完整执行链路串成一个通俗故事，适合新人入门和组内分享：
+
+- [一个 Kernel 的奇幻漂流：从 .cu 源码到硬件执行的全流程](<./overview/saxpy-kernel-end-to-end.md>)：以 UMD `test_saxpy_op.cu` 为例，讲 UMD（aigc-driver）→ KMD（aigc.ko）→ CP（fw）→ 硬件执行 + 完成回路，含 1 张全景框图 + 多张分阶段图。
+
 ## 四域快速入口
 
 | 子域 | 入口 | 适合的问题 |
@@ -46,6 +52,7 @@ flowchart TD
 
 | 内容类型 | 放置目录 |
 |---|---|
+| 跨子域端到端总览 / 入门串讲 | `wiki/grace/overview/` |
 | MAS 设计规格 / RguCore / L2C | `wiki/grace/mas/` |
 | FW IMC / CP Master / CP User / CLI / RT-Thread / 概念 / 流程 / 性能 / 互联 / 调试 | `wiki/grace/fw/` 对应子目录（详见 [FW 放置表](<./fw/index.md#新增-fw-页面放哪里>)） |
 | KMD 架构 / ioctl / 内存 / 队列 / 中断 / OS / HAL / 流程 / 评审 | `wiki/grace/kmd/` 对应子目录（详见 [KMD 放置表](<./kmd/index.md#新增-kmd-页面放哪里>)） |

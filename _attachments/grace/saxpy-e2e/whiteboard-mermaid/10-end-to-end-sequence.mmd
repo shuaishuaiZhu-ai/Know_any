@@ -1,0 +1,27 @@
+sequenceDiagram
+  autonumber
+  participant DEV as 开发机（编译）
+  participant APP as 程序 main()
+  participant UMD as UMD aigc-driver
+  participant KMD as KMD aigc.ko
+  participant CP as CP 固件
+  participant HW as GPU 执行单元
+
+  DEV->>DEV: clang -x aica 编译 .cu<br/>kernel 二进制内嵌进可执行文件
+  APP->>UMD: aicaMalloc / aicaMemcpy(H2D)
+  UMD->>KMD: ioctl AIP_CONTEXT_CREATE / MEM_CREATE
+  KMD->>KMD: 建 context + VMID + 写 4 级页表
+  APP->>UMD: add1 三尖括号 launch
+  UMD->>UMD: 组装 kernel dispatch 命令包
+  UMD->>KMD: ioctl AIP_QUEUE_CREATE（建 stream/ring，拿门铃）
+  UMD->>KMD: 写 ring buffer + 敲 doorbell
+  KMD->>KMD: 提交（入队即返回）→ 后台 kthread 下发
+  KMD->>CP: 拷包进 CP 环 + 写 CP_REG_WPTR（门铃）
+  CP->>CP: Master 绑 MCQD→HCQD；cmd_entry 取包判类型
+  CP->>HW: job 包(0x10) 经 iDMA 投递到 CLS FIFO
+  HW->>HW: 取 kernel 二进制，执行 *dst = 6+4 = 10
+  HW->>CP: 计算完成
+  CP->>KMD: 写 fence 完成号 + 抬 MSI-X 向量 40
+  KMD->>APP: 中断下半部 + 事件环 → 唤醒
+  APP->>UMD: aicaMemcpy(D2H) 读回 deviceA = 10
+  Note over APP: assert(*hostA == 10) ✅

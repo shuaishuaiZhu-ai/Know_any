@@ -1,0 +1,12 @@
+flowchart LR
+  DB["KMD 敲了 doorbell"] --> QDMA["CP Master · QDMA<br/>发现哪个队列有活<br/>qdma_query_mcqd()"]
+  QDMA --> TL["按优先级排进 task_list"]
+  TL --> BDMA["CP Master · BDMA<br/>找空闲硬件槽位 HCQD 并绑定<br/>bdma_bind_hcqd()"]
+  BDMA --> HCQD["HCQD 上场<br/>从队列抓命令包<br/>举手：置 candidate bit"]
+  HCQD --> CE["CP User · cmd_entry 主循环<br/>看谁举手，挑一个 HCQD"]
+  CE --> PEEK["ib_peek_packet<br/>偷看包头，判断是什么命令"]
+  PEEK --> DISP["cmd_handle_packet<br/>按类型分派"]
+  DISP --> IDMA["快车道 iDMA direct<br/>idma_dispatch_packet()"]
+  DISP --> FW["慢车道 firmware<br/>event / wait_host / nop"]
+  IDMA --> HW["投递到下游硬件 FIFO<br/>CLS(GPU 计算阵列) / SDMA / ATO"]
+  HW --> RUN["GPU 执行单元真正跑 add1 kernel"]

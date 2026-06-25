@@ -37,6 +37,7 @@ wiki/
 ## 入口优先级
 
 1. [GraceC 芯片软硬件栈](<./grace/index.md>)：芯片相关内容（MAS 设计规格、FW 片上固件、KMD 主机驱动、tiny-kmd）的统一入口，含 MAS→FW→KMD 栈图。**芯片栈主题先从这里进。**
+1. [一个 Kernel 的奇幻漂流：从 .cu 到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)：跨 UMD→KMD→CP→硬件 的端到端通俗长文，以 `test_saxpy_op.cu` 为例。**完全没碰过这套栈、想先建立整体地图的，从这篇进。**
 1. [FW 技术知识库](<./grace/fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。
 1. [KMD 内核驱动知识库](<./grace/kmd/index.md>)：`aigc.ko` 内核态驱动——ioctl/ABI、内存与页表、命令队列与调度、中断与 fence、Grace HAL。
 1. [tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)：最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），以及把 ajthunk 核心移植进来的缺口对照。

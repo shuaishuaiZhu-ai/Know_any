@@ -1,0 +1,17 @@
+sequenceDiagram
+  autonumber
+  participant S as KMD 调度器
+  participant CP as CP 固件
+  participant TS as fence 计数缓冲
+  participant TH as 上半部（硬中断）
+  participant BH as 下半部 / 事件环
+  participant U as 用户程序 main()
+  S->>CP: 下发时盖入"预期完成号"（aigc_ts_copy）
+  Note over CP: GPU 执行单元跑完 add1，结果写进显存
+  CP->>TS: 写入递增完成号
+  CP->>TH: 抬 MSI-X 向量 40（计算完成）
+  Note over TH: 读+清状态，标记需要下半部（要快）
+  TH->>BH: 唤起下半部
+  BH->>U: record_irq_event + 事件环 + os_wake_up 唤醒
+  U->>TS: 比较 fence 值 ≥ 预期号 → 确认完成
+  Note over U: aicaMemcpy 读回 deviceA = 10，assert 通过 🎉
