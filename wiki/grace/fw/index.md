@@ -72,6 +72,7 @@ flowchart LR
 | Debug | [FW 调试索引](<./debug/index.md>) | ringbuffer IPC/CLI 地址转换图解、SDMA、PCIe bring-up、aigc_sdk bug scan。 |
 | Source Maps | [GraceC CP MAS v1.4 code knowledge map](<./GraceC CP MAS v1.4 code knowledge map.md>) | MAS 文档与代码主线映射、源材料对应关系。 |
 | Learnings | [FW Learnings 索引](<./learnings/index.md>) | HCQD 调度版本演进、review 规则。 |
+| 面试深入 | [CP 固件面试向深入（Command Processor 问答）](<./fw-cp-interview-deep-dive.md>) | Master/User 分工、QDMA/BDMA、HCQD/MCQD 两级、candidate mask round-robin、IB 锁规则、快/慢车道、CP 看不懂 kernel、只有一个 0x10、stop/flush。配套 [saxpy 端到端长文](<../overview/saxpy-kernel-end-to-end.md>)。 |
 | Env | [服务器环境与构建命令](<./env.md>) | 远端源码路径和构建命令。 |
 
 ## 新增 FW 页面放哪里

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="660" viewBox="0 0 940 660" role="img" aria-labelledby="t d">
+  <title id="t">UMD 内部分层</title>
+  <desc id="d">应用 → aica* runtime → HostQueue/Stream → ajthunk thunk → ioctl；launch 直发 doorbell 不经 thunk。</desc>
+  <defs>
+    <style>
+      .title{font:800 22px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .h{font:800 16px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .b{font:500 12.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#2f3e46}
+      .s{font:600 11.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .tag{font:700 11px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#a83b38}
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8.5" markerHeight="8.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#d9534f"/></marker>
+  </defs>
+  <rect width="940" height="660" rx="20" fill="#f6f8fa"/>
+  <text x="40" y="42" class="title">UMD 内部分层（aigc-driver）</text>
+  <text x="40" y="68" class="sub">建立类操作向下穿 thunk 走 ioctl；但 kernel launch 自己写 host ring + 敲 doorbell，不经 thunk。</text>
+
+  <rect x="120" y="92" width="460" height="72" rx="12" fill="#ffffff" stroke="#cfd6dd" stroke-width="1.3"/>
+  <text x="140" y="122" class="h">应用（你的 .cu 程序）</text>
+  <text x="140" y="146" class="b">aicaMalloc / aicaMemcpy / add1&lt;&lt;&lt;&gt;&gt;&gt;</text>
+
+  <rect x="120" y="190" width="460" height="78" rx="12" fill="#eaf2fd" stroke="#6fa8e6" stroke-width="1.3"/>
+  <text x="140" y="220" class="h">aica* 运行时 API（libaicart.so）</text>
+  <text x="140" y="244" class="b">aica_runtime.cpp / aica_platform.cpp / aica_memory.cpp</text>
+  <text x="140" y="262" class="s">注册 fatbin、组 dispatch packet、查 init_pc</text>
+
+  <rect x="120" y="294" width="460" height="78" rx="12" fill="#eaf2fd" stroke="#6fa8e6" stroke-width="1.3"/>
+  <text x="140" y="324" class="h">HostQueue / Stream（命令队列）</text>
+  <text x="140" y="348" class="b">gracevirtualgpu.cpp：sendPacket 写 ring</text>
+  <text x="140" y="366" class="b">aigc_queue.hpp：UpdateDoorBellRelaxed 敲 doorbell</text>
+
+  <rect x="120" y="398" width="460" height="78" rx="12" fill="#fff7e3" stroke="#e6bd5c" stroke-width="1.3"/>
+  <text x="140" y="428" class="h">ajthunk thunk 层</text>
+  <rect x="470" y="408" width="96" height="26" rx="8" fill="#fdeeee" stroke="#d9534f"/><text x="518" y="426" text-anchor="middle" class="tag">闭源 / 反推</text>
+  <text x="140" y="452" class="b">把建立类操作封装成 ioctl</text>
+  <text x="140" y="470" class="s">（子模块为空，未逐行核实）</text>
+
+  <rect x="120" y="502" width="460" height="64" rx="12" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.3"/>
+  <text x="140" y="532" class="h">ioctl(/dev/aigcN) → KMD</text>
+  <text x="140" y="554" class="b">AIP_CONTEXT_CREATE / MEM_CREATE / QUEUE_CREATE（仅建场）</text>
+
+  <!-- main down arrows -->
+  <path d="M350 164 V188" stroke="#8da2ad" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+  <path d="M350 268 V292" stroke="#8da2ad" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+  <path d="M350 372 V396" stroke="#8da2ad" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+  <path d="M350 476 V500" stroke="#8da2ad" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+  <text x="360" y="182" class="s">建 ctx/显存/队列</text>
+
+  <!-- launch bypass arrow: from HostQueue down right side straight to chip, skipping thunk/ioctl -->
+  <path d="M580 333 H700 V592" stroke="#d9534f" stroke-width="2.6" stroke-dasharray="9 6" fill="none" marker-end="url(#ah)"/>
+  <text x="708" y="612" class="tag">→ 芯片（CP 固件）</text>
+  <rect x="612" y="392" width="296" height="92" rx="12" fill="#fdeeee" stroke="#d9534f" stroke-width="1.3"/>
+  <text x="628" y="418" class="h" fill="#a83b38">kernel launch 直发</text>
+  <text x="628" y="442" class="b" fill="#a83b38">写 host ringbuffer + 敲 doorbell（MMIO）</text>
+  <text x="628" y="462" class="b" fill="#a83b38">不经 thunk、不走 ioctl</text>
+  <text x="628" y="480" class="s" fill="#a83b38">HWS 默认；KMD 不经手每包</text>
+  <text x="612" y="520" class="s">doorbell 是建 context 时映射进用户态的 MMIO 地址；</text>
+  <text x="612" y="540" class="s">CP 固件被通知后自行从 host ring 取包。</text>
+</svg>

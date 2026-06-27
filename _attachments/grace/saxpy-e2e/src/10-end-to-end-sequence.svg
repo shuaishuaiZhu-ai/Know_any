@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="920" viewBox="0 0 1180 920" role="img" aria-labelledby="t d">
+  <title id="t">add1 端到端时序</title>
+  <desc id="d">App、UMD、KMD、CP Master、CP User、GPU 六条泳道，按 add1 提交到读回结果串联，区分同步提交与异步下发。</desc>
+  <defs>
+    <style>
+      .title{font:800 23px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .lane{font:800 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#ffffff}
+      .msg{font:600 11.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#2f3e46}
+      .self{font:600 11.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#1b3a4b}
+      .br{font:700 12px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#7a5cc0}
+      .hot{font:700 11.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#a83b38}
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#5b7383"/></marker>
+    <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8.5" markerHeight="8.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#d9534f"/></marker>
+  </defs>
+  <rect width="1180" height="920" rx="20" fill="#f6f8fa"/>
+  <text x="40" y="42" class="title">把全程串成一条时间线：add1&lt;&lt;&lt;1,1&gt;&gt;&gt; 从提交到读回结果</text>
+  <text x="40" y="66" class="sub">时间向下流。蓝实线=调用/数据，灰虚线=返回/唤醒，红=doorbell。关键：提交同步返回，下发与执行异步发生。</text>
+
+  <!-- lane headers + lifelines -->
+  <g>
+    <rect x="46" y="82" width="128" height="40" rx="9" fill="#5a6b76"/><text x="110" y="107" text-anchor="middle" class="lane">App（host main）</text>
+    <rect x="236" y="82" width="128" height="40" rx="9" fill="#3f78c4"/><text x="300" y="107" text-anchor="middle" class="lane">UMD aigc-driver</text>
+    <rect x="426" y="82" width="128" height="40" rx="9" fill="#caa23e"/><text x="490" y="100" text-anchor="middle" class="lane">KMD</text><text x="490" y="115" text-anchor="middle" class="lane" style="font-size:10px">建场，仅一次</text>
+    <rect x="616" y="82" width="128" height="40" rx="9" fill="#36936c"/><text x="680" y="107" text-anchor="middle" class="lane">CP Master</text>
+    <rect x="806" y="82" width="128" height="40" rx="9" fill="#36936c"/><text x="870" y="107" text-anchor="middle" class="lane">CP User</text>
+    <rect x="996" y="82" width="138" height="40" rx="9" fill="#7a5cc0"/><text x="1065" y="107" text-anchor="middle" class="lane">GPU 执行单元</text>
+  </g>
+  <g stroke="#c4ccd2" stroke-width="1.4" stroke-dasharray="4 5">
+    <line x1="110" y1="122" x2="110" y2="892"/>
+    <line x1="300" y1="122" x2="300" y2="892"/>
+    <line x1="490" y1="122" x2="490" y2="892"/>
+    <line x1="680" y1="122" x2="680" y2="892"/>
+    <line x1="870" y1="122" x2="870" y2="892"/>
+    <line x1="1065" y1="122" x2="1065" y2="892"/>
+  </g>
+
+  <!-- phase brackets -->
+  <path d="M30 150 V332" stroke="#7a5cc0" stroke-width="2" fill="none"/>
+  <path d="M26 150 H34 M26 332 H34" stroke="#7a5cc0" stroke-width="2"/>
+  <text x="20" y="250" class="br" transform="rotate(-90 20 250)" text-anchor="middle">提交（同步，立即返回）</text>
+  <path d="M30 346 V874" stroke="#7a5cc0" stroke-width="2" fill="none"/>
+  <path d="M26 346 H34 M26 874 H34" stroke="#7a5cc0" stroke-width="2"/>
+  <text x="20" y="610" class="br" transform="rotate(-90 20 610)" text-anchor="middle">下发 + 执行 + 完成（异步）</text>
+
+  <!-- m1 App->UMD -->
+  <text x="120" y="158" class="msg">① 调 aica* API</text>
+  <path d="M110 164 H298" stroke="#3f78c4" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <!-- m2 UMD->KMD -->
+  <text x="310" y="200" class="msg">② 建 ctx/显存/队列（ioctl，仅首次）</text>
+  <path d="M300 206 H488" stroke="#3f78c4" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <!-- m3 KMD->UMD return -->
+  <text x="310" y="238" class="msg">③ 返回 doorbell 地址 + MCQD 就绪</text>
+  <path d="M488 244 H302" stroke="#6f8a99" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#a)"/>
+  <!-- m4 UMD self -->
+  <rect x="218" y="266" width="166" height="48" rx="9" fill="#eaf2fd" stroke="#6fa8e6"/>
+  <text x="301" y="287" text-anchor="middle" class="self">④ 组 dispatch packet(0x10)</text>
+  <text x="301" y="305" text-anchor="middle" class="self">写进 host ringbuffer</text>
+  <!-- m5 UMD->CPM doorbell (hot) -->
+  <text x="312" y="342" class="hot">⑤ 原子写 doorbell（MMIO，跨过 KMD）</text>
+  <path d="M300 348 H678" stroke="#d9534f" stroke-width="2.4" stroke-dasharray="9 5" fill="none" marker-end="url(#ah)"/>
+  <text x="312" y="372" class="msg" fill="#a83b38">↑ 此刻 UMD 已返回，去忙别的；下面在芯片侧异步发生</text>
+  <!-- m6 CPM self -->
+  <rect x="598" y="392" width="164" height="48" rx="9" fill="#e6f6ef" stroke="#56bf93"/>
+  <text x="680" y="413" text-anchor="middle" class="self">⑥ QDMA 查 MCQD ready</text>
+  <text x="680" y="431" text-anchor="middle" class="self">BDMA 绑 HCQD</text>
+  <!-- m7 CPM->CPU -->
+  <text x="612" y="466" class="msg">⑦ HCQD fetch 包 + candidate 举手</text>
+  <path d="M680 472 H868" stroke="#36936c" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <!-- m8 CPU self -->
+  <rect x="788" y="494" width="164" height="48" rx="9" fill="#e6f6ef" stroke="#56bf93"/>
+  <text x="870" y="515" text-anchor="middle" class="self">⑧ cmd_entry peek</text>
+  <text x="870" y="533" text-anchor="middle" class="self">job 0x10 → iDMA direct</text>
+  <!-- m9 CPU->HW -->
+  <text x="882" y="568" class="msg">⑨ 投递 job 到 CLS FIFO</text>
+  <path d="M870 574 H1063" stroke="#7a5cc0" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <!-- m10 HW self -->
+  <rect x="980" y="596" width="170" height="48" rx="9" fill="#f1ecfb" stroke="#a385e0"/>
+  <text x="1065" y="617" text-anchor="middle" class="self">⑩ GCtrl 拆 Grid→Cluster</text>
+  <text x="1065" y="635" text-anchor="middle" class="self">执行 add1，10 写进显存</text>
+  <!-- m11 HW->CPU write fence -->
+  <text x="700" y="672" class="msg">⑪ CP 写递增 fence TS → fence 缓冲（用户可比大小）</text>
+  <path d="M1063 678 H872" stroke="#6f8a99" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#a)"/>
+  <!-- m12 CPU->KMD interrupt -->
+  <text x="500" y="706" class="msg">⑫ 抬 MSI-X 向量 40（CP event-signal）</text>
+  <path d="M870 712 H492" stroke="#d9534f" stroke-width="2.2" fill="none" marker-end="url(#ah)"/>
+  <!-- m13 KMD self -->
+  <rect x="408" y="734" width="164" height="48" rx="9" fill="#fff7e3" stroke="#e6bd5c"/>
+  <text x="490" y="755" text-anchor="middle" class="self">⑬ 上半部读清+need_bh</text>
+  <text x="490" y="773" text-anchor="middle" class="self">下半部 os_wake_up</text>
+  <!-- m14 KMD->App wake -->
+  <text x="120" y="808" class="msg">⑭ 唤醒 host 上等待的 main()</text>
+  <path d="M488 814 H112" stroke="#6f8a99" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#a)"/>
+  <!-- m15 App self -->
+  <rect x="28" y="836" width="252" height="46" rx="9" fill="#eef1f3" stroke="#b9c2cb"/>
+  <text x="154" y="857" text-anchor="middle" class="self">⑮ aicaMemcpy D2H 读回 10</text>
+  <text x="154" y="875" text-anchor="middle" class="self">assert(*hostA == 10) 通过 → 层层释放</text>
+</svg>

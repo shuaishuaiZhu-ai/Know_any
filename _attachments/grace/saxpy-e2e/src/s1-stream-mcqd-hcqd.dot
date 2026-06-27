@@ -1,0 +1,33 @@
+// stream → MCQD → HCQD（源码确认：UMD HostQueue / KMD fill_mcqd_info / CP qdma+bdma）
+digraph stream_mcqd_hcqd {
+  rankdir=LR;
+  bgcolor="#f6f8fa";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC", fontsize=11.5,
+        color="#cfd6dd", fillcolor="#ffffff", margin="0.18,0.11"];
+  edge [color="#8da2ad", penwidth=1.6, arrowsize=0.7, fontname="Noto Sans CJK SC", fontsize=10, fontcolor="#526672"];
+
+  st [label="UMD：stream\n（Stream : HostQueue，一条命令队列）", fillcolor="#eaf2fd", color="#6fa8e6"];
+  qc [label="懒创建：经 thunk\nAIP_QUEUE_CREATE", fillcolor="#eaf2fd", color="#6fa8e6"];
+
+  subgraph cluster_kmd {
+    label="KMD（建场，一次）"; fontname="Noto Sans CJK SC"; fontsize=12; color="#e6bd5c"; style="rounded"; bgcolor="#fffdf6";
+    mc [label="create_queue_cpsche / fill_mcqd_info\n在 ctx KCACHE 填 MCQD", fillcolor="#fff7e3", color="#e6bd5c"];
+    mf [label="MCQD 字段\ndoorbell_id = vmid*32 + qid · asid = vmid\nring_base_lo/hi · ring_size\nwptr_shadow_addr · active = 1", shape=note, fillcolor="#fffdf6", color="#e6bd5c"];
+    ipc [label="aigc_hal_add_queue\n发 create-queue IPC 给固件", fillcolor="#fff7e3", color="#e6bd5c"];
+  }
+
+  subgraph cluster_cp {
+    label="CP Master（MCU）"; fontname="Noto Sans CJK SC"; fontsize=12; color="#36936c"; style="rounded"; bgcolor="#f1faf6";
+    qd [label="qdma_get_mcqd_ready_status()\n查哪条 MCQD ready", fillcolor="#e6f6ef", color="#56bf93"];
+    bd [label="bindDMA\n绑到一个空闲 HCQD", fillcolor="#e6f6ef", color="#56bf93"];
+  }
+
+  hq [label="HCQD（硬件队列槽，共 32）\nactive 后 fetch 包", fillcolor="#f1ecfb", color="#a385e0"];
+
+  two [shape=note, fillcolor="#eef6ff", color="#6fa8e6",
+       label="为什么两级：\nMCQD = 软件逻辑队列（可以很多）\nHCQD = 硬件物理槽（只有 32）\nCP Master 动态把就绪 MCQD 绑到空闲 HCQD\n（用完 stop / release，腾给别人）"];
+
+  st -> qc -> mc -> ipc -> qd -> bd -> hq;
+  mc -> mf [style=dashed, color="#e6bd5c", arrowhead=none];
+  hq -> two [style=dashed, color="#6fa8e6", arrowhead=none];
+}

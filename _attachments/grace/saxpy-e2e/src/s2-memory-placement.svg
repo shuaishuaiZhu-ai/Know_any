@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="600" viewBox="0 0 1180 600" role="img" aria-labelledby="t d">
+  <title id="t">内存落位矩阵</title>
+  <desc id="d">各动作分配的内存分别落在 host 内存 / device VRAM / MMIO / ctx VM。</desc>
+  <defs>
+    <style>
+      .title{font:800 23px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .ch{font:800 13.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#ffffff}
+      .rh{font:700 12.5px ui-monospace,Consolas,monospace;fill:#1b3a4b}
+      .c{font:500 12px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#2f3e46}
+      .hot{font:700 12px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#a83b38}
+      .s{font:600 11px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+    </style>
+  </defs>
+  <rect width="1180" height="600" rx="20" fill="#f6f8fa"/>
+  <text x="40" y="42" class="title">何时分配什么内存、落在哪</text>
+  <text x="40" y="68" class="sub">行 = 动作（ioctl）；列 = 内存位置。注意 stream ringbuffer 在 host 内存，是常被追问的反直觉点。</text>
+
+  <!-- column headers -->
+  <rect x="40" y="86" width="300" height="42" rx="8" fill="#5a6b76"/><text x="56" y="113" class="ch">动作 / ioctl</text>
+  <rect x="346" y="86" width="200" height="42" rx="8" fill="#3f78c4"/><text x="446" y="113" text-anchor="middle" class="ch">host 内存</text>
+  <rect x="552" y="86" width="210" height="42" rx="8" fill="#36936c"/><text x="657" y="113" text-anchor="middle" class="ch">device VRAM</text>
+  <rect x="768" y="86" width="180" height="42" rx="8" fill="#caa23e"/><text x="858" y="113" text-anchor="middle" class="ch">MMIO（映进用户态）</text>
+  <rect x="954" y="86" width="186" height="42" rx="8" fill="#7a5cc0"/><text x="1047" y="113" text-anchor="middle" class="ch">ctx VM（GPU 地址）</text>
+
+  <!-- rows -->
+  <!-- r1 CONTEXT_CREATE -->
+  <rect x="40" y="134" width="300" height="64" rx="8" fill="#eef2f5" stroke="#dde3e8"/><text x="56" y="160" class="rh">AIP_CONTEXT_CREATE</text><text x="56" y="182" class="s">建地址空间</text>
+  <rect x="346" y="134" width="200" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="552" y="134" width="210" height="64" rx="8" fill="#f1faf6" stroke="#cdeede"/><text x="568" y="160" class="c">VMID + 根页表</text><text x="568" y="180" class="c">gslab</text>
+  <rect x="768" y="134" width="180" height="64" rx="8" fill="#fffdf6" stroke="#eedebe"/><text x="784" y="160" class="c">doorbell 窗口</text><text x="784" y="180" class="c">→ 映进用户态</text>
+  <rect x="954" y="134" width="186" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+
+  <!-- r2 MEM_CREATE -->
+  <rect x="40" y="204" width="300" height="64" rx="8" fill="#f6f8fa" stroke="#dde3e8"/><text x="56" y="230" class="rh">AIP_MEM_CREATE</text><text x="56" y="252" class="s">aicaMalloc(deviceA)</text>
+  <rect x="346" y="204" width="200" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="552" y="204" width="210" height="64" rx="8" fill="#f1faf6" stroke="#cdeede"/><text x="568" y="240" class="c">显存块（数据）</text>
+  <rect x="768" y="204" width="180" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="954" y="204" width="186" height="64" rx="8" fill="#f6f2fd" stroke="#dccff2"/><text x="970" y="240" class="c">PTE 写进 ctx 页表</text>
+
+  <!-- r3 QUEUE_CREATE -->
+  <rect x="40" y="274" width="300" height="64" rx="8" fill="#eef2f5" stroke="#dde3e8"/><text x="56" y="300" class="rh">AIP_QUEUE_CREATE</text><text x="56" y="322" class="s">建队列</text>
+  <rect x="346" y="274" width="200" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="552" y="274" width="210" height="64" rx="8" fill="#f1faf6" stroke="#cdeede"/><text x="568" y="300" class="c">MCQD（描述符）</text><text x="568" y="320" class="c">CP 环（非主路径）</text>
+  <rect x="768" y="274" width="180" height="64" rx="8" fill="#fffdf6" stroke="#eedebe"/><text x="784" y="310" class="c">doorbell 地址给用户</text>
+  <rect x="954" y="274" width="186" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+
+  <!-- r4 stream ringbuffer (hot) -->
+  <rect x="40" y="344" width="300" height="64" rx="8" fill="#fdeeee" stroke="#e6a9a6"/><text x="56" y="370" class="rh">stream ringbuffer</text><text x="56" y="392" class="hot">HWS 主路径，每个 kernel 包</text>
+  <rect x="346" y="344" width="200" height="64" rx="8" fill="#fdeeee" stroke="#d9534f" stroke-width="1.6"/><text x="446" y="372" text-anchor="middle" class="hot">★ 就在这里</text><text x="446" y="392" text-anchor="middle" class="s" fill="#a83b38">UMD 写 / CP DMA 读</text>
+  <rect x="552" y="344" width="210" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/><text x="657" y="380" text-anchor="middle" class="s">（不是这里）</text>
+  <rect x="768" y="344" width="180" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="954" y="344" width="186" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+
+  <!-- r5 fence buffer -->
+  <rect x="40" y="414" width="300" height="64" rx="8" fill="#f6f8fa" stroke="#dde3e8"/><text x="56" y="440" class="rh">fence 缓冲</text><text x="56" y="462" class="s">完成号（递增 TS）</text>
+  <rect x="346" y="414" width="200" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="552" y="414" width="210" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="768" y="414" width="180" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="954" y="414" width="186" height="64" rx="8" fill="#f6f2fd" stroke="#dccff2"/><text x="970" y="450" class="c">映进 ctx VM</text>
+
+  <!-- r6 command buffer / IB -->
+  <rect x="40" y="484" width="300" height="64" rx="8" fill="#eef2f5" stroke="#dde3e8"/><text x="56" y="510" class="rh">command buffer / IB</text><text x="56" y="532" class="s">间接缓冲（非主路径）</text>
+  <rect x="346" y="484" width="200" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="552" y="484" width="210" height="64" rx="8" fill="#f1faf6" stroke="#cdeede"/><text x="568" y="520" class="c">GPU VA（device 侧）</text>
+  <rect x="768" y="484" width="180" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+  <rect x="954" y="484" width="186" height="64" rx="8" fill="#ffffff" stroke="#e3e8ec"/>
+
+  <text x="40" y="576" class="s">源码确认：ringbuffer host（aigc_alloc_system_pages / MH_HOST，AICA_RB_ALLOC==1 alloc on host）；MCQD/显存/CP 环在 device；doorbell 是 MMIO；fence 缓冲映进 ctx VM。</text>
+</svg>

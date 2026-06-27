@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="980" viewBox="0 0 1340 980" role="img" aria-labelledby="t d">
+  <title id="t">一个 kernel 从 .cu 到硬件执行的六阶段全景</title>
+  <desc id="d">开发机编译 → UMD 组 dispatch 包并直发 doorbell → KMD 一次性建场 → CP 固件分拣投递 → GPU 执行 → 完成回路。</desc>
+  <defs>
+    <style>
+      .title{font:800 27px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 15px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .lane{font:800 16px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#ffffff}
+      .lanesub{font:600 11px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#e9eef2}
+      .head{font:800 14px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .body{font:500 12.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#2f3e46}
+      .mono{font:600 12px ui-monospace,"SFMono-Regular",Consolas,monospace;fill:#1b3a4b}
+      .small{font:600 11px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .bnd{font:700 12px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#b0682e}
+      .badge{font:800 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#ffffff}
+      .neu{fill:#ffffff;stroke:#cfd6dd;stroke-width:1.3}
+      .blue{fill:#eaf2fd;stroke:#6fa8e6;stroke-width:1.3}
+      .amber{fill:#fff7e3;stroke:#e6bd5c;stroke-width:1.3}
+      .teal{fill:#e6f6ef;stroke:#56bf93;stroke-width:1.3}
+      .purp{fill:#f1ecfb;stroke:#a385e0;stroke-width:1.3}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+      .hot{stroke:#d9534f;stroke-width:2.8;fill:none;stroke-linecap:round;stroke-dasharray:9 6}
+      .ret{stroke:#6f8a99;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-dasharray:6 6}
+      .bline{stroke:#e6bd5c;stroke-width:1.6;fill:none;stroke-dasharray:8 7}
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#d9534f"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#6f8a99"/></marker>
+  </defs>
+  <rect width="1340" height="980" rx="22" fill="#f6f8fa"/>
+  <text x="40" y="44" class="title">一个 Kernel 的全景：从 .cu 到硬件执行的六个阶段</text>
+  <text x="40" y="72" class="sub">主角例子 add1&lt;&lt;&lt;1,1&gt;&gt;&gt;(deviceA)（文件名 test_saxpy_op.cu，实际算 *dst=6+4=10）。蓝色路径=每个 kernel 都走；琥珀=只在初始化建场一次。</text>
+
+  <!-- lane tabs -->
+  <rect x="24" y="96"  width="138" height="100" rx="10" fill="#5a6b76"/>
+  <text x="93" y="138" text-anchor="middle" class="lane">① 开发机</text>
+  <text x="93" y="160" text-anchor="middle" class="lanesub">编译期 · host</text>
+
+  <rect x="24" y="216" width="138" height="128" rx="10" fill="#3f78c4"/>
+  <text x="93" y="262" text-anchor="middle" class="lane">② UMD</text>
+  <text x="93" y="284" text-anchor="middle" class="lanesub">用户态运行时</text>
+  <text x="93" y="302" text-anchor="middle" class="lanesub">aigc-driver</text>
+
+  <rect x="24" y="380" width="138" height="116" rx="10" fill="#caa23e"/>
+  <text x="93" y="424" text-anchor="middle" class="lane">KMD</text>
+  <text x="93" y="446" text-anchor="middle" class="lanesub">内核态 aigc.ko</text>
+  <text x="93" y="464" text-anchor="middle" class="lanesub">仅一次性建场</text>
+
+  <rect x="24" y="532" width="138" height="128" rx="10" fill="#36936c"/>
+  <text x="93" y="582" text-anchor="middle" class="lane">③ CP 固件</text>
+  <text x="93" y="604" text-anchor="middle" class="lanesub">芯片上 · 分拣</text>
+
+  <rect x="24" y="696" width="138" height="110" rx="10" fill="#7a5cc0"/>
+  <text x="93" y="744" text-anchor="middle" class="lane">④ GPU</text>
+  <text x="93" y="766" text-anchor="middle" class="lanesub">计算阵列执行</text>
+
+  <!-- L1 开发机 -->
+  <rect x="186" y="106" width="300" height="80" rx="12" class="neu"/>
+  <circle cx="206" cy="126" r="11" fill="#5a6b76"/><text x="206" y="130" text-anchor="middle" class="badge">0</text>
+  <text x="226" y="130" class="head">clang -x aica 单趟编译</text>
+  <text x="206" y="152" class="body">.cu → host x86 机器码</text>
+  <text x="206" y="172" class="body">+ device kernel 二进制（KungFu32）</text>
+
+  <rect x="520" y="106" width="320" height="80" rx="12" class="neu"/>
+  <text x="540" y="130" class="head">fatbin 内嵌进 ELF</text>
+  <text x="540" y="152" class="body">__CLANG_OFFLOAD_BUNDLE__ 把</text>
+  <text x="540" y="172" class="body">device kernel 打包塞进同一个可执行文件</text>
+  <path d="M486 146 H516" class="line" marker-end="url(#a)"/>
+
+  <text x="900" y="138" class="small">独立形态是 .co（code object）；</text>
+  <text x="900" y="158" class="small">运行时 __aicaRegisterFatBinary</text>
+  <text x="900" y="178" class="small">建“host 符号 &amp;add1 → device kernel”表</text>
+
+  <!-- boundary 运行 -->
+  <path d="M186 202 H1300" class="bline"/>
+  <text x="186" y="214" class="bnd">▽ 程序运行：进入用户态 UMD</text>
+
+  <!-- L2 UMD -->
+  <rect x="186" y="226" width="232" height="108" rx="12" class="blue"/>
+  <circle cx="206" cy="248" r="11" fill="#3f78c4"/><text x="206" y="252" text-anchor="middle" class="badge">1</text>
+  <text x="226" y="252" class="head">注册 + 首次建场</text>
+  <text x="206" y="276" class="body">RegisterFatBinary 建表；</text>
+  <text x="206" y="296" class="body">首次用 GPU → 经 KMD 建</text>
+  <text x="206" y="316" class="body">context（见琥珀层，仅一次）</text>
+
+  <rect x="438" y="226" width="222" height="108" rx="12" class="blue"/>
+  <circle cx="458" cy="248" r="11" fill="#3f78c4"/><text x="458" y="252" text-anchor="middle" class="badge">2</text>
+  <text x="478" y="252" class="head">aicaMalloc / Memcpy</text>
+  <text x="458" y="276" class="body">分显存（AIP_MEM_CREATE）；</text>
+  <text x="458" y="296" class="body">H2D 拷贝也是一条命令，</text>
+  <text x="458" y="316" class="body">入同一条 stream 队列</text>
+
+  <rect x="680" y="226" width="246" height="108" rx="12" class="blue"/>
+  <circle cx="700" cy="248" r="11" fill="#3f78c4"/><text x="700" y="252" text-anchor="middle" class="badge">3</text>
+  <text x="720" y="252" class="head">add1&lt;&lt;&lt;1,1&gt;&gt;&gt; 组包</text>
+  <text x="700" y="276" class="body">aicaLaunchKernel 查表得 init_pc，</text>
+  <text x="700" y="296" class="body">填 aica_kernel_dispatch_packet_t</text>
+  <text x="700" y="316" class="mono">包类型 = 0x10（仅此一个 0x10）</text>
+
+  <rect x="946" y="226" width="354" height="108" rx="12" class="blue"/>
+  <circle cx="966" cy="248" r="11" fill="#3f78c4"/><text x="966" y="252" text-anchor="middle" class="badge">4</text>
+  <text x="986" y="252" class="head">写 ring + 敲 doorbell（UMD 亲自做）</text>
+  <text x="966" y="276" class="body">sendPacket 把包写进 stream ringbuffer</text>
+  <text x="966" y="296" class="mono">ringbuffer 在 host 内存（不是 VRAM）</text>
+  <text x="966" y="316" class="body">UpdateDoorBell 原子写 doorbell（MMIO）</text>
+  <path d="M418 280 H436" class="line" marker-end="url(#a)"/>
+  <path d="M660 280 H678" class="line" marker-end="url(#a)"/>
+  <path d="M926 280 H944" class="line" marker-end="url(#a)"/>
+
+  <!-- boundary user/kernel -->
+  <path d="M186 352 H1300" class="bline"/>
+  <text x="186" y="370" class="bnd">— 用户态 ↔ 内核态边界：只有“建场”走 ioctl(/dev/aigcN)，kernel 提交不经过 KMD —</text>
+
+  <!-- L3 KMD setup -->
+  <rect x="186" y="384" width="232" height="106" rx="12" class="amber"/>
+  <text x="206" y="408" class="head">AIP_CONTEXT_CREATE</text>
+  <text x="206" y="430" class="body">分配 VMID + 建根页表；</text>
+  <text x="206" y="450" class="body">映射 doorbell 窗口进用户态；</text>
+  <text x="206" y="470" class="body">→ 把 doorbell 地址给 UMD</text>
+
+  <rect x="438" y="384" width="222" height="106" rx="12" class="amber"/>
+  <text x="458" y="408" class="head">AIP_MEM_CREATE</text>
+  <text x="458" y="430" class="body">分显存块（device VRAM），</text>
+  <text x="458" y="450" class="body">把 GPU VA→物理页 PTE</text>
+  <text x="458" y="470" class="body">写进该 ctx 的 4 级页表</text>
+
+  <rect x="680" y="384" width="246" height="106" rx="12" class="amber"/>
+  <text x="700" y="408" class="head">AIP_QUEUE_CREATE</text>
+  <text x="700" y="430" class="body">建 ring + 填 MCQD（队列描述符）</text>
+  <text x="700" y="450" class="body">发 IPC 通知 CP 固件；</text>
+  <text x="700" y="470" class="body">→ MCQD 待 CP 的 QDMA 轮询</text>
+
+  <rect x="1118" y="402" width="182" height="76" rx="11" fill="#fdeeee" stroke="#d9534f" stroke-width="1.4"/>
+  <text x="1209" y="426" text-anchor="middle" class="head" fill="#a83b38">doorbell 直达固件</text>
+  <text x="1209" y="449" text-anchor="middle" class="body" fill="#a83b38">每个 kernel 包跳过 KMD</text>
+  <text x="1209" y="469" text-anchor="middle" class="body" fill="#a83b38">（HWS 默认调度）</text>
+
+  <!-- ioctl down-arrows: UMD builds 场 via KMD (once) -->
+  <path d="M300 356 V382" class="ret" marker-end="url(#ar)"/>
+  <path d="M580 356 V382" class="ret" marker-end="url(#ar)"/>
+  <text x="612" y="374" class="small" fill="#6f8a99">建场 ioctl（仅一次）</text>
+
+  <!-- boundary host/chip -->
+  <path d="M186 504 H1300" class="bline"/>
+  <text x="186" y="522" class="bnd">— host ↔ 芯片边界：doorbell 写 = MMIO/PCIe；host 上的 ringbuffer 由芯片侧 DMA 读取 —</text>
+
+  <!-- hot path: doorbell exits UMD box4, drops through KMD gap, lands on CP Master -->
+  <path d="M1040 334 V500 H366 V534" class="hot" marker-end="url(#ah)"/>
+  <text x="1048" y="356" class="small" fill="#a83b38">④→⑤ doorbell 通知</text>
+
+  <!-- L4 CP -->
+  <rect x="186" y="536" width="360" height="108" rx="12" class="teal"/>
+  <circle cx="206" cy="558" r="11" fill="#36936c"/><text x="206" y="562" text-anchor="middle" class="badge">5</text>
+  <text x="226" y="562" class="head">CP Master：选哪条队列上场</text>
+  <text x="206" y="586" class="body">QDMA 轮询 MCQD ready 状态 → 按 8 档优先级排 task_list</text>
+  <text x="206" y="606" class="body">BDMA 把就绪 MCQD 绑到一个空闲 HCQD（共 32 个硬件槽位）</text>
+  <text x="206" y="626" class="body">HCQD fetch 1024-bit 包 → 置 candidate “举手位”</text>
+
+  <rect x="566" y="536" width="300" height="108" rx="12" class="teal"/>
+  <circle cx="586" cy="558" r="11" fill="#36936c"/><text x="586" y="562" text-anchor="middle" class="badge">6</text>
+  <text x="606" y="562" class="head">CP User：分拣 + 投递</text>
+  <text x="586" y="586" class="body">cmd_entry round-robin 选 HCQD →</text>
+  <text x="586" y="606" class="body">ib_peek_packet 读包头判 operator；</text>
+  <text x="586" y="626" class="mono">job(0x10) 走快车道 iDMA direct</text>
+
+  <rect x="886" y="536" width="414" height="108" rx="12" class="teal"/>
+  <text x="906" y="562" class="head">iDMA direct → CLS FIFO</text>
+  <text x="906" y="586" class="body">iDMA 硬件把 job 包搬进 CLS FIFO（计算阵列入口），</text>
+  <text x="906" y="606" class="body">固件不逐字解释包体——这是高频命令的高价值快路径。</text>
+  <text x="906" y="626" class="small">慢车道（event / wait_host 等）才由固件亲自处理。</text>
+  <path d="M546 590 H564" class="line" marker-end="url(#a)"/>
+  <path d="M866 590 H884" class="line" marker-end="url(#a)"/>
+
+  <!-- boundary CP/HW -->
+  <path d="M186 656 H1300" class="bline"/>
+  <text x="186" y="674" class="bnd">— CP ↔ 执行单元边界：CLS FIFO（CP 把包投进去就完事，看不懂 kernel 在算什么）—</text>
+
+  <path d="M1093 644 V692" class="line" marker-end="url(#a)"/>
+  <text x="1100" y="672" class="small">CLS FIFO</text>
+
+  <!-- L5 GPU -->
+  <rect x="186" y="700" width="680" height="96" rx="12" class="purp"/>
+  <circle cx="206" cy="722" r="11" fill="#7a5cc0"/><text x="206" y="726" text-anchor="middle" class="badge">7</text>
+  <text x="226" y="726" class="head">GPU 计算阵列真正执行</text>
+  <text x="206" y="750" class="body">GCtrl 把 Grid 拆成 Cluster 派发 → 按包里的 Init_PC 定位 add1 kernel 二进制 →</text>
+  <text x="206" y="772" class="body">SIMT 执行 *dst = 6 + 4 → 把结果 10 写进 deviceA 指向的显存。</text>
+
+  <rect x="886" y="700" width="414" height="96" rx="12" class="purp"/>
+  <circle cx="906" cy="722" r="11" fill="#7a5cc0"/><text x="906" y="726" text-anchor="middle" class="badge">8</text>
+  <text x="926" y="726" class="head">完成回路</text>
+  <text x="906" y="750" class="body">CP 写递增 fence TS（用户比大小即知完成）</text>
+  <text x="906" y="772" class="body">+ 抬 MSI-X 向量 40（CP event-signal）</text>
+
+  <!-- completion return: up the right gutter back to UMD main() -->
+  <path d="M1290 700 H1320 V211 H300 V222" class="ret" marker-end="url(#ar)"/>
+  <text x="810" y="205" text-anchor="middle" class="small" fill="#5b7383">⑧ CP 抬 MSI-X 向量40 → KMD 中断下半部 os_wake_up → 唤醒 host 上等待的 main()</text>
+
+  <!-- legend -->
+  <rect x="40" y="828" width="1260" height="116" rx="14" fill="#ffffff" stroke="#e0e6ea" stroke-width="1.2"/>
+  <text x="60" y="856" class="head">图例与三道边界</text>
+  <path d="M64 884 H104" class="line" marker-end="url(#a)"/><text x="112" y="888" class="body">每个 kernel 都走的数据路径</text>
+  <path d="M320 884 H360" class="hot" marker-end="url(#ah)"/><text x="368" y="888" class="body">doorbell 直发固件（HWS 默认，跨过 KMD）</text>
+  <path d="M700 884 H740" class="ret" marker-end="url(#ar)"/><text x="748" y="888" class="body">一次性建场 / 完成回程</text>
+  <path d="M980 884 H1020" class="bline"/><text x="1028" y="888" class="body">用户态/内核态 · host/芯片 · CP/执行单元 三道边界</text>
+  <text x="60" y="918" class="small">源码确认（116:aigc-driver / ajthunk-kmd / fw，2026-06-26）：只有一个 0x10；ringbuffer 在 host 内存；UMD 自己写 ring+敲 doorbell；HWS 下 KMD 不经手每包。</text>
+  <text x="60" y="936" class="small">AIP_QUEUE_SUBMIT + KMD CP 环 + kthread 拷包是另一条（当前禁用/演进中）路径，非本图主线。</text>
+</svg>

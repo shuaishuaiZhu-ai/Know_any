@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" role="img" aria-labelledby="t d">
+  <title id="t">ring buffer + doorbell</title>
+  <desc id="d">UMD 把包写进 host 内存的 stream ringbuffer，原子写 doorbell 通知 CP；环形单生产者单消费者。</desc>
+  <defs>
+    <style>
+      .title{font:800 24px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 13.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .h{font:800 16px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .b{font:500 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#2f3e46}
+      .s{font:600 11.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .mono{font:600 12px ui-monospace,Consolas,monospace;fill:#1b3a4b}
+      .cell{font:700 12px ui-sans-serif,system-ui,sans-serif;fill:#1b3a4b}
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#3f78c4"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#36936c"/></marker>
+  </defs>
+  <rect width="1180" height="760" rx="20" fill="#f6f8fa"/>
+  <text x="40" y="44" class="title">第 4 关收尾：写进 ringbuffer + 敲 doorbell</text>
+  <text x="40" y="70" class="sub">主路径（HWS）：UMD 自己把包写进 host 内存里的 stream ringbuffer，再原子写 doorbell 通知 CP 固件来取。</text>
+
+  <!-- LEFT: ring -->
+  <rect x="40" y="90" width="600" height="430" rx="16" fill="#ffffff" stroke="#e0e6ea" stroke-width="1.3"/>
+  <text x="62" y="122" class="h">stream ringbuffer（在 host 内存，不是 VRAM）</text>
+  <text x="62" y="146" class="s">环形缓冲 + 单生产者（UMD）单消费者（CP 侧 DMA）</text>
+
+  <!-- cells -->
+  <g>
+    <rect x="62" y="250" width="60" height="74" rx="8" fill="#ffffff" stroke="#cfd6dd"/><text x="92" y="293" text-anchor="middle" class="cell">0</text>
+    <rect x="128" y="250" width="60" height="74" rx="8" fill="#ffffff" stroke="#cfd6dd"/><text x="158" y="293" text-anchor="middle" class="cell">1</text>
+    <rect x="194" y="250" width="60" height="74" rx="8" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.4"/><text x="224" y="289" text-anchor="middle" class="cell">2 包</text>
+    <rect x="260" y="250" width="60" height="74" rx="8" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.4"/><text x="290" y="289" text-anchor="middle" class="cell">3 包</text>
+    <rect x="326" y="250" width="60" height="74" rx="8" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.4"/><text x="356" y="289" text-anchor="middle" class="cell">4 包</text>
+    <rect x="392" y="250" width="60" height="74" rx="8" fill="#fdeeee" stroke="#e6a9a6" stroke-dasharray="4 3"/><text x="422" y="285" text-anchor="middle" class="s" fill="#a83b38">间隙</text><text x="422" y="301" text-anchor="middle" class="s" fill="#a83b38">留空</text>
+    <rect x="458" y="250" width="60" height="74" rx="8" fill="#ffffff" stroke="#cfd6dd"/><text x="488" y="293" text-anchor="middle" class="cell">6</text>
+    <rect x="524" y="250" width="60" height="74" rx="8" fill="#ffffff" stroke="#cfd6dd"/><text x="554" y="293" text-anchor="middle" class="cell">7</text>
+  </g>
+  <!-- wrap arrow -->
+  <path d="M584 230 C 620 210, 620 200, 540 200 L 110 200 C 50 200, 50 230, 70 244" fill="none" stroke="#b6c0c8" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#a)"/>
+  <text x="300" y="194" text-anchor="middle" class="s">环形：写到尾（7）绕回头（0）</text>
+  <!-- wptr (producer, UMD) above cell6 -->
+  <path d="M488 366 V330" stroke="#3f78c4" stroke-width="2.4" fill="none" marker-end="url(#ab)"/>
+  <text x="488" y="386" text-anchor="middle" class="s" fill="#3f78c4">wptr（UMD 下一个写）</text>
+  <!-- rptr (consumer, CP) below cell2 -->
+  <path d="M224 210 V244" stroke="#36936c" stroke-width="2.4" fill="none" marker-end="url(#ag)"/>
+  <text x="224" y="204" text-anchor="middle" class="s" fill="#36936c">rptr（CP 下一个读）</text>
+
+  <!-- rules -->
+  <rect x="62" y="410" width="540" height="92" rx="10" fill="#f7f9fa" stroke="#e0e6ea"/>
+  <text x="78" y="434" class="b">· 占用 = rptr→wptr 之间的格（图中 2/3/4，共 3 个包待 CP 取）</text>
+  <text x="78" y="456" class="mono">· 满：(wptr + 一格) % size == rptr   · 空：wptr == rptr</text>
+  <text x="78" y="478" class="b">· 永远留一个间隙格 → 才能区分“满”和“空”（最大占用 = size − 1）</text>
+  <text x="78" y="496" class="s">CP 侧 QDMA/BDMA 通过 DMA 读 host 上的这块缓冲，推进 rptr。</text>
+
+  <!-- RIGHT: doorbell flow -->
+  <rect x="660" y="90" width="480" height="430" rx="16" fill="#eaf2fd" stroke="#6fa8e6" stroke-width="1.3"/>
+  <text x="682" y="122" class="h">敲 doorbell（UMD sendPacket 内部）</text>
+  <rect x="700" y="142" width="400" height="48" rx="10" fill="#ffffff" stroke="#9cc3ee"/><text x="716" y="171" class="mono">① 写包到 slot[write_index &amp; queueMask]</text>
+  <rect x="700" y="202" width="400" height="48" rx="10" fill="#ffffff" stroke="#9cc3ee"/><text x="716" y="231" class="mono">② StepWriteIndex（wptr 前进一格）</text>
+  <rect x="700" y="262" width="400" height="48" rx="10" fill="#ffffff" stroke="#9cc3ee"/><text x="716" y="291" class="mono">③ StoreWriteIndex（让消费者可见）</text>
+  <rect x="700" y="322" width="400" height="60" rx="10" fill="#fdeeee" stroke="#d9534f" stroke-width="1.3"/>
+  <text x="716" y="347" class="mono" fill="#a83b38">④ UpdateDoorBellRelaxed</text>
+  <text x="716" y="369" class="b" fill="#a83b38">原子写 doorbell_memory_ptr（这是 MMIO）= 敲门铃</text>
+  <rect x="700" y="394" width="400" height="48" rx="10" fill="#e6f6ef" stroke="#56bf93"/><text x="716" y="423" class="b">⑤ CP 固件被通知：“环里有新包，来取！”</text>
+  <path d="M900 190 V200" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M900 250 V260" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M900 310 V320" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M900 382 V392" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+  <text x="682" y="468" class="s">doorbell 是内核在建 context 时映射进用户态的一段地址；</text>
+  <text x="682" y="486" class="s">写它本质是写一个寄存器（MMIO），不需要再走 ioctl。</text>
+
+  <!-- bottom note: other path (KMD CP ring) -->
+  <rect x="40" y="540" width="1100" height="196" rx="14" fill="#fffdf6" stroke="#e6bd5c" stroke-width="1.3"/>
+  <text x="62" y="570" class="h">⚠ 别和“另一条路径”混了：KMD 的 CP 环（非主线 / 当前禁用）</text>
+  <text x="62" y="596" class="b">上面画的是 HWS 默认主路径的 UMD stream ringbuffer。KMD 里还有一套自己的 CP 环，是另一条提交机制：</text>
+  <text x="62" y="622" class="mono">· 在 device VRAM；寄存器 CP_REG_BASE_LOW/HI · CP_REG_SIZE · CP_REG_WPTR · CP_REG_RPTR · CP_REG_FW（写 0x01 启固件）</text>
+  <text x="62" y="646" class="b">· 后台 kthread 把包拷进环、写 CP_REG_WPTR 当门铃；wptr=软件生产者，rptr=硬件消费者。</text>
+  <text x="62" y="670" class="mono">· 本 build 中 rptr 读取是“返回 0 的桩”；且 aigc_ioctl_queue_submit 开头 return -EFAULT（提交已禁用）。</text>
+  <text x="62" y="694" class="b">· 它服务于 CP_EVENT_DISPATCH 等，不是 add1 这种 kernel job 的主线。讲 add1，认准上面的 UMD 直发路径。</text>
+  <text x="62" y="718" class="s">源码确认：aigc-driver gracevirtualgpu.cpp sendPacket / aigc_queue.hpp UpdateDoorBellRelaxed；KMD aigc_cp_ring.c / aigc_sched.c / aigc_fops.c。</text>
+</svg>

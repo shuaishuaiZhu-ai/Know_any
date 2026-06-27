@@ -33,14 +33,16 @@ flowchart TD
 
 ## 端到端总览（不知道从哪看？先读这篇）
 
-跨四个子域、把一段 kernel 从源码到硬件的完整执行链路串成一个通俗故事，适合新人入门和组内分享：
+跨子域、把一段 kernel 从源码到硬件的完整执行链路串成一篇通读长文，适合新人入门和面试准备：
 
-- [一个 Kernel 的奇幻漂流：从 .cu 源码到硬件执行的全流程](<./overview/saxpy-kernel-end-to-end.md>)：以 UMD `test_saxpy_op.cu` 为例，讲 UMD（aigc-driver）→ KMD（aigc.ko）→ CP（fw）→ 硬件执行 + 完成回路，含 1 张全景框图 + 多张分阶段图。
+- [一个 Kernel 从 .cu 源码到硬件执行的全流程](<./overview/saxpy-kernel-end-to-end.md>)：以 UMD `test_saxpy_op.cu`（`add1`）为例，讲 UMD（aigc-driver）→ KMD（aigc.ko）→ CP（fw）→ 硬件执行 + 完成回路，含 10 张手绘 SVG/Graphviz 图、严谨技术风、每阶段"面试官会追问"盒子（源码确认 2026-06-26）。
+  - 配套深入：[stream / MCQD / HCQD 与命令下发](<./overview/stream-mcqd-hcqd-and-command-submission.md>)、[kernel cmd → CP job cmd 字段映射](<./overview/kernel-cmd-to-cp-job-cmd.md>)、[UMD 总览](<./umd/index.md>)、[KMD 面试向深入](<./kmd/kmd-interview-deep-dive.md>)、[CP 面试向深入](<./fw/fw-cp-interview-deep-dive.md>)。
 
 ## 四域快速入口
 
 | 子域 | 入口 | 适合的问题 |
 |---|---|---|
+| UMD 用户态运行时 | [UMD 用户态运行时（aigc-driver）](<./umd/index.md>) | 应用直接链接的那层；类 CUDA API、ROCm 血缘、kernel 直发 doorbell、源码地图。 |
 | MAS 设计规格 | [MAS 文档知识库](<./mas/index.md>) | RGU/RguCore 设计、GCtrl 两级调度、SHM、UCore、L2C remapping。 |
 | FW 片上固件 | [FW 技术知识库](<./fw/index.md>) | 不知道从哪开始看 FW；IMC/CP Master/CP User/CLI/RT-Thread/性能/互联/调试。 |
 | KMD 主机驱动 | [KMD 内核驱动知识库](<./kmd/index.md>) | 不知道从哪开始看 `aigc.ko`；架构/ioctl/内存页表/队列调度/中断 fence/HAL。 |
@@ -53,6 +55,7 @@ flowchart TD
 | 内容类型 | 放置目录 |
 |---|---|
 | 跨子域端到端总览 / 入门串讲 | `wiki/grace/overview/` |
+| UMD 运行时 / 编译链 / 显存 / dispatch 直发 | `wiki/grace/umd/`（详见 [UMD 放置表](<./umd/index.md#新增-umd-页面放哪里>)） |
 | MAS 设计规格 / RguCore / L2C | `wiki/grace/mas/` |
 | FW IMC / CP Master / CP User / CLI / RT-Thread / 概念 / 流程 / 性能 / 互联 / 调试 | `wiki/grace/fw/` 对应子目录（详见 [FW 放置表](<./fw/index.md#新增-fw-页面放哪里>)） |
 | KMD 架构 / ioctl / 内存 / 队列 / 中断 / OS / HAL / 流程 / 评审 | `wiki/grace/kmd/` 对应子目录（详见 [KMD 放置表](<./kmd/index.md#新增-kmd-页面放哪里>)） |

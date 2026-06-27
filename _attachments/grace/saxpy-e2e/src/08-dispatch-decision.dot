@@ -1,0 +1,30 @@
+// CP 分派决策：快车道 iDMA vs 慢车道固件（源码确认：cmd_handle_packet / idma_dispatch_packet）
+digraph dispatch_decision {
+  rankdir=TB;
+  bgcolor="#f6f8fa";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC", fontsize=11.5,
+        color="#cfd6dd", fillcolor="#ffffff", margin="0.18,0.1"];
+  edge [color="#8da2ad", penwidth=1.6, arrowsize=0.7, fontname="Noto Sans CJK SC", fontsize=10, fontcolor="#526672"];
+
+  op [label="读包头 operator id，决定分派模式\nCMD_DISPATCH_BY_{IDMA_DIRECT, IB_BUFFER, IDMA_THREAD}", fillcolor="#e6f6ef", color="#56bf93"];
+
+  subgraph cluster_fast {
+    label="快车道 · iDMA direct（包搬到下游 FIFO 即可，固件不逐字解释）"; fontname="Noto Sans CJK SC"; fontsize=12; color="#56bf93"; style="rounded"; bgcolor="#f1faf6";
+    job  [label="Job 0x10 → CLS FIFO\n（add1 走这条！）", fillcolor="#fdeeee", color="#d9534f"];
+    sdma [label="SDMA 0x11 → SDMA FIFO"];
+    vpu  [label="VPU 0x12 → VPU FIFO"];
+    ato  [label="Ato 0x20/0x21/0x22 → ATO FIFO"];
+  }
+
+  subgraph cluster_slow {
+    label="慢车道 · firmware 处理（要读依赖 / 改状态 / 等条件 / 抬中断）"; fontname="Noto Sans CJK SC"; fontsize=12; color="#e6bd5c"; style="rounded"; bgcolor="#fffdf6";
+    ev   [label="Event 0x30/0x31 → Event-Table", fillcolor="#fff7e3", color="#e6bd5c"];
+    wait [label="Wait_Host 0x40 → trigger / poll", fillcolor="#fff7e3", color="#e6bd5c"];
+    nop  [label="NOP 0xEE → finish", fillcolor="#fff7e3", color="#e6bd5c"];
+  }
+
+  op -> job  [label="job 类（高频）", color="#d9534f", fontcolor="#a83b38"];
+  op -> sdma; op -> vpu; op -> ato;
+  op -> ev   [label="需固件介入"];
+  op -> wait; op -> nop;
+}

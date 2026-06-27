@@ -1,0 +1,23 @@
+// kernel dispatch 包 → CP job 的映射链；只有一个 0x10（源码确认）
+digraph packet_wrapping {
+  rankdir=LR;
+  bgcolor="#f6f8fa";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC", fontsize=11.5,
+        color="#cfd6dd", fillcolor="#ffffff", margin="0.18,0.11"];
+  edge [color="#8da2ad", penwidth=1.6, arrowsize=0.7, fontname="Noto Sans CJK SC", fontsize=10, fontcolor="#526672"];
+
+  u [label="UMD 组 dispatch 包\ntype = 0x10\n（AICA_PACKET_TYPE_KERNEL_DISPATCH）\n落在 stream ring（host 内存）", fillcolor="#eaf2fd", color="#6fa8e6"];
+  m [label="CP Master 调度\nQDMA 查 ready → BDMA 绑 HCQD", fillcolor="#e6f6ef", color="#56bf93"];
+  p [label="CP User ib_peek_packet\n读 header 判 operator = 0x10", fillcolor="#e6f6ef", color="#56bf93"];
+  same [label="同一个 0x10：\nUMD 包类型枚举 == CP operator id\n（不是“两个 0x10”）", shape=note, fillcolor="#fdeeee", color="#d9534f"];
+  i [label="idma_dispatch_packet（快车道）\nJob 0x10 → CLS FIFO"];
+  g [label="GCtrl 拆 Grid → Cluster", fillcolor="#f1ecfb", color="#a385e0"];
+  e [label="执行单元按 Init_PC 定位\nadd1 kernel 二进制并执行\n（PA = icache_base + init_pc）", fillcolor="#f1ecfb", color="#a385e0"];
+
+  ib [label="旁注：KMD 的 aigc_fill_indirect_pkt（IB 包）\n是非主/演进路径，HWS 下不参与；\nHWS 主路径的 dispatch 包是自包含 job 包，不被 indirect 包裹。",
+      shape=note, fillcolor="#fffdf6", color="#e6bd5c"];
+
+  u -> m -> p -> i -> g -> e;
+  p -> same [style=dashed, color="#d9534f", arrowhead=none];
+  u -> ib [style=dashed, color="#e6bd5c", arrowhead=none];
+}

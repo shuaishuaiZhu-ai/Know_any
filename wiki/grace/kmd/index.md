@@ -60,6 +60,7 @@ flowchart TD
 | HAL | [Grace HAL](<./hal/index.md>) | CP/arch/IMC/L2C/TCU/C2C/D2D/link bring-up 状态、寄存器映射。 |
 | 流程 | [端到端流程](<./flows/index.md>) | 从 `Thunk_*` 到硬件完成的完整链路（saxpy 实例）。 |
 | 评审 | [代码评审意见](<./review/index.md>) | kmd 代码评审记录与注释改进项。 |
+| 面试深入 | [KMD 面试向深入（aigc.ko 问答）](<./kmd-interview-deep-dive.md>) | 把句柄/IDR、ioctl 两级派发、页表 VMID、HWS、提交真相纠偏（QUEUE_SUBMIT 当前 -EFAULT）、fence+中断、`aigc_kernel.o_binary` 澄清串成问答长文。配套 [saxpy 端到端长文](<../overview/saxpy-kernel-end-to-end.md>)。 |
 | 环境 | [服务器环境与构建](<./env.md>) | 远端源码路径、构建/加载命令（不含测试套件）。 |
 
 ## 新增 KMD 页面放哪里

@@ -9,6 +9,17 @@ tags:
 status: active
 ---
 
+## [2026-06-26] redo+add | Kernel 端到端系列全面重做（重绘 10 图 + 新增 4 篇 + 源码纠正）
+
+- **重写并重绘** [一个 Kernel 从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)：标题去"奇幻漂流"，改严谨技术风（弱化餐厅/门铃比喻），10 张图全部从 Mermaid 改为**手绘 SVG + Graphviz**（源文件在 `_attachments/grace/saxpy-e2e/src/`，渲染 PNG 同目录，`sharp`/`dot` 渲染），每阶段加"🎯 面试官会追问"盒子。
+- **新增 4 篇配套文档**（共 6 张新图）：
+  - [stream / MCQD / HCQD 与命令下发](<./grace/overview/stream-mcqd-hcqd-and-command-submission.md>)（含 s1/s2/s3 三图：两级队列、内存落位矩阵、两条下发路径）
+  - [kernel cmd → CP job cmd 字段映射](<./grace/overview/kernel-cmd-to-cp-job-cmd.md>)（含 k1 映射链图 + 复用主文档字段解剖图）
+  - **新建 UMD 子域** [UMD 用户态运行时（aigc-driver）](<./grace/umd/index.md>)（含 u1 分层图）
+  - [KMD 面试向深入](<./grace/kmd/kmd-interview-deep-dive.md>)、[CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)（含 fw1 控制/数据面图）
+- **关键源码纠正（ssh 116 实读 aigc-driver / ajthunk-kmd / fw，2026-06-26）**：① kernel launch 走 **UMD 直发 HWS**（UMD 写 host ringbuffer + 敲 doorbell MMIO，KMD 仅一次性建场、不经手每包）；② ringbuffer 在 **host 内存** 非 VRAM；③ **全栈只有一个 `0x10`**（推翻"两个 0x10"）；④ `aigc_ioctl_queue_submit` 当前 `return -EFAULT`，KMD INDIRECT/CP 环/kthread 是非主/演进路径，纠正 `command-submission-flow.md` 的主线误导；⑤ `aigc_kernel.o_binary` = KMD 闭源 x86-64 ELF blob，**不是 GPU kernel**。
+- 同步更新 [GraceC 芯片软硬件栈](<./grace/index.md>)（加 UMD 子域）、[overview 索引](<./grace/overview/index.md>)、[KMD 索引](<./grace/kmd/index.md>)、[FW 索引](<./grace/fw/index.md>)、[Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)。原 `whiteboard-mermaid/` 旧图保留未删（已无引用）。
+
 ## [2026-06-25] add | Kernel 端到端执行流程科普长文（跨 UMD→KMD→CP→硬件）
 
 - **新增** [一个 Kernel 的奇幻漂流：从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)（新建 `wiki/grace/overview/` 子域 + 其 index）：面向组内分享的通俗长文，以 UMD `test_saxpy_op.cu` 为贯穿案例，把 UMD（aigc-driver）→ KMD（aigc.ko）→ CP（fw）→ 硬件执行 + 完成回路串成一个故事。1 张最大全景框图 + 多张分阶段框图（编译链 / 三层架构 / kernel launch 组包 / ioctl 两级派发 / CP ring+doorbell / CP 主链路 / 分派决策 / 完成回路 + 端到端大时序）。

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="600" viewBox="0 0 1180 600" role="img" aria-labelledby="t d">
+  <title id="t">CP 控制面 vs 数据面</title>
+  <desc id="d">CP Master 控制面决定谁上场，CP User 数据面逐包分拣，HCQD+IB 作为交接面。</desc>
+  <defs>
+    <style>
+      .title{font:800 23px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .h{font:800 16px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .b{font:500 12.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#2f3e46}
+      .mono{font:600 12px ui-monospace,Consolas,monospace;fill:#1b3a4b}
+      .s{font:600 11.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .mid{font:800 14px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#7a5cc0}
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="ap" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#7a5cc0"/></marker>
+  </defs>
+  <rect width="1180" height="600" rx="20" fill="#f6f8fa"/>
+  <text x="40" y="42" class="title">CP 内部：控制面（Master）与数据面（User）的分工</text>
+  <text x="40" y="68" class="sub">Master 决定“哪条队列上场”，User 把上场队列里的包逐条分拣投递；HCQD + IB 是它们的交接面。</text>
+
+  <!-- LEFT: CP Master control plane -->
+  <rect x="40" y="90" width="380" height="430" rx="16" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.4"/>
+  <text x="62" y="122" class="h">CP Master（MCU）· 控制面</text>
+  <text x="62" y="144" class="s">决定调度，不碰 kernel 计算</text>
+  <rect x="62" y="162" width="336" height="62" rx="10" fill="#ffffff" stroke="#62c79d"/><text x="78" y="188" class="b">收建/销队列等 IPC 命令</text><text x="78" y="210" class="mono">IPC_CMD → proc_list</text>
+  <rect x="62" y="236" width="336" height="62" rx="10" fill="#ffffff" stroke="#62c79d"/><text x="78" y="262" class="b">查哪条 MCQD ready</text><text x="78" y="284" class="mono">QDMA → task_list[8 档优先级]</text>
+  <rect x="62" y="310" width="336" height="62" rx="10" fill="#ffffff" stroke="#62c79d"/><text x="78" y="336" class="b">把就绪 MCQD 绑到空闲 HCQD</text><text x="78" y="358" class="mono">BDMA → bind HCQD（写 DMA 寄存器）</text>
+  <path d="M230 224 V236" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M230 298 V310" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+  <text x="62" y="404" class="s">绑定后写 bind DMA 寄存器，使该 HCQD 变为 active，</text>
+  <text x="62" y="424" class="s">开始从 host ring fetch 包，并置 candidate 位。</text>
+
+  <!-- MIDDLE: handoff -->
+  <rect x="440" y="150" width="300" height="310" rx="16" fill="#f6f2fd" stroke="#a385e0" stroke-width="1.4"/>
+  <text x="590" y="180" text-anchor="middle" class="mid">交接面</text>
+  <rect x="466" y="200" width="248" height="92" rx="10" fill="#ffffff" stroke="#b69ae6"/>
+  <text x="590" y="226" text-anchor="middle" class="h">HCQD × 32</text>
+  <text x="482" y="250" class="s">硬件队列槽：active 后 fetch 1024-bit 包</text>
+  <text x="482" y="270" class="s">进 rb_fifo，并置 candidate “举手位”</text>
+  <text x="482" y="288" class="s">（每核 8-bit mask，全局 32 槽）</text>
+  <rect x="466" y="308" width="248" height="92" rx="10" fill="#ffffff" stroke="#b69ae6"/>
+  <text x="590" y="334" text-anchor="middle" class="h">IB 操作台</text>
+  <text x="482" y="358" class="s">固件透过它 peek / consume / finish</text>
+  <text x="482" y="376" class="s">锁规则：peek/consume/finish 须持锁；</text>
+  <text x="482" y="394" class="s">candidate 检查可锁外</text>
+  <path d="M590 292 V308" stroke="#7a5cc0" stroke-width="2" marker-end="url(#ap)"/>
+
+  <!-- RIGHT: CP User data plane -->
+  <rect x="760" y="90" width="380" height="430" rx="16" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.4"/>
+  <text x="782" y="122" class="h">CP User（NX900 4+1）· 数据面</text>
+  <text x="782" y="144" class="s">4 处理核 + 1 调度核</text>
+  <rect x="782" y="162" width="336" height="58" rx="10" fill="#ffffff" stroke="#62c79d"/><text x="798" y="186" class="b">cmd_entry 主循环 while(1)：</text><text x="798" y="206" class="mono">ib_get_candidate_bitmask()（8-bit）</text>
+  <rect x="782" y="232" width="336" height="58" rx="10" fill="#ffffff" stroke="#62c79d"/><text x="798" y="256" class="b">round-robin 选一个 HCQD（O(1)）</text><text x="798" y="276" class="mono">ib_peek_packet() 读 header 判 operator</text>
+  <rect x="782" y="302" width="336" height="58" rx="10" fill="#ffffff" stroke="#62c79d"/><text x="798" y="326" class="b">cmd_handle_packet() 分派</text><text x="798" y="346" class="mono">快车道 iDMA direct / 慢车道 firmware</text>
+  <rect x="782" y="372" width="336" height="58" rx="10" fill="#fdeeee" stroke="#d9534f"/><text x="798" y="396" class="b" fill="#a83b38">Job 0x10 → CLS FIFO（add1）</text><text x="798" y="416" class="s" fill="#a83b38">CP 看不懂 kernel，投递即终点</text>
+  <path d="M950 220 V232" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M950 290 V302" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M950 360 V372" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- handoff arrows -->
+  <path d="M398 280 H464" stroke="#7a5cc0" stroke-width="2.4" fill="none" marker-end="url(#ap)"/>
+  <text x="404" y="272" class="s">Master 绑定</text>
+  <path d="M716 300 H780" stroke="#7a5cc0" stroke-width="2.4" fill="none" marker-end="url(#ap)"/>
+  <text x="722" y="292" class="s">User 看 candidate</text>
+
+  <text x="40" y="556" class="s">源码确认：cp-master qdma/bdma；cp-user cmd_entry/ib。GCtrl 拆 Grid→Cluster、按 Init_PC 定位 kernel 发生在 CLS FIFO 之后的 GPU 执行单元，不在 CP 固件内。</text>
+  <text x="40" y="578" class="s">注：candidate 8-bit 是“每核”口径（IB_MAX_HCQD_NUM_PER_CORE）；HCQD 全局 32 槽是 BDMA 绑定口径——两者别混。</text>
+</svg>

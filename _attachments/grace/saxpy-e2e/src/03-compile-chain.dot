@@ -1,0 +1,37 @@
+// .cu 编译与运行时注册链（源码确认：aigc-driver build_ex.sh / aica_fatbin.cpp / aica_platform.cpp）
+digraph compile_chain {
+  rankdir=LR;
+  bgcolor="#f6f8fa";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC", fontsize=12,
+        color="#cfd6dd", fillcolor="#ffffff", margin="0.18,0.12"];
+  edge [color="#8da2ad", penwidth=1.6, arrowsize=0.7, fontname="Noto Sans CJK SC", fontsize=10, fontcolor="#526672"];
+
+  src   [label="test_saxpy_op.cu\n（host main + __global__ add1）", fillcolor="#eaf2fd", color="#6fa8e6"];
+  clang [label="clang -x aica（单趟编译）\n/usr/local/aica/bin/clang", fillcolor="#eaf2fd", color="#6fa8e6"];
+
+  subgraph cluster_out {
+    label="一次编译，两份产物";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#b9c2cb"; style="rounded"; bgcolor="#ffffff";
+    host [label="host x86 机器码\n（main 等 CPU 代码）"];
+    dev  [label="device kernel 二进制\ntriple aicagcn-aica-aicahsa-\n独立形态 .co（code object）", fillcolor="#f1ecfb", color="#a385e0"];
+  }
+
+  fat   [label="__CLANG_OFFLOAD_BUNDLE__\n把 device kernel 打包成 fatbin", fillcolor="#fff7e3", color="#e6bd5c"];
+  elf   [label="单个可执行 ELF\n（肚子里同时装 CPU 代码 + GPU kernel）", fillcolor="#fff7e3", color="#e6bd5c"];
+
+  reg   [label="运行时自动注册\n__aicaRegisterFatBinary\n→ RegisterFunction", fillcolor="#e6f6ef", color="#56bf93"];
+  tbl   [label="符号表：host &add1 → device kernel\n（launch 时靠它反查 init_pc）", fillcolor="#e6f6ef", color="#56bf93"];
+
+  src -> clang;
+  clang -> host;
+  clang -> dev;
+  dev -> fat;
+  host -> elf [label="链接"];
+  fat -> elf [label="内嵌"];
+  elf -> reg [label="程序加载"];
+  reg -> tbl;
+
+  note [shape=note, fillcolor="#fdeeee", color="#d9534f",
+        label="纠正：源码树里没有 aigc_kernel.o_binary 这个 GPU kernel 文件。\nKMD 里那个同名 2.7MB blob 是 KMD 自己的闭源 x86-64 ELF，与 add1 无关。\nGPU kernel 的真身 = fatbin 内嵌（独立形态 .co）。"];
+  dev -> note [style=dashed, color="#d9534f", arrowhead=none];
+}

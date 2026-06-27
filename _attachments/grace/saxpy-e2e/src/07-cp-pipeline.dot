@@ -1,0 +1,31 @@
+// CP 命令处理主链路（源码确认：fw cp-master qdma/bdma + cp-user cmd_entry/ib）
+digraph cp_pipeline {
+  rankdir=LR;
+  bgcolor="#f6f8fa";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC", fontsize=11.5,
+        color="#62c79d", fillcolor="#e6f6ef", margin="0.18,0.11"];
+  edge [color="#8da2ad", penwidth=1.6, arrowsize=0.7, fontname="Noto Sans CJK SC", fontsize=10, fontcolor="#526672"];
+
+  db [label="doorbell 响\n（host ringbuffer 有新包）", fillcolor="#fdeeee", color="#d9534f"];
+
+  subgraph cluster_m {
+    label="CP Master（MCU）：决定谁上场"; fontname="Noto Sans CJK SC"; fontsize=12; color="#36936c"; style="rounded"; bgcolor="#f1faf6";
+    q1 [label="qdma_get_mcqd_ready_status()\n查哪条 MCQD 有待处理包"];
+    q2 [label="排进 task_list\n（8 档优先级）"];
+    q3 [label="bindDMA：把就绪 MCQD\n绑到一个空闲 HCQD"];
+  }
+
+  subgraph cluster_hcqd {
+    label="HCQD（硬件队列槽，共 32）"; fontname="Noto Sans CJK SC"; fontsize=12; color="#7a5cc0"; style="rounded"; bgcolor="#f6f2fd";
+    h1 [label="fetch 1024-bit 包 → rb_fifo\n置 candidate “举手位”", fillcolor="#f1ecfb", color="#a385e0"];
+  }
+
+  subgraph cluster_u {
+    label="CP User（RISC-V NX900：4 处理核 + 1 调度核）"; fontname="Noto Sans CJK SC"; fontsize=12; color="#36936c"; style="rounded"; bgcolor="#f1faf6";
+    c1 [label="cmd_entry 主循环\nib_get_candidate_bitmask()（8-bit）\nround-robin 选一个 HCQD"];
+    c2 [label="ib_peek_packet()（须持锁）\n读 header 判 operator / block_mask"];
+    c3 [label="cmd_handle_packet()\n按类型分派（见分派决策图）"];
+  }
+
+  db -> q1 -> q2 -> q3 -> h1 -> c1 -> c2 -> c3;
+}

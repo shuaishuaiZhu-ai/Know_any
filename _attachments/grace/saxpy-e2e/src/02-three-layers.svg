@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="900" viewBox="0 0 1180 900" role="img" aria-labelledby="t d">
+  <title id="t">三层职责：UMD / KMD / CP 各管什么</title>
+  <desc id="d">UMD 用户态库、KMD 内核模块（唯一直接碰硬件）、CP 芯片固件，下面是真正计算的 GPU 执行单元。</desc>
+  <defs>
+    <style>
+      .title{font:800 25px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 14px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .lh{font:800 18px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .lhs{font:600 12.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .chip{font:600 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#1b3a4b}
+      .chips{font:500 11.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .bnd{font:700 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#b0682e}
+      .mono{font:600 12px ui-monospace,Consolas,monospace;fill:#1b3a4b}
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="900" rx="20" fill="#f6f8fa"/>
+  <text x="40" y="44" class="title">三个主角：UMD / KMD / CP 各管什么</text>
+  <text x="40" y="70" class="sub">真正算 y=a·x+y（这里是 *dst=6+4）的是最底层 GPU 执行单元；上面三层是把任务送到它手里的物流系统。</text>
+
+  <!-- UMD layer -->
+  <rect x="40" y="86" width="1100" height="162" rx="16" fill="#eaf2fd" stroke="#6fa8e6" stroke-width="1.5"/>
+  <text x="64" y="120" class="lh">UMD · aigc-driver</text>
+  <text x="64" y="142" class="lhs">用户态库 libaicart.so（跑在你的进程里）</text>
+  <text x="64" y="162" class="lhs">类 CUDA API；能崩，但崩不了系统</text>
+  <rect x="360" y="104" width="240" height="120" rx="12" fill="#ffffff" stroke="#9cc3ee" stroke-width="1.2"/>
+  <text x="480" y="134" text-anchor="middle" class="chip">aica* 运行时 API</text>
+  <text x="480" y="156" text-anchor="middle" class="chips">aicaMalloc / aicaMemcpy</text>
+  <text x="480" y="174" text-anchor="middle" class="chips">add1&lt;&lt;&lt;&gt;&gt;&gt; → 组 dispatch 包</text>
+  <text x="480" y="198" text-anchor="middle" class="chips">（HIP/ROCm 血缘：hip*→aica*）</text>
+  <rect x="620" y="104" width="240" height="120" rx="12" fill="#ffffff" stroke="#9cc3ee" stroke-width="1.2"/>
+  <text x="740" y="134" text-anchor="middle" class="chip">HostQueue / Stream</text>
+  <text x="740" y="156" text-anchor="middle" class="chips">CUDA 流 = 一条命令队列</text>
+  <text x="740" y="174" text-anchor="middle" class="chips">懒创建硬件 ring buffer</text>
+  <text x="740" y="198" text-anchor="middle" class="chips">自己写 ring + 敲 doorbell</text>
+  <rect x="880" y="104" width="240" height="120" rx="12" fill="#ffffff" stroke="#9cc3ee" stroke-width="1.2"/>
+  <text x="1000" y="134" text-anchor="middle" class="chip">ajthunk thunk 层</text>
+  <text x="1000" y="156" text-anchor="middle" class="chips">把“求内核帮忙”封装成</text>
+  <text x="1000" y="174" text-anchor="middle" class="mono">ioctl(/dev/aigcN)</text>
+  <text x="1000" y="198" text-anchor="middle" class="chips">（闭源，反推未逐行核实）</text>
+
+  <!-- boundary 1 -->
+  <path d="M40 268 H1140" stroke="#e6bd5c" stroke-width="1.6" stroke-dasharray="8 7" fill="none"/>
+  <text x="64" y="284" class="bnd">— 用户态 ↔ 内核态边界：ioctl(AIP_*)，且只有建场（建 ctx/显存/队列）走这里 —</text>
+
+  <!-- KMD layer -->
+  <rect x="40" y="296" width="1100" height="172" rx="16" fill="#fff7e3" stroke="#e6bd5c" stroke-width="1.5"/>
+  <text x="64" y="330" class="lh">KMD · aigc.ko</text>
+  <text x="64" y="352" class="lhs">Linux 内核模块</text>
+  <rect x="64" y="368" width="232" height="34" rx="9" fill="#fdeeee" stroke="#d9534f" stroke-width="1.3"/>
+  <text x="180" y="390" text-anchor="middle" class="chip" fill="#a83b38">唯一直接碰硬件的软件</text>
+  <rect x="340" y="318" width="186" height="130" rx="12" fill="#ffffff" stroke="#e0bd6a" stroke-width="1.2"/>
+  <text x="433" y="346" text-anchor="middle" class="chip">ioctl 两级派发</text>
+  <text x="433" y="370" text-anchor="middle" class="chips">入口层只安检</text>
+  <text x="433" y="388" text-anchor="middle" class="chips">核心层按编号</text>
+  <text x="433" y="406" text-anchor="middle" class="chips">取处理函数</text>
+  <rect x="540" y="318" width="186" height="130" rx="12" fill="#ffffff" stroke="#e0bd6a" stroke-width="1.2"/>
+  <text x="633" y="346" text-anchor="middle" class="chip">VM + 页表</text>
+  <text x="633" y="370" text-anchor="middle" class="chips">VMID 分进程空间</text>
+  <text x="633" y="388" text-anchor="middle" class="chips">4 级页表</text>
+  <text x="633" y="406" text-anchor="middle" class="chips">GPU VA → 物理页</text>
+  <rect x="740" y="318" width="186" height="130" rx="12" fill="#ffffff" stroke="#e0bd6a" stroke-width="1.2"/>
+  <text x="833" y="346" text-anchor="middle" class="chip">队列 + 调度</text>
+  <text x="833" y="370" text-anchor="middle" class="chips">建队列填 MCQD</text>
+  <text x="833" y="388" text-anchor="middle" class="chips">通知 CP 固件</text>
+  <text x="833" y="406" text-anchor="middle" class="chips">（HWS 默认）</text>
+  <rect x="940" y="318" width="186" height="130" rx="12" fill="#ffffff" stroke="#e0bd6a" stroke-width="1.2"/>
+  <text x="1033" y="346" text-anchor="middle" class="chip">中断 + fence</text>
+  <text x="1033" y="370" text-anchor="middle" class="chips">MSI-X 中断处理</text>
+  <text x="1033" y="388" text-anchor="middle" class="chips">fence 完成号</text>
+  <text x="1033" y="406" text-anchor="middle" class="chips">唤醒等待线程</text>
+
+  <!-- boundary 2 -->
+  <path d="M40 488 H1140" stroke="#e6bd5c" stroke-width="1.6" stroke-dasharray="8 7" fill="none"/>
+  <text x="64" y="504" class="bnd">— host ↔ 芯片边界：doorbell（MMIO 寄存器写）+ host 内存里的 ringbuffer 由芯片侧 DMA 读取 —</text>
+
+  <!-- CP layer -->
+  <rect x="40" y="516" width="1100" height="200" rx="16" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.5"/>
+  <text x="64" y="550" class="lh">CP · fw 固件</text>
+  <text x="64" y="572" class="lhs">芯片内的 Command Processor</text>
+  <text x="64" y="592" class="lhs">取命令 → 分拣 → 投递</text>
+  <rect x="290" y="532" width="380" height="84" rx="12" fill="#ffffff" stroke="#62c79d" stroke-width="1.2"/>
+  <text x="480" y="560" text-anchor="middle" class="chip">CP Master（一个 MCU）</text>
+  <text x="480" y="584" text-anchor="middle" class="chips">QDMA 查哪条 MCQD ready</text>
+  <text x="480" y="602" text-anchor="middle" class="chips">BDMA 把它绑到空闲 HCQD（决定谁上场）</text>
+  <rect x="690" y="532" width="430" height="84" rx="12" fill="#ffffff" stroke="#62c79d" stroke-width="1.2"/>
+  <text x="905" y="560" text-anchor="middle" class="chip">CP User（RISC-V NX900：4 处理核 + 1 调度核）</text>
+  <text x="905" y="584" text-anchor="middle" class="chips">cmd_entry 主循环：挑 HCQD → peek 包头 → 分拣</text>
+  <text x="905" y="602" text-anchor="middle" class="chips">（把上场队列里的包一条条投递给下游）</text>
+  <text x="290" y="646" class="chips">受它们驱动的硬件单元：</text>
+  <g font-family="ui-sans-serif,system-ui,sans-serif">
+    <rect x="290" y="656" width="118" height="40" rx="9" fill="#f0faf5" stroke="#62c79d" stroke-width="1.1"/><text x="349" y="681" text-anchor="middle" class="chip">HCQD</text>
+    <rect x="420" y="656" width="118" height="40" rx="9" fill="#f0faf5" stroke="#62c79d" stroke-width="1.1"/><text x="479" y="681" text-anchor="middle" class="chip">IB 操作台</text>
+    <rect x="550" y="656" width="118" height="40" rx="9" fill="#f0faf5" stroke="#62c79d" stroke-width="1.1"/><text x="609" y="681" text-anchor="middle" class="chip">iDMA</text>
+    <rect x="680" y="656" width="138" height="40" rx="9" fill="#f0faf5" stroke="#62c79d" stroke-width="1.1"/><text x="749" y="681" text-anchor="middle" class="chip">Event-Table</text>
+    <rect x="830" y="656" width="118" height="40" rx="9" fill="#f0faf5" stroke="#62c79d" stroke-width="1.1"/><text x="889" y="681" text-anchor="middle" class="chip">GCtrl</text>
+    <rect x="960" y="656" width="118" height="40" rx="9" fill="#f0faf5" stroke="#62c79d" stroke-width="1.1"/><text x="1019" y="681" text-anchor="middle" class="chip">CPD</text>
+  </g>
+
+  <!-- boundary 3 -->
+  <path d="M40 736 H1140" stroke="#e6bd5c" stroke-width="1.6" stroke-dasharray="8 7" fill="none"/>
+  <text x="64" y="752" class="bnd">— CP ↔ 执行单元边界：CLS FIFO（CP 把 job 包投进去就完事）—</text>
+
+  <!-- GPU layer -->
+  <rect x="40" y="762" width="1100" height="110" rx="16" fill="#f1ecfb" stroke="#a385e0" stroke-width="1.5"/>
+  <text x="64" y="800" class="lh">GPU 执行单元（计算阵列）</text>
+  <text x="64" y="824" class="lhs">真正取出 kernel 二进制、解码、跑 SIMT 计算的地方</text>
+  <text x="64" y="846" class="lhs">GCtrl 把 Grid 拆成 Cluster 派发 → 按 Init_PC 执行 add1 → 把 10 写回显存</text>
+  <rect x="800" y="784" width="316" height="64" rx="12" fill="#ffffff" stroke="#b69ae6" stroke-width="1.2"/>
+  <text x="958" y="812" text-anchor="middle" class="chip">本文终点</text>
+  <text x="958" y="834" text-anchor="middle" class="chips">上面三层 = 物流系统，这里才是“工厂”</text>
+
+  <!-- inter-layer arrows (call down / data down) -->
+  <path d="M150 248 V294" stroke="#8da2ad" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+  <text x="158" y="278" class="chips">建场 ioctl</text>
+  <path d="M150 468 V514" stroke="#8da2ad" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+  <path d="M150 716 V760" stroke="#8da2ad" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+</svg>

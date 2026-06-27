@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1044" viewBox="0 0 1180 1044" role="img" aria-labelledby="t d">
+  <title id="t">aica_kernel_dispatch_packet_t 字段解剖</title>
+  <desc id="d">kernel 启动命令包逐字段：身份、网格维度、kernel 入口、内存配置、完成/fence、代码长度。</desc>
+  <defs>
+    <style>
+      .title{font:800 24px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#102027}
+      .sub{font:500 13.5px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+      .sec{font:800 14px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#ffffff}
+      .fname{font:700 12.5px ui-monospace,Consolas,monospace;fill:#1b3a4b}
+      .mean{font:500 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#2f3e46}
+      .hot{font:700 13px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#a83b38}
+      .note{font:600 12px ui-sans-serif,system-ui,"Segoe UI",sans-serif;fill:#526672}
+    </style>
+  </defs>
+  <rect width="1180" height="1044" rx="20" fill="#f6f8fa"/>
+  <text x="40" y="44" class="title">第 4 关核心：add1&lt;&lt;&lt;1,1&gt;&gt;&gt; 填进的命令包 aica_kernel_dispatch_packet_t</text>
+  <text x="40" y="70" class="sub">三尖括号 → __aicaPushCallConfiguration + aicaLaunchKernel（查表得 init_pc）→ 逐字段填下面这个包 → 写进 host ringbuffer。</text>
+
+  <!-- field name column bg -->
+  <rect x="40" y="90" width="320" height="852" fill="#eef2f5"/>
+
+  <!-- S1 身份 -->
+  <rect x="40" y="90" width="1100" height="28" fill="#3f78c4"/>
+  <text x="54" y="110" class="sec">① 身份与类型（包头）</text>
+  <rect x="56" y="124" width="288" height="30" rx="7" fill="#ffffff" stroke="#9cc3ee"/><text x="68" y="144" class="fname">header (aica_head_t, 4B)</text>
+  <text x="372" y="144" class="mean">block_mask[3:0] = compute / dma / video / atomic —— 决定本包投给哪个引擎；add1 是 compute。</text>
+  <rect x="56" y="160" width="288" height="30" rx="7" fill="#fff0f0" stroke="#e6a9a6"/><text x="68" y="180" class="fname">type = 0x10</text>
+  <text x="372" y="180" class="hot">AICA_PACKET_TYPE_KERNEL_DISPATCH —— 全栈只有这一个 0x10（“两个 0x10”是误判）。</text>
+  <rect x="56" y="196" width="288" height="30" rx="7" fill="#ffffff" stroke="#9cc3ee"/><text x="68" y="216" class="fname">stream_id:5 / seq_id:19</text>
+  <text x="372" y="216" class="mean">哪条 stream、流内第几个包（顺序与调试用）。</text>
+
+  <!-- S2 维度 -->
+  <rect x="40" y="232" width="1100" height="28" fill="#3f78c4"/>
+  <text x="54" y="252" class="sec">② 网格维度（直接来自 &lt;&lt;&lt;grid, block&gt;&gt;&gt;）</text>
+  <rect x="56" y="266" width="288" height="30" rx="7" fill="#ffffff" stroke="#9cc3ee"/><text x="68" y="286" class="fname">grid_dim (x32,y16,z16)</text>
+  <text x="372" y="286" class="mean">启动多少个 block（add1 是 1）。</text>
+  <rect x="56" y="302" width="288" height="30" rx="7" fill="#ffffff" stroke="#9cc3ee"/><text x="68" y="322" class="fname">block_dim (x11,y11,z7)</text>
+  <text x="372" y="322" class="mean">每个 block 多少线程（add1 是 1）。</text>
+  <rect x="56" y="338" width="288" height="30" rx="7" fill="#ffffff" stroke="#9cc3ee"/><text x="68" y="358" class="fname">cluster_dim / cta_num:6 / cluster_ctrl</text>
+  <text x="372" y="358" class="mean">cluster 维度与切分控制（多 CTA 协作时才有意义）。</text>
+
+  <!-- S3 入口 (hot) -->
+  <rect x="40" y="374" width="1100" height="28" fill="#c0504d"/>
+  <text x="54" y="394" class="sec">③ kernel 入口（最关键：GPU 靠它找到 add1 的第一条指令）</text>
+  <rect x="56" y="408" width="288" height="30" rx="7" fill="#fff0f0" stroke="#e6a9a6"/><text x="68" y="428" class="fname">icache_base (lo + hi:16)</text>
+  <text x="372" y="428" class="mean">kernel 二进制在显存里的基址。</text>
+  <rect x="56" y="444" width="288" height="46" rx="7" fill="#fff0f0" stroke="#e6a9a6"/><text x="68" y="464" class="fname">init_pc (lo + hi:16)</text>
+  <text x="372" y="462" class="hot">入口偏移；物理入口 PA = icache_base + init_pc。</text>
+  <text x="372" y="482" class="mean">GPU 执行单元据此跳到 add1 的第一条指令开始 SIMT 执行。</text>
+
+  <!-- S4 内存/配置 -->
+  <rect x="40" y="496" width="1100" height="28" fill="#36936c"/>
+  <text x="54" y="516" class="sec">④ 内存与寄存器配置</text>
+  <rect x="56" y="530" width="288" height="30" rx="7" fill="#ffffff" stroke="#7fcfaa"/><text x="68" y="550" class="fname">local_base / local_step</text>
+  <text x="372" y="550" class="mean">local memory 基址 + 步长（warp_step[15:0] / elem_step[31:16]）。</text>
+  <rect x="56" y="566" width="288" height="30" rx="7" fill="#ffffff" stroke="#7fcfaa"/><text x="68" y="586" class="fname">const_base</text>
+  <text x="372" y="586" class="mean">常量区（__constant__）基址。</text>
+  <rect x="56" y="602" width="288" height="30" rx="7" fill="#ffffff" stroke="#7fcfaa"/><text x="68" y="622" class="fname">trf_size:9 / shm_size:19</text>
+  <text x="372" y="622" class="mean">寄存器文件份额 + 每 block 共享内存（最大 256KB）。</text>
+  <rect x="56" y="638" width="288" height="30" rx="7" fill="#ffffff" stroke="#7fcfaa"/><text x="68" y="658" class="fname">cfg_addr</text>
+  <text x="372" y="658" class="mean">= 0 表示不从内存额外取寄存器配置。</text>
+
+  <!-- S5 完成/fence -->
+  <rect x="40" y="674" width="1100" height="28" fill="#caa23e"/>
+  <text x="54" y="694" class="sec">⑤ 完成与 fence（怎么通知“算完了”）</text>
+  <rect x="56" y="708" width="288" height="46" rx="7" fill="#fff7e3" stroke="#e0bd6a"/><text x="68" y="728" class="fname">fence_addr</text>
+  <text x="372" y="726" class="mean">job 完成后把 fence_value 写到此地址（= 0 禁用）。</text>
+  <text x="372" y="746" class="hot">阻塞 launch 时由 UMD 用 user signal 地址填它 —— fence 地址由 UMD 设，不是 KMD。</text>
+  <rect x="56" y="760" width="288" height="30" rx="7" fill="#fff7e3" stroke="#e0bd6a"/><text x="68" y="780" class="fname">fence_value (lo / hi)</text>
+  <text x="372" y="780" class="mean">完成时写入的递增值；用户比大小（fence ≥ expected）即知完成。</text>
+  <rect x="56" y="796" width="288" height="30" rx="7" fill="#fff7e3" stroke="#e0bd6a"/><text x="68" y="816" class="fname">packet_done</text>
+  <text x="372" y="816" class="mean">kernel 完成后的动作（推荐 0x7001）。</text>
+
+  <!-- S6 代码长度 -->
+  <rect x="40" y="832" width="1100" height="28" fill="#5a6b76"/>
+  <text x="54" y="852" class="sec">⑥ 代码长度与其它（结构体末尾）</text>
+  <rect x="56" y="866" width="288" height="30" rx="7" fill="#ffffff" stroke="#cfd6dd"/><text x="68" y="886" class="fname">ICodLenLo / ICodLenL1 / CCodLenL1</text>
+  <text x="372" y="886" class="mean">指令代码 / 常量代码长度。</text>
+  <rect x="56" y="902" width="288" height="30" rx="7" fill="#ffffff" stroke="#cfd6dd"/><text x="68" y="922" class="fname">scatter_cfg (word30)</text>
+  <text x="372" y="922" class="mean">散布配置，位于结构体末尾。</text>
+
+  <!-- footer note -->
+  <rect x="40" y="954" width="1100" height="68" rx="12" fill="#ffffff" stroke="#e0e6ea"/>
+  <text x="56" y="980" class="note" fill="#102027">源码确认（116:aigc-driver include/aica_packet_def.h，2026-06-26）：</text>
+  <text x="56" y="1002" class="note">① 只有一个 0x10；② PA = icache_base + init_pc；③ fence 地址由 UMD 设置（blocking 时取 user signal 地址），不是 KMD 的 aigc_ts_copy（那是另一条路径）。</text>
+</svg>

@@ -37,9 +37,10 @@ wiki/
 ## 入口优先级
 
 1. [GraceC 芯片软硬件栈](<./grace/index.md>)：芯片相关内容（MAS 设计规格、FW 片上固件、KMD 主机驱动、tiny-kmd）的统一入口，含 MAS→FW→KMD 栈图。**芯片栈主题先从这里进。**
-1. [一个 Kernel 的奇幻漂流：从 .cu 到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)：跨 UMD→KMD→CP→硬件 的端到端通俗长文，以 `test_saxpy_op.cu` 为例。**完全没碰过这套栈、想先建立整体地图的，从这篇进。**
-1. [FW 技术知识库](<./grace/fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。
-1. [KMD 内核驱动知识库](<./grace/kmd/index.md>)：`aigc.ko` 内核态驱动——ioctl/ABI、内存与页表、命令队列与调度、中断与 fence、Grace HAL。
+1. [一个 Kernel 从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)：跨 UMD→KMD→CP→硬件 的端到端长文，以 `test_saxpy_op.cu`（`add1`）为例，10 张手绘 SVG/Graphviz 图、严谨技术风、面试盒子（源码确认 2026-06-26）。**完全没碰过这套栈、想先建立整体地图的，从这篇进。** 配套：[stream/MCQD/HCQD 与命令下发](<./grace/overview/stream-mcqd-hcqd-and-command-submission.md>)、[kernel cmd→CP job cmd 字段映射](<./grace/overview/kernel-cmd-to-cp-job-cmd.md>)。
+1. [UMD 用户态运行时（aigc-driver）](<./grace/umd/index.md>)：应用直接链接的那层——类 CUDA API、ROCm 血缘、kernel 直发 doorbell、源码地图。
+1. [FW 技术知识库](<./grace/fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。配套 [CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)。
+1. [KMD 内核驱动知识库](<./grace/kmd/index.md>)：`aigc.ko` 内核态驱动——ioctl/ABI、内存与页表、命令队列与调度、中断与 fence、Grace HAL。配套 [KMD 面试向深入](<./grace/kmd/kmd-interview-deep-dive.md>)。
 1. [tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)：最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），以及把 ajthunk 核心移植进来的缺口对照。
 2. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
 3. [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>)：工作笔记主线。

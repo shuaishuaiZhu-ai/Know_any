@@ -1,0 +1,39 @@
+// 两条命令下发路径（源码确认）
+digraph two_paths {
+  rankdir=TB;
+  bgcolor="#f6f8fa";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC", fontsize=11.5,
+        color="#cfd6dd", fillcolor="#ffffff", margin="0.2,0.11"];
+  edge [color="#8da2ad", penwidth=1.6, arrowsize=0.7, fontname="Noto Sans CJK SC", fontsize=10, fontcolor="#526672"];
+
+  subgraph cluster_main {
+    label="① 主路径 · HWS 默认（add1 走这条）"; fontname="Noto Sans CJK SC"; fontsize=13; color="#56bf93"; style="rounded"; bgcolor="#f1faf6";
+    a1 [label="UMD sendPacket\n把包写进 stream ring（host 内存）", fillcolor="#eaf2fd", color="#6fa8e6"];
+    a2 [label="UpdateDoorBellRelaxed\n原子写 doorbell（MMIO）", fillcolor="#fdeeee", color="#d9534f"];
+    a3 [label="CP 固件 QDMA/BDMA 自行取包调度", fillcolor="#e6f6ef", color="#56bf93"];
+    a0 [label="KMD 不经手每个 kernel 包\n（只在建场时出现一次）", shape=note, fillcolor="#fffdf6", color="#e6bd5c"];
+    a1 -> a2 -> a3;
+    a2 -> a0 [style=dashed, color="#e6bd5c", arrowhead=none];
+  }
+
+  subgraph cluster_alt {
+    label="② 非主路径 · KMD 两阶段（当前禁用 / 演进中，服务 CP_EVENT_DISPATCH 等）"; fontname="Noto Sans CJK SC"; fontsize=13; color="#e6bd5c"; style="rounded"; bgcolor="#fffdf6";
+    b0 [label="aigc_ioctl_queue_submit\n开头 return -EFAULT（提交已禁用）", fillcolor="#fdeeee", color="#d9534f"];
+    subgraph cluster_sync {
+      label="阶段 A · 同步（立即返回）"; fontname="Noto Sans CJK SC"; fontsize=11; color="#b9c2cb"; style="rounded"; bgcolor="#ffffff";
+      s1 [label="aigc_cmd_create(INDIRECT_CMD_NODE)"];
+      s2 [label="aigc_fill_indirect_pkt 组 IB 包"];
+      s3 [label="挂进队列 → 立即返回"];
+      s1 -> s2 -> s3;
+    }
+    subgraph cluster_async {
+      label="阶段 B · 异步（后台 kthread）"; fontname="Noto Sans CJK SC"; fontsize=11; color="#b9c2cb"; style="rounded"; bgcolor="#ffffff";
+      k1 [label="aigc_wait_event_kthread\n→ aigc_peek_cmd"];
+      k2 [label="aigc_cp_insert_ring 拷包进 CP 环\n（device VRAM）"];
+      k3 [label="aigc_cp_update_ring_wptr\n写 CP_REG_WPTR = 敲门铃"];
+      k1 -> k2 -> k3;
+    }
+    b0 -> s1 [style=dashed];
+    s3 -> k1 [label="队列里等 kthread 取", constraint=true];
+  }
+}

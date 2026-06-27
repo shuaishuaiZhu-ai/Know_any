@@ -1,0 +1,37 @@
+// KMD ioctl 两级派发（源码确认：aigc_fops.c aigc_ioctl / aigc_lib_ioctl）
+digraph ioctl_dispatch {
+  rankdir=TB;
+  bgcolor="#f6f8fa";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC", fontsize=12,
+        color="#cfd6dd", fillcolor="#ffffff", margin="0.2,0.12"];
+  edge [color="#8da2ad", penwidth=1.6, arrowsize=0.7, fontname="Noto Sans CJK SC", fontsize=10, fontcolor="#526672"];
+
+  u [label="用户态：ioctl(fd, AIP_*, &args)", fillcolor="#eaf2fd", color="#6fa8e6"];
+
+  subgraph cluster_l1 {
+    label="第一级 · aigc_ioctl()：只做安检（fail-closed）"; fontname="Noto Sans CJK SC"; fontsize=12; color="#e6bd5c"; style="rounded"; bgcolor="#fffdf6";
+    chk1 [label="编号在合法表内？", shape=diamond, fillcolor="#fff7e3", color="#e6bd5c"];
+    chk2 [label="命令编码匹配？\n（读写方向 + 参数结构 size 精确一致）", shape=diamond, fillcolor="#fff7e3", color="#e6bd5c"];
+  }
+  fail [label="-EINVAL 当场打回\n（畸形请求别想混进来）", fillcolor="#fdeeee", color="#d9534f"];
+
+  subgraph cluster_l2 {
+    label="第二级 · aigc_lib_ioctl()：分诊"; fontname="Noto Sans CJK SC"; fontsize=12; color="#56bf93"; style="rounded"; bgcolor="#f1faf6";
+    idx [label="拿编号当下标，从处理函数表取 aigc_ioctl_<op>()", fillcolor="#e6f6ef", color="#56bf93"];
+  }
+
+  subgraph cluster_tbl {
+    label="处理函数表（部分）"; fontname="Noto Sans CJK SC"; fontsize=12; color="#b9c2cb"; style="rounded"; bgcolor="#ffffff";
+    t0 [label="0  AIP_CONTEXT_CREATE\n建 VMID + 根页表"];
+    t2 [label="2  AIP_QUEUE_CREATE\n建 ring + 填 MCQD"];
+    t5 [label="5  AIP_MEM_CREATE\n分显存 + 写页表 PTE"];
+    t9 [label="9  AIP_QUEUE_SUBMIT\n（当前 return -EFAULT，已禁用）", fillcolor="#fdeeee", color="#d9534f"];
+  }
+
+  u -> chk1;
+  chk1 -> fail [label="否"];
+  chk1 -> chk2 [label="是"];
+  chk2 -> fail [label="否"];
+  chk2 -> idx [label="是"];
+  idx -> t0; idx -> t2; idx -> t5; idx -> t9;
+}
