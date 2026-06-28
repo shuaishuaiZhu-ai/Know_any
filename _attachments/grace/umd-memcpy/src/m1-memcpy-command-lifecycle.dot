@@ -1,0 +1,46 @@
+// aicaMemcpy 拷贝命令的一生：构造 → 入队 → 提交 → 等待
+// 源码确认 2026-06-28 @ 192.168.80.116:~/aigc-driver
+digraph memcpy_lifecycle {
+  rankdir=TB;
+  bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.2, margin="0.18,0.12"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.45; ranksep=0.45;
+
+  user   [label="① 用户调用\naicaMemcpy(deviceA, hostA, 4, H2D)", fillcolor="#e5e9f0"];
+  api    [label="② aicaMemcpy（同步包装）\nsync=true，stream=getNullStream()\nsrc/aica_memory.cpp:546", fillcolor="#eceff4"];
+
+  subgraph cluster_i {
+    label="③ iaicaMemcpy（核心）  src/aica_memory.cpp:378";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1";
+    style="rounded"; bgcolor="#f7f9fc";
+
+    chk    [label="参数校验 checkMemcpyParam", fillcolor="#eceff4"];
+    parse  [label="解析裸指针 → aigc::Memory*\ngetMemoryObject(src/dst, offset)", fillcolor="#eceff4"];
+    kind   [label="重判真实方向\ngetActualKind(dst, src)", fillcolor="#eceff4"];
+    pin    [label="host 非锁页时注册临时锁页内存\nregisterTempPinnedMemory（DMA 要求）", fillcolor="#eceff4"];
+    fill   [label="填 CopyCmdParams\n{sync, off, size, src/dstMemory, kind, stream}", fillcolor="#eceff4"];
+  }
+
+  h2h    [label="捷径：Host→Host\nstream.finish() + 裸 memcpy\n直接返回，不造命令", fillcolor="#fff0d6", color="#d08770"];
+
+  subgraph cluster_c {
+    label="④ createCopyCommand  src/aica_memory.cpp:353";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1";
+    style="rounded"; bgcolor="#f4f7f4";
+
+    strat  [label="getCopyStrategy(params)\n选 SDMA / TMA / HostStage / WaitHost\n（决策树见图 m2）", fillcolor="#e8f0e6"];
+    newcmd [label="new DMACopyCommand(...)（堆对象）\n记 {dst/srcMemory, off, size, sync}\n继承链 DMACopyCommand→TwoMemoryArgsCommand→Command→Event\nsrc/platform/command.hpp:659", fillcolor="#d8ead0", color="#a3be8c"];
+  }
+
+  enq    [label="⑤ command->enqueue()  进 host queue\nsrc/platform/command.cpp", fillcolor="#eceff4"];
+  sub    [label="⑥ DIRECT_DISPATCH：当场 submit\nDMACopyCommand::submit() →\nVirtualGPU::submitDMACopy()（编程 SDMA 引擎）\nsrc/device/grace/gracevirtualgpu.cpp:1430", fillcolor="#e5e9f0", color="#5e81ac"];
+  wait   [label="⑦ sync? command->awaitCompletion() 阻塞等完成", fillcolor="#eceff4"];
+  rel    [label="⑧ command->release() + 释放临时锁页内存\n返回 aicaSuccess", fillcolor="#e5e9f0"];
+
+  user -> api -> chk -> parse -> kind;
+  kind -> h2h [label="实际是 H2H", color="#d08770", fontcolor="#bf616a"];
+  kind -> pin [label="H2D / D2H"];
+  pin -> fill -> strat -> newcmd -> enq -> sub -> wait -> rel;
+}

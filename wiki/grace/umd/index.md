@@ -90,6 +90,14 @@ UMD 对外 API（`aica*`）→ 底层真实动作（源码确认）：
 - **`ajthunk` thunk 层**：子模块为空，`Thunk_*` 如何封装 `ioctl(AIP_*)` 仅从 UMD 侧反推。
 - **`libaicart` 的部分实现**：闭源 blob 形态，行为以对外 API + 包结构反推。
 
+## 开发维护（访问 80.116 / 代码结构 / 构建）
+
+- [[wiki/grace/umd/dev/access-and-build|UMD 开发维护：访问、代码结构与构建]]：怎么 SSH 上 80.116、`~/aigc-driver` 完整目录结构、`build_ex.sh` 编译与跑单测、git 远端/分支。日常改代码先看这页。
+
+## 源码细读
+
+- [[wiki/grace/umd/memory/aica-memcpy-copy-command|aicaMemcpy 怎么造拷贝命令（iaicaMemcpy 内部）]]：`aicaMemcpy → iaicaMemcpy → createCopyCommand → DMACopyCommand → enqueue/submit→submitDMACopy(SDMA)` 全链路，含「命令的一生」流程图 + `getCopyStrategy` 决策树（2 张 Graphviz 图）。
+
 ## 推荐阅读顺序
 
 UMD 这层不必从这里逐页读完——主线在端到端长文里，这页是导航：

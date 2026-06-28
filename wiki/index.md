@@ -38,7 +38,7 @@ wiki/
 
 1. [GraceC 芯片软硬件栈](<./grace/index.md>)：芯片相关内容（MAS 设计规格、FW 片上固件、KMD 主机驱动、tiny-kmd）的统一入口，含 MAS→FW→KMD 栈图。**芯片栈主题先从这里进。**
 1. [一个 Kernel 从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)：跨 UMD→KMD→CP→硬件 的端到端长文，以 `test_saxpy_op.cu`（`add1`）为例，10 张手绘 SVG/Graphviz 图、严谨技术风、面试盒子（源码确认 2026-06-26）。**完全没碰过这套栈、想先建立整体地图的，从这篇进。** 配套：[stream/MCQD/HCQD 与命令下发](<./grace/overview/stream-mcqd-hcqd-and-command-submission.md>)、[kernel cmd→CP job cmd 字段映射](<./grace/overview/kernel-cmd-to-cp-job-cmd.md>)。
-1. [UMD 用户态运行时（aigc-driver）](<./grace/umd/index.md>)：应用直接链接的那层——类 CUDA API、ROCm 血缘、kernel 直发 doorbell、源码地图。
+1. [UMD 用户态运行时（aigc-driver）](<./grace/umd/index.md>)：应用直接链接的那层——类 CUDA API、ROCm 血缘、kernel 直发 doorbell、源码地图。开发维护（访问 80.116 / 代码结构 / 构建）见 [UMD 开发维护：访问、代码结构与构建](<./grace/umd/dev/access-and-build.md>)；源码细读见 [aicaMemcpy 怎么造拷贝命令](<./grace/umd/memory/aica-memcpy-copy-command.md>)。
 1. [FW 技术知识库](<./grace/fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。配套 [CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)。
 1. [KMD 内核驱动知识库](<./grace/kmd/index.md>)：`aigc.ko` 内核态驱动——ioctl/ABI、内存与页表、命令队列与调度、中断与 fence、Grace HAL。配套 [KMD 面试向深入](<./grace/kmd/kmd-interview-deep-dive.md>)。
 1. [tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)：最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），以及把 ajthunk 核心移植进来的缺口对照。

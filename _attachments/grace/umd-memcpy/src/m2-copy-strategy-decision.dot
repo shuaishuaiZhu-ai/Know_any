@@ -1,0 +1,51 @@
+// getCopyStrategy 决策树：方向 + 同设备/跨设备 → 4 种策略 → 对应命令对象
+// 源码确认 2026-06-28 src/aica_memory.cpp:229
+digraph copy_strategy {
+  rankdir=TB;
+  bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.2, margin="0.18,0.12"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.5;
+
+  start [label="getCopyStrategy(params)\nsrc/aica_memory.cpp:229", fillcolor="#e5e9f0", shape=box, style="filled"];
+
+  kind  [label="判断 kind（实际方向）", shape=diamond, fillcolor="#eceff4", margin="0.05,0.05"];
+
+  // D2D 分支
+  d2d   [label="D2D\ncmdType=COPY_BUFFER\nsync=false（默认异步）", fillcolor="#eceff4"];
+  // H2D / D2H 分支
+  hd    [label="H2D / D2H\nH2D: cmdType=WRITE_BUFFER, devMemDeviceId=dst\nD2H: cmdType=READ_BUFFER,  devMemDeviceId=src", fillcolor="#eceff4"];
+
+  same  [label="设备内存与流同设备？\n(devMemDeviceId==streamDeviceId)\n|| AICA_CROSS_DIE_SDMA_ACCESS", shape=diamond, fillcolor="#eceff4", margin="0.05,0.05"];
+  sameD [label="同设备？\nsrc==dst==stream", shape=diamond, fillcolor="#eceff4", margin="0.05,0.05"];
+  both  [label="流能访问两端内存？\nstreamAccessBoth", shape=diamond, fillcolor="#eceff4", margin="0.05,0.05"];
+  bothD [label="流能访问两端？\n&& AICA_COPY_PREFER_TMA", shape=diamond, fillcolor="#eceff4", margin="0.05,0.05"];
+
+  // 策略 → 命令对象
+  sdma  [label="SDMA（最常见）\ncreateDMACopyCommand\n→ DMACopyCommand", fillcolor="#d8ead0", color="#a3be8c"];
+  tma1  [label="CrossDev_TMA\ncreateTMACopyCommand", fillcolor="#e3effb", color="#81a1c1"];
+  tma2  [label="CrossDev_TMA\ncreateTMACopyCommand", fillcolor="#e3effb", color="#81a1c1"];
+  hstg  [label="CrossDev_HostStage\ncreateHostStageCopyCommand\n（host 中转）", fillcolor="#fdeee0", color="#d08770"];
+  whost [label="CrossDev_WaitHost\ncreateWaitHostCopyCommand\n（wait host）", fillcolor="#fdeee0", color="#d08770"];
+
+  start -> kind;
+  kind -> d2d  [label="D2D"];
+  kind -> hd   [label="H2D / D2H"];
+
+  // H2D/D2H 路径
+  hd -> same;
+  same -> sdma [label="是 → SDMA"];
+  same -> bothD [label="否（跨设备）"];
+  bothD -> tma1 [label="是 → TMA"];
+  bothD -> whost [label="否 → WaitHost"];
+
+  // D2D 路径
+  d2d -> sameD;
+  sameD -> sdma [label="同设备 → SDMA"];
+  sameD -> both [label="跨设备"];
+  both -> tma2 [label="能 → TMA"];
+  both -> hstg [label="不能 → HostStage"];
+
+  { rank=same; sdma; tma1; tma2; }
+}

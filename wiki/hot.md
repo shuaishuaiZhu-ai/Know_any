@@ -17,6 +17,9 @@ status: active
 
 ## 当前主入口
 
+- **UMD aicaMemcpy 造命令细读（新增，2026-06-28）**：[aicaMemcpy 怎么造拷贝命令](<./grace/umd/memory/aica-memcpy-copy-command.md>)——`aicaMemcpy` 不是裸 memcpy，而是 `iaicaMemcpy` 解析指针→临时锁页→`createCopyCommand`(`getCopyStrategy` 选 SDMA/TMA/HostStage/WaitHost)→`new DMACopyCommand`→`enqueue`→DIRECT_DISPATCH 当场 `submit`→`VirtualGPU::submitDMACopy`(SDMA)→`awaitCompletion`。含 2 张 Graphviz 图（命令的一生流程图 + getCopyStrategy 决策树，源在 `_attachments/grace/umd-memcpy/`）。单设备 H2D 走 SDMA→DMACopyCommand。
+- **UMD 开发维护落盘（新增，2026-06-28）**：[UMD 开发维护：访问、代码结构与构建](<./grace/umd/dev/access-and-build.md>)——aigc-driver 代码在 **80.116 `shuaishuai.zhu@192.168.80.116:~/aigc-driver`**（密码见 secrets 页，勿回显）；git origin `git@192.168.90.119:aigc_toolchain/aigc-driver.git`（默认分支 `develop`）；含 `~/aigc-driver` 完整目录结构 + `build_ex.sh` 构建/单测命令。配套：另一个工作目录 `/root/workspace/umd` 的 `CLAUDE.md` 已写明「代码在远端、怎么连、怎么编、架构」。架构原理仍走 [UMD 总览](<./grace/umd/index.md>)。
+
 
 - **Kernel 端到端系列（重做 + 扩充，2026-06-26）**：[一个 Kernel 从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>) 已**全面重写 + 重绘**——10 张手绘 SVG/Graphviz 图（替换原 Mermaid，源文件在 `_attachments/grace/saxpy-e2e/src/`）、严谨技术风（弱化比喻）、每阶段"面试官会追问"盒子。新增 4 篇配套：[stream/MCQD/HCQD 与命令下发](<./grace/overview/stream-mcqd-hcqd-and-command-submission.md>)、[kernel cmd→CP job cmd 字段映射](<./grace/overview/kernel-cmd-to-cp-job-cmd.md>)、[UMD 总览入口](<./grace/umd/index.md>)、[KMD 面试向深入](<./grace/kmd/kmd-interview-deep-dive.md>)、[CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)。
   - **关键源码纠正（116 实读 2026-06-26）**：① kernel launch 走 **UMD 直发 HWS**——UMD 自己写 host ringbuffer + 敲 doorbell(MMIO)，KMD 只一次性建场、不经手每包；② ringbuffer 在 **host 内存** 非 VRAM；③ **全栈只有一个 `0x10`**（"两个 0x10"是误判）；④ `AIP_QUEUE_SUBMIT` 当前 `return -EFAULT`（提交禁用），KMD CP 环+kthread 是非主/演进路径，旧 `command-submission-flow.md` 把它当主线是误导；⑤ `aigc_kernel.o_binary` 是 KMD 闭源 x86 blob、**不是 GPU kernel**。`add1` 完成走 MSI-X **向量 40**。

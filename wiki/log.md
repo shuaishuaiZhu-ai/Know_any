@@ -9,6 +9,18 @@ tags:
 status: active
 ---
 
+## [2026-06-28] add | UMD aicaMemcpy 造拷贝命令细读（2 张 Graphviz 图）
+
+- **新增** [aicaMemcpy 怎么造拷贝命令（iaicaMemcpy 内部）](<./grace/umd/memory/aica-memcpy-copy-command.md>)（新建 `wiki/grace/umd/memory/`）：基于 80.116 `~/aigc-driver` 实读（`src/aica_memory.cpp` `iaicaMemcpy:378`/`createCopyCommand:353`/`getCopyStrategy:229`、`src/platform/command.hpp:659` `DMACopyCommand`、`src/device/grace/gracevirtualgpu.cpp:1430` `submitDMACopy`）。拆解 `aicaMemcpy` 把拷贝包装成命令对象、选策略、入队、direct-dispatch 提交 SDMA、同步等待的全过程；附 H2H 捷径、临时锁页、D2D 默认异步等要点。
+- **新增 2 张 Graphviz 图**（`_attachments/grace/umd-memcpy/`，`.dot` 源在 `src/`，`dot -Tpng`/`-Tsvg` 渲染，已视检中文/箭头/无重叠）：`m1-memcpy-command-lifecycle`（命令的一生 TB 流程）、`m2-copy-strategy-decision`（getCopyStrategy 决策树）。
+- 同步更新 [UMD 总览](<./grace/umd/index.md>)（加“源码细读”区块）、[Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)。
+
+## [2026-06-28] add | UMD 开发维护落盘（访问 80.116 + 代码结构 + 构建）
+
+- **新增** [UMD 开发维护：访问、代码结构与构建](<./grace/umd/dev/access-and-build.md>)（新建 `wiki/grace/umd/dev/`）：面向 aigc-driver 日常开发维护——SSH 访问 `shuaishuai.zhu@192.168.80.116:~/aigc-driver`（密码引用 [Server Passwords](<./ai/secrets/server-passwords.md>)，不回显/不入 GitHub）、git 远端 `git@192.168.90.119:aigc_toolchain/aigc-driver.git`（默认 `develop`）、子模块 `3rdparty/ajthunk`、`~/aigc-driver` 完整目录结构（SSH 实读 2026-06-28）、`build_ex.sh` 编译/单测/格式化/覆盖率命令与日志环境变量。
+- **配套** 在另一工作目录 `/root/workspace/umd` 生成 `CLAUDE.md`（`/init`）：写明「源码不在本地、在 80.116 远端」、访问方式、`build_ex.sh` 命令、CLR=ROCm/HIP 改名移植的分层架构、并指回本 wiki。
+- 同步更新 [UMD 总览](<./grace/umd/index.md>)（加“开发维护”区块）、[Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)。架构原理不重复，仍以 umd/index 为准。
+
 ## [2026-06-26] redo+add | Kernel 端到端系列全面重做（重绘 10 图 + 新增 4 篇 + 源码纠正）
 
 - **重写并重绘** [一个 Kernel 从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)：标题去"奇幻漂流"，改严谨技术风（弱化餐厅/门铃比喻），10 张图全部从 Mermaid 改为**手绘 SVG + Graphviz**（源文件在 `_attachments/grace/saxpy-e2e/src/`，渲染 PNG 同目录，`sharp`/`dot` 渲染），每阶段加"🎯 面试官会追问"盒子。
