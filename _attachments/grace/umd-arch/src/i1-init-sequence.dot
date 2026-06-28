@@ -1,0 +1,36 @@
+// 运行时初始化时序：Runtime::init → aica::init 每设备建场
+// 源码确认 2026-06-28 src/aica_runtime.cpp:67 / src/aica_context.cpp:32-110
+digraph init_seq {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.4;
+
+  trig [label="首个 aica* API 调用\nAICA_INIT_API 触发懒初始化", fillcolor="#e5e9f0"];
+
+  subgraph cluster_rt {
+    label="Runtime::init()  src/aica_runtime.cpp:67";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1"; style="rounded"; bgcolor="#f7f9fc";
+    os   [label="Os::init() / Cfg::init()\nOS 抽象 + 读配置(YAML)", fillcolor="#eceff4"];
+    topo [label="BuildTopology()\n发现 GPU、返回设备数", fillcolor="#eceff4"];
+    devinit [label="Device::init()\n初始化 aigc 设备层", fillcolor="#eceff4"];
+    os -> topo -> devinit;
+  }
+
+  subgraph cluster_ctx {
+    label="aica::init()  src/aica_context.cpp:32-110（遍历每个设备）";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1"; style="rounded"; bgcolor="#f4f7f4";
+    open [label="KOpenDeviceWarp(node_id)\n经 thunk 打开 /dev/aigcN", fillcolor="#e3effb", color="#81a1c1"];
+    ctx  [label="KCreateContextWarp\n建 KMD context 句柄", fillcolor="#e3effb", color="#81a1c1"];
+    lmem [label="CreateLocalMemory(LOCAL_MEM_SIZE)\nCreatePrintfBuffer()", fillcolor="#e3effb", color="#81a1c1"];
+    push [label="new aica::Device → g_devices[i]\ngpu_agent->SetDevice / CreateBlitQueue", fillcolor="#eceff4"];
+    open -> ctx -> lmem -> push;
+  }
+
+  fin [label="aicaSetCurrentDevice(0)\nPlatformState::init()（StatCO 就绪）\ngrace::Device::createP2PStage()（P2P）\nHwExceptionListener::init()", fillcolor="#e5e9f0"];
+
+  trig -> os [lhead=cluster_rt];
+  devinit -> open [ltail=cluster_rt, lhead=cluster_ctx];
+  push -> fin [ltail=cluster_ctx];
+}

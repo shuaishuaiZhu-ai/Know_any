@@ -1,0 +1,22 @@
+// 内存对象模型：MemObjMap / Memory / mempool / IPC / SVM
+// 源码确认 2026-06-28 platform/memory.hpp / aica_mempool_impl / device.hpp(MemObjMap) / aica_peer.cpp
+digraph memmodel {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.42; ranksep=0.45;
+
+  svm [label="SVM 单一 64 位虚拟地址空间\nCPU 与 GPU 同一 VA 可见", shape=note, fillcolor="#fff7e6", color="#d0a070"];
+
+  map [label="MemObjMap（device.hpp）\nVA → aigc::Memory 全局查找\n（memcpy/kernel 参数解析靠它）", fillcolor="#e5e9f0"];
+  obj [label="aigc::Memory（memory.hpp:272）\nDevice* · size · Location\n{Device / PinnedHost / Managed}\nHVA / DVA / KMD 句柄(memoryInfo)", fillcolor="#eceff4"];
+
+  pool [label="mempool（aica_mempool_impl）\nHeap 每设备 · MemoryTimestamp\n按 event 依赖安全复用/惰性释放", fillcolor="#e8f0e6", color="#a3be8c"];
+  ipc  [label="IPC / Peer\nMemObjMap::IpcMemHandle（khandle）\naica_peer.cpp P2P 访问协商", fillcolor="#e3effb", color="#81a1c1"];
+
+  map -> obj [label="映射到"];
+  obj -> pool [label="可池化"];
+  obj -> ipc [label="可导出/对等"];
+  svm -> map [style=dashed, color="#d0a070"];
+}

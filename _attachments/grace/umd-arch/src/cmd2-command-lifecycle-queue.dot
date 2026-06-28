@@ -1,0 +1,29 @@
+// 命令生命周期 + HostQueue 批处理 + 事件状态机
+// 源码确认 2026-06-28 command.cpp:335(enqueue)/217(awaitCompletion), commandqueue.hpp
+digraph life {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.42;
+
+  enq [label="command->enqueue()  command.cpp:335", fillcolor="#e5e9f0"];
+  q   [label="setStatus(CL_QUEUED)\nFormSubmissionBatch（head→tail 链入 + retain）", fillcolor="#eceff4"];
+
+  dd [label="AIGC_DIRECT_DISPATCH ?", shape=diamond, fillcolor="#eceff4", margin="0.05,0.05"];
+
+  direct [label="直发：当场\nsetStatus(CL_SUBMITTED) → submit(*vdev)\n（VirtualGPU::submitKernel/submitDMACopy）", fillcolor="#d8ead0", color="#a3be8c"];
+  thread [label="入 FIFO + flush()\nHostQueue::loop 线程取批、submit\n（commandqueue.hpp）", fillcolor="#e3effb", color="#81a1c1"];
+
+  done [label="GPU 完成 → setStatus(CL_COMPLETE)\n触发回调、唤醒等待者", fillcolor="#eceff4"];
+  await[label="awaitCompletion()  command.cpp:217\nActiveWait 自旋 / 否则 CV 等信号", fillcolor="#e5e9f0"];
+
+  sm [label="事件状态机：\nCL_QUEUED → CL_SUBMITTED → CL_RUNNING → CL_COMPLETE", shape=note, fillcolor="#fff7e6", color="#d0a070"];
+
+  enq -> q -> dd;
+  dd -> direct [label="是（默认）"];
+  dd -> thread [label="否"];
+  direct -> done; thread -> done;
+  done -> await [label="同步调用阻塞至此"];
+  q -> sm [style=invis];
+}

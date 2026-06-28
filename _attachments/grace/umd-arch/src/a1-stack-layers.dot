@@ -1,0 +1,41 @@
+// UMD (aigc-driver) 全栈分层 + kernel 直发旁路 KMD
+// 源码确认 2026-06-28 @ 192.168.80.116:~/aigc-driver
+digraph stack {
+  rankdir=TB; bgcolor="white"; compound=true;
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.5;
+
+  app [label="应用 / .cu\n(链接 libaicart.so)", fillcolor="#e5e9f0"];
+
+  subgraph cluster_umd {
+    label="libaicart.so（用户态运行时 / CLR）";
+    fontname="Noto Sans CJK SC"; fontsize=13; color="#81a1c1"; style="rounded"; bgcolor="#f7f9fc";
+
+    api    [label="aica* 公开 API\nsrc/aica_*.cpp（类 CUDA/HIP）", fillcolor="#eceff4"];
+    plat   [label="aigc:: 平台层  src/platform/\nCommand · Queue · Signal · Memory · Agent · Kernel · Program", fillcolor="#eceff4"];
+    devabs [label="device:: 抽象层  src/device/device.hpp\nVirtualDevice · Device · Kernel · Program", fillcolor="#eceff4"];
+    grace  [label="grace:: 后端  src/device/grace/\nVirtualGPU（直发核心）· Device · Kernel", fillcolor="#e8f0e6", color="#a3be8c"];
+
+    api -> plat -> devabs -> grace [arrowhead=none, color="#c8d0dc"];
+  }
+
+  ring [label="host ring buffer + doorbell\n(host 内存，CP 经 DMA 取包)", fillcolor="#d8ead0", color="#a3be8c"];
+  thunk [label="ajthunk thunk 层\nThunk_*→ ioctl(/dev/aigcN)\n3rdparty/ajthunk（多闭源）", fillcolor="#e3effb", color="#81a1c1"];
+  kmd  [label="KMD  aigc.ko（内核态）", fillcolor="#eceff4"];
+  gpu  [label="GraceC GPU（CP 固件 + 计算核）", fillcolor="#e5e9f0"];
+
+  app -> api [lhead=cluster_umd];
+
+  // 建立类路径（malloc / stream / context）：经 thunk → ioctl → KMD
+  grace -> thunk [label="建立类：malloc / stream / context", color="#5e81ac", fontcolor="#5e81ac"];
+  thunk -> kmd [label="ioctl", color="#5e81ac", fontcolor="#5e81ac"];
+  kmd -> gpu [label="一次性建场", color="#5e81ac", fontcolor="#5e81ac"];
+
+  // kernel 直发路径：写 ring + doorbell，旁路 KMD 每包
+  grace -> ring [label="kernel launch：sendPacket + 敲 doorbell(MMIO)", color="#a3be8c", fontcolor="#5e8050", penwidth=1.6];
+  ring -> gpu [label="HWS 直发（KMD 不经手每包）", color="#a3be8c", fontcolor="#5e8050", penwidth=1.6];
+
+  { rank=same; thunk; ring; }
+}

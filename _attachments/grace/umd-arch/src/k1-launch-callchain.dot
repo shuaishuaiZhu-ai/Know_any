@@ -1,0 +1,30 @@
+// kernel launch 主调用链：aicaLaunchKernel → 造命令 → 直发
+// 源码确认 2026-06-28
+digraph launch {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.42;
+
+  a [label="aicaLaunchKernel(func, grid, block, params, ...)\nsrc/aica_runtime.cpp:560", fillcolor="#e5e9f0"];
+  b [label="getStatFunc(func, device_id)\nhost 桩地址 → DeviceFunc*（查 fatbin 注册表）", fillcolor="#eceff4"];
+  c [label="打包 AICALaunchParams（grid/block/shm）+ 配置校验", fillcolor="#eceff4"];
+  d [label="KernelLaunchKit::iaicaModuleLaunchKernel(...)\nsrc/aica_platform.cpp:1033", fillcolor="#eceff4"];
+
+  subgraph cluster_prep {
+    label="prepareKernelCommand  src/aica_platform.cpp:957";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1"; style="rounded"; bgcolor="#f7f9fc";
+    v [label="iaicaLaunchKernel_validate\nVGPR/LDS/gridDim.z<512 等硬件约束", fillcolor="#eceff4"];
+    cm [label="_setupConstantMem / _allocLocalMem\n备 const 内存（含 kernel 参数）", fillcolor="#eceff4"];
+    mk [label="iaicaLaunchKernelCommand\nnew GraceKernelCommand（堆对象）", fillcolor="#e8f0e6", color="#a3be8c"];
+    v -> cm -> mk;
+  }
+
+  e [label="command->enqueue()\nDIRECT_DISPATCH 当场 submit", fillcolor="#eceff4"];
+  f [label="VirtualGPU::submitKernel → submitKernelInternal\n建 dispatch packet → sendPacket → 敲 doorbell\nsrc/device/grace/gracevirtualgpu.cpp:1369/1172/629", fillcolor="#d8ead0", color="#a3be8c"];
+
+  a -> b -> c -> d -> v [lhead=cluster_prep];
+  mk -> e [ltail=cluster_prep];
+  e -> f;
+}

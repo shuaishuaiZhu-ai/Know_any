@@ -1,0 +1,31 @@
+// stream / event / signal 关系与完成回路
+// 源码确认 2026-06-28 commandqueue.hpp / command.* / signal.hpp
+digraph ses {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.42; ranksep=0.45;
+
+  stream [label="aicaStream = aigc::HostQueue\n（commandqueue.hpp）首次真用时\n懒创建一条硬件 ring buffer", fillcolor="#e5e9f0"];
+  cmds   [label="命令按序入队\nGraceKernelCommand / DMACopyCommand / Marker ...", fillcolor="#eceff4"];
+  event  [label="aicaEvent = Event/Marker\nBindCommand 绑到命令，记录时间戳/依赖", fillcolor="#eceff4"];
+
+  subgraph cluster_sig {
+    label="core::Signal（signal.hpp）三类";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1"; style="rounded"; bgcolor="#f7f9fc";
+    busy [label="busy-wait 信号\nLoad/Store/Wait/Cas（自旋）", fillcolor="#eceff4"];
+    door [label="doorbell 信号\nMMIO 通知 GPU", fillcolor="#d8ead0", color="#a3be8c"];
+    hw   [label="HW event 信号\nKMD fence/timestamp", fillcolor="#e3effb", color="#81a1c1"];
+  }
+
+  done [label="GPU 完成 → 写 fence / 置信号\nEvent::setStatus(CL_COMPLETE)", fillcolor="#eceff4"];
+  wait [label="host 同步：aicaStreamSynchronize / aicaEventSynchronize\n→ command->awaitCompletion()（spin 或 CV 等信号）", fillcolor="#e5e9f0"];
+
+  stream -> cmds -> event;
+  cmds -> door [label="kernel 下发敲", fontcolor="#5e8050"];
+  event -> hw [label="完成事件挂", fontcolor="#5e81ac"];
+  hw -> done; door -> done [style=invis];
+  done -> wait [label="唤醒等待者"];
+  wait -> busy [style=dashed, label="ActiveWait 自旋", fontname="Noto Sans CJK SC", fontsize=9, fontcolor="#7b8394"];
+}

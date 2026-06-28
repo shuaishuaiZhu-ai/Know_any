@@ -9,6 +9,15 @@ tags:
 status: active
 ---
 
+## [2026-06-28] add | UMD 全代码系统化落盘（8 分子系统页 + 17 张 Graphviz 图）
+
+- **通读整个 `aigc-driver`**（SSH 80.116 + 3 个 Explore agent 扫 API/loader 层、aigc 平台层、grace 后端+构建/测试），把架构与各子系统系统化落盘。
+- **升级** [UMD 总览](<./grace/umd/index.md>)：新增「整体架构」（`a1-stack-layers` 全栈分层+直发旁路 / `a2-namespace-map` aica/aigc/device/grace/core/ajthunk 职责）与「子系统导航」表；移除与导航表重复的旧「开发维护/源码细读」小节。
+- **新增 8 页**（`wiki/grace/umd/` 下新建 `runtime/`、`compile/`、`dispatch/`、`platform/`）：[init-and-device-model](<./grace/umd/runtime/init-and-device-model.md>)、[kernel-launch](<./grace/umd/runtime/kernel-launch.md>)、[streams-events-signals](<./grace/umd/runtime/streams-events-signals.md>)、[code-object-and-registration](<./grace/umd/compile/code-object-and-registration.md>)、[command-model-and-queue](<./grace/umd/dispatch/command-model-and-queue.md>)、[packet-and-doorbell](<./grace/umd/dispatch/packet-and-doorbell.md>)、[allocation-and-memory-model](<./grace/umd/memory/allocation-and-memory-model.md>)、[thunk-and-sync](<./grace/umd/platform/thunk-and-sync.md>)。
+- **17 张新 Graphviz 图**（`_attachments/grace/umd-arch/`，`.dot` 源在 `src/`，`dot -Tsvg`+`-Tpng -Gdpi=130` 渲染，逐张 Read 视检：中文/箭头/无重叠/方向均 OK）：a1/a2、i1/i2、k1/k2、s1、c1/c2、cmd1/cmd2、pkt1/pkt2、mem1/mem2、th1/th2。
+- 关键 file:line 锚点：`aica_runtime.cpp:560`、`aica_platform.cpp:957/1033`、`aica_context.cpp:32`、`aica_table_interface.cpp:48`、`command.cpp:217/335`、`gracevirtualgpu.cpp:629/680/1172/1369`、`thunk_help.cpp:38`、`aica_packet_def.h`。事实与既有端到端长文一致。
+- 同步更新 [Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)。
+
 ## [2026-06-28] add | UMD aicaMemcpy 造拷贝命令细读（2 张 Graphviz 图）
 
 - **新增** [aicaMemcpy 怎么造拷贝命令（iaicaMemcpy 内部）](<./grace/umd/memory/aica-memcpy-copy-command.md>)（新建 `wiki/grace/umd/memory/`）：基于 80.116 `~/aigc-driver` 实读（`src/aica_memory.cpp` `iaicaMemcpy:378`/`createCopyCommand:353`/`getCopyStrategy:229`、`src/platform/command.hpp:659` `DMACopyCommand`、`src/device/grace/gracevirtualgpu.cpp:1430` `submitDMACopy`）。拆解 `aicaMemcpy` 把拷贝包装成命令对象、选策略、入队、direct-dispatch 提交 SDMA、同步等待的全过程；附 H2H 捷径、临时锁页、D2D 默认异步等要点。

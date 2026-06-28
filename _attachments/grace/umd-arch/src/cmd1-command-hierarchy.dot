@@ -1,0 +1,31 @@
+// Command 类继承体系（src/platform/command.hpp）
+// 源码确认 2026-06-28
+digraph cmdtree {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=11, color="#3b4252", penwidth=1.1, margin="0.16,0.09"];
+  edge [color="#4c566a", arrowsize=0.6, arrowhead=onormal];
+  nodesep=0.3; ranksep=0.5;
+
+  ev   [label="Event : RuntimeObject\n状态机 + 引用计数（command.hpp:44）", fillcolor="#e5e9f0"];
+  cmd  [label="Command : Event\nHostQueue* · 等待表 · submit()(纯虚)（:225）", fillcolor="#e8f0e6", color="#a3be8c"];
+
+  marker [label="Marker（:355）\n同步屏障", fillcolor="#eceff4"];
+  user   [label="UserEvent（:342）\n应用建的事件", fillcolor="#eceff4"];
+  kern   [label="GraceKernelCommand（:425）\nkernel 下发 → submitKernel", fillcolor="#d8ead0", color="#a3be8c"];
+  one    [label="OneMemoryArgCommand（:524）\n单 buffer 基类", fillcolor="#eceff4"];
+  two    [label="TwoMemoryArgsCommand（:580）\nsrc/dst 基类", fillcolor="#eceff4"];
+  ext    [label="ExtObjectsCommand（:816）", fillcolor="#eceff4"];
+  svm    [label="Svm*Command（:1073+）\nFree/Copy/Fill/Map/Unmap", fillcolor="#eceff4"];
+
+  fill   [label="FillMemoryCommand（:609）", fillcolor="#eceff4"];
+  pref   [label="PrefetchMemoryCommand（:639）", fillcolor="#eceff4"];
+  sig    [label="SignalCommand（:1022）", fillcolor="#eceff4"];
+  dma    [label="DMACopyCommand（:659）\n→ submitDMACopy（SDMA）", fillcolor="#d8ead0", color="#a3be8c"];
+  hstg   [label="HostStageCopyCommand（:687）", fillcolor="#eceff4"];
+
+  ev -> cmd;
+  cmd -> marker; cmd -> user; cmd -> kern; cmd -> one; cmd -> two; cmd -> ext; cmd -> svm;
+  one -> fill; one -> pref; one -> sig;
+  two -> dma; two -> hstg;
+}

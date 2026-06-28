@@ -1,0 +1,20 @@
+// 同步原语：Thread / Monitor / Semaphore / Signal
+// 源码确认 2026-06-28 src/thread/* , src/platform/signal.hpp
+digraph sync {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.42; ranksep=0.45;
+
+  thread [label="Thread（thread.hpp）\npthread 封装；HostQueue::Thread 跑 loop()", fillcolor="#eceff4"];
+  mon    [label="Monitor（monitor.hpp:62）\n递归互斥 + 条件变量\n快路 CAS spinlock，竞争退化到信号量队列", fillcolor="#e5e9f0"];
+  sem    [label="Semaphore（semaphore.hpp）\nPOSIX 计数信号量；Monitor 阻塞的底座", fillcolor="#eceff4"];
+  sig    [label="core::Signal（signal.hpp）\nGPU↔CPU 同步：Load/Store/Wait/Add/Cas\nbusy / doorbell / HW-event 三类", fillcolor="#e8f0e6", color="#a3be8c"];
+  scope  [label="ScopedLock（RAII）\n构造 lock / 析构 unlock", shape=note, fillcolor="#fff7e6", color="#d0a070"];
+
+  thread -> mon [label="队列线程用其保护批次"];
+  mon -> sem [label="阻塞底层用"];
+  mon -> scope [style=dashed, color="#d0a070"];
+  sig -> mon [style=invis];
+}

@@ -1,0 +1,36 @@
+// code object：host桩→device kernel 解析；静态 vs 动态装载
+// 源码确认 2026-06-28 aica_global / aica_fatbin / aica_module / rtc COMGR
+digraph coload {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.45;
+
+  fatbin [label="fatbin（__CLANG_OFFLOAD_BUNDLE__）\n多 ISA code object 打包", fillcolor="#e5e9f0"];
+
+  subgraph cluster_static {
+    label="静态路径（编译期内嵌）";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1"; style="rounded"; bgcolor="#f7f9fc";
+    sreg [label="__aicaRegisterFatBinary → FatBinaryInfo", fillcolor="#eceff4"];
+    sres [label="aicaLaunchKernel → getStatFunc(hostFn, dev)\nFunction::getStatFunc 懒 BuildProgram", fillcolor="#eceff4"];
+    sreg -> sres;
+  }
+
+  subgraph cluster_dyn {
+    label="动态路径（运行期加载）";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1"; style="rounded"; bgcolor="#f4f7f4";
+    dload [label="aicaModuleLoad[Data] → DynCO::loadCodeObject", fillcolor="#eceff4"];
+    dget  [label="aicaModuleGetFunction → getDynFunc(name)", fillcolor="#eceff4"];
+    dload -> dget;
+  }
+
+  unbundle [label="解包 + ISA 匹配\nELF(src/elf/elfio) + COMGR\nsrc/rtc/aica_rtc_comgr_helper.cpp\nisCodeObjectCompatibleWithDevice", fillcolor="#e3effb", color="#81a1c1"];
+  prog   [label="aigc::Program（每设备）\nDeviceFunc / device::Kernel（含 init_pc / 段大小）", fillcolor="#e8f0e6", color="#a3be8c"];
+
+  fatbin -> sreg [lhead=cluster_static];
+  fatbin -> dload [lhead=cluster_dyn];
+  sres -> unbundle [ltail=cluster_static];
+  dget -> unbundle [ltail=cluster_dyn];
+  unbundle -> prog;
+}

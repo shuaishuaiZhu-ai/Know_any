@@ -1,0 +1,26 @@
+// UMD→KMD 边界：建立类经 thunk/ioctl，kernel 直发走 MMIO
+// 源码确认 2026-06-28 thunk_manager.hpp / thunk_help.cpp / gracevirtualgpu.cpp
+digraph thunk {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.45; ranksep=0.5;
+
+  umd [label="UMD（aica* / aigc / grace）", fillcolor="#e5e9f0"];
+
+  est [label="建立类操作\nopen device / create context / engine / event / memory", fillcolor="#eceff4"];
+  disp[label="kernel / 拷贝 下发\nsendPacket（每包）", fillcolor="#d8ead0", color="#a3be8c"];
+
+  trm [label="ThunkResourcesManager（thunk_manager.hpp）\nKOpenDeviceWarp / KCreateContextWarp /\nKCreateEngineWarp / KCreateEventWarp / KCreateMemoryWarp", fillcolor="#e3effb", color="#81a1c1"];
+  ajt [label="ajthunk  Thunk_*（封装 ioctl）\n3rdparty/ajthunk（多闭源）", fillcolor="#e3effb", color="#81a1c1"];
+
+  kmd [label="KMD aigc.ko：ioctl(/dev/aigcN)\n建场 / 分页 / 建队列", fillcolor="#eceff4"];
+  mmio[label="MMIO doorbell（不经内核）", fillcolor="#d8ead0", color="#a3be8c"];
+  gpu [label="GraceC GPU", fillcolor="#e5e9f0"];
+
+  umd -> est; umd -> disp;
+  est -> trm -> ajt -> kmd [label="走 ioctl", color="#5e81ac", fontcolor="#5e81ac"];
+  disp -> mmio [label="直发", color="#a3be8c", fontcolor="#5e8050", penwidth=1.5];
+  kmd -> gpu; mmio -> gpu;
+}

@@ -21,6 +21,36 @@ source:
 
 > 术语：**UMD = `aigc-driver` 源码树**，编出用户态运行时库 **`libaicart.so`**；**ajthunk** 是它下面的用户态 thunk 层（封装 `ioctl`）。三者首次出现，记住这条对应。
 
+## 整体架构
+
+![UMD 全栈分层 + kernel 直发旁路 KMD](../../../_attachments/grace/umd-arch/a1-stack-layers.png)
+
+> 图解源文件：[`a1-stack-layers.dot`](../../../_attachments/grace/umd-arch/src/a1-stack-layers.dot)
+
+一句话读图：应用 → `libaicart.so`（aica\* API → aigc:: 平台层 → device:: 抽象 → grace:: 后端）。**建立类**（malloc / stream / context）经 ajthunk 走 `ioctl` 下沉 KMD；**kernel launch** 由 grace `VirtualGPU` 写 host ring buffer + 敲 doorbell(MMIO)，HWS 下旁路 KMD 每包。
+
+读源码先认住命名空间分工：
+
+![命名空间 / 职责地图](../../../_attachments/grace/umd-arch/a2-namespace-map.png)
+
+> 图解源文件：[`a2-namespace-map.dot`](../../../_attachments/grace/umd-arch/src/a2-namespace-map.dot)
+
+## 子系统导航
+
+按子系统系统化通读全代码，每页架构级讲解 + Graphviz 图解（源码确认 2026-06-28）：
+
+| 子系统 | 页面 | 看什么 |
+|---|---|---|
+| 初始化 / 设备模型 | [[init-and-device-model\|运行时初始化与设备模型]] | `Runtime::init`/`aica::init` 时序、`g_devices`/`VirtualGPU`/TLS 对象图 |
+| kernel launch | [[kernel-launch\|kernel launch 全路径]] | `aicaLaunchKernel`→`KernelLaunchKit`→造命令→直发；`<<<>>>` 降级 |
+| stream/event/signal | [[streams-events-signals\|stream / event / signal]] | HostQueue、Event 状态机、Signal 三类、完成回路 |
+| code object / 注册 | [[code-object-and-registration\|code object 装载与注册]] | `__aicaRegister*`→StatCO、host桩→DeviceFunc、static/dynamic + COMGR |
+| 命令模型 / 队列 | [[command-model-and-queue\|命令模型与队列]] | Command 继承树、enqueue/直发/批处理、状态机 |
+| dispatch 直发 | [[packet-and-doorbell\|dispatch packet 与 doorbell]] | sendPacket 写 ring + doorbell；包类型与字段布局 |
+| 显存模型 | [[allocation-and-memory-model\|显存分配与内存对象模型]] · [[aica-memcpy-copy-command\|aicaMemcpy 造命令]] | 分配两条路、MemObjMap/Memory/mempool/IPC；拷贝命令 |
+| thunk / 同步 | [[thunk-and-sync\|thunk 边界与同步原语]] | thunk/ioctl vs 直发边界；Thread/Monitor/Semaphore/Signal |
+| 访问 / 构建 | [[wiki/grace/umd/dev/access-and-build\|访问、代码结构与构建]] | SSH 80.116、目录结构、`build_ex.sh` |
+
 ## 这是什么 / 不是什么
 
 - **是什么**：类 CUDA 的用户态运行时。会写 CUDA 的人几乎零成本上手：`cudaMalloc → aicaMalloc`，`<<<>>>` 还是 `<<<>>>`。
@@ -89,14 +119,6 @@ UMD 对外 API（`aica*`）→ 底层真实动作（源码确认）：
 
 - **`ajthunk` thunk 层**：子模块为空，`Thunk_*` 如何封装 `ioctl(AIP_*)` 仅从 UMD 侧反推。
 - **`libaicart` 的部分实现**：闭源 blob 形态，行为以对外 API + 包结构反推。
-
-## 开发维护（访问 80.116 / 代码结构 / 构建）
-
-- [[wiki/grace/umd/dev/access-and-build|UMD 开发维护：访问、代码结构与构建]]：怎么 SSH 上 80.116、`~/aigc-driver` 完整目录结构、`build_ex.sh` 编译与跑单测、git 远端/分支。日常改代码先看这页。
-
-## 源码细读
-
-- [[wiki/grace/umd/memory/aica-memcpy-copy-command|aicaMemcpy 怎么造拷贝命令（iaicaMemcpy 内部）]]：`aicaMemcpy → iaicaMemcpy → createCopyCommand → DMACopyCommand → enqueue/submit→submitDMACopy(SDMA)` 全链路，含「命令的一生」流程图 + `getCopyStrategy` 决策树（2 张 Graphviz 图）。
 
 ## 推荐阅读顺序
 

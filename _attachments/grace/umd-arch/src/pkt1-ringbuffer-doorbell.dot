@@ -1,0 +1,30 @@
+// kernel 直发：sendPacket 写 host ring buffer + 敲 doorbell
+// 源码确认 2026-06-28 gracevirtualgpu.cpp:629(sendPacket)/680/1172/1369
+digraph ring {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.42;
+
+  sk [label="VirtualGPU::submitKernel（:1369）\n→ submitKernelInternal（:1172）建 dispatch packet\n（_setupConstantMem 填 const_base 等）", fillcolor="#e5e9f0"];
+  dp [label="dispatchCommandPacket（:680）\n（必要时先发 barrier 处理依赖信号）", fillcolor="#eceff4"];
+
+  subgraph cluster_send {
+    label="sendPacket（gracevirtualgpu.cpp:629）";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#a3be8c"; style="rounded"; bgcolor="#f4f7f4";
+    s1 [label="load write_index（acquire）\nCHECK_AND_WAIT 环满则自旋", fillcolor="#eceff4"];
+    s2 [label="写包：base[write_index & queueMask] = *packet", fillcolor="#d8ead0", color="#a3be8c"];
+    s3 [label="StepWriteIndex → StoreWriteIndexRelease", fillcolor="#eceff4"];
+    s4 [label="UpdateDoorBellRelaxed(write_index)（MMIO 写）", fillcolor="#d8ead0", color="#a3be8c"];
+    s1 -> s2 -> s3 -> s4;
+  }
+
+  rb [label="host ring buffer（AICA_RB_ALLOC==1，host 内存）\n[pkt0][pkt1]...[pktN-1]  环形，write/read 指针带 toggle", shape=box, fillcolor="#eceff4"];
+  gpu [label="GraceC CP 固件\nDMA 取包 → 分派计算核执行 → 写 fence/置信号", fillcolor="#e5e9f0"];
+
+  sk -> dp -> s1 [lhead=cluster_send];
+  s2 -> rb [style=dashed, color="#a3be8c", label="落位", fontcolor="#5e8050"];
+  s4 -> gpu [label="通知有新包", color="#a3be8c", fontcolor="#5e8050", penwidth=1.5];
+  rb -> gpu [style=dashed, label="CP DMA 读", fontcolor="#7b8394"];
+}

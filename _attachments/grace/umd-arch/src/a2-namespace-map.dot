@@ -1,0 +1,23 @@
+// 命名空间 / 职责地图：读源码时认住这几层
+// 源码确认 2026-06-28
+digraph nsmap {
+  rankdir=LR; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.2,0.13"];
+  edge [color="#4c566a", arrowsize=0.7];
+  nodesep=0.35; ranksep=0.7;
+
+  aica   [label="aica*（无命名空间，C API）\n对外类 CUDA/HIP 接口\n例：aicaMalloc / aicaLaunchKernel", fillcolor="#e5e9f0"];
+  aigc   [label="aigc::\n平台/运行时通用层（host 侧）\nCommand · HostQueue · Memory · Signal · Program", fillcolor="#eceff4"];
+  dev    [label="device::\n设备抽象（与后端无关）\nVirtualDevice · Device · Kernel · Program", fillcolor="#eceff4"];
+  grace  [label="grace::\nGraceC 后端实现\nVirtualGPU · Device · Kernel · Program", fillcolor="#e8f0e6", color="#a3be8c"];
+  core   [label="core::\nHSA 式底层原语\nSignal · Queue · Isa", fillcolor="#eceff4"];
+  thunk  [label="ajthunk（Thunk_*）\n用户态→内核态 thunk\nROCt / libhsakmt 等价物", fillcolor="#e3effb", color="#81a1c1"];
+
+  rocm [label="对应 ROCm/HIP 原型\nhip* / amdgpu / ROCt / COMGR / HSA", shape=note, fillcolor="#fff7e6", color="#d0a070"];
+
+  aica -> aigc -> dev -> grace;
+  aigc -> core [style=dashed, label="用", fontname="Noto Sans CJK SC", fontsize=9, fontcolor="#7b8394"];
+  grace -> thunk [style=dashed, label="建立类经其下沉", fontname="Noto Sans CJK SC", fontsize=9, fontcolor="#7b8394"];
+  aica -> rocm [style=dotted, color="#d0a070", constraint=false, label="血缘", fontname="Noto Sans CJK SC", fontsize=9, fontcolor="#b08030"];
+}

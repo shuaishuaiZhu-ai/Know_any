@@ -1,0 +1,36 @@
+// 显存分配两条路：thunk 新分配 vs mempool 复用
+// 源码确认 2026-06-28 aica_memory.cpp / thunk_help.cpp:38 / aica_mempool_impl
+digraph alloc {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.45;
+
+  api [label="aicaMalloc(&p, n)\n→ iaicaMalloc → SvmBuffer::malloc", fillcolor="#e5e9f0"];
+  dec [label="来自内存池 (isFromMemPool) ?", shape=diamond, fillcolor="#eceff4", margin="0.05,0.05"];
+
+  subgraph cluster_pool {
+    label="mempool 复用（无 ioctl，快）";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#a3be8c"; style="rounded"; bgcolor="#f4f7f4";
+    p1 [label="Heap::FindMemory\n按 MemoryTimestamp 判断 stream/event 依赖已满足", fillcolor="#eceff4"];
+    p2 [label="复用空闲块（无需新分配）", fillcolor="#d8ead0", color="#a3be8c"];
+    p1 -> p2;
+  }
+
+  subgraph cluster_thunk {
+    label="经 thunk 新分配（建立类，走 ioctl）";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1"; style="rounded"; bgcolor="#f7f9fc";
+    t1 [label="thunk_help::allocateDeviceMemory（:38）\nKCreateMemoryWarp → Thunk_CreateMemory ioctl", fillcolor="#e3effb", color="#81a1c1"];
+    t2 [label="KMD 分物理页 + 建地址映射", fillcolor="#e3effb", color="#81a1c1"];
+    t3 [label="Thunk_Lock 拿 HVA（CPU 可访问映射）", fillcolor="#e3effb", color="#81a1c1"];
+    t1 -> t2 -> t3;
+  }
+
+  reg [label="登记到 MemObjMap（VA → aigc::Memory）\n返回 GPU 可用地址", fillcolor="#eceff4"];
+
+  api -> dec;
+  dec -> p1 [label="是"];
+  dec -> t1 [label="否"];
+  p2 -> reg; t3 -> reg;
+}

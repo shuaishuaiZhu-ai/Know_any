@@ -1,0 +1,29 @@
+// 启动注册链：编译器注入的 __aicaRegister* → StatCO 注册表
+// 源码确认 2026-06-28 src/aica_table_interface.cpp:48+ / aica_code_object.hpp
+digraph reg {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+        fontsize=12, color="#3b4252", penwidth=1.1, margin="0.18,0.11"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#4c566a", arrowsize=0.7];
+  nodesep=0.4; ranksep=0.45;
+
+  bin [label="可执行文件加载\n（链接器注入的 __aica 模块构造函数）", fillcolor="#e5e9f0"];
+
+  fat [label="__aicaRegisterFatBinary(data)\n校验 magic → addFatBinary", fillcolor="#eceff4"];
+  fn  [label="__aicaRegisterFunction(modules, hostFn, devName)\n建 Function（host桩→名字）", fillcolor="#eceff4"];
+  var [label="__aicaRegisterVar / __aicaRegisterManagedVar\n建 Var；managed 变量分配统一内存", fillcolor="#eceff4"];
+
+  subgraph cluster_co {
+    label="StatCO（静态 code object 注册表）  src/aica_code_object.hpp";
+    fontname="Noto Sans CJK SC"; fontsize=12; color="#81a1c1"; style="rounded"; bgcolor="#f7f9fc";
+    m1 [label="modules_：hostFn → FatBinaryInfo", fillcolor="#eceff4"];
+    m2 [label="functions_：hostFn → Function", fillcolor="#eceff4"];
+    m3 [label="vars_ / managedVars_", fillcolor="#eceff4"];
+  }
+
+  build [label="按 AICA_ENABLE_DEFERRED_LOADING：\n默认懒构建（首次 launch 时 BuildProgram）\n或启动即 eager 构建每设备 DeviceFunc", fillcolor="#fff7e6", color="#d0a070"];
+
+  bin -> fat -> fn -> var;
+  fat -> m1; fn -> m2; var -> m3;
+  m2 -> build [style=dashed, color="#d0a070"];
+}
