@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1010" height="680" viewBox="0 0 1010 680" font-family="Noto Sans CJK SC, sans-serif">
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#52606d"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.8" flood-color="#9aa5b1" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="1010" height="680" fill="#fffdf6"/>
+  <text x="300" y="34" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f2933">命令提交链路：从上下文到 CP 硬件</text>
+
+  <!-- 1 ctx -->
+  <g filter="url(#sh)"><rect x="80" y="52" width="440" height="68" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="300" y="80" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#243b53">① aigc_ctx 执行上下文</text>
+  <text x="300" y="103" font-size="11.5" text-anchor="middle" fill="#486581">拥有 VMID/地址空间 + qid 池 + 映射给进程的 doorbell 窗口</text>
+
+  <!-- 2 aqm -->
+  <g filter="url(#sh)"><rect x="80" y="150" width="440" height="86" rx="13" fill="#fff4e0" stroke="#d9a441" stroke-width="2.2"/></g>
+  <text x="300" y="178" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#8a5a00">② 队列管理器 aqm（建队列）</text>
+  <text x="300" y="201" font-size="11.5" text-anchor="middle" fill="#9a6a1a">填 MCQD（CP 队列描述符）并登记到硬件</text>
+  <text x="300" y="221" font-size="11" text-anchor="middle" fill="#9a6a1a">doorbell id = vmid*32+qid，ASID = VMID，active=1</text>
+
+  <!-- 3 cmd+pkt -->
+  <g filter="url(#sh)"><rect x="80" y="266" width="440" height="86" rx="13" fill="#e0f0ef" stroke="#5a9b97" stroke-width="2"/></g>
+  <text x="300" y="294" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#2f6b67">③ 建命令 + 组 CP 包</text>
+  <text x="300" y="317" font-size="11.5" text-anchor="middle" fill="#3a7a76">aigc_cmd_create() + aigc_cp_cmd_pkt 组包</text>
+  <text x="300" y="337" font-size="11" text-anchor="middle" fill="#6a8a86">本构建实现的是间接缓冲 IB（aigc_fill_indirect_pkt）</text>
+
+  <!-- 4 scheduler -->
+  <g filter="url(#sh)"><rect x="80" y="382" width="440" height="86" rx="13" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="300" y="410" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#2f6b3a">④ 调度 kthread</text>
+  <text x="300" y="433" font-size="11.5" text-anchor="middle" fill="#3a7a47">aigc_sched + default_scheduler</text>
+  <text x="300" y="453" font-size="11" text-anchor="middle" fill="#6a9a76">cond_func 挑命令 → sched_func 写环 → 敲门铃</text>
+
+  <!-- 5 cp ring -->
+  <g filter="url(#sh)"><rect x="80" y="498" width="440" height="86" rx="13" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2.2"/></g>
+  <text x="300" y="526" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#7a3f72">⑤ CP 硬件环</text>
+  <text x="300" y="549" font-size="11.5" text-anchor="middle" fill="#8a5082">wptr（软件生产）/ rptr（硬件消费）+ doorbell</text>
+  <text x="300" y="569" font-size="11" text-anchor="middle" fill="#8a5082">CP_REG_BASE/SIZE/RPTR/WPTR/FW；满判定留一空槽</text>
+
+  <!-- 6 cp exec -->
+  <g filter="url(#sh)"><rect x="120" y="614" width="360" height="52" rx="13" fill="#eceff3" stroke="#7b8794" stroke-width="2"/></g>
+  <text x="300" y="645" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#32404d">⑥ CP 取指执行（跳到 IB 内容）</text>
+
+  <!-- arrows -->
+  <line x1="300" y1="120" x2="300" y2="148" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="300" y1="236" x2="300" y2="264" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="300" y1="352" x2="300" y2="380" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="300" y1="468" x2="300" y2="496" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="300" y1="584" x2="300" y2="612" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+
+  <!-- side note: two policies -->
+  <g filter="url(#sh)"><rect x="558" y="150" width="430" height="160" rx="13" fill="#fffbe6" stroke="#c9a227" stroke-width="1.8"/></g>
+  <text x="773" y="178" font-size="13" font-weight="bold" text-anchor="middle" fill="#8a6d0f">队列怎么到硬件：两种策略</text>
+  <text x="576" y="204" font-size="11.5" font-weight="bold" fill="#7a611a">SCHED_POLICY_HWS（硬件调度）</text>
+  <text x="576" y="224" font-size="11" fill="#7a611a">填 MCQD 后给 CP 固件发 create-queue IPC，</text>
+  <text x="576" y="242" font-size="11" fill="#7a611a">由固件调度该队列。</text>
+  <text x="576" y="266" font-size="11.5" font-weight="bold" fill="#7a611a">SCHED_POLICY_NO_HWS（直接绑定）</text>
+  <text x="576" y="286" font-size="11" fill="#7a611a">allocate_hqd() 选硬件队列槽（当前恒 pipe0/q0），</text>
+  <text x="576" y="304" font-size="11" fill="#7a611a">用 aigc_hal_bind_queue 直接绑 (pipe,queue)。</text>
+
+  <!-- side note: doorbell -->
+  <g filter="url(#sh)"><rect x="558" y="498" width="430" height="86" rx="13" fill="#ffffff" stroke="#a86fa0" stroke-width="1.6"/></g>
+  <text x="773" y="524" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#7a3f72">门铃（doorbell）是关键动作</text>
+  <text x="773" y="547" font-size="11" text-anchor="middle" fill="#8a5082">把 wptr 写进 CP_REG_WPTR，</text>
+  <text x="773" y="566" font-size="11" text-anchor="middle" fill="#8a5082">就是告诉 GPU「有新命令了」。</text>
+</svg>
