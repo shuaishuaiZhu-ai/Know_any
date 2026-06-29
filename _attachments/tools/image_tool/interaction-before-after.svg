@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="600" viewBox="0 0 1180 600" role="img" aria-labelledby="t d">
+  <title id="t">交互提示改造前后对比</title>
+  <desc id="d">改造前四个参数无默认值必须手敲；改造后带默认值、回车即用、非法重输。soc_name 两版均硬编码。</desc>
+  <defs>
+    <style>
+      .title{font:800 26px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .sub{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .head{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .qw{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .box{fill:#ffffff;stroke:#d0d7de;stroke-width:1.4}
+      .deny{fill:#fdecec;stroke:#e08c8c;stroke-width:1.5}
+      .green{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.5}
+    </style>
+  </defs>
+  <rect width="1180" height="600" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="50" class="title">交互提示改造前后对比</text>
+  <text x="40" y="78" class="sub">改造前：无默认值，必须手敲；改造后：带 [默认值]，回车即用、非法重输。soc_name='gracec' 两版均硬编码。</text>
+
+  <rect x="60" y="112" width="500" height="50" rx="14" class="deny"/>
+  <text x="310" y="143" text-anchor="middle" class="head">改造前 · main cc1a244</text>
+  <rect x="620" y="112" width="500" height="50" rx="14" class="green"/>
+  <text x="870" y="143" text-anchor="middle" class="head">改造后 · 分支 756adeb</text>
+
+  <rect x="60" y="186" width="500" height="80" rx="14" class="box"/>
+  <text x="310" y="220" text-anchor="middle" class="head">① Input mode [normal, entry, debug]</text>
+  <text x="310" y="244" text-anchor="middle" class="small">无默认值 · 必须手敲</text>
+  <rect x="620" y="186" width="500" height="80" rx="14" class="box"/>
+  <text x="870" y="220" text-anchor="middle" class="head">① Input mode [normal, entry, debug] [normal]:</text>
+  <text x="870" y="244" text-anchor="middle" class="small">回车 = normal · 非法重输</text>
+
+  <rect x="60" y="284" width="500" height="80" rx="14" class="box"/>
+  <text x="310" y="318" text-anchor="middle" class="head">② Signature algorithm [rsa, sm2]</text>
+  <text x="310" y="342" text-anchor="middle" class="small">无默认值 · 必须手敲</text>
+  <rect x="620" y="284" width="500" height="80" rx="14" class="box"/>
+  <text x="870" y="318" text-anchor="middle" class="head">② Signature algorithm [rsa, sm2] [rsa]:</text>
+  <text x="870" y="342" text-anchor="middle" class="small">回车 = rsa · 非法重输</text>
+
+  <rect x="60" y="382" width="500" height="80" rx="14" class="box"/>
+  <text x="310" y="416" text-anchor="middle" class="head">③ CRC type [crc16, crc32]</text>
+  <text x="310" y="440" text-anchor="middle" class="small">无默认值 · 必须手敲</text>
+  <rect x="620" y="382" width="500" height="80" rx="14" class="box"/>
+  <text x="870" y="416" text-anchor="middle" class="head">③ CRC type [crc16, crc32] [crc16]:</text>
+  <text x="870" y="440" text-anchor="middle" class="small">回车 = crc16 · 非法重输</text>
+
+  <rect x="60" y="480" width="500" height="80" rx="14" class="box"/>
+  <text x="310" y="514" text-anchor="middle" class="head">④ Version of firmware</text>
+  <text x="310" y="538" text-anchor="middle" class="small">Example: 1.1.2 → 10102 · 必须手敲</text>
+  <rect x="620" y="480" width="500" height="80" rx="14" class="box"/>
+  <text x="870" y="514" text-anchor="middle" class="head">④ Version of firmware [10102]:</text>
+  <text x="870" y="538" text-anchor="middle" class="small">回车 = 10102 (=v1.1.2) · 非法重输</text>
+
+  <text x="40" y="585" class="sub">板型 soc_name='gracec' 在 main 即已硬编码；分支改为 generate_bin(args, soc_name) 显式传参，README 同步把示例从 5 提示订正为 4 提示。</text>
+</svg>

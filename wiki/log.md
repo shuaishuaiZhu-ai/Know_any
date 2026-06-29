@@ -2,12 +2,19 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-26
+updated: 2026-06-29
 tags:
   - meta
   - log
 status: active
 ---
+
+## [2026-06-29] add | image_tool AddDefault_value 分支设计文档（+ 5 张图解）
+
+- **新增** [image_tool AddDefault_value 分支设计](<./tools/image_tool AddDefault_value 分支设计.md>)（`wiki/tools/`）：GitLab 分支 `zss/AddDefault_value`（`main cc1a244 → 756adeb`，2 commit）的技术设计文档，覆盖默认值机制（`_DEFAULTS` + 仅未传参才提示）、`_check_runtime_deps` 依赖容错、`soc_name` 显式传参、`-j` 去 `argparse.FileType`、启动 `chdir`、`generate_key_and_sign` 的 `try/finally`、平台化退出，以及配套 `architecture.md`/README/`build_image.spec`/`excel2csv`(openpyxl) 改动；附本地未提交工作区重构（`_prompt_choice` 抽取 + `_DEFAULTS` 元组循环）一节。
+- **5 张图解**（`_attachments/tools/image_tool/`，手绘 SVG + PNG，按 `technical-diagram-generator` 工作流产出，过 `lint-svg-text-overlap` 校验 + 逐张视觉复核）：`interaction-before-after`（改造前后交互对比）、`default-resolution-flow`（默认值决策流）、`startup-deps-chdir-dispatch`（启动流程）、`normal-mode-dataflow-hardened`（normal 加固后数据流）、`module-deps-gmssl-pyinstaller`（模块依赖 + gmssl/PyInstaller）。
+- 关键事实订正：`soc_name='gracec'` 在 `main` 即已硬编码（diff 中为未改动上下文），分支仅把 `generate_bin(args)` 改为 `generate_bin(args, soc_name)` 显式传参 + README 把示例 5 提示订正为 4 提示，并非“从代码移除板型提示”。
+- 同步更新 [hub 页](<./tools/image_tool 固件镜像打包工具.md>)、[工具链知识库](<./tools/index.md>)、[Hot Cache](<./hot.md>)。改动未提交 git（待审阅）。
 
 ## [2026-06-28] add | UMD 全代码系统化落盘（8 分子系统页 + 17 张 Graphviz 图）
 

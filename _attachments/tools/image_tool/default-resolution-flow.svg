@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="480" viewBox="0 0 1180 480" role="img" aria-labelledby="t d">
+  <title id="t">默认值解析决策流</title>
+  <desc id="d">CLI 未传的参数才提示并带默认值；已传入的直接使用。适用于 mode / key / crc_type / fw_version。</desc>
+  <defs>
+    <style>
+      .title{font:800 26px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .sub{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .head{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .qw{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .box{fill:#ffffff;stroke:#d0d7de;stroke-width:1.4}
+      .dark{fill:#102027}
+      .green{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.5}
+      .amber{fill:#fff8e6;stroke:#edc870;stroke-width:1.5}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+      .yes{font:700 12.5px ui-sans-serif,sans-serif;fill:#2f9e57}
+      .no{font:700 12.5px ui-sans-serif,sans-serif;fill:#a06060}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="480" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="50" class="title">默认值解析决策流（mode / key / crc / version 通用）</text>
+  <text x="40" y="78" class="sub">CLI 未传 → 提示带 [默认值]，回车即用、非法重输；CLI 已传 → 直接使用，不提示。</text>
+
+  <rect x="470" y="110" width="240" height="56" rx="14" class="dark"/>
+  <text x="590" y="144" text-anchor="middle" class="qw">args = parse_args()</text>
+  <path d="M590 166 V210" class="line" marker-end="url(#ar)"/>
+
+  <polygon points="590,210 700,240 590,270 480,240" class="amber"/>
+  <text x="590" y="246" text-anchor="middle" class="head">args.X is None?</text>
+
+  <path d="M480 240 H360" class="line" marker-end="url(#ar)"/>
+  <text x="410" y="220" class="yes">是</text>
+  <rect x="120" y="200" width="240" height="80" rx="14" class="box"/>
+  <text x="240" y="234" text-anchor="middle" class="head">提示 X [default]</text>
+  <text x="240" y="258" text-anchor="middle" class="small">回车=默认 · 非法重输</text>
+
+  <path d="M700 240 H820" class="line" marker-end="url(#ar)"/>
+  <text x="740" y="220" class="no">否</text>
+  <rect x="820" y="200" width="240" height="80" rx="14" class="box"/>
+  <text x="940" y="234" text-anchor="middle" class="head">用 CLI 传入值</text>
+  <text x="940" y="258" text-anchor="middle" class="small">（不提示）</text>
+
+  <path d="M240 280 V360" class="line"/>
+  <path d="M940 280 V360" class="line"/>
+  <path d="M240 360 H940" class="line"/>
+  <path d="M590 360 V400" class="line" marker-end="url(#ar)"/>
+
+  <rect x="470" y="400" width="240" height="56" rx="14" class="green"/>
+  <text x="590" y="434" text-anchor="middle" class="head">进入模式分流</text>
+</svg>

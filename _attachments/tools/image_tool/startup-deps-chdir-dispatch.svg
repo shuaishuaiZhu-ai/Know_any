@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="800" viewBox="0 0 1180 800" role="img" aria-labelledby="t d">
+  <title id="t">启动流程：依赖检查 → chdir → 模式分流</title>
+  <desc id="d">parse_args 后先做 _check_runtime_deps（缺模块则横幅并退出），再 chdir 到 grace 目录，平台检查，解析 _DEFAULTS，最后按 mode 分流到 normal/debug/entry。</desc>
+  <defs>
+    <style>
+      .title{font:800 26px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .sub{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .head{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .qw{font:700 15px ui-sans-serif,system-ui,sans-serif;fill:#ffffff}
+      .box{fill:#ffffff;stroke:#d0d7de;stroke-width:1.4}
+      .dark{fill:#102027}
+      .green{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.5}
+      .askbox{fill:#eef3fb;stroke:#9ab4d8;stroke-width:1.5}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="800" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="50" class="title">启动流程：依赖检查 → chdir → 模式分流</text>
+  <text x="40" y="78" class="sub">parse_args → _check_runtime_deps（缺模块即横幅 + sys.exit）→ chdir 到 grace/ → 平台检查 → 解析 _DEFAULTS → 按 mode 分流。</text>
+
+  <rect x="470" y="110" width="240" height="56" rx="14" class="dark"/>
+  <text x="590" y="144" text-anchor="middle" class="qw">parser.parse_args()</text>
+  <path d="M590 166 V200" class="line" marker-end="url(#ar)"/>
+
+  <rect x="420" y="200" width="340" height="80" rx="14" class="box"/>
+  <text x="590" y="232" text-anchor="middle" class="head">_check_runtime_deps()</text>
+  <text x="590" y="256" text-anchor="middle" class="small">缺模块 → 横幅 + sys.exit(1)</text>
+  <path d="M590 280 V314" class="line" marker-end="url(#ar)"/>
+
+  <rect x="420" y="314" width="340" height="56" rx="14" class="box"/>
+  <text x="590" y="348" text-anchor="middle" class="head">chdir: frozen ? exe目录 : 脚本目录</text>
+  <path d="M590 370 V404" class="line" marker-end="url(#ar)"/>
+
+  <rect x="420" y="404" width="340" height="56" rx="14" class="box"/>
+  <text x="590" y="438" text-anchor="middle" class="head">平台检查 win32 / linux</text>
+  <path d="M590 460 V494" class="line" marker-end="url(#ar)"/>
+
+  <rect x="420" y="494" width="340" height="56" rx="14" class="box"/>
+  <text x="590" y="528" text-anchor="middle" class="head">解析 _DEFAULTS（None 才提示）</text>
+  <path d="M590 550 V584" class="line" marker-end="url(#ar)"/>
+
+  <rect x="470" y="584" width="240" height="56" rx="14" class="dark"/>
+  <text x="590" y="618" text-anchor="middle" class="qw">args.mode 分流</text>
+  <path d="M590 640 V660" class="line"/>
+  <path d="M230 660 H950" class="line"/>
+  <path d="M230 660 V700" class="line" marker-end="url(#ar)"/>
+  <path d="M590 660 V700" class="line" marker-end="url(#ar)"/>
+  <path d="M950 660 V700" class="line" marker-end="url(#ar)"/>
+
+  <rect x="80" y="700" width="300" height="70" rx="14" class="green"/>
+  <text x="230" y="734" text-anchor="middle" class="head">normal</text>
+  <text x="230" y="758" text-anchor="middle" class="small">generate_bin + bin_to_hex</text>
+
+  <rect x="440" y="700" width="300" height="70" rx="14" class="askbox"/>
+  <text x="590" y="734" text-anchor="middle" class="head">debug</text>
+  <text x="590" y="758" text-anchor="middle" class="small">verify_bin（校验已有 bin）</text>
+
+  <rect x="800" y="700" width="300" height="70" rx="14" class="box"/>
+  <text x="950" y="734" text-anchor="middle" class="head">entry</text>
+  <text x="950" y="758" text-anchor="middle" class="small">generate_entry_table</text>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="360" viewBox="0 0 1180 360" role="img" aria-labelledby="t d">
+  <title id="t">模块依赖 + gmssl / PyInstaller hiddenimports</title>
+  <desc id="d">build_image.py 经 secure.generate_key → crypto/sm2 → gmssl 的动态导入链；PyInstaller 静态分析检测不到，须在 spec 声明 hiddenimports。</desc>
+  <defs>
+    <style>
+      .title{font:800 26px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .sub{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .mono{font:700 12.5px ui-monospace,Menlo,Consolas,monospace;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .monow{font:700 12.5px ui-monospace,Menlo,Consolas,monospace;fill:#cfe6dc}
+      .smw{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#aebcc4}
+      .box{fill:#ffffff;stroke:#d0d7de;stroke-width:1.4}
+      .dark{fill:#102027}
+      .green{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.5}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+      .dash{stroke:#b08c5a;stroke-width:2.2;fill:none;stroke-dasharray:6 5;stroke-linecap:round}
+      .warn{font:700 12.5px ui-sans-serif,sans-serif;fill:#a06060}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b08c5a"/></marker>
+  </defs>
+  <rect width="1180" height="360" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="50" class="title">模块依赖 + gmssl / PyInstaller hiddenimports</text>
+  <text x="40" y="78" class="sub">动态导入链 build_image → secure.generate_key → crypto/sm2 → gmssl；PyInstaller 静态分析检测不到，须显式声明。</text>
+
+  <rect x="18" y="130" width="200" height="82" rx="14" class="dark"/>
+  <text x="118" y="164" text-anchor="middle" class="monow">build_image.py</text>
+  <text x="118" y="188" text-anchor="middle" class="smw">（入口）</text>
+  <path d="M218 171 H254" class="line" marker-end="url(#ar)"/>
+
+  <rect x="254" y="130" width="200" height="82" rx="14" class="box"/>
+  <text x="354" y="164" text-anchor="middle" class="mono">secure.generate_key</text>
+  <text x="354" y="188" text-anchor="middle" class="small">import 链起点</text>
+  <path d="M454 171 H490" class="line" marker-end="url(#ar)"/>
+
+  <rect x="490" y="130" width="200" height="82" rx="14" class="box"/>
+  <text x="590" y="164" text-anchor="middle" class="mono">secure/crypto/sm2.py</text>
+  <text x="590" y="188" text-anchor="middle" class="small">SM2 / SM3 实现</text>
+  <path d="M690 171 H726" class="line" marker-end="url(#ar)"/>
+
+  <rect x="726" y="130" width="200" height="82" rx="14" class="box"/>
+  <text x="826" y="164" text-anchor="middle" class="mono">gmssl</text>
+  <text x="826" y="188" text-anchor="middle" class="small">sm2, sm3, func</text>
+  <path d="M926 171 H962" class="dash" marker-end="url(#aw)"/>
+  <text x="944" y="138" text-anchor="middle" class="warn">静态盲点</text>
+
+  <rect x="962" y="130" width="200" height="82" rx="14" class="green"/>
+  <text x="1062" y="164" text-anchor="middle" class="mono">build_image.spec</text>
+  <text x="1062" y="188" text-anchor="middle" class="small">hiddenimports=[gmssl]</text>
+
+  <text x="40" y="260" class="small">其他 SDK 模块（include/src/emu/verify/table）均以 try/except 包裹 → 缺失记入 _missing_modules，由 _check_runtime_deps 拦截。</text>
+  <text x="40" y="284" class="small">外部依赖：RSA 走 cryptography；xlsx 解析走 openpyxl（替代已弃用 .xlsx 支持的 xlrd 2.x）。</text>
+</svg>
