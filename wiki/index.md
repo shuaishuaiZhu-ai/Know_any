@@ -2,7 +2,7 @@
 type: meta
 title: "Wiki 总索引"
 created: 2026-05-09
-updated: 2026-06-18
+updated: 2026-06-26
 tags:
   - meta
   - index
@@ -62,7 +62,7 @@ wiki/
 | 概念 | [FW 概念索引](<./grace/fw/concepts/index.md>) | HCQD、MCQD、IB、iDMA、Event Table、Command Packet。 |
 | 流程 | [FW 流程索引](<./grace/fw/flows/index.md>) | Host 到 FW 命令链路、多队列、多 context。 |
 | 性能 | [FW 性能索引](<./grace/fw/performance/index.md>) | candidate peek、cmd_entry 热路径、[GPGPU DVFS](<./grace/fw/performance/dvfs-gpgpu-fw.md>)、OPP/VF、timing。 |
-| 互联 | [FW Interconnect 索引](<./grace/fw/interconnect/index.md>) | **C2C_SS MAS v0.8 权威层**（[架构总览](<./grace/fw/interconnect/c2c-ss-architecture-overview.md>)/[帧格式](<./grace/fw/interconnect/c2c-frame-format-oisa-l2.md>)/[Adapter 内部](<./grace/fw/interconnect/c2c-adapter-internals.md>)/[时钟复位初始化](<./grace/fw/interconnect/c2c-clock-reset-init.md>)/[接口信号 RAS](<./grace/fw/interconnect/c2c-interface-signals-and-ras.md>)）+ AXI5、OISA、topo discovery、[portmap 路由表](<./grace/fw/interconnect/portmap-routing-table.md>)、[近端/远端环回](<./grace/fw/interconnect/c2c-loopback-near-far.md>)。⚠️ 本目录本地专属（gitignore，不上 GitHub）。 |
+| 互联 | [FW Interconnect 索引](<./grace/fw/interconnect/index.md>) | **C2C 学习路线 + MAS v0.8 权威层**（[Interconnect 索引](<./grace/fw/interconnect/index.md>) / [架构总览](<./grace/fw/interconnect/c2c-ss-architecture-overview.md>)/[帧格式](<./grace/fw/interconnect/c2c-frame-format-oisa-l2.md>)/[Adapter 内部](<./grace/fw/interconnect/c2c-adapter-internals.md>)/[时钟复位初始化](<./grace/fw/interconnect/c2c-clock-reset-init.md>)/[接口信号 RAS](<./grace/fw/interconnect/c2c-interface-signals-and-ras.md>)）+ AXI5、OISA、topo discovery、[portmap 路由表](<./grace/fw/interconnect/portmap-routing-table.md>)、[近端/远端环回](<./grace/fw/interconnect/c2c-loopback-near-far.md>)。⚠️ 本目录本地专属（gitignore，不上 GitHub）。 |
 | 调试 | [FW 调试索引](<./grace/fw/debug/index.md>) | PCIe bring-up 复盘合集、ringbuffer IPC/CLI 地址转换图解、SDMA、aigc_sdk 扫描。 |
 | 来源映射 | [GraceC CP MAS v1.4 code knowledge map](<./grace/fw/GraceC CP MAS v1.4 code knowledge map.md>) | MAS 文档与代码知识图谱、源材料对应关系。 |
 

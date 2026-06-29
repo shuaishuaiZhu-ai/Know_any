@@ -2,7 +2,7 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-25
+updated: 2026-06-26
 tags:
   - meta
   - log
@@ -40,6 +40,17 @@ status: active
   - [KMD 面试向深入](<./grace/kmd/kmd-interview-deep-dive.md>)、[CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)（含 fw1 控制/数据面图）
 - **关键源码纠正（ssh 116 实读 aigc-driver / ajthunk-kmd / fw，2026-06-26）**：① kernel launch 走 **UMD 直发 HWS**（UMD 写 host ringbuffer + 敲 doorbell MMIO，KMD 仅一次性建场、不经手每包）；② ringbuffer 在 **host 内存** 非 VRAM；③ **全栈只有一个 `0x10`**（推翻"两个 0x10"）；④ `aigc_ioctl_queue_submit` 当前 `return -EFAULT`，KMD INDIRECT/CP 环/kthread 是非主/演进路径，纠正 `command-submission-flow.md` 的主线误导；⑤ `aigc_kernel.o_binary` = KMD 闭源 x86-64 ELF blob，**不是 GPU kernel**。
 - 同步更新 [GraceC 芯片软硬件栈](<./grace/index.md>)（加 UMD 子域）、[overview 索引](<./grace/overview/index.md>)、[KMD 索引](<./grace/kmd/index.md>)、[FW 索引](<./grace/fw/index.md>)、[Wiki 总索引](<./index.md>)、[Hot Cache](<./hot.md>)。原 `whiteboard-mermaid/` 旧图保留未删（已无引用）。
+## [2026-06-26] update | C2C wiki learning-route rewrite and figure-reading guides
+
+- Updated [FW Interconnect 索引](<./grace/fw/interconnect/index.md>) into a staged C2C learning route: overview/layering, frame+Adapter, bring-up/RAS/loopback/portmap, and interview review.
+- Improved all 13 C2C interconnect pages with targeted reading guides, MAS figure interpretation, evidence boundaries, and cross-page study routes rather than adding many new pages.
+- Added source-backed learning diagrams under `_attachments/fw/interconnect/c2c/learning/` with editable SVG sources and rendered PNGs: learning route, data/config path, MACPHY 400G compare, OISA/L2 decision, AXI→VC mapping, Adapter TX/RX, PFC/Credit/VC buffer, bring-up, interface groups, loopback decision tree, and source authority map.
+
+## [2026-06-26] update | Explain C2C VC0 writefull/write packing format
+
+- Updated [C2C frame format: OISA and Ethernet](<./grace/fw/interconnect/c2c-frame-format-oisa-l2.md>) with a detailed explanation of Figure 3.8b and `packet = TLP Header + (writefull/write + wdata) * (1~4)`.
+- Clarified `writefull(frame_type=0111)` versus `write(frame_type=0001)`: `writefull` assumes the full 128B data beat is valid and has no `wstrb`; `write` carries an extra 16B `wstrb` for byte enables.
+- Added RX-side parsing logic using `frame count + frame_type`, plus design boundaries around same destination, ordering, timeout flush, and standalone Memory barrier frames.
 
 ## [2026-06-25] add | Kernel 端到端执行流程科普长文（跨 UMD→KMD→CP→硬件）
 
@@ -609,3 +620,5 @@ status: active
 - 更新 [all_skills:跨机器共享 Claude/Codex Skills 仓库](<ai/tools/all-skills-shared-repo.md>) 到 v2:install/push 改用 **Textual TUI**(分类 tab + 复选框,←/→ 切分类、↑/↓ + 空格勾选);未装 textual / 非 TTY / `--no-tui` 自动降级为 stdlib 编号选择。
 - install 先选**本机启用集**(存 `~/.agent-skills/selection.json`,不改共享 manifest;勾的复制、取消的移除、Codex 路由只列勾选);分类=混合(默认按来源,manifest `category` 覆盖)。新增 `push.py` 贡献脚本(自动收集 新增/更新 → 复选框 → commit&push)。
 - Key insight: TUI 标准化在脚本里(Textual + run_test 可 headless 验证),比"交给代理渲染复选框"更通用;`--only` 须用 `is not None` 判定,空串别当交互(踩过坑:误提交)。
+- 2026-06-26: 修订 C2C interconnect 全目录图片讲解质量，新增 PktComb 深拆图和 MACPHY 三路径图，去除 MACPHY 重复模块表，补充 Adapter/帧格式/clock/loopback 等页面的图内拆解。
+- 2026-06-29: Re-verified C2C image-decomposition update; fixed MACPHY three-path SVG connector-label overlap, re-rendered PNG, and passed SVG overlap, image-link, and UTF-8 marker checks.

@@ -2,7 +2,7 @@
 type: index
 title: "FW 技术知识库"
 created: 2026-05-14
-updated: 2026-06-08
+updated: 2026-06-26
 tags:
   - fw
   - index
@@ -24,18 +24,19 @@ status: active
 7. [CLI 索引](<./cli/index.md>)：看 agc_shell、USART、UART、RT-Thread 调度、输入 ringbuffer、Backspace 行编辑和 CP USART 移到 IMC 统一初始化。
 8. [RT-Thread 索引](<./rt-thread/index.md>)：看 yield/delay/ready queue 语义。
 9. [GPGPU FW DVFS 学习文档](<./performance/dvfs-gpgpu-fw.md>)：理解 OPP/VF 频点、DVFS 状态机、timing 和面试问法。
-10. **【C2C 权威层·先读】** [C2C_SS 架构总览（MAS v0.8）](<./interconnect/c2c-ss-architecture-overview.md>)：C2C_SS 是什么、直连/switch 拓扑、分层协议栈、两种 MACPHY wrapper、精确规格、data/config 双通路。
-11. **【C2C 权威层】** [C2C 帧格式详解：OISA 与标准以太](<./interconnect/c2c-frame-format-oisa-l2.md>)：帧头逐字段、PktType/frame_type 编码、4 VC、组包、拓扑/延时帧。
-12. **【C2C 权威层】** [C2C Adapter 内部数据通路](<./interconnect/c2c-adapter-internals.md>)：InputCtl/PktComb/PktEdit/PktSplit/OutputCtl、Credit/PFC、Early response、Atomic、FA、buffer 深度。
-13. **【C2C 权威层】** [C2C 时钟、复位与初始化](<./interconnect/c2c-clock-reset-init.md>)：时钟域/CRG/PLL、分级复位、bring-up、PHY power state、APB Matrix、JTAG。
-14. **【C2C 权威层】** [C2C 接口信号速查 + 中断与 RAS](<./interconnect/c2c-interface-signals-and-ras.md>)：全部对外信号分组、7 根中断线 + C2C_INT_STATUS、RAS 注错。
-    - **【C2C 面试·冲刺】** [C2C 面试题精讲（按重要度分梯队）](<./interconnect/c2c-interview-questions.md>)：12 道高频题分三梯队 + 参考答案 + 考点 + 追问 + 图解。
-15. [C2C 互联学习文档](<./interconnect/c2c-dingtalk-study.md>)：理解 LD/ST 互联、topo discovery、AMT route、OISA/L2 封装、loopback 和 RAS（钉钉来源·概念层）。
-16. [C2C PHY 近端环回与远端环回详解](<./interconnect/c2c-loopback-near-far.md>)：理解 NEP/NES/NES-ext/FEP/FES/FEP-err、Top/Adapter/LLRMAC 环回和调试选择顺序。
-17. [Portmap 路由表数字图解](<./interconnect/portmap-routing-table.md>)：理解 C2C/D2D portmap 表项如何由拓扑、下一跳策略和 serdes/ucie 编码得到。
-18. [C2C transaction routing 与 OISA/L2 封装](<./interconnect/c2c-transaction-routing-and-encapsulation.md>)：逐层解释 GPU/SDMA/TMA memory transaction 经过 NoC、AMT/top/mesh_router、portmap、C2C adapter、OISA MAC、switch L2 外壳和 SerDes 的运行时路径。
-19. [C2C 子系统结构图拆解](<./interconnect/c2c-macphy-wrapper-subsystem.md>)：按高分辨率 MACPHY_WRAPPER 图拆解 Adapter、LLRMAC、Hss112GX4Wrapper、x2/x4 port 和调试分层。
-20. [AXI5 协议详解与 C2C 中 AXI 的作用](<./interconnect/axi5-protocol-and-c2c-role.md>)：理解 AXI5 五通道、VALID/READY、burst、ID、atomic，以及 AXI 在 C2C adapter、AXI monitor、NoC 边界中的作用。
+10. **【C2C 学习路线·先读】** [FW Interconnect 索引](<./interconnect/index.md>)：按“总览与分层 → 帧与 Adapter → bring-up/RAS/loopback/portmap → 面试复习”阅读。
+11. **【C2C 权威层·总览】** [C2C_SS 架构总览（MAS v0.8）](<./interconnect/c2c-ss-architecture-overview.md>)：C2C_SS 是什么、直连/switch 拓扑、分层协议栈、两种 MACPHY wrapper、精确规格、data/config 双通路。
+12. **【C2C 权威层】** [C2C 帧格式详解：OISA 与标准以太](<./interconnect/c2c-frame-format-oisa-l2.md>)：帧头逐字段、PktType/frame_type 编码、4 VC、组包、拓扑/延时帧。
+13. **【C2C 权威层】** [C2C Adapter 内部数据通路](<./interconnect/c2c-adapter-internals.md>)：InputCtl/PktComb/PktEdit/PktSplit/OutputCtl、Credit/PFC、Early response、Atomic、FA、buffer 深度。
+14. **【C2C 权威层】** [C2C 时钟、复位与初始化](<./interconnect/c2c-clock-reset-init.md>)：时钟域/CRG/PLL、分级复位、bring-up、PHY power state、APB Matrix、JTAG。
+15. **【C2C 权威层】** [C2C 接口信号速查 + 中断与 RAS](<./interconnect/c2c-interface-signals-and-ras.md>)：全部对外信号分组、7 根中断线 + C2C_INT_STATUS、RAS 注错。
+16. **【C2C 面试·冲刺】** [C2C 面试题精讲（按重要度分梯队）](<./interconnect/c2c-interview-questions.md>)：12 道高频题分三梯队 + 参考答案 + 考点 + 追问 + 图解。
+17. [C2C 互联学习文档](<./interconnect/c2c-dingtalk-study.md>)：理解 LD/ST 互联、topo discovery、AMT route、OISA/L2 封装、loopback 和 RAS（钉钉来源·概念层）。
+18. [C2C PHY 近端环回与远端环回详解](<./interconnect/c2c-loopback-near-far.md>)：理解 NEP/NES/NES-ext/FEP/FES/FEP-err、Top/Adapter/LLRMAC 环回和调试选择顺序。
+19. [Portmap 路由表数字图解](<./interconnect/portmap-routing-table.md>)：理解 C2C/D2D portmap 表项如何由拓扑、下一跳策略和 serdes/ucie 编码得到。
+20. [C2C transaction routing 与 OISA/L2 封装](<./interconnect/c2c-transaction-routing-and-encapsulation.md>)：逐层解释 GPU/SDMA/TMA memory transaction 经过 NoC、AMT/top/mesh_router、portmap、C2C adapter、OISA MAC、switch L2 外壳和 SerDes 的运行时路径。
+21. [C2C 子系统结构图拆解](<./interconnect/c2c-macphy-wrapper-subsystem.md>)：按高分辨率 MACPHY_WRAPPER 图拆解 Adapter、LLRMAC、Hss112GX4Wrapper、x2/x4 port 和调试分层。
+22. [AXI5 协议详解与 C2C 中 AXI 的作用](<./interconnect/axi5-protocol-and-c2c-role.md>)：理解 AXI5 五通道、VALID/READY、burst、ID、atomic，以及 AXI 在 C2C adapter、AXI monitor、NoC 边界中的作用。
 
 ## 总图
 
