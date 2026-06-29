@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="690" viewBox="0 0 1040 690" font-family="Noto Sans CJK SC, sans-serif">
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#52606d"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.8" flood-color="#9aa5b1" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="1040" height="690" fill="#fffdf6"/>
+  <text x="520" y="34" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f2933">Grace HAL：硬件块与实现状态</text>
+
+  <!-- core -->
+  <g filter="url(#sh)"><rect x="360" y="52" width="320" height="46" rx="12" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="520" y="80" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#2f6b3a">可移植核心 kmdlib</text>
+
+  <!-- hal layer -->
+  <g filter="url(#sh)"><rect x="300" y="120" width="440" height="56" rx="12" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="520" y="145" font-size="13" font-weight="bold" text-anchor="middle" fill="#243b53">aigc_hal.c 函数指针间接层 → lib_dev-&gt;hal</text>
+  <text x="520" y="165" font-size="11" text-anchor="middle" fill="#486581">当前无运行时后端选择，恒走 grace_hal_init（多后端是 TODO）</text>
+
+  <line x1="520" y1="98" x2="520" y2="118" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="520" y1="176" x2="520" y2="214" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+
+  <!-- grid blocks -->
+  <!-- row1 -->
+  <g filter="url(#sh)"><rect x="60" y="218" width="290" height="96" rx="12" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="205" y="248" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f6b3a">CP 命令处理器</text>
+  <text x="205" y="271" font-size="11" text-anchor="middle" fill="#3a7a47">真寄存器驱动：主/响应环、IPC、</text>
+  <text x="205" y="289" font-size="11" text-anchor="middle" fill="#3a7a47">MCQD 绑队列（grace_cp.c）</text>
+
+  <g filter="url(#sh)"><rect x="375" y="218" width="290" height="96" rx="12" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="520" y="248" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f6b3a">arch 架构 / cluster</text>
+  <text x="520" y="271" font-size="11" text-anchor="middle" fill="#3a7a47">真寄存器驱动（用得最重）：</text>
+  <text x="520" y="289" font-size="11" text-anchor="middle" fill="#3a7a47">die/GPU id、cluster 发现、性能计数</text>
+
+  <g filter="url(#sh)"><rect x="690" y="218" width="290" height="96" rx="12" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="835" y="248" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f6b3a">IMC 固件邮箱</text>
+  <text x="835" y="271" font-size="11" text-anchor="middle" fill="#3a7a47">真固件邮箱驱动：host↔IMC 两环</text>
+  <text x="835" y="289" font-size="11" text-anchor="middle" fill="#3a7a47">reset / fw 更新 / start-stage</text>
+
+  <!-- row2 -->
+  <g filter="url(#sh)"><rect x="60" y="338" width="290" height="96" rx="12" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="205" y="368" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f6b3a">L2C 缓存 + TSV/ECC</text>
+  <text x="205" y="391" font-size="11" text-anchor="middle" fill="#3a7a47">真寄存器驱动：remap 错误中断、</text>
+  <text x="205" y="409" font-size="11" text-anchor="middle" fill="#3a7a47">每 cluster 16 banks flush</text>
+
+  <g filter="url(#sh)"><rect x="375" y="338" width="290" height="96" rx="12" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="520" y="368" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f6b3a">TCU 翻译 / SMMU</text>
+  <text x="520" y="391" font-size="11" text-anchor="middle" fill="#3a7a47">真寄存器驱动：ASID 失效、</text>
+  <text x="520" y="409" font-size="11" text-anchor="middle" fill="#3a7a47">翻译故障处理（仅 KMD_BACKEND==1）</text>
+
+  <g filter="url(#sh)"><rect x="690" y="338" width="290" height="96" rx="12" fill="#eef7ee" stroke="#5a9367" stroke-width="1.8" stroke-dasharray="2 0"/></g>
+  <text x="835" y="368" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f6b3a">link 互联编排</text>
+  <text x="835" y="391" font-size="11" text-anchor="middle" fill="#3a7a47">编排逻辑真实，但跑在桩后端上：</text>
+  <text x="835" y="409" font-size="11" text-anchor="middle" fill="#7a8a99">2×D2D + 1×C2C 发现/汇总</text>
+
+  <!-- row3 stubs -->
+  <g filter="url(#sh)"><rect x="60" y="458" width="290" height="96" rx="12" fill="#fff4e0" stroke="#d9a441" stroke-width="2"/></g>
+  <text x="205" y="488" font-size="14" font-weight="bold" text-anchor="middle" fill="#8a5a00">C2C 芯片间</text>
+  <text x="205" y="511" font-size="11" text-anchor="middle" fill="#9a6a1a">多为桩：叶子 op 只 log/返成功；</text>
+  <text x="205" y="529" font-size="11" text-anchor="middle" fill="#9a6a1a">port-map 纯计算是真的</text>
+
+  <g filter="url(#sh)"><rect x="375" y="458" width="290" height="96" rx="12" fill="#fff4e0" stroke="#d9a441" stroke-width="2"/></g>
+  <text x="520" y="488" font-size="14" font-weight="bold" text-anchor="middle" fill="#8a5a00">D2D 裸片间（UCIe）</text>
+  <text x="520" y="511" font-size="11" text-anchor="middle" fill="#9a6a1a">多为桩：链路训练由固件做；</text>
+  <text x="520" y="529" font-size="11" text-anchor="middle" fill="#9a6a1a">固定拓扑计算是真的</text>
+
+  <g filter="url(#sh)"><rect x="690" y="458" width="290" height="96" rx="12" fill="#eceff3" stroke="#7b8794" stroke-width="2"/></g>
+  <text x="835" y="488" font-size="14" font-weight="bold" text-anchor="middle" fill="#32404d">link_ipc</text>
+  <text x="835" y="511" font-size="11" text-anchor="middle" fill="#5d6b79">默认 DUMMY 模式：</text>
+  <text x="835" y="529" font-size="11" text-anchor="middle" fill="#5d6b79">所有 link IPC 流量是假的</text>
+
+  <!-- legend -->
+  <g filter="url(#sh)"><rect x="60" y="588" width="920" height="80" rx="12" fill="#ffffff" stroke="#7b93ad" stroke-width="1.4"/></g>
+  <rect x="86" y="612" width="22" height="16" rx="4" fill="#e3f0e3" stroke="#5a9367"/>
+  <text x="118" y="625" font-size="11.5" fill="#2f6b3a">真寄存器 / 固件驱动</text>
+  <rect x="330" y="612" width="22" height="16" rx="4" fill="#fff4e0" stroke="#d9a441"/>
+  <text x="362" y="625" font-size="11.5" fill="#8a5a00">多为 bring-up 桩（部分纯计算真实）</text>
+  <rect x="700" y="612" width="22" height="16" rx="4" fill="#eceff3" stroke="#7b8794"/>
+  <text x="732" y="625" font-size="11.5" fill="#32404d">默认 dummy / 无真实流量</text>
+  <text x="520" y="652" font-size="11" text-anchor="middle" fill="#7a8a99">封闭 GPU「kernel」逻辑以预编译 aigc_kernel.o_binary 链入；这里描述的是开放的 OS/驱动与 HAL 胶水。</text>
+</svg>
