@@ -1,0 +1,36 @@
+// kmd 三层架构：驱动入口层 / 可移植核心 / Grace HAL
+digraph layers {
+  rankdir=TB;
+  bgcolor="white";
+  compound=true;
+  fontname="Noto Sans CJK SC";
+  node [fontname="Noto Sans CJK SC", fontsize=11, shape=box,
+        style="rounded,filled", color="#9fb3c8", fillcolor="#ffffff", margin="0.18,0.10"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#52606d"];
+
+  subgraph cluster_entry {
+    label="① 驱动入口层  kmd/aigc/*.c  （唯一允许直接调 Linux 内核 API）";
+    fontsize=12; style="filled"; color="#d9a441"; fillcolor="#fff4e0";
+    drv  [label="aigc_drv.c\nPCI probe / BAR / MSI-X / 模块参数"];
+    ioc  [label="aigc_ioctl.c\nfops + 第一级 ioctl 校验"];
+    osif [label="os_interface.c\n唯一 #include <linux/*> 的文件", fillcolor="#ffe3c2"];
+  }
+
+  subgraph cluster_core {
+    label="② 可移植核心  kmd/aigc/kmdlib/*  （OS 无关，只走 os_* 包装）";
+    fontsize=12; style="filled"; color="#5a9367"; fillcolor="#e8f4e8";
+    fops [label="aigc_fops.c\n第二级派发 + 各 aigc_ioctl_* 处理函数"];
+    sub  [label="ctx · devm · page_table · mem_handle\ncp_ring · sched · interrupt · fence · fw_update"];
+  }
+
+  subgraph cluster_hal {
+    label="③ Grace HAL  kmdlib/hal/grace/* + regs/*  （芯片专属后端）";
+    fontsize=12; style="filled"; color="#a86fa0"; fillcolor="#f6e8f3";
+    hal [label="CP · arch · IMC · L2C · TCU\nC2C · D2D · link   +   寄存器布局"];
+  }
+
+  ioc  -> fops [label="aigc_lib_ioctl()", lhead=cluster_core, ltail=cluster_entry];
+  fops -> sub  [style=invis];
+  sub  -> hal  [label="aigc_hal_* 函数指针", lhead=cluster_hal];
+  osif -> sub  [label="os_* 包装（可移植性缝隙）", style=dashed, color="#d9a441", constraint=false];
+}

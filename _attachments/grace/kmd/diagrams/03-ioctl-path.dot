@@ -1,0 +1,24 @@
+// 一次 ioctl 的请求路径：从 open 到 HAL
+digraph ioctl_path {
+  rankdir=TB;
+  bgcolor="white";
+  fontname="Noto Sans CJK SC";
+  node [fontname="Noto Sans CJK SC", fontsize=11, shape=box,
+        style="rounded,filled", color="#9fb3c8", fillcolor="#eef3fb", margin="0.22,0.13"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#52606d", penwidth=1.3];
+
+  open [label="① open(\"/dev/aigcN\")\naigc_open → aigc_lib_open()\n分配每-fd 的 aigc_vdev，存入 file->private_data"];
+  val  [label="② ioctl(fd, cmd, arg)\naigc_ioctl()：解出 _IOC_NR / _IOC_SIZE\n对照 aigc_ioctl_tbl[] 安检\n编号越界或 .cmd 不精确匹配 → -EINVAL",
+        fillcolor="#fff4e0", color="#d9a441"];
+  disp [label="③ aigc_lib_ioctl()  第二级派发\n用 [AIP_x] = handler 表按编号取处理函数",
+        fillcolor="#e8f4e8", color="#5a9367"];
+  hdl  [label="④ aigc_ioctl_*()  处理函数\nos_memcpy_from/to_user 拷参\n驱动 ctx / vm / 页表 / 命令 / fence"];
+  hal  [label="⑤ aigc_hal_*  入口\n经 ops 表落到 Grace 后端（寄存器/IPC）",
+        fillcolor="#f6e8f3", color="#a86fa0"];
+
+  open -> val -> disp -> hdl -> hal;
+
+  note [shape=note, fillcolor="#fffbe6", color="#c9a227",
+        label="两张表（第一级校验表 + 第二级派发表）都由\n同一个 X-macro 头 aigc_ioctl_tab.h 生成，\n因此永不漂移，并与用户态 AIP_* 枚举同步。"];
+  note -> disp [style=dashed, color="#c9a227", arrowhead=none, constraint=false];
+}
