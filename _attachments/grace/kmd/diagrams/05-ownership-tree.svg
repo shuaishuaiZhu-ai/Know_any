@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="780" viewBox="0 0 1000 780" font-family="Noto Sans CJK SC, sans-serif">
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#52606d"/>
+    </marker>
+    <marker id="ap" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#a86fa0"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.8" flood-color="#9aa5b1" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="1000" height="780" fill="#fffdf6"/>
+  <text x="360" y="26" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f2933">kmd 核心对象的所有权树</text>
+
+  <!-- aigc -->
+  <g filter="url(#sh)"><rect x="250" y="36" width="220" height="62" rx="13" fill="#eceff3" stroke="#7b8794" stroke-width="2"/></g>
+  <text x="360" y="62" font-size="14" font-weight="bold" text-anchor="middle" fill="#32404d">struct aigc</text>
+  <text x="360" y="84" font-size="11.5" text-anchor="middle" fill="#5d6b79">PCI / 驱动侧 (aigc_drv.h)</text>
+
+  <!-- lib_device -->
+  <g filter="url(#sh)"><rect x="235" y="128" width="250" height="74" rx="13" fill="#e3f0e3" stroke="#5a9367" stroke-width="2.4"/></g>
+  <text x="360" y="156" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f6b3a">struct aigc_lib_device</text>
+  <text x="360" y="180" font-size="11.5" text-anchor="middle" fill="#3a7a47">可移植核心根对象 (aigc_lib_dev.h)</text>
+
+  <!-- vdev -->
+  <g filter="url(#sh)"><rect x="250" y="234" width="220" height="60" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="360" y="260" font-size="14" font-weight="bold" text-anchor="middle" fill="#243b53">struct aigc_vdev</text>
+  <text x="360" y="282" font-size="11.5" text-anchor="middle" fill="#486581">每个打开的 fd（一个客户端）</text>
+
+  <!-- ctx -->
+  <g filter="url(#sh)"><rect x="250" y="330" width="220" height="60" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="360" y="356" font-size="14" font-weight="bold" text-anchor="middle" fill="#243b53">struct aigc_ctx</text>
+  <text x="360" y="378" font-size="11.5" text-anchor="middle" fill="#486581">执行上下文 / VMID</text>
+
+  <!-- vm -->
+  <g filter="url(#sh)"><rect x="40" y="436" width="200" height="58" rx="12" fill="#e0f0ef" stroke="#5a9b97" stroke-width="2"/></g>
+  <text x="140" y="461" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#2f6b67">struct aigc_vm</text>
+  <text x="140" y="482" font-size="11.5" text-anchor="middle" fill="#3a7a76">地址空间 / VMID</text>
+  <!-- pgt -->
+  <g filter="url(#sh)"><rect x="40" y="536" width="200" height="60" rx="12" fill="#e0f0ef" stroke="#5a9b97" stroke-width="2"/></g>
+  <text x="140" y="561" font-size="13" font-weight="bold" text-anchor="middle" fill="#2f6b67">aigc_vm_pg_table</text>
+  <text x="140" y="582" font-size="11.5" text-anchor="middle" fill="#3a7a76">4 级页表</text>
+
+  <!-- mem_handle -->
+  <g filter="url(#sh)"><rect x="255" y="436" width="210" height="58" rx="12" fill="#fff4e0" stroke="#d9a441" stroke-width="2"/></g>
+  <text x="360" y="461" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#8a5a00">struct mem_handle</text>
+  <text x="360" y="482" font-size="11.5" text-anchor="middle" fill="#9a6a1a">一次内存分配</text>
+  <!-- pma -->
+  <g filter="url(#sh)"><rect x="255" y="536" width="210" height="60" rx="12" fill="#fff4e0" stroke="#d9a441" stroke-width="2"/></g>
+  <text x="360" y="561" font-size="13" font-weight="bold" text-anchor="middle" fill="#8a5a00">struct aigc_vm_pma</text>
+  <text x="360" y="582" font-size="11.5" text-anchor="middle" fill="#9a6a1a">后端物理页 / DPA</text>
+
+  <!-- cmd_queue -->
+  <g filter="url(#sh)"><rect x="485" y="436" width="210" height="58" rx="12" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2"/></g>
+  <text x="590" y="461" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#7a3f72">aigc_cmd_queue</text>
+  <text x="590" y="482" font-size="11.5" text-anchor="middle" fill="#8a5082">提交队列</text>
+  <!-- cmd -->
+  <g filter="url(#sh)"><rect x="485" y="536" width="210" height="60" rx="12" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2"/></g>
+  <text x="590" y="561" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#7a3f72">struct aigc_cmd</text>
+  <text x="590" y="582" font-size="11.5" text-anchor="middle" fill="#8a5082">一个命令包</text>
+
+  <!-- pools -->
+  <g filter="url(#sh)"><rect x="720" y="234" width="240" height="60" rx="12" fill="#eaf6ea" stroke="#5a9367" stroke-width="1.8"/></g>
+  <text x="840" y="260" font-size="13" font-weight="bold" text-anchor="middle" fill="#2f6b3a">VMID 池 + 显存池</text>
+  <text x="840" y="282" font-size="11.5" text-anchor="middle" fill="#3a7a47">vmid_pool / numa_node[][]</text>
+
+  <!-- hal_cp -->
+  <g filter="url(#sh)"><rect x="735" y="650" width="255" height="74" rx="13" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2.2"/></g>
+  <text x="862" y="678" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#7a3f72">struct aigc_hal_cp</text>
+  <text x="862" y="701" font-size="11.5" text-anchor="middle" fill="#8a5082">CP 主/响应环 + MCQD (grace_cp.h)</text>
+
+  <!-- arrows spine -->
+  <line x1="360" y1="98" x2="360" y2="126" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <text x="370" y="116" font-size="11" fill="#52606d">嵌入 inline</text>
+  <line x1="360" y1="202" x2="360" y2="232" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <text x="370" y="221" font-size="11" fill="#52606d">all_vdevs</text>
+  <line x1="360" y1="294" x2="360" y2="328" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <text x="370" y="315" font-size="11" fill="#52606d">ctx_head</text>
+
+  <!-- ctx children -->
+  <path d="M300,390 C230,405 170,420 145,434" fill="none" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <text x="190" y="412" font-size="11" fill="#52606d">vm</text>
+  <line x1="360" y1="390" x2="360" y2="434" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <text x="368" y="416" font-size="11" fill="#52606d">mem_head</text>
+  <path d="M420,390 C500,405 560,420 585,434" fill="none" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <text x="520" y="412" font-size="11" fill="#52606d">cq_head</text>
+
+  <!-- grandchildren -->
+  <line x1="140" y1="494" x2="140" y2="534" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <text x="148" y="520" font-size="11" fill="#52606d">pgt</text>
+  <line x1="360" y1="494" x2="360" y2="534" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <text x="368" y="520" font-size="11" fill="#52606d">pma</text>
+  <line x1="590" y1="494" x2="590" y2="534" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <text x="598" y="520" font-size="11" fill="#52606d">cmd_head</text>
+
+  <!-- lib_device -> pools -->
+  <path d="M485,160 C620,175 690,230 718,252" fill="none" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <text x="560" y="200" font-size="11" fill="#52606d">vmid_pool / numa</text>
+
+  <!-- lib_device -> hal_cp (right gutter) -->
+  <path d="M485,176 C780,168 985,210 985,430 C985,580 940,648 908,652" fill="none" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <text x="978" y="340" font-size="11" fill="#52606d" text-anchor="end">hal.hal_cp</text>
+
+  <!-- cmd -> hal_cp -->
+  <path d="M650,596 C695,616 720,636 760,650" fill="none" stroke="#a86fa0" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ap)"/>
+  <text x="690" y="630" font-size="10.5" text-anchor="middle" fill="#9a5a90">umq_desc→MCQD</text>
+</svg>
