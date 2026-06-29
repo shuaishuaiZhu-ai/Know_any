@@ -142,6 +142,9 @@ int main() {
 
 为什么要那张表？你在 host 写的 `add1` 是个普通 C++ 函数符号，GPU 不认识它。运行时靠这张表，才能在 `add1<<<...>>>(...)` 时反查到“device 上那段 kernel 二进制”和它的入口地址。
 
+> ⚠️ **别误会“device 上的 kernel”一开始就在显存里**：编译产物（含 fatbin 里的 GPU ISA）**最初全在 host 内存**。注册后程序构建（`BuildProgram`）时，`LightningProgram::copyTextSeg` 才把 `.text`（kernel ISA）**从 host 搬进显存**：先 `memcpy` 进 4K 对齐 host 缓冲，再按 `isSupportSDMA()` 选择——支持则 `gpu_agent->DmaCopy`（**走 SDMA/blit copy 包** `aica_sdma_packet_t`）搬进 `allocateExec()` 分配的可执行显存，不支持则经 host 映射 `memcpy_in_byte` 直写。**搬完做一次校验** `assert_equal_random`（≥20 字节随机抽 10 字节比对、<20 全量，轻量 sanity check）。这块显存地址写进表右侧（`setKernelCodeHandle`/`SetKernelCodeDevAddr`），后续成为命令包里 `icache_base`+`init_pc` 的来源。所以表右侧的“device 上的 kernel”，是**装载+校验之后**才落进显存的。
+> **对应源码**：`src/device/grace/graceprogram.cpp`（`copyTextSeg`/`mapToDevice`）、`src/platform/blit_kernel.cpp`（SDMA）、`src/utils/debug.cpp`（`assert_equal_random`）。
+
 **对应源码**：`~/aigc-driver/src/aica_platform.cpp`（`RegisterFatBinary` / `RegisterFunction` / `PlatformState::init`）。
 
 ### 2.3 `aicaMalloc` / `aicaMemcpy`

@@ -622,3 +622,4 @@ status: active
 - Key insight: TUI 标准化在脚本里(Textual + run_test 可 headless 验证),比"交给代理渲染复选框"更通用;`--only` 须用 `is not None` 判定,空串别当交互(踩过坑:误提交)。
 - 2026-06-26: 修订 C2C interconnect 全目录图片讲解质量，新增 PktComb 深拆图和 MACPHY 三路径图，去除 MACPHY 重复模块表，补充 Adapter/帧格式/clock/loopback 等页面的图内拆解。
 - 2026-06-29: Re-verified C2C image-decomposition update; fixed MACPHY three-path SVG connector-label overlap, re-rendered PNG, and passed SVG overlap, image-link, and UTF-8 marker checks.
+- 2026-06-29: saxpy-kernel-end-to-end 2.2 节补 host→device ISA 装载说明（`copyTextSeg` 经 SDMA/blit 或 host-map memcpy 把 `.text` 搬进显存，`assert_equal_random` 抽样校验，显存地址再成为命令包 `init_pc`/`icache_base` 来源）。
