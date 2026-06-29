@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 540" font-family="'Comic Sans MS','Segoe Print','Bradley Hand',cursive">
+  <rect width="1360" height="540" fill="#fbfbf7"/>
+  <style>
+    .ti { font-size: 26px; font-weight: 700; fill: #2b2b2b; }
+    .lb { font-size: 17px; font-weight: 700; fill: #2b2b2b; }
+    .sm { font-size: 14px; fill: #444; }
+    .xs { font-size: 12px; fill: #666; }
+    .el { font-size: 13px; font-weight: 700; fill: #526672; }
+    .ct { font-size: 16px; font-weight: 700; fill: #6b7480; }
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,1 L10,5 L0,9" fill="none" stroke="#444" stroke-width="2"/>
+    </marker>
+  </defs>
+  <text x="40" y="46" class="ti">一次编译，两份产物：.cu 怎么变成能跑的 ELF</text>
+
+  <!-- .cu source -->
+  <g>
+    <rect x="40" y="115" width="205" height="105" rx="14" fill="#eaf2fd" stroke="#6fa8e6" stroke-width="2.5"/>
+    <text x="62" y="148" class="lb">test_saxpy_op.cu</text>
+    <text x="62" y="176" class="sm">host main 入口</text>
+    <text x="62" y="198" class="sm">+ __global__ add1</text>
+  </g>
+  <!-- clang -->
+  <g>
+    <rect x="290" y="115" width="210" height="105" rx="14" fill="#eaf2fd" stroke="#6fa8e6" stroke-width="2.5"/>
+    <text x="312" y="148" class="lb">clang -x aica</text>
+    <text x="312" y="174" class="sm">单趟编译，一条命令</text>
+    <text x="312" y="198" class="xs">/usr/local/aica/bin/clang</text>
+  </g>
+  <!-- cluster: two products -->
+  <g>
+    <rect x="540" y="78" width="300" height="244" rx="16" fill="#ffffff" stroke="#b9c2cb" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="562" y="105" class="ct">一次编译 → 两份机器码</text>
+    <rect x="562" y="120" width="256" height="80" rx="12" fill="#f4f6f8" stroke="#9aa6b2" stroke-width="2.2"/>
+    <text x="582" y="150" class="lb">host x86 机器码</text>
+    <text x="582" y="178" class="sm">main 等 CPU 侧逻辑</text>
+    <rect x="562" y="212" width="256" height="98" rx="12" fill="#f1ecfb" stroke="#a385e0" stroke-width="2.4"/>
+    <text x="582" y="240" class="lb">device kernel 二进制</text>
+    <text x="582" y="264" class="sm">triple aicagcn-aica-aicahsa-</text>
+    <text x="582" y="286" class="xs">独立形态 .co（code object）</text>
+  </g>
+  <!-- fatbin -->
+  <g>
+    <rect x="880" y="214" width="205" height="96" rx="14" fill="#fff7e3" stroke="#e6bd5c" stroke-width="2.5"/>
+    <text x="900" y="244" class="lb">fatbin</text>
+    <text x="900" y="268" class="sm" font-size="12">__CLANG_OFFLOAD_</text>
+    <text x="900" y="290" class="sm" font-size="12">BUNDLE__ 打包</text>
+  </g>
+  <!-- ELF -->
+  <g>
+    <rect x="1135" y="120" width="195" height="130" rx="14" fill="#fff7e3" stroke="#e6bd5c" stroke-width="2.5"/>
+    <text x="1156" y="152" class="lb">单个可执行 ELF</text>
+    <text x="1156" y="180" class="sm">肚子里同时装</text>
+    <text x="1156" y="202" class="sm">CPU 代码</text>
+    <text x="1156" y="224" class="sm">+ GPU kernel</text>
+  </g>
+  <!-- runtime register -->
+  <g>
+    <rect x="1065" y="368" width="200" height="120" rx="14" fill="#e6f6ef" stroke="#56bf93" stroke-width="2.5"/>
+    <text x="1086" y="400" class="lb">运行时自动注册</text>
+    <text x="1086" y="426" class="xs">__aicaRegisterFatBinary</text>
+    <text x="1086" y="448" class="sm">→ RegisterFunction</text>
+  </g>
+  <!-- symbol table -->
+  <g>
+    <rect x="430" y="368" width="265" height="120" rx="14" fill="#e6f6ef" stroke="#56bf93" stroke-width="2.5"/>
+    <text x="451" y="400" class="lb">符号表</text>
+    <text x="451" y="426" class="sm">host &amp;add1 → device kernel</text>
+    <text x="451" y="450" class="xs">launch 时靠它反查 init_pc</text>
+  </g>
+
+  <!-- edges -->
+  <line x1="245" y1="167" x2="285" y2="167" stroke="#444" stroke-width="2.5" marker-end="url(#ah)"/>
+  <line x1="500" y1="155" x2="558" y2="160" stroke="#444" stroke-width="2.5" marker-end="url(#ah)"/>
+  <line x1="500" y1="185" x2="558" y2="250" stroke="#444" stroke-width="2.5" marker-end="url(#ah)"/>
+  <line x1="818" y1="262" x2="876" y2="262" stroke="#444" stroke-width="2.5" marker-end="url(#ah)"/>
+  <rect x="828" y="232" width="44" height="20" fill="#fbfbf7"/>
+  <text x="831" y="247" class="el">打包</text>
+  <path d="M818,160 L1131,168" fill="none" stroke="#444" stroke-width="2.5" marker-end="url(#ah)"/>
+  <rect x="955" y="140" width="44" height="20" fill="#fbfbf7"/>
+  <text x="958" y="155" class="el">链接</text>
+  <path d="M1085,250 L1131,222" fill="none" stroke="#444" stroke-width="2.5" marker-end="url(#ah)"/>
+  <rect x="1090" y="232" width="44" height="20" fill="#fbfbf7"/>
+  <text x="1093" y="247" class="el">内嵌</text>
+  <path d="M1232,250 L1175,364" fill="none" stroke="#444" stroke-width="2.5" marker-end="url(#ah)"/>
+  <rect x="1188" y="298" width="70" height="20" fill="#fbfbf7"/>
+  <text x="1191" y="313" class="el">程序加载</text>
+  <line x1="1061" y1="428" x2="699" y2="428" stroke="#444" stroke-width="2.5" marker-end="url(#ah)"/>
+
+  <text x="40" y="520" class="xs">源码确认：aigc-driver build_ex.sh / aica_fatbin.cpp / aica_platform.cpp。一条 clang -x aica 同出 host 与 device，device kernel 打进 fatbin 内嵌进 ELF，程序加载时自动注册符号表。</text>
+</svg>
