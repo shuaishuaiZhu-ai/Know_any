@@ -57,4 +57,4 @@ source:
 
 - [[wiki/grace/tiny-kmd/ipc]]：TRANSMIT/订阅背后的消息环。
 - [[wiki/grace/tiny-kmd/device]]：MEMORY_ALLOC 的 DMA 来源。
-- [[wiki/grace/kmd/ioctl/index|ajthunk ioctl 接口]]：对照完整的 30 个 `AIP_*` 操作。
+- [[wiki/grace/kmd/03-ioctl-abi|ajthunk ioctl 接口]]：对照完整的 30 个 `AIP_*` 操作。

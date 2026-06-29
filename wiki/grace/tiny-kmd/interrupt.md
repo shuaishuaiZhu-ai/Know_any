@@ -50,5 +50,5 @@ RX 中断处理函数是 `aigc_ipc_irq_handler`（`aigc_ipc.c:325`），只 `sch
 ## 延伸
 
 - [[wiki/grace/tiny-kmd/ipc]]：中断如何驱动消息收取。
-- [[wiki/grace/kmd/interrupt/index|ajthunk 中断与 Fence]]：对照完整的 MSI-X 向量表、上/下半部、fence 完成模型。
+- [[wiki/grace/kmd/05-submission-events-interrupts|ajthunk 中断与 Fence]]：对照完整的 MSI-X 向量表、上/下半部、fence 完成模型。
 - [[wiki/grace/tiny-kmd/gap-vs-ajthunk]]：中断/fence 是要移植的子系统之一。

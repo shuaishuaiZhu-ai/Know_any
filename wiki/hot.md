@@ -2,7 +2,7 @@
 type: meta
 title: "Hot Cache"
 created: 2026-05-09
-updated: 2026-06-26
+updated: 2026-06-29
 tags:
   - meta
   - hot-cache
@@ -22,10 +22,9 @@ status: active
 - **UMD 开发维护落盘（新增，2026-06-28）**：[UMD 开发维护：访问、代码结构与构建](<./grace/umd/dev/access-and-build.md>)——aigc-driver 代码在 **80.116 `shuaishuai.zhu@192.168.80.116:~/aigc-driver`**（密码见 secrets 页，勿回显）；git origin `git@192.168.90.119:aigc_toolchain/aigc-driver.git`（默认分支 `develop`）；含 `~/aigc-driver` 完整目录结构 + `build_ex.sh` 构建/单测命令。配套：另一个工作目录 `/root/workspace/umd` 的 `CLAUDE.md` 已写明「代码在远端、怎么连、怎么编、架构」。架构原理仍走 [UMD 总览](<./grace/umd/index.md>)。
 
 
-- **Kernel 端到端系列（重做 + 扩充，2026-06-26）**：[一个 Kernel 从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>) 已**全面重写 + 重绘**——10 张手绘 SVG/Graphviz 图（替换原 Mermaid，源文件在 `_attachments/grace/saxpy-e2e/src/`）、严谨技术风（弱化比喻）、每阶段"面试官会追问"盒子。新增 4 篇配套：[stream/MCQD/HCQD 与命令下发](<./grace/overview/stream-mcqd-hcqd-and-command-submission.md>)、[kernel cmd→CP job cmd 字段映射](<./grace/overview/kernel-cmd-to-cp-job-cmd.md>)、[UMD 总览入口](<./grace/umd/index.md>)、[KMD 面试向深入](<./grace/kmd/kmd-interview-deep-dive.md>)、[CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)。
+- **Kernel 端到端系列（重做 + 扩充，2026-06-26）**：[一个 Kernel 从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>) 已**全面重写 + 重绘**——10 张手绘 SVG/Graphviz 图（替换原 Mermaid，源文件在 `_attachments/grace/saxpy-e2e/src/`）、严谨技术风（弱化比喻）、每阶段"面试官会追问"盒子。新增 4 篇配套：[stream/MCQD/HCQD 与命令下发](<./grace/overview/stream-mcqd-hcqd-and-command-submission.md>)、[kernel cmd→CP job cmd 字段映射](<./grace/overview/kernel-cmd-to-cp-job-cmd.md>)、[UMD 总览入口](<./grace/umd/index.md>)、[KMD 面试向深入](<./grace/kmd/appendix/interview-qa.md>)、[CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)。
   - **关键源码纠正（116 实读 2026-06-26）**：① kernel launch 走 **UMD 直发 HWS**——UMD 自己写 host ringbuffer + 敲 doorbell(MMIO)，KMD 只一次性建场、不经手每包；② ringbuffer 在 **host 内存** 非 VRAM；③ **全栈只有一个 `0x10`**（"两个 0x10"是误判）；④ `AIP_QUEUE_SUBMIT` 当前 `return -EFAULT`（提交禁用），KMD CP 环+kthread 是非主/演进路径，旧 `command-submission-flow.md` 把它当主线是误导；⑤ `aigc_kernel.o_binary` 是 KMD 闭源 x86 blob、**不是 GPU kernel**。`add1` 完成走 MSI-X **向量 40**。
-- **KMD 内核驱动知识库（新增）**：[KMD 内核驱动知识库](<./grace/kmd/index.md>)，`aigc.ko` 内核态驱动——三层架构、ioctl/ABI、内存与 4 级页表、命令队列与调度、MSI-X 中断与 fence、Grace HAL；面向应届生、含 mermaid 图与 `文件:行` 引用。配套 [代码评审意见](<./grace/kmd/review/kmd-code-review.md>)。
-- **KMD 逐操作代码流程（新增，2026-06-15）**：[端到端流程索引](<./grace/kmd/flows/index.md>) 下新增 8 个**函数级调用链**页（probe / 设备初始化 / context / mem-create / 页表写入 / queue-create / 命令提交下发 / 完成中断），与远端 `docs/kmd-step-comments` 分支的函数内 step 注释配套，可对着真实函数名读源码。
+- **KMD 知识库全量重构（2026-06-29）**：[KMD 内核驱动知识库](<./grace/kmd/index.md>) 从原扁平 10 区**重构为线性编号 8 章 + 附录**，按当前 ajthunk 代码核实、面向应届生：[00 大局观](<./grace/kmd/00-big-picture.md>) / [01 架构](<./grace/kmd/01-architecture.md>) / [02 数据结构](<./grace/kmd/02-data-structures.md>) / [03 ioctl-ABI](<./grace/kmd/03-ioctl-abi.md>) / [04 内存页表](<./grace/kmd/04-memory-and-pagetables.md>) / [05 提交-中断](<./grace/kmd/05-submission-events-interrupts.md>) / [06 HAL](<./grace/kmd/06-hal-grace.md>) / [07 构建测试](<./grace/kmd/07-build-and-test.md>) / [08 saxpy 端到端](<./grace/kmd/08-end-to-end-saxpy.md>) + 附录（[术语表](<./grace/kmd/appendix/glossary.md>)/[面试问答](<./grace/kmd/appendix/interview-qa.md>)/[评审](<./grace/kmd/appendix/code-review.md>)）。**12 张图全部改用飞书白板风手绘 SVG**（`_attachments/grace/kmd/diagrams/`，弃用 Graphviz/内联 mermaid）。关键纠偏：`AIP_QUEUE_SUBMIT` 当前 `return -EFAULT`、kernel 提交走 UMD 直发 doorbell、HAL 多块为 bring-up 桩。分支 `wiki/kmd-refactor`（GitHub）。
 - **tiny-kmd 架构知识库（新增）**：[tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)，最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），含 [对照 ajthunk 的缺口](<./grace/tiny-kmd/gap-vs-ajthunk.md>) 与移植顺序。配套远端代码仓 `aigc-kmd-modular`（ajthunk kmd 模块化抽取 + 移植/重构指南）。
 - CP USART/Clock IMC 统一初始化（`zss/MoveUsart` commit `d18bc36`）：[CP USART 与 Core Clock 解耦 IMC 统一初始化 — 设计文档](<./grace/fw/cli/cp-usart-clock-imc-init-design-review.md>)
 - Claude Code 教程（发布版，面向知乎/博客）：[Claude Code CLI 使用教程](<ai/tools/claude-code/Claude Code CLI 使用教程.md>)
