@@ -2,7 +2,7 @@
 type: meta
 title: "Hot Cache"
 created: 2026-05-09
-updated: 2026-06-18
+updated: 2026-06-26
 tags:
   - meta
   - hot-cache
@@ -54,6 +54,7 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 
 ## 最近活跃主题
 
+- **C2C Wiki 全量梳理改写（2026-06-26）**：[FW Interconnect 索引](<./grace/fw/interconnect/index.md>) 已改成学习路线；13 个 C2C 页面补读图说明、MAS 证据边界和学习图，新增 overview/frame/adapter/clock/RAS/loopback/source 等图解资产。
 - **C2C 面试题精讲（新增，2026-06-22）**：[C2C 面试题精讲（按重要度分梯队）](<./grace/fw/interconnect/c2c-interview-questions.md>)，12 道高频题分三梯队（必考/区分度高/加分）+ 参考答案 + 考点 + 追问 + 优先级表 + "痛点→机制→边界"答题套路；为 VC 死锁、Early response、组包、PFC 水线 4 个难点新增图解（用 lark-whiteboard skill 的 SVG 路由绘制，风格与既有 whiteboard 图统一）。
 - **C2C_SS MAS v0.8 权威层（新增，2026-06-22）**：依据官方架构规范 `Grace_c2c_ss_mas_v0.8.docx` 新写 5 篇权威小白页 + 订正 6 篇旧页。先读 [C2C_SS 架构总览](<./grace/fw/interconnect/c2c-ss-architecture-overview.md>)，再到 [帧格式 OISA/L2](<./grace/fw/interconnect/c2c-frame-format-oisa-l2.md>)、[Adapter 内部](<./grace/fw/interconnect/c2c-adapter-internals.md>)、[时钟复位初始化](<./grace/fw/interconnect/c2c-clock-reset-init.md>)、[接口信号 + 中断/RAS](<./grace/fw/interconnect/c2c-interface-signals-and-ras.md>)。复用了 docx 原图（EMF→PNG）。⚠️ **整个 `wiki/grace/fw/interconnect/` + `_attachments/fw/interconnect/` 已加 `.gitignore`，本地专属、不上 GitHub**（故无需脱敏，可写满精度）。重要订正：VC2=写响应/VC3=读响应（MAS §1.3 概括有笔误）；远端环回 FES 项目不支持。
 - **Wiki 大整理（2026-06-18）**：把 `fw/`、`kmd/`、`tiny-kmd/`、`mas/` 四域迁入 `wiki/grace/`，新增 [GraceC 芯片软硬件栈](<./grace/index.md>) 统一入口；合并 IB/stop-flush/CLI 重叠页，3 篇稀薄 debug 页合成 [CP 平台 bring-up 复盘合集](<./grace/fw/debug/CP 平台 bring-up 复盘合集.md>)，`source-maps/` 折叠，`硬件基础 RAM ROM Flash` 移到 synthesis；修全库路径/wikilink/图片深度，重画 Wiki Map。详见 [Wiki Log](<./log.md>)。
@@ -102,3 +103,4 @@ GraceC CP MAS v1.4 + fw CP firmware。远端源码默认以 `shuaishuai.zhu@192.
 - Portmap 图解工具对比：[Portmap 路由表数字图解](<./grace/fw/interconnect/portmap-routing-table.md#32-同主题工具对比图>) 已补 G5 第一跳和 8bit mask 的多工具对比产物；当前评估优先采用 lark-whiteboard SVG 和 Graphviz DOT 两版。
 
 - C2C switch 转发规则：[Portmap 路由表数字图解](<./grace/fw/interconnect/portmap-routing-table.md#71-switch-模式转发规则详细图解>) 已补白板图和 Graphviz 判定图，解释跨 GPU 硬件轮询 SerDes、GPU 内跨 die 查 D2D 表。
+- 2026-06-26: C2C 图片拆解质量修订：深修 Adapter PktComb 组包图和 MACPHY wrapper 三路径读法，补全多页 MAS/来源图的图内拆解。
