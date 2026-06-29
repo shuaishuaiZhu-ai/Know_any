@@ -27,7 +27,7 @@ kmd 按「离操作系统近 → 离硬件近」分三层：外层是 Linux 专�
 
 ![kmd 三层架构](../../../_attachments/grace/kmd/diagrams/02-layers.png)
 
-> 图解源文件：[`02-layers.dot`](../../../_attachments/grace/kmd/diagrams/02-layers.dot)。
+> 图解源文件：[`02-layers.svg`](../../../_attachments/grace/kmd/diagrams/02-layers.svg)。
 
 ### ① 驱动入口层 — `kmd/aigc/*.c`
 
@@ -80,7 +80,7 @@ Grace 芯片专属的硬件后端，只能经 `hal/hal.h` 里的**函数指针�
 
 ![ioctl 请求路径](../../../_attachments/grace/kmd/diagrams/03-ioctl-path.png)
 
-> 图解源文件：[`03-ioctl-path.dot`](../../../_attachments/grace/kmd/diagrams/03-ioctl-path.dot)。
+> 图解源文件：[`03-ioctl-path.svg`](../../../_attachments/grace/kmd/diagrams/03-ioctl-path.svg)。
 
 1. **`open("/dev/aigcN")`** → `aigc_open()` 调 `aigc_lib_open()`，分配每-fd 的 `struct aigc_vdev`，
    存进 `file->private_data`。
@@ -106,7 +106,7 @@ Grace 芯片专属的硬件后端，只能经 `hal/hal.h` 里的**函数指针�
 
 ![子系统地图](../../../_attachments/grace/kmd/diagrams/04-subsystem-map.png)
 
-> 图解源文件：[`04-subsystem-map.dot`](../../../_attachments/grace/kmd/diagrams/04-subsystem-map.dot)。
+> 图解源文件：[`04-subsystem-map.svg`](../../../_attachments/grace/kmd/diagrams/04-subsystem-map.svg)。
 
 | 子系统 | 在哪 | 章节 |
 |---|---|---|
