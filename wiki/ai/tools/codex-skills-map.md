@@ -98,18 +98,18 @@ flowchart TD
 
 ## 5. 推荐使用顺序
 
-| 场景 | 优先 skill | 使用方式 |
-|---|---|---|
-| 任务复杂、需要拆解或协调 | `pm-mode`、`superpowers:writing-plans`、`source-command-planning` | 先明确目标、假设、验收标准，再执行。 |
-| 遇到 bug、CI 失败、测试失败 | `systematic-debugging`、`test-driven-development`、`verification-before-completion` | 先复现和定位，再写最小修复，最后验证。 |
-| 代码审查或 PR 反馈 | `code-review`、`coderabbit:code-review`、`receiving-code-review` | findings 优先，按严重度列文件/行号，避免泛泛总结。 |
-| 前端页面、Web App、UI 验证 | `frontend-app-builder`、`frontend-testing-debugging`、`browser`、`playwright` | 构建后用真实浏览器截图/交互验证。 |
-| 写入本地知识库 | `obsidian-technical-wiki-writer`、`obsidian-vault-index-maintenance` | 写正文，同时更新总索引、专区索引、Hot Cache、Log。 |
-| 技术文档或 wiki 需要图解 | `technical-diagram-generator` | 根据内容选择 SVG/PNG、Graphviz、Mermaid 或 lark-whiteboard，并完成布局、链接和视觉复查。 |
-| 生成或编辑照片、插画、位图 | `imagegen` | 默认使用内置 `image_gen`；项目资产需保存进项目，不只留在生成缓存目录。 |
-| 飞书 / Lark 操作 | 对应 `lark-*` skill | 先选具体模块：消息、文档、表格、日历、任务、审批、会议等。 |
-| 临时代理、隧道、远端服务 | `temporary-proxy-tunnel-lifecycle`、项目专用 skill | 明确 run/stop/status/cleanup，并保护共享服务。 |
-| ctrlclaw.online / ComfyUI | `ctrlclaw-comfy-maintenance` | 先查 deployed service 和 health，再改最小范围。 |
+| 场景                        | 优先 skill                                                                          | 使用方式                                                             |
+| ------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 任务复杂、需要拆解或协调              | `pm-mode`、`superpowers:writing-plans`、`source-command-planning`                   | 先明确目标、假设、验收标准，再执行。                                               |
+| 遇到 bug、CI 失败、测试失败         | `systematic-debugging`、`test-driven-development`、`verification-before-completion` | 先复现和定位，再写最小修复，最后验证。                                              |
+| 代码审查或 PR 反馈               | `code-review`、`coderabbit:code-review`、`receiving-code-review`                    | findings 优先，按严重度列文件/行号，避免泛泛总结。                                   |
+| 前端页面、Web App、UI 验证        | `frontend-app-builder`、`frontend-testing-debugging`、`browser`、`playwright`        | 构建后用真实浏览器截图/交互验证。                                                |
+| 写入本地知识库                   | `obsidian-technical-wiki-writer`、`obsidian-vault-index-maintenance`               | 写正文，同时更新总索引、专区索引、Hot Cache、Log。                                  |
+| 技术文档或 wiki 需要图解           | `technical-diagram-generator`                                                     | 根据内容选择 SVG/PNG、Graphviz、Mermaid 或 lark-whiteboard，并完成布局、链接和视觉复查。 |
+| 生成或编辑照片、插画、位图             | `imagegen`                                                                        | 默认使用内置 `image_gen`；项目资产需保存进项目，不只留在生成缓存目录。                        |
+| 飞书 / Lark 操作              | 对应 `lark-*` skill                                                                 | 先选具体模块：消息、文档、表格、日历、任务、审批、会议等。                                    |
+| 临时代理、隧道、远端服务              | `temporary-proxy-tunnel-lifecycle`、项目专用 skill                                     | 明确 run/stop/status/cleanup，并保护共享服务。                              |
+| ctrlclaw.online / ComfyUI | `ctrlclaw-comfy-maintenance`                                                      | 先查 deployed service 和 health，再改最小范围。                             |
 
 ## 5.1 画图与图解 Skills（2026-06-18）
 
