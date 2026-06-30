@@ -423,7 +423,21 @@ compare returned title/body with source
 report URL + verified result
 ```
 
-## 12. 常见失败与处理
+
+## 12. 飞书上传图片的固定规则：统一 PNG image block
+
+当把本地 Markdown / Obsidian wiki 页面发布到飞书 Wiki 或飞书文档时，图片规则如下：
+
+1. 不要把 SVG 作为飞书 file card 上传。
+2. 所有本地图像先转成或选择 PNG，再用 `docs +media-insert --type image` 插入到原图对应位置。
+3. 如果 Markdown 引用 `.png`，直接上传该 PNG。
+4. 如果 Markdown 引用 `.svg`，优先使用同目录同名 `.png`；没有同名 PNG 时才用渲染器转 PNG。
+5. 写入后必须回读验证：`png_expected == png_inserted`、`svg_sources == 0`、`placeholder_count == 0`、`replacement_char_count == 0`。
+6. 图片格式转换只发生在发布准备层，不要为了飞书发布去改原始 Obsidian 页面。
+
+本机默认封装在 `C:\Users\18355\.codex\skills\publish-feishu-wiki-doc\scripts\publish_feishu_wiki_doc.py`。以后发布本地 wiki 到飞书时优先使用这个脚本，不要临时手写 SVG file-card 流程。
+
+## 13. 常见失败与处理
 
 | 症状 | 原因 | AI 的处理 |
 |---|---|---|
@@ -437,7 +451,7 @@ report URL + verified result
 | AI 安装后仍说没有 lark-doc | 当前会话未重新加载 Skills | 重启 AI 客户端或新建会话 |
 | 返回 `_notice.update` | 有新版 CLI/Skills | 完成当前任务后提示并更新 CLI 与 Skills |
 
-## 13. 安全底线
+## 14. 安全底线
 
 1. 禁止在聊天、wiki、代码、日志中输出 App Secret、access token、refresh token。
 2. 授权 URL 必须原样转发，不得修改。
@@ -446,7 +460,7 @@ report URL + verified result
 5. 不要擅自转移文档 owner、扩大共享范围或把私人机器人拉入群聊。
 6. 执行前确认目标 profile、身份和父目录；执行后必须回读。
 
-## 14. 最终回复模板
+## 15. 最终回复模板
 
 AI 完成后应简洁回复：
 
@@ -460,7 +474,7 @@ AI 完成后应简洁回复：
 
 如果未完成，不要模糊地说“基本配置好了”；明确指出停在哪一步、缺哪个 scope、需要用户完成哪个浏览器动作。
 
-## 15. 官方来源
+## 16. 官方来源
 
 - [larksuite/cli 中文 README](https://github.com/larksuite/cli/blob/main/README.zh.md)
 - [lark-doc Skill](https://github.com/larksuite/cli/tree/main/skills/lark-doc)

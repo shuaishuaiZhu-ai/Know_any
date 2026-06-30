@@ -2,7 +2,7 @@
 type: meta
 title: "Hot Cache"
 created: 2026-05-09
-updated: 2026-06-29
+updated: 2026-06-30
 tags:
   - meta
   - hot-cache
@@ -17,6 +17,8 @@ status: active
 
 ## 当前主入口
 
+- **飞书发布图片统一 PNG（新增，2026-06-30）**：[profile/identity 复盘](<./ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>) 与 [lark-cli 建文档指南](<./ai/tools/lark-cli-ai-document-guide.md>) 已更新：以后本地 wiki 发布到飞书时，所有本地图像都转成/选择 PNG，并以 image block 插入原图位；禁止继续上传 SVG file card。
+- **飞书 Wiki 发布 profile/identity 复盘（新增，2026-06-30）**：[飞书 Wiki 发布中的 profile / identity 误判复盘](<./ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>)——以后发布到飞书前必须分开验证 `profile + identity + target`：`cli_aa9d4e8d9eb91cc4` 的 user 过期不等于任务阻塞，bot ready 且目标可读写时优先用 bot 完成发布并回读验证。
 - **image_tool AddDefault_value 分支设计（新增，2026-06-29）**：[image_tool AddDefault_value 分支设计](<./tools/image_tool AddDefault_value 分支设计.md>)——GitLab 分支 `zss/AddDefault_value`（`cc1a244→756adeb`）技术设计文档：默认值机制、`_check_runtime_deps`、`soc_name` 显式传参、`-j` 去 `argparse.FileType`、启动 chdir、`try/finally`、平台化退出 + 配套文档/spec/openpyxl；5 张图解（SVG+PNG）在 `_attachments/tools/image_tool/`。配套 [[image_tool 固件镜像打包工具]]。
 - **UMD 全代码系统化落盘（新增，2026-06-28）**：通读整个 `aigc-driver` 后，[UMD 总览](<./grace/umd/index.md>) 升级为总枢纽（「整体架构」a1 全栈分层/a2 命名空间地图 + 「子系统导航」表），新增 8 个分子系统页：[初始化与设备模型](<./grace/umd/runtime/init-and-device-model.md>)、[kernel launch 全路径](<./grace/umd/runtime/kernel-launch.md>)、[stream/event/signal](<./grace/umd/runtime/streams-events-signals.md>)、[code object 装载与注册](<./grace/umd/compile/code-object-and-registration.md>)、[命令模型与队列](<./grace/umd/dispatch/command-model-and-queue.md>)、[dispatch packet 与 doorbell](<./grace/umd/dispatch/packet-and-doorbell.md>)、[显存分配与内存对象模型](<./grace/umd/memory/allocation-and-memory-model.md>)、[thunk 边界与同步原语](<./grace/umd/platform/thunk-and-sync.md>)。17 张新 Graphviz 图在 `_attachments/grace/umd-arch/`（dot 源在 src/，已逐张视检）。架构事实与既有端到端长文一致（直发 HWS、ring 在 host、单一 0x10）。
 - **UMD aicaMemcpy 造命令细读（新增，2026-06-28）**：[aicaMemcpy 怎么造拷贝命令](<./grace/umd/memory/aica-memcpy-copy-command.md>)——`aicaMemcpy` 不是裸 memcpy，而是 `iaicaMemcpy` 解析指针→临时锁页→`createCopyCommand`(`getCopyStrategy` 选 SDMA/TMA/HostStage/WaitHost)→`new DMACopyCommand`→`enqueue`→DIRECT_DISPATCH 当场 `submit`→`VirtualGPU::submitDMACopy`(SDMA)→`awaitCompletion`。含 2 张 Graphviz 图（命令的一生流程图 + getCopyStrategy 决策树，源在 `_attachments/grace/umd-memcpy/`）。单设备 H2D 走 SDMA→DMACopyCommand。
