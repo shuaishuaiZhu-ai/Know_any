@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="360" viewBox="0 0 1180 360" role="img" aria-labelledby="t d">
+  <title id="t">normal 模式加固后数据流</title>
+  <desc id="d">generate_bin(args, soc_name) 依次执行 qspi_xip、key_and_sign（try/finally）、init_flash_layout（open 替代 FileType）、save_bin_file、bin_to_hex。蓝色为加固点。</desc>
+  <defs>
+    <style>
+      .title{font:800 26px ui-sans-serif,system-ui,sans-serif;fill:#102027}
+      .sub{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .mono{font:700 12.5px ui-monospace,Menlo,Consolas,monospace;fill:#102027}
+      .small{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#526672}
+      .monow{font:700 12.5px ui-monospace,Menlo,Consolas,monospace;fill:#cfe6dc}
+      .smw{font:600 12.5px ui-sans-serif,system-ui,sans-serif;fill:#aebcc4}
+      .box{fill:#ffffff;stroke:#d0d7de;stroke-width:1.4}
+      .dark{fill:#102027}
+      .green{fill:#e8f7ec;stroke:#74c98a;stroke-width:1.5}
+      .askbox{fill:#eef3fb;stroke:#9ab4d8;stroke-width:1.5}
+      .line{stroke:#8da2ad;stroke-width:2.4;fill:none;stroke-linecap:round}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect width="1180" height="360" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="50" class="title">normal 模式加固后数据流</text>
+  <text x="40" y="78" class="sub">generate_bin(args, soc_name)：移除旧 output → 生成 qspi_xip 表 → 签名 → 解析布局 → 写 bin → 转 hex。</text>
+
+  <rect x="18" y="130" width="200" height="82" rx="14" class="dark"/>
+  <text x="118" y="164" text-anchor="middle" class="monow">generate_bin</text>
+  <text x="118" y="188" text-anchor="middle" class="smw">(args, soc_name)</text>
+  <path d="M218 171 H254" class="line" marker-end="url(#ar)"/>
+
+  <rect x="254" y="130" width="200" height="82" rx="14" class="box"/>
+  <text x="354" y="164" text-anchor="middle" class="mono">generate_qspi_xip_bin</text>
+  <text x="354" y="188" text-anchor="middle" class="small">xlsx → CSV → bin</text>
+  <path d="M454 171 H490" class="line" marker-end="url(#ar)"/>
+
+  <rect x="490" y="130" width="200" height="82" rx="14" class="askbox"/>
+  <text x="590" y="164" text-anchor="middle" class="mono">generate_key_and_sign</text>
+  <text x="590" y="188" text-anchor="middle" class="small">try/finally + chdir</text>
+  <path d="M690 171 H726" class="line" marker-end="url(#ar)"/>
+
+  <rect x="726" y="130" width="200" height="82" rx="14" class="askbox"/>
+  <text x="826" y="164" text-anchor="middle" class="mono">init_flash_layout</text>
+  <text x="826" y="188" text-anchor="middle" class="small">open() · 非 FileType</text>
+  <path d="M926 171 H962" class="line" marker-end="url(#ar)"/>
+
+  <rect x="962" y="130" width="200" height="82" rx="14" class="green"/>
+  <text x="1062" y="164" text-anchor="middle" class="mono">save_bin_file</text>
+  <text x="1062" y="188" text-anchor="middle" class="small">→ image_v*.bin / .hex</text>
+
+  <text x="40" y="260" class="small">蓝 = 加固点：try/finally 保证 os.chdir('..') 必执行（异常也回 grace/）；open(args.json_file) 取代 argparse.FileType，避免文件句柄泄漏。</text>
+  <text x="40" y="284" class="small">soc_name 作为显式参数注入输出文件名 image_v&lt;版本&gt;_gracec.bin；--no-sign / --no-hex 分别跳过签名与 hex 步骤。</text>
+</svg>
