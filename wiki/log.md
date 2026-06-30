@@ -2,12 +2,20 @@
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
-updated: 2026-06-29
+updated: 2026-06-30
 tags:
   - meta
   - log
 status: active
 ---
+
+## [2026-06-30] add | NCCL 学习教程（新建 wiki/nccl/ 专区，13 章 + 14 图）
+
+- **新建顶层专区 `wiki/nccl/`**：从 0 开始、基于 **NVIDIA/nccl v2.30.7**（tarball master，本地 `/root/workspace/nccl`，**不纳入 wiki 仓库**）源码逐文件讲解的多卡集合通信库深度教程。面向应届/面试，每章「面试官会追问」盒子。
+- **13 篇编号章**：[index](<./nccl/index.md>) + 00 概览 / 01 概念API / 02 架构代码地图 / 03 初始化bootstrap / 04 拓扑图搜索 / 05 Ring AllReduce⭐ / 06 Tree及其他算法 / 07 Transport / 08 enqueue启动 / 09 device kernel⭐ / 10 proxy / 11 调优 / 12 附录。
+- **14 张源码核实图解**存 `_attachments/nccl/`（`.svg` 源在 `src/` + resvg 渲染 `.png`，逐张视觉验证箭头/标签/溢出）：AllReduce在训练中位置、7原语语义、架构分层、代码地图、ncclComm所有权树、初始化时序、单节点拓扑、Ring构建、Ring AllReduce三态、Tree vs Ring、Transport决策树、FIFO同步、enqueue数据流、proxy推进。
+- **源码确认要点**（均给文件:行号）：所有原语收敛 `ncclEnqueueCheck`；uniqueId=rank0门牌号+环all-gather；`ncclTopoCompute` 按 PATH_* 偏好搜环/树；Ring 2(N−1)步、通信量≈2S 与 N 无关；double binary tree 补带宽；7算法×3协议成本模型自动选；P2P(CUDA IPC零拷贝)/SHM/NET 按优先级选；work FIFO + cuLaunchKernel(grid=nChannels) + CUDA Graph；device 端 head/tail FIFO 同步 + Simple/LL/LL128；proxy 线程替 GPU 收发跨机网络包。环境变量速查表全部 grep 核实。
+- 同步更新 [Wiki 总索引](<./index.md>)（结构树 + 入口优先级）、[Hot Cache](<./hot.md>)。分批交付到 GitHub 分支 `wiki/nccl-tutorial`（`shuaishuaiZhu-ai/Know_any`），共 6 个 commit（批 1–6）。
 
 ## [2026-06-29] restructure | KMD 知识库全量重构（线性 8 章 + 附录 + 12 张飞书白板风图）
 
