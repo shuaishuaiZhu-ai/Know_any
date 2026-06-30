@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 820" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>NCCL 通信器初始化时序(三泳道)</title>
+  <desc>三条垂直泳道:左=用户/异步线程(rank r),中=rank0 Root 线程,右=环上邻居 ranks。时间自上而下。
+  主步骤框在左泳道顺序排列;跨道横向箭头表示交互:S1 左→中(起 Root 监听);S4 左→中(连 root 上报);S5 中→左(回发下家地址);S6 左→右(连后继);S7 左↔右双向(环 all-gather)。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="arev" viewBox="0 0 10 10" refX="1.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M10 0 L0 5 L10 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="820" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="44" font-size="24" font-weight="700" fill="#102027">通信器初始化时序:从 uniqueId 到建好连接</text>
+
+  <!-- lane headers -->
+  <g text-anchor="middle" font-size="14" font-weight="700">
+    <rect x="60" y="64" width="340" height="44" rx="10" fill="#e8f1fd" stroke="#6fa8e6"/><text x="230" y="92" fill="#102027">用户 / 异步线程 (rank r)</text>
+    <rect x="460" y="64" width="260" height="44" rx="10" fill="#fff8e6" stroke="#edc870"/><text x="590" y="92" fill="#102027">rank0 · Root 线程</text>
+    <rect x="780" y="64" width="340" height="44" rx="10" fill="#e8f7ec" stroke="#74c98a"/><text x="950" y="92" fill="#102027">环上邻居 ranks</text>
+  </g>
+  <!-- lifelines -->
+  <g stroke="#c5ced3" stroke-width="2" stroke-dasharray="6 6">
+    <line x1="230" y1="110" x2="230" y2="792"/>
+    <line x1="590" y1="110" x2="590" y2="792"/>
+    <line x1="950" y1="110" x2="950" y2="792"/>
+  </g>
+
+  <!-- Root box on lane B -->
+  <rect x="470" y="300" width="240" height="70" rx="10" fill="#fff8e6" stroke="#edc870"/>
+  <text x="590" y="328" font-size="13" font-weight="700" text-anchor="middle" fill="#102027">bootstrapRoot</text>
+  <text x="590" y="348" font-size="11.5" text-anchor="middle" fill="#37474f">收集所有 rank 地址</text>
+  <text x="590" y="364" font-size="11.5" text-anchor="middle" fill="#37474f">→ 牵线:谁的下家是谁</text>
+
+  <!-- neighbor box on lane C -->
+  <rect x="830" y="430" width="240" height="56" rx="10" fill="#e8f7ec" stroke="#74c98a"/>
+  <text x="950" y="453" font-size="12.5" font-weight="700" text-anchor="middle" fill="#102027">接受前驱连接</text>
+  <text x="950" y="472" font-size="11.5" text-anchor="middle" fill="#37474f">首尾相接成环</text>
+
+  <!-- Step boxes on lane A -->
+  <g font-size="12.5">
+    <g><rect x="60" y="128" width="340" height="44" rx="9" fill="#fff" stroke="#6fa8e6"/><text x="74" y="146" font-weight="700" fill="#102027">① ncclGetUniqueId</text><text x="74" y="164" fill="#37474f">→ bootstrapCreateRoot(起 Root)</text></g>
+    <g><rect x="60" y="200" width="340" height="44" rx="9" fill="#fff" stroke="#6fa8e6"/><text x="74" y="218" font-weight="700" fill="#102027">② ncclCommInitRank → ...Dev</text><text x="74" y="236" fill="#37474f">ncclAsyncLaunch 异步初始化线程</text></g>
+    <g><rect x="60" y="262" width="340" height="40" rx="9" fill="#fff" stroke="#6fa8e6"/><text x="74" y="287" font-weight="700" fill="#102027">③ commAlloc:分配 comm 空壳</text></g>
+    <g><rect x="60" y="346" width="340" height="40" rx="9" fill="#fff" stroke="#6fa8e6"/><text x="74" y="371" font-weight="700" fill="#102027">④ bootstrapInit:上报地址给 root</text></g>
+    <g><rect x="60" y="430" width="340" height="40" rx="9" fill="#fff" stroke="#6fa8e6"/><text x="74" y="455" font-weight="700" fill="#102027">⑥ socketRingConnect:连后继</text></g>
+    <g><rect x="60" y="514" width="340" height="40" rx="9" fill="#fff" stroke="#6fa8e6"/><text x="74" y="539" font-weight="700" fill="#102027">⑦ ringAllInfo:环 all-gather</text></g>
+    <g><rect x="60" y="596" width="340" height="44" rx="9" fill="#e8eefc" stroke="#6fa8e6"/><text x="74" y="614" font-weight="700" fill="#102027">⑧ initTransportsRank</text><text x="74" y="632" fill="#37474f">ncclTopoGetSystem:拓扑探测</text></g>
+    <g><rect x="60" y="660" width="340" height="44" rx="9" fill="#e8eefc" stroke="#6fa8e6"/><text x="74" y="678" font-weight="700" fill="#102027">⑨ ncclTopoCompute:求 ring/tree</text><text x="74" y="696" fill="#37474f">→ ncclTransportRing/TreeConnect</text></g>
+    <g><rect x="60" y="724" width="340" height="40" rx="9" fill="#102027"/><text x="74" y="749" font-weight="700" fill="#fff">⑩ comm 就绪,可跑 AllReduce</text></g>
+  </g>
+
+  <!-- cross-lane arrows -->
+  <!-- S1: A->B start root -->
+  <line x1="400" y1="150" x2="586" y2="150" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <text x="470" y="142" font-size="11" fill="#607d8b">起 Root 监听</text>
+  <!-- S4: A->B report addr -->
+  <line x1="400" y1="366" x2="586" y2="334" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <text x="430" y="356" font-size="11" fill="#607d8b">连 root·上报</text>
+  <!-- S5: B->A send next peer -->
+  <line x1="586" y1="362" x2="404" y2="408" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <text x="430" y="402" font-size="11" fill="#9a7d1e">⑤ 回发下家地址</text>
+  <!-- S6: A->C connect successor -->
+  <line x1="400" y1="450" x2="826" y2="450" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <text x="600" y="442" font-size="11" fill="#607d8b">连后继(成环)</text>
+  <!-- S7: A<->C ring all-gather (bidir) -->
+  <line x1="400" y1="534" x2="826" y2="534" stroke="#8da2ad" stroke-width="2.2" marker-start="url(#arev)" marker-end="url(#ar)"/>
+  <text x="600" y="526" font-size="11" fill="#607d8b">双向环 all-gather(约 N/2 步)</text>
+</svg>

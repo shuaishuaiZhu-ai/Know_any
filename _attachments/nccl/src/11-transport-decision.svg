@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 560" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>Transport 选择决策树</title>
+  <desc>自顶向下流程图。起点框→判定"同机?";否(跨机)向右到 NET 框;是向下到判定"可 peer access?";否向左到 SHM 框;是向下到 P2P 框。箭头带 是/否 标签,head 落在目标框/判定上。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="560" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="44" font-size="23" font-weight="700" fill="#102027">Transport 选择:为每条 connector 挑最优实现</text>
+
+  <!-- start -->
+  <rect x="455" y="66" width="270" height="48" rx="12" fill="#102027"/>
+  <text x="590" y="95" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">两个 rank 之间建一条 connector</text>
+
+  <!-- D1 diamond -->
+  <polygon points="590,140 710,188 590,236 470,188" fill="#fff8e6" stroke="#edc870" stroke-width="2.4"/>
+  <text x="590" y="184" font-size="15" font-weight="700" text-anchor="middle" fill="#102027">同机?</text>
+  <text x="590" y="206" font-size="11" text-anchor="middle" fill="#607d8b">hostHash 相同</text>
+
+  <!-- D2 diamond -->
+  <polygon points="590,286 710,334 590,382 470,334" fill="#fff8e6" stroke="#edc870" stroke-width="2.4"/>
+  <text x="590" y="330" font-size="14" font-weight="700" text-anchor="middle" fill="#102027">可 P2P?</text>
+  <text x="590" y="350" font-size="11" text-anchor="middle" fill="#607d8b">canAccessPeer</text>
+
+  <!-- NET box (right) -->
+  <rect x="850" y="150" width="290" height="84" rx="12" fill="#e8f1fd" stroke="#6fa8e6" stroke-width="2"/>
+  <text x="995" y="178" font-size="15" font-weight="700" text-anchor="middle" fill="#102027">NET(跨机)</text>
+  <text x="995" y="200" font-size="12" text-anchor="middle" fill="#37474f">proxy 线程 + ncclNet(IB/socket)</text>
+  <text x="995" y="219" font-size="12" text-anchor="middle" fill="#37474f">可选 GPUDirect RDMA</text>
+
+  <!-- SHM box (left) -->
+  <rect x="40" y="298" width="290" height="72" rx="12" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/>
+  <text x="185" y="326" font-size="15" font-weight="700" text-anchor="middle" fill="#102027">SHM(同机·不可 P2P)</text>
+  <text x="185" y="348" font-size="12" text-anchor="middle" fill="#37474f">host 共享内存中转</text>
+
+  <!-- P2P box (bottom) -->
+  <rect x="445" y="430" width="290" height="84" rx="12" fill="#e8f7ec" stroke="#74c98a" stroke-width="2.4"/>
+  <text x="590" y="458" font-size="15" font-weight="700" text-anchor="middle" fill="#102027">P2P(同机·可 peer access)</text>
+  <text x="590" y="480" font-size="12" text-anchor="middle" fill="#37474f">CUDA IPC,GPU 直读写对端显存</text>
+  <text x="590" y="499" font-size="12" text-anchor="middle" fill="#2e7d4f">零拷贝,最快</text>
+
+  <!-- arrows -->
+  <line x1="590" y1="114" x2="590" y2="138" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <!-- D1 否 -> NET -->
+  <line x1="710" y1="188" x2="846" y2="188" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="772" y="178" font-size="12.5" font-weight="700" fill="#b06a1e">否(跨机)</text>
+  <!-- D1 是 -> D2 -->
+  <line x1="590" y1="236" x2="590" y2="284" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="602" y="266" font-size="12.5" font-weight="700" fill="#2e7d4f">是</text>
+  <!-- D2 否 -> SHM -->
+  <line x1="470" y1="334" x2="334" y2="334" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="372" y="324" font-size="12.5" font-weight="700" fill="#b06a1e">否</text>
+  <!-- D2 是 -> P2P -->
+  <line x1="590" y1="382" x2="590" y2="428" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="602" y="412" font-size="12.5" font-weight="700" fill="#2e7d4f">是</text>
+
+  <text x="40" y="540" font-size="12.5" fill="#607d8b">遍历顺序 ncclTransports[] = { P2P, SHM, NET, CollNet }:第一个 canConnect 成功者胜出。</text>
+</svg>

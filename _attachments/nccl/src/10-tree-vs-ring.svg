@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 600" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>Tree vs Ring 对比</title>
+  <desc>左面板 Ring:4 GPU 顺时针有向环(箭头沿环,head 落在下一个 GPU)。右面板 Tree:7 节点二叉树,树边为细线;两条代表性箭头——绿色向上(reduce:子→父,head 落父节点)、蓝色向下(broadcast:父→子,head 落子节点)。底部决策条:小消息→Tree,大消息→Ring。</desc>
+  <defs>
+    <marker id="arg" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4a9e63"/></marker>
+    <marker id="arup" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2e7d4f"/></marker>
+    <marker id="ardn" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#3d7fc4"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="600" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="44" font-size="23" font-weight="700" fill="#102027">Tree vs Ring:延迟 vs 带宽的取舍</text>
+
+  <!-- ===== Left: Ring ===== -->
+  <rect x="40" y="70" width="540" height="430" rx="16" fill="#ffffff" stroke="#d6dde2"/>
+  <text x="60" y="104" font-size="18" font-weight="700" fill="#2e7d4f">Ring</text>
+  <text x="120" y="104" font-size="13" fill="#607d8b">环传输,带宽最优</text>
+  <!-- square ring of 4 -->
+  <g font-size="14" text-anchor="middle" font-weight="700">
+    <rect x="150" y="150" width="90" height="48" rx="10" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="195" y="180" fill="#102027">GPU0</text>
+    <rect x="380" y="150" width="90" height="48" rx="10" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="425" y="180" fill="#102027">GPU1</text>
+    <rect x="380" y="320" width="90" height="48" rx="10" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="425" y="350" fill="#102027">GPU2</text>
+    <rect x="150" y="320" width="90" height="48" rx="10" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="195" y="350" fill="#102027">GPU3</text>
+  </g>
+  <g stroke="#4a9e63" stroke-width="3" fill="none" marker-end="url(#arg)">
+    <line x1="240" y1="174" x2="376" y2="174"/>
+    <line x1="425" y1="198" x2="425" y2="316"/>
+    <line x1="380" y1="344" x2="244" y2="344"/>
+    <line x1="195" y1="320" x2="195" y2="202"/>
+  </g>
+  <g font-size="13.5" fill="#37474f">
+    <text x="60" y="418">• 2(N−1) 步 → 延迟 <tspan font-weight="700">O(N)</tspan></text>
+    <text x="60" y="444">• 每条链路都满载 → 带宽<tspan font-weight="700">最优</tspan></text>
+    <text x="60" y="470">• 适合<tspan font-weight="700" fill="#2e7d4f">大消息</tspan>(带宽主导)</text>
+  </g>
+
+  <!-- ===== Right: Tree ===== -->
+  <rect x="600" y="70" width="540" height="430" rx="16" fill="#ffffff" stroke="#d6dde2"/>
+  <text x="620" y="104" font-size="18" font-weight="700" fill="#3d7fc4">Tree(double binary)</text>
+  <!-- tree edges (thin lines) -->
+  <g stroke="#b0bec5" stroke-width="2" fill="none">
+    <line x1="870" y1="168" x2="785" y2="222"/>
+    <line x1="870" y1="168" x2="975" y2="222"/>
+    <line x1="760" y1="262" x2="715" y2="312"/>
+    <line x1="760" y1="262" x2="815" y2="312"/>
+    <line x1="980" y1="262" x2="935" y2="312"/>
+    <line x1="980" y1="262" x2="1055" y2="312"/>
+  </g>
+  <!-- representative arrows: reduce up (3->1 green), broadcast down (0->2 blue) -->
+  <line x1="712" y1="312" x2="757" y2="264" stroke="#2e7d4f" stroke-width="3" marker-end="url(#arup)"/>
+  <line x1="884" y1="170" x2="973" y2="220" stroke="#3d7fc4" stroke-width="3" marker-end="url(#ardn)"/>
+  <!-- nodes -->
+  <g font-size="13" text-anchor="middle" font-weight="700">
+    <circle cx="870" cy="145" r="24" fill="#fff8e6" stroke="#edc870" stroke-width="2"/><text x="870" y="150" fill="#102027">0</text>
+    <circle cx="760" cy="240" r="22" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="760" y="245" fill="#102027">1</text>
+    <circle cx="980" cy="240" r="22" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="980" y="245" fill="#102027">2</text>
+    <circle cx="700" cy="332" r="20" fill="#eef1f3" stroke="#90a4ae"/><text x="700" y="337" fill="#102027">3</text>
+    <circle cx="820" cy="332" r="20" fill="#eef1f3" stroke="#90a4ae"/><text x="820" y="337" fill="#102027">4</text>
+    <circle cx="940" cy="332" r="20" fill="#eef1f3" stroke="#90a4ae"/><text x="940" y="337" fill="#102027">5</text>
+    <circle cx="1060" cy="332" r="20" fill="#eef1f3" stroke="#90a4ae"/><text x="1060" y="337" fill="#102027">6</text>
+  </g>
+  <!-- legend for two passes -->
+  <g font-size="12.5">
+    <line x1="630" y1="382" x2="668" y2="382" stroke="#2e7d4f" stroke-width="3" marker-end="url(#arup)"/><text x="676" y="387" fill="#37474f">① Reduce:叶→根</text>
+    <line x1="840" y1="382" x2="878" y2="382" stroke="#3d7fc4" stroke-width="3" marker-end="url(#ardn)"/><text x="886" y="387" fill="#37474f">② Broadcast:根→叶</text>
+  </g>
+  <g font-size="13.5" fill="#37474f">
+    <text x="620" y="424">• 树高 <tspan font-weight="700">O(log N)</tspan> → 延迟低</text>
+    <text x="620" y="450">• 两棵互补树(T0/T1)轮流当叶/内部 → 带宽补满</text>
+    <text x="620" y="476">• 适合<tspan font-weight="700" fill="#3d7fc4">小消息 / 大规模</tspan>(延迟主导)</text>
+  </g>
+
+  <!-- bottom decision strip -->
+  <rect x="40" y="520" width="1100" height="56" rx="12" fill="#102027"/>
+  <text x="590" y="554" font-size="15" font-weight="700" text-anchor="middle" fill="#fff">选择由调优模型按 time = 延迟 + 字节/带宽 自动决定:小消息 → Tree;大消息 → Ring</text>
+</svg>

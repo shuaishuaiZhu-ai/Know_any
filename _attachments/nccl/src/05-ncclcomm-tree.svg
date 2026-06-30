@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 690" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>ncclComm 所有权树</title>
+  <desc>顶部根 ncclComm,向下 fan-out 到 6 个分支框。第 3 个分支 channels[] 继续向下展开:channel[c] → 分裂为 ring/tree 与 peers[r];peers[r] → connector(send/recv) → transport。所有箭头向下,head 落在下游框上边。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="690" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="44" font-size="24" font-weight="700" fill="#102027">ncclComm 所有权树:一个通信器内部拥有什么</text>
+
+  <!-- root -->
+  <rect x="440" y="64" width="300" height="50" rx="12" fill="#102027"/>
+  <text x="590" y="94" font-size="17" font-weight="700" text-anchor="middle" fill="#fff">ncclComm　(comm.h:523)</text>
+
+  <!-- 6 branches -->
+  <g font-size="12.5" text-anchor="middle">
+    <g><rect x="40" y="170" width="175" height="68" rx="10" fill="#e8f1fd" stroke="#6fa8e6"/><text x="127" y="194" font-weight="700" fill="#102027">身份 / 映射</text><text x="127" y="214" fill="#37474f">rank · nRanks</text><text x="127" y="230" fill="#37474f">cudaDev · node</text></g>
+    <g><rect x="225" y="170" width="175" height="68" rx="10" fill="#e8f7ec" stroke="#74c98a" stroke-width="2.4"/><text x="312" y="194" font-weight="700" fill="#102027">channels[ ] ★</text><text x="312" y="214" fill="#37474f">nChannels 条</text><text x="312" y="230" fill="#37474f">数据流水线</text></g>
+    <g><rect x="410" y="170" width="175" height="68" rx="10" fill="#e8f1fd" stroke="#6fa8e6"/><text x="497" y="194" font-weight="700" fill="#102027">拓扑 / 算法</text><text x="497" y="214" fill="#37474f">topo</text><text x="497" y="230" fill="#37474f">graphs[ ]</text></g>
+    <g><rect x="595" y="170" width="175" height="68" rx="10" fill="#e8f1fd" stroke="#6fa8e6"/><text x="682" y="194" font-weight="700" fill="#102027">网络 / 代理</text><text x="682" y="214" fill="#37474f">bootstrap · ncclNet</text><text x="682" y="230" fill="#37474f">proxyState</text></g>
+    <g><rect x="780" y="170" width="175" height="68" rx="10" fill="#e8f1fd" stroke="#6fa8e6"/><text x="867" y="194" font-weight="700" fill="#102027">任务 / 执行</text><text x="867" y="214" fill="#37474f">planner · devComm</text><text x="867" y="230" fill="#37474f">workFifo</text></g>
+    <g><rect x="965" y="170" width="175" height="68" rx="10" fill="#e8f1fd" stroke="#6fa8e6"/><text x="1052" y="194" font-weight="700" fill="#102027">内存 / 共享</text><text x="1052" y="214" fill="#37474f">memManager</text><text x="1052" y="230" fill="#37474f">sharedRes</text></g>
+  </g>
+  <!-- root -> branches -->
+  <g stroke="#8da2ad" stroke-width="2.2" fill="none" marker-end="url(#ar)">
+    <path d="M540 110 L127 166"/>
+    <path d="M555 114 L312 166"/>
+    <path d="M575 114 L497 166"/>
+    <path d="M605 114 L682 166"/>
+    <path d="M625 114 L867 166"/>
+    <path d="M640 110 L1052 166"/>
+  </g>
+
+  <!-- expansion of channels[] branch -->
+  <!-- channel[c] -->
+  <rect x="455" y="300" width="270" height="52" rx="10" fill="#e8f7ec" stroke="#74c98a"/>
+  <text x="590" y="322" font-size="14" font-weight="700" text-anchor="middle" fill="#102027">channel[c]　(ncclChannel)</text>
+  <text x="590" y="342" font-size="12" text-anchor="middle" fill="#37474f">comm.h:150　·　一条并行车道</text>
+  <line x1="312" y1="238" x2="540" y2="296" stroke="#74c98a" stroke-width="2.4" fill="none" marker-end="url(#ar)"/>
+
+  <!-- ring/tree (left) + peers (right) -->
+  <rect x="200" y="396" width="320" height="56" rx="10" fill="#fff8e6" stroke="#edc870"/>
+  <text x="360" y="419" font-size="13.5" font-weight="700" text-anchor="middle" fill="#102027">ring{prev,next} · tree{up,down}</text>
+  <text x="360" y="439" font-size="12" text-anchor="middle" fill="#37474f">拓扑形状(第04章,device.h:175)</text>
+
+  <rect x="640" y="396" width="320" height="56" rx="10" fill="#e8f7ec" stroke="#74c98a"/>
+  <text x="800" y="419" font-size="13.5" font-weight="700" text-anchor="middle" fill="#102027">peers[r]　(ncclChannelPeer)</text>
+  <text x="800" y="439" font-size="12" text-anchor="middle" fill="#37474f">通往 rank r 的对端,device.h:232</text>
+
+  <line x1="540" y1="352" x2="380" y2="392" stroke="#8da2ad" stroke-width="2.2" fill="none" marker-end="url(#ar)"/>
+  <line x1="640" y1="352" x2="790" y2="392" stroke="#8da2ad" stroke-width="2.2" fill="none" marker-end="url(#ar)"/>
+
+  <!-- connector -->
+  <rect x="640" y="496" width="320" height="56" rx="10" fill="#e8f7ec" stroke="#74c98a"/>
+  <text x="800" y="519" font-size="13.5" font-weight="700" text-anchor="middle" fill="#102027">send[0..1] / recv[0..1] = connector</text>
+  <text x="800" y="539" font-size="12" text-anchor="middle" fill="#37474f">方向 × 协议,device.h:165</text>
+  <line x1="800" y1="452" x2="800" y2="492" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+
+  <!-- transport -->
+  <rect x="640" y="596" width="320" height="52" rx="10" fill="#102027"/>
+  <text x="800" y="619" font-size="13.5" font-weight="700" text-anchor="middle" fill="#fff">transportComm → P2P / SHM / NET</text>
+  <text x="800" y="638" font-size="12" text-anchor="middle" fill="#b0bec5">这条连接的物理实现(第07章)</text>
+  <line x1="800" y1="552" x2="800" y2="592" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+</svg>

@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 840" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>NCCL 七类通信原语语义(4 个 rank,前→后对照)</title>
+  <desc>2 列 4 行的面板网格。每个面板左边是通信"前"4 个 rank 的数据,中间一个向右的箭头,右边是通信"后"4 个 rank 的数据。
+  颜色代表数据归属:绿=rank0 的数据 a,蓝=rank1 的 b,琥珀=rank2 的 c,紫=rank3 的 d,深色 Σ=归约结果。
+  面板:左列 Broadcast/AllReduce/ReduceScatter/AllToAll;右列 Reduce/AllGather/Send-Recv/图例。所有箭头水平向右。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="840" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="46" font-size="25" font-weight="700" fill="#102027">NCCL 七类通信原语:数据流语义(4 个 rank)</text>
+
+  <!-- panel frames -->
+  <g fill="#ffffff" stroke="#d6dde2" stroke-width="1.5">
+    <rect x="30"  y="70"  width="545" height="170" rx="14"/>
+    <rect x="605" y="70"  width="545" height="170" rx="14"/>
+    <rect x="30"  y="250" width="545" height="170" rx="14"/>
+    <rect x="605" y="250" width="545" height="170" rx="14"/>
+    <rect x="30"  y="430" width="545" height="170" rx="14"/>
+    <rect x="605" y="430" width="545" height="170" rx="14"/>
+    <rect x="30"  y="610" width="545" height="170" rx="14"/>
+    <rect x="605" y="610" width="545" height="170" rx="14"/>
+  </g>
+
+  <!-- generic rank labels + arrows are drawn per panel -->
+  <g font-size="13" text-anchor="middle" fill="#607d8b">
+    <!-- per-panel rank labels reused: we place R0..R3 under each cluster -->
+  </g>
+
+  <!-- ============ Panel: Broadcast (px=30 py=70) ============ -->
+  <text x="42" y="98" font-size="18" font-weight="700" fill="#102027">Broadcast</text>
+  <text x="148" y="98" font-size="13" fill="#607d8b">root 的数据复制给所有人</text>
+  <text x="60" y="124" font-size="12" fill="#90a4ae">前</text>
+  <text x="360" y="124" font-size="12" fill="#90a4ae">后</text>
+  <!-- before: R0=X(green), others empty -->
+  <g>
+    <rect x="52"  y="128" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="73" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">X</text>
+    <rect x="104" y="128" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+    <rect x="156" y="128" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+    <rect x="208" y="128" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+  </g>
+  <line x1="262" y1="148" x2="318" y2="148" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <g>
+    <rect x="332" y="128" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="353" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">X</text>
+    <rect x="384" y="128" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="405" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">X</text>
+    <rect x="436" y="128" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="457" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">X</text>
+    <rect x="488" y="128" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="509" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">X</text>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="73" y="186">R0</text><text x="125" y="186">R1</text><text x="177" y="186">R2</text><text x="229" y="186">R3</text>
+    <text x="353" y="186">R0</text><text x="405" y="186">R1</text><text x="457" y="186">R2</text><text x="509" y="186">R3</text>
+  </g>
+
+  <!-- ============ Panel: Reduce (px=605 py=70) ============ -->
+  <text x="617" y="98" font-size="18" font-weight="700" fill="#102027">Reduce</text>
+  <text x="710" y="98" font-size="13" fill="#607d8b">归约,只有 root 拿到结果</text>
+  <text x="635" y="124" font-size="12" fill="#90a4ae">前</text>
+  <text x="935" y="124" font-size="12" fill="#90a4ae">后</text>
+  <g>
+    <rect x="627" y="128" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="648" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">a</text>
+    <rect x="679" y="128" width="42" height="40" rx="6" fill="#6fa8e6" stroke="#3d7fc4"/><text x="700" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">b</text>
+    <rect x="731" y="128" width="42" height="40" rx="6" fill="#edc870" stroke="#c89f30"/><text x="752" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#5a4500">c</text>
+    <rect x="783" y="128" width="42" height="40" rx="6" fill="#a98fe0" stroke="#7d5fc0"/><text x="804" y="153" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">d</text>
+  </g>
+  <line x1="837" y1="148" x2="893" y2="148" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <g>
+    <rect x="907" y="128" width="42" height="40" rx="6" fill="#102027" stroke="#102027"/><text x="928" y="153" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+    <rect x="959" y="128" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+    <rect x="1011" y="128" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+    <rect x="1063" y="128" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="648" y="186">R0</text><text x="700" y="186">R1</text><text x="752" y="186">R2</text><text x="804" y="186">R3</text>
+    <text x="928" y="186">R0✓</text><text x="980" y="186">R1</text><text x="1032" y="186">R2</text><text x="1084" y="186">R3</text>
+  </g>
+
+  <!-- ============ Panel: AllReduce (px=30 py=250) ============ -->
+  <text x="42" y="278" font-size="18" font-weight="700" fill="#102027">AllReduce</text>
+  <text x="158" y="278" font-size="13" fill="#607d8b">归约 + 每个 rank 都拿到结果</text>
+  <text x="60" y="304" font-size="12" fill="#90a4ae">前</text>
+  <text x="360" y="304" font-size="12" fill="#90a4ae">后</text>
+  <g>
+    <rect x="52"  y="308" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="73" y="333" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">a</text>
+    <rect x="104" y="308" width="42" height="40" rx="6" fill="#6fa8e6" stroke="#3d7fc4"/><text x="125" y="333" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">b</text>
+    <rect x="156" y="308" width="42" height="40" rx="6" fill="#edc870" stroke="#c89f30"/><text x="177" y="333" font-size="14" font-weight="700" text-anchor="middle" fill="#5a4500">c</text>
+    <rect x="208" y="308" width="42" height="40" rx="6" fill="#a98fe0" stroke="#7d5fc0"/><text x="229" y="333" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">d</text>
+  </g>
+  <line x1="262" y1="328" x2="318" y2="328" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <g>
+    <rect x="332" y="308" width="42" height="40" rx="6" fill="#102027"/><text x="353" y="333" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+    <rect x="384" y="308" width="42" height="40" rx="6" fill="#102027"/><text x="405" y="333" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+    <rect x="436" y="308" width="42" height="40" rx="6" fill="#102027"/><text x="457" y="333" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+    <rect x="488" y="308" width="42" height="40" rx="6" fill="#102027"/><text x="509" y="333" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="73" y="366">R0</text><text x="125" y="366">R1</text><text x="177" y="366">R2</text><text x="229" y="366">R3</text>
+    <text x="353" y="366">R0</text><text x="405" y="366">R1</text><text x="457" y="366">R2</text><text x="509" y="366">R3</text>
+  </g>
+
+  <!-- ============ Panel: AllGather (px=605 py=250) ============ -->
+  <text x="617" y="278" font-size="18" font-weight="700" fill="#102027">AllGather</text>
+  <text x="730" y="278" font-size="13" fill="#607d8b">各交一段,人手一份合集</text>
+  <text x="635" y="304" font-size="12" fill="#90a4ae">前</text>
+  <text x="935" y="304" font-size="12" fill="#90a4ae">后</text>
+  <g>
+    <rect x="627" y="308" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="648" y="333" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">a</text>
+    <rect x="679" y="308" width="42" height="40" rx="6" fill="#6fa8e6" stroke="#3d7fc4"/><text x="700" y="333" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">b</text>
+    <rect x="731" y="308" width="42" height="40" rx="6" fill="#edc870" stroke="#c89f30"/><text x="752" y="333" font-size="14" font-weight="700" text-anchor="middle" fill="#5a4500">c</text>
+    <rect x="783" y="308" width="42" height="40" rx="6" fill="#a98fe0" stroke="#7d5fc0"/><text x="804" y="333" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">d</text>
+  </g>
+  <line x1="837" y1="328" x2="893" y2="328" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <!-- after: each rank has 4 stacked bands a b c d -->
+  <g>
+    <g><rect x="907" y="308" width="42" height="10" fill="#74c98a"/><rect x="907" y="318" width="42" height="10" fill="#6fa8e6"/><rect x="907" y="328" width="42" height="10" fill="#edc870"/><rect x="907" y="338" width="42" height="10" fill="#a98fe0"/><rect x="907" y="308" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="959" y="308" width="42" height="10" fill="#74c98a"/><rect x="959" y="318" width="42" height="10" fill="#6fa8e6"/><rect x="959" y="328" width="42" height="10" fill="#edc870"/><rect x="959" y="338" width="42" height="10" fill="#a98fe0"/><rect x="959" y="308" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="1011" y="308" width="42" height="10" fill="#74c98a"/><rect x="1011" y="318" width="42" height="10" fill="#6fa8e6"/><rect x="1011" y="328" width="42" height="10" fill="#edc870"/><rect x="1011" y="338" width="42" height="10" fill="#a98fe0"/><rect x="1011" y="308" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="1063" y="308" width="42" height="10" fill="#74c98a"/><rect x="1063" y="318" width="42" height="10" fill="#6fa8e6"/><rect x="1063" y="328" width="42" height="10" fill="#edc870"/><rect x="1063" y="338" width="42" height="10" fill="#a98fe0"/><rect x="1063" y="308" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="648" y="366">R0</text><text x="700" y="366">R1</text><text x="752" y="366">R2</text><text x="804" y="366">R3</text>
+    <text x="928" y="366">R0</text><text x="980" y="366">R1</text><text x="1032" y="366">R2</text><text x="1084" y="366">R3</text>
+  </g>
+
+  <!-- ============ Panel: ReduceScatter (px=30 py=430) ============ -->
+  <text x="42" y="458" font-size="18" font-weight="700" fill="#102027">ReduceScatter</text>
+  <text x="195" y="458" font-size="13" fill="#607d8b">归约后切块,rank i 拿第 i 块</text>
+  <text x="60" y="484" font-size="12" fill="#90a4ae">前(每人都有全 4 块)</text>
+  <text x="360" y="484" font-size="12" fill="#90a4ae">后</text>
+  <!-- before: each rank has 4 bands -->
+  <g>
+    <g><rect x="52" y="488" width="42" height="10" fill="#74c98a"/><rect x="52" y="498" width="42" height="10" fill="#6fa8e6"/><rect x="52" y="508" width="42" height="10" fill="#edc870"/><rect x="52" y="518" width="42" height="10" fill="#a98fe0"/><rect x="52" y="488" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="104" y="488" width="42" height="10" fill="#74c98a"/><rect x="104" y="498" width="42" height="10" fill="#6fa8e6"/><rect x="104" y="508" width="42" height="10" fill="#edc870"/><rect x="104" y="518" width="42" height="10" fill="#a98fe0"/><rect x="104" y="488" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="156" y="488" width="42" height="10" fill="#74c98a"/><rect x="156" y="498" width="42" height="10" fill="#6fa8e6"/><rect x="156" y="508" width="42" height="10" fill="#edc870"/><rect x="156" y="518" width="42" height="10" fill="#a98fe0"/><rect x="156" y="488" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="208" y="488" width="42" height="10" fill="#74c98a"/><rect x="208" y="498" width="42" height="10" fill="#6fa8e6"/><rect x="208" y="508" width="42" height="10" fill="#edc870"/><rect x="208" y="518" width="42" height="10" fill="#a98fe0"/><rect x="208" y="488" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+  </g>
+  <line x1="262" y1="508" x2="318" y2="508" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <!-- after: R0=Σ0 ... each dark with subscript -->
+  <g>
+    <rect x="332" y="488" width="42" height="40" rx="6" fill="#102027"/><text x="353" y="513" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Σ₀</text>
+    <rect x="384" y="488" width="42" height="40" rx="6" fill="#102027"/><text x="405" y="513" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Σ₁</text>
+    <rect x="436" y="488" width="42" height="40" rx="6" fill="#102027"/><text x="457" y="513" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Σ₂</text>
+    <rect x="488" y="488" width="42" height="40" rx="6" fill="#102027"/><text x="509" y="513" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Σ₃</text>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="73" y="546">R0</text><text x="125" y="546">R1</text><text x="177" y="546">R2</text><text x="229" y="546">R3</text>
+    <text x="353" y="546">R0</text><text x="405" y="546">R1</text><text x="457" y="546">R2</text><text x="509" y="546">R3</text>
+  </g>
+
+  <!-- ============ Panel: Send/Recv (px=605 py=430) ============ -->
+  <text x="617" y="458" font-size="18" font-weight="700" fill="#102027">Send / Recv</text>
+  <text x="745" y="458" font-size="13" fill="#607d8b">点对点:R0 → R2</text>
+  <text x="635" y="484" font-size="12" fill="#90a4ae">前</text>
+  <text x="935" y="484" font-size="12" fill="#90a4ae">后</text>
+  <g>
+    <rect x="627" y="488" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="648" y="513" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">X</text>
+    <rect x="679" y="488" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+    <rect x="731" y="488" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+    <rect x="783" y="488" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+  </g>
+  <line x1="837" y1="508" x2="893" y2="508" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <g>
+    <rect x="907" y="488" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="928" y="513" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">X</text>
+    <rect x="959" y="488" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+    <rect x="1011" y="488" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="1032" y="513" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">X</text>
+    <rect x="1063" y="488" width="42" height="40" rx="6" fill="#eef1f3" stroke="#c5ced3"/>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="648" y="546">R0</text><text x="700" y="546">R1</text><text x="752" y="546">R2</text><text x="804" y="546">R3</text>
+    <text x="928" y="546">R0</text><text x="980" y="546">R1</text><text x="1032" y="546">R2✓</text><text x="1084" y="546">R3</text>
+  </g>
+
+  <!-- ============ Panel: AllToAll (px=30 py=610) ============ -->
+  <text x="42" y="638" font-size="18" font-weight="700" fill="#102027">AllToAll</text>
+  <text x="150" y="638" font-size="13" fill="#607d8b">每人给每人发一段(矩阵转置)</text>
+  <text x="60" y="664" font-size="12" fill="#90a4ae">前:rank i 第 j 段发给 j</text>
+  <text x="360" y="664" font-size="12" fill="#90a4ae">后:rank j 收齐各 i 的段</text>
+  <!-- before: rank i has 4 bands colored by destination j (same band order) -->
+  <g>
+    <g><rect x="52" y="668" width="42" height="10" fill="#74c98a"/><rect x="52" y="678" width="42" height="10" fill="#6fa8e6"/><rect x="52" y="688" width="42" height="10" fill="#edc870"/><rect x="52" y="698" width="42" height="10" fill="#a98fe0"/><rect x="52" y="668" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="104" y="668" width="42" height="10" fill="#74c98a"/><rect x="104" y="678" width="42" height="10" fill="#6fa8e6"/><rect x="104" y="688" width="42" height="10" fill="#edc870"/><rect x="104" y="698" width="42" height="10" fill="#a98fe0"/><rect x="104" y="668" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="156" y="668" width="42" height="10" fill="#74c98a"/><rect x="156" y="678" width="42" height="10" fill="#6fa8e6"/><rect x="156" y="688" width="42" height="10" fill="#edc870"/><rect x="156" y="698" width="42" height="10" fill="#a98fe0"/><rect x="156" y="668" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="208" y="668" width="42" height="10" fill="#74c98a"/><rect x="208" y="678" width="42" height="10" fill="#6fa8e6"/><rect x="208" y="688" width="42" height="10" fill="#edc870"/><rect x="208" y="698" width="42" height="10" fill="#a98fe0"/><rect x="208" y="668" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+  </g>
+  <line x1="262" y1="688" x2="318" y2="688" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <!-- after: rank j has 4 bands all same color = j's column gathered (use solid color per rank) -->
+  <g>
+    <rect x="332" y="668" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/>
+    <rect x="384" y="668" width="42" height="40" rx="6" fill="#6fa8e6" stroke="#3d7fc4"/>
+    <rect x="436" y="668" width="42" height="40" rx="6" fill="#edc870" stroke="#c89f30"/>
+    <rect x="488" y="668" width="42" height="40" rx="6" fill="#a98fe0" stroke="#7d5fc0"/>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="73" y="726">R0</text><text x="125" y="726">R1</text><text x="177" y="726">R2</text><text x="229" y="726">R3</text>
+    <text x="353" y="726">R0</text><text x="405" y="726">R1</text><text x="457" y="726">R2</text><text x="509" y="726">R3</text>
+  </g>
+
+  <!-- ============ Panel: Legend (px=605 py=610) ============ -->
+  <text x="617" y="638" font-size="18" font-weight="700" fill="#102027">图例</text>
+  <g font-size="14">
+    <rect x="625" y="656" width="26" height="20" rx="4" fill="#74c98a"/><text x="660" y="672" fill="#37474f">rank0 的数据 a</text>
+    <rect x="625" y="684" width="26" height="20" rx="4" fill="#6fa8e6"/><text x="660" y="700" fill="#37474f">rank1 的数据 b</text>
+    <rect x="825" y="656" width="26" height="20" rx="4" fill="#edc870"/><text x="860" y="672" fill="#37474f">rank2 的数据 c</text>
+    <rect x="825" y="684" width="26" height="20" rx="4" fill="#a98fe0"/><text x="860" y="700" fill="#37474f">rank3 的数据 d</text>
+    <rect x="625" y="712" width="26" height="20" rx="4" fill="#102027"/><text x="660" y="728" fill="#37474f">Σ = 归约结果(如求和)</text>
+    <rect x="825" y="712" width="26" height="20" rx="4" fill="#eef1f3" stroke="#c5ced3"/><text x="860" y="728" fill="#37474f">空 / 未定义</text>
+  </g>
+  <text x="617" y="758" font-size="12.5" fill="#90a4ae">恒等式:AllReduce = ReduceScatter + AllGather</text>
+
+</svg>

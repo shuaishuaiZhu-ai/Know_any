@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 560" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>Simple 协议 FIFO 生产者-消费者同步</title>
+  <desc>中部一排 8 个 slot(NCCL_STEPS=8)的环形缓冲。上方两个框:消费者(接收方)在左、生产者(发送方)在右。
+  箭头:生产者向下写 slot[tail](head 落在 tail slot 顶);消费者从 slot[head] 向上读(head 落在消费者框底)。slot 着色:已读(灰)、待读(绿)、空(白)。下方 head/tail 指针标注 + 同步条件面板。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="560" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="42" font-size="22" font-weight="700" fill="#102027">Simple 协议:环形 FIFO 的生产者-消费者同步</text>
+
+  <!-- consumer box (left, above slot2) -->
+  <rect x="386" y="78" width="200" height="64" rx="12" fill="#e8f1fd" stroke="#6fa8e6" stroke-width="2"/>
+  <text x="486" y="104" font-size="14" font-weight="700" text-anchor="middle" fill="#102027">接收方(消费者)</text>
+  <text x="486" y="126" font-size="12" text-anchor="middle" fill="#37474f">读 slot[head] → 推进 head</text>
+
+  <!-- producer box (right, above slot5) -->
+  <rect x="686" y="78" width="200" height="64" rx="12" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/>
+  <text x="786" y="104" font-size="14" font-weight="700" text-anchor="middle" fill="#102027">发送方(生产者)</text>
+  <text x="786" y="126" font-size="12" text-anchor="middle" fill="#37474f">写 slot[tail] → 推进 tail</text>
+
+  <!-- slots -->
+  <g font-size="13" text-anchor="middle" font-weight="700">
+    <!-- s0,s1 consumed(gray) -->
+    <rect x="240" y="250" width="92" height="70" rx="8" fill="#eef1f3" stroke="#c5ced3"/><text x="286" y="282" fill="#90a4ae">s0</text><text x="286" y="302" font-size="10" font-weight="400" fill="#90a4ae">已读·可复用</text>
+    <rect x="340" y="250" width="92" height="70" rx="8" fill="#eef1f3" stroke="#c5ced3"/><text x="386" y="282" fill="#90a4ae">s1</text><text x="386" y="302" font-size="10" font-weight="400" fill="#90a4ae">已读·可复用</text>
+    <!-- s2,s3,s4 ready(green) -->
+    <rect x="440" y="250" width="92" height="70" rx="8" fill="#cdeede" stroke="#74c98a" stroke-width="2"/><text x="486" y="282" fill="#2e7d4f">s2</text><text x="486" y="302" font-size="10" font-weight="400" fill="#2e7d4f">待读</text>
+    <rect x="540" y="250" width="92" height="70" rx="8" fill="#cdeede" stroke="#74c98a" stroke-width="2"/><text x="586" y="282" fill="#2e7d4f">s3</text><text x="586" y="302" font-size="10" font-weight="400" fill="#2e7d4f">待读</text>
+    <rect x="640" y="250" width="92" height="70" rx="8" fill="#cdeede" stroke="#74c98a" stroke-width="2"/><text x="686" y="282" fill="#2e7d4f">s4</text><text x="686" y="302" font-size="10" font-weight="400" fill="#2e7d4f">待读</text>
+    <!-- s5,s6,s7 free(white) -->
+    <rect x="740" y="250" width="92" height="70" rx="8" fill="#ffffff" stroke="#c5ced3"/><text x="786" y="282" fill="#607d8b">s5</text><text x="786" y="302" font-size="10" font-weight="400" fill="#90a4ae">空</text>
+    <rect x="840" y="250" width="92" height="70" rx="8" fill="#ffffff" stroke="#c5ced3"/><text x="886" y="282" fill="#607d8b">s6</text><text x="886" y="302" font-size="10" font-weight="400" fill="#90a4ae">空</text>
+    <rect x="940" y="250" width="92" height="70" rx="8" fill="#ffffff" stroke="#c5ced3"/><text x="986" y="282" fill="#607d8b">s7</text><text x="986" y="302" font-size="10" font-weight="400" fill="#90a4ae">空</text>
+  </g>
+  <text x="240" y="238" font-size="12" text-anchor="start" fill="#607d8b">共享 FIFO(接收方显存)·环形复用 8 slot</text>
+
+  <!-- arrows -->
+  <!-- producer writes down to slot5 (tail) -->
+  <line x1="786" y1="142" x2="786" y2="246" stroke="#8da2ad" stroke-width="2.6" marker-end="url(#ar)"/>
+  <text x="800" y="200" font-size="12" fill="#2e7d4f">① 写 slot[tail]</text>
+  <!-- consumer reads up from slot2 (head) -->
+  <line x1="486" y1="248" x2="486" y2="144" stroke="#8da2ad" stroke-width="2.6" marker-end="url(#ar)"/>
+  <text x="372" y="200" font-size="12" text-anchor="end" fill="#3d7fc4">② 读 slot[head]</text>
+
+  <!-- head / tail pointers -->
+  <text x="486" y="345" font-size="13" font-weight="700" text-anchor="middle" fill="#3d7fc4">▲ head=2</text>
+  <text x="486" y="363" font-size="11" text-anchor="middle" fill="#607d8b">消费水位</text>
+  <text x="786" y="345" font-size="13" font-weight="700" text-anchor="middle" fill="#2e7d4f">▲ tail=5</text>
+  <text x="786" y="363" font-size="11" text-anchor="middle" fill="#607d8b">生产水位</text>
+
+  <!-- conditions panel -->
+  <rect x="40" y="392" width="1100" height="146" rx="14" fill="#fff" stroke="#d6dde2"/>
+  <text x="60" y="420" font-size="14" font-weight="700" fill="#102027">同步规则(无锁单生产者-单消费者队列)</text>
+  <text x="60" y="450" font-size="13.5" fill="#37474f"><tspan font-weight="700" fill="#2e7d4f">发送方</tspan>写 slot s 前等到: <tspan font-weight="700">head + NCCL_STEPS(8) ≥ s + 1</tspan> —— 消费者最多落后 8 个 slot,否则会覆盖未读数据</text>
+  <text x="60" y="478" font-size="13.5" fill="#37474f"><tspan font-weight="700" fill="#3d7fc4">接收方</tspan>读 slot s 前等到: <tspan font-weight="700">tail ≥ s + 1</tspan> —— 生产者已把这个 slot 写好</text>
+  <text x="60" y="506" font-size="13.5" fill="#37474f"><tspan font-weight="700" fill="#b06a1e">内存可见性</tspan>:发送方推进 tail 前先 <tspan font-weight="700">fence_acq_rel</tspan> —— 保证数据真正落显存后,对方才看到 tail 上涨(防乱序)</text>
+  <text x="60" y="530" font-size="12.5" fill="#607d8b">读指针用 volatile,每次从显存取对方最新水位 · 8 个 in-flight slot 让"收/算/发"流水重叠 → 打满带宽</text>
+</svg>
