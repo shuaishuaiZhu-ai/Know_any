@@ -34,7 +34,7 @@ source:
 | **OS 抽象层** | ❌ 无（直接 Linux API） | ✅ `os_interface.c` 缝隙 | **先决条件** |
 | **HAL / 寄存器抽象** | ❌ 无（直接 `iowrite32`） | ✅ 函数指针 ops 表 | **先决条件** |
 | **页表 / MMU** | ❌ 无（直接 DMA 物理地址） | ✅ 4 级页表 [[aigc_page_table]] | 高 |
-| **命令队列 / 环** | ❌ 无 | ✅ MCQD/CP ring [[wiki/grace/kmd/queue/index]] | 高 |
+| **命令队列 / 环** | ❌ 无 | ✅ MCQD/CP ring [[wiki/grace/kmd/05-submission-events-interrupts]] | 高 |
 | **调度器** | ❌ 无 | ✅ kthread + 默认调度 [[aigc_sched]] | 中 |
 | **fence / 事件同步** | ❌ 无（只有 IPC 订阅） | ✅ TS buffer + 完成中断 [[aigc_kmd_fence]] | 中 |
 | **context / vdev 虚拟化** | ❌ 单设备 | ✅ [[aigc_ctx]]/[[aigc_vdev]] | 中 |
@@ -76,4 +76,4 @@ flowchart LR
 
 - [[wiki/grace/kmd/index|ajthunk KMD 知识库]]：每个待移植模块的详解。
 - 代码仓 `aigc-kmd-modular/`：抽取的模块树 + `docs/01-porting-...` 移植指南 + `docs/02-tiny-kmd-refactor-guide`。
-- [[wiki/grace/kmd/arch/layered-architecture]]：三层架构（移植要照着补）。
+- [[wiki/grace/kmd/01-architecture]]：三层架构（移植要照着补）。

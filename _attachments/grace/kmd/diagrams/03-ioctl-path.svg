@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="700" viewBox="0 0 880 700" font-family="Noto Sans CJK SC, sans-serif">
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#52606d"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#9aa5b1" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <rect width="880" height="700" fill="#fffdf6"/>
+  <text x="290" y="36" font-size="20" font-weight="bold" text-anchor="middle" fill="#1f2933">一次 ioctl 的请求路径</text>
+
+  <!-- step1 -->
+  <g filter="url(#sh)"><rect x="70" y="58" width="440" height="92" rx="14" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="290" y="88" font-size="15" font-weight="bold" text-anchor="middle" fill="#243b53">① open("/dev/aigcN")</text>
+  <text x="290" y="112" font-size="12.5" text-anchor="middle" fill="#486581">aigc_open → aigc_lib_open()</text>
+  <text x="290" y="134" font-size="12.5" text-anchor="middle" fill="#486581">分配每-fd 的 aigc_vdev，存入 file-&gt;private_data</text>
+
+  <!-- step2 -->
+  <g filter="url(#sh)"><rect x="70" y="186" width="440" height="116" rx="14" fill="#fff4e0" stroke="#d9a441" stroke-width="2.2"/></g>
+  <text x="290" y="216" font-size="15" font-weight="bold" text-anchor="middle" fill="#8a5a00">② ioctl(fd, cmd, arg) — 第一级安检</text>
+  <text x="290" y="240" font-size="12.5" text-anchor="middle" fill="#8a5a00">aigc_ioctl()：解出 _IOC_NR / _IOC_SIZE</text>
+  <text x="290" y="262" font-size="12.5" text-anchor="middle" fill="#8a5a00">对照 aigc_ioctl_tbl[] 校验编号</text>
+  <text x="290" y="284" font-size="12.5" text-anchor="middle" fill="#a8410f">编号越界 或 .cmd 不精确匹配 → -EINVAL</text>
+
+  <!-- step3 -->
+  <g filter="url(#sh)"><rect x="70" y="338" width="440" height="84" rx="14" fill="#e3f0e3" stroke="#5a9367" stroke-width="2.2"/></g>
+  <text x="290" y="368" font-size="15" font-weight="bold" text-anchor="middle" fill="#2f6b3a">③ aigc_lib_ioctl() — 第二级派发</text>
+  <text x="290" y="394" font-size="12.5" text-anchor="middle" fill="#3a7a47">用 [AIP_x] = handler 表按编号取处理函数</text>
+
+  <!-- step4 -->
+  <g filter="url(#sh)"><rect x="70" y="458" width="440" height="94" rx="14" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="290" y="488" font-size="15" font-weight="bold" text-anchor="middle" fill="#243b53">④ aigc_ioctl_*() 处理函数</text>
+  <text x="290" y="512" font-size="12.5" text-anchor="middle" fill="#486581">os_memcpy_from/to_user 拷参</text>
+  <text x="290" y="534" font-size="12.5" text-anchor="middle" fill="#486581">驱动 ctx / vm / 页表 / 命令 / fence</text>
+
+  <!-- step5 -->
+  <g filter="url(#sh)"><rect x="70" y="588" width="440" height="84" rx="14" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2.2"/></g>
+  <text x="290" y="618" font-size="15" font-weight="bold" text-anchor="middle" fill="#7a3f72">⑤ aigc_hal_* 入口</text>
+  <text x="290" y="644" font-size="12.5" text-anchor="middle" fill="#8a5082">经 ops 表落到 Grace 后端（寄存器 / IPC）</text>
+
+  <!-- arrows -->
+  <line x1="290" y1="150" x2="290" y2="184" stroke="#52606d" stroke-width="2.4" marker-end="url(#a)"/>
+  <line x1="290" y1="302" x2="290" y2="336" stroke="#52606d" stroke-width="2.4" marker-end="url(#a)"/>
+  <line x1="290" y1="422" x2="290" y2="456" stroke="#52606d" stroke-width="2.4" marker-end="url(#a)"/>
+  <line x1="290" y1="552" x2="290" y2="586" stroke="#52606d" stroke-width="2.4" marker-end="url(#a)"/>
+
+  <!-- note card -->
+  <g filter="url(#sh)"><rect x="558" y="300" width="300" height="120" rx="14" fill="#fffbe6" stroke="#c9a227" stroke-width="2"/></g>
+  <text x="708" y="330" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#8a6d0f">为什么两张表不会出错</text>
+  <text x="708" y="356" font-size="12" text-anchor="middle" fill="#7a611a">校验表 + 派发表 都由同一个</text>
+  <text x="708" y="376" font-size="12" text-anchor="middle" fill="#7a611a">X-macro 头 aigc_ioctl_tab.h 生成，</text>
+  <text x="708" y="396" font-size="12" text-anchor="middle" fill="#7a611a">永不漂移，且与用户态 AIP_* 同步。</text>
+  <path d="M558,372 C535,375 522,378 512,380" fill="none" stroke="#c9a227" stroke-width="1.8" stroke-dasharray="5 4"/>
+</svg>

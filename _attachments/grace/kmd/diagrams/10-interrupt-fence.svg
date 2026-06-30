@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="500" viewBox="0 0 1020 500" font-family="Noto Sans CJK SC, sans-serif">
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#52606d"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.8" flood-color="#9aa5b1" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="1020" height="500" fill="#fffdf6"/>
+  <text x="510" y="32" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f2933">硬件如何回报：中断、事件环与 fence</text>
+
+  <!-- LEFT: interrupt -> event path -->
+  <text x="250" y="62" font-size="13" font-weight="bold" text-anchor="middle" fill="#7a3f72">A. GPU 事件上报（错误 / 事件中断）</text>
+  <g filter="url(#sh)"><rect x="110" y="74" width="280" height="44" rx="11" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2"/></g>
+  <text x="250" y="101" font-size="13" font-weight="bold" text-anchor="middle" fill="#7a3f72">GPU 触发 MSI-X 中断</text>
+
+  <g filter="url(#sh)"><rect x="40" y="140" width="420" height="74" rx="12" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="250" y="166" font-size="13" font-weight="bold" text-anchor="middle" fill="#243b53">上半部（每向量，快）</text>
+  <text x="250" y="187" font-size="11" text-anchor="middle" fill="#486581">读+清状态 clear_irq_stage2；错误源记 engines_bitmap</text>
+  <text x="250" y="205" font-size="11" text-anchor="middle" fill="#486581">返回 need_bottom_half 决定是否要下半部</text>
+
+  <g filter="url(#sh)"><rect x="40" y="236" width="420" height="74" rx="12" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="250" y="262" font-size="13" font-weight="bold" text-anchor="middle" fill="#2f6b3a">下半部（工作队列）</text>
+  <text x="250" y="283" font-size="11" text-anchor="middle" fill="#3a7a47">engine 位 → EngineMapEvent 映射成事件码</text>
+  <text x="250" y="301" font-size="11" text-anchor="middle" fill="#3a7a47">record_irq_event() 生成 EventGpuInfo</text>
+
+  <g filter="url(#sh)"><rect x="40" y="332" width="420" height="62" rx="12" fill="#fff4e0" stroke="#d9a441" stroke-width="2"/></g>
+  <text x="250" y="358" font-size="13" font-weight="bold" text-anchor="middle" fill="#8a5a00">推给每个 vdev 的 event tracker</text>
+  <text x="250" y="379" font-size="11" text-anchor="middle" fill="#9a6a1a">用户态经 ioctl 注册并轮询的共享内存队列</text>
+
+  <line x1="250" y1="118" x2="250" y2="138" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="250" y1="214" x2="250" y2="234" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="250" y1="310" x2="250" y2="330" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+
+  <!-- threaded note -->
+  <g filter="url(#sh)"><rect x="40" y="416" width="420" height="64" rx="12" fill="#fffbe6" stroke="#c9a227" stroke-width="1.6"/></g>
+  <text x="250" y="440" font-size="12" font-weight="bold" text-anchor="middle" fill="#8a6d0f">线程化处理器 109 / 111（固件命令完成）</text>
+  <text x="250" y="461" font-size="10.8" text-anchor="middle" fill="#7a611a">读 CP/IMC 响应消息，唤醒阻塞在该 fw 命令上的进程</text>
+
+  <!-- RIGHT: fence + event ring -->
+  <text x="760" y="62" font-size="13" font-weight="bold" text-anchor="middle" fill="#2f6b67">B. 命令完成：fence 模型</text>
+
+  <g filter="url(#sh)"><rect x="560" y="74" width="420" height="64" rx="12" fill="#e0f0ef" stroke="#5a9b97" stroke-width="2"/></g>
+  <text x="770" y="100" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#2f6b67">① 调度时盖「期望 TS」</text>
+  <text x="770" y="121" font-size="11" text-anchor="middle" fill="#3a7a76">aigc_ts_copy() 写进 CP 的 SIGNAL_FENCE/事件包</text>
+
+  <g filter="url(#sh)"><rect x="560" y="158" width="420" height="64" rx="12" fill="#e0f0ef" stroke="#5a9b97" stroke-width="2"/></g>
+  <text x="770" y="184" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#2f6b67">② 完成时 CP 写「递增 TS」</text>
+  <text x="770" y="205" font-size="11" text-anchor="middle" fill="#3a7a76">把递增时间戳写进 fence TS 缓冲（映射进上下文 VM）</text>
+
+  <g filter="url(#sh)"><rect x="560" y="242" width="420" height="64" rx="12" fill="#e0f0ef" stroke="#5a9b97" stroke-width="2"/></g>
+  <text x="770" y="268" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#2f6b67">③ 用户态 wait / signal</text>
+  <text x="770" y="289" font-size="11" text-anchor="middle" fill="#3a7a76">读/等 user fence 值；配合向量 40 完成中断唤醒等待者</text>
+
+  <line x1="770" y1="138" x2="770" y2="156" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="770" y1="222" x2="770" y2="240" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+
+  <!-- event ring -->
+  <g filter="url(#sh)"><rect x="560" y="332" width="420" height="74" rx="12" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2"/></g>
+  <text x="770" y="358" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#7a3f72">事件环 aigc_interrupt_ring</text>
+  <text x="770" y="379" font-size="11" text-anchor="middle" fill="#8a5082">单生产/单消费环：硬件=生产者（推 head）</text>
+  <text x="770" y="397" font-size="11" text-anchor="middle" fill="#8a5082">驱动=消费者（drain tail，head==tail 即空）</text>
+
+  <!-- bring-up note -->
+  <g filter="url(#sh)"><rect x="560" y="416" width="420" height="64" rx="12" fill="#ffffff" stroke="#7b8794" stroke-width="1.5"/></g>
+  <text x="770" y="440" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#5d6b79">bring-up 现状</text>
+  <text x="770" y="461" font-size="10.8" text-anchor="middle" fill="#7a8a99">事件环 IG 寄存器钩子在本构建为仿真桩（head/tail 读 0）</text>
+</svg>

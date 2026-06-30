@@ -23,7 +23,7 @@ status: active
 | [stream / MCQD / HCQD 与命令下发](<./stream-mcqd-hcqd-and-command-submission.md>) | stream 和硬件 ring buffer 什么关系、何时懒创建；MCQD（软件逻辑队列）↔ HCQD（32 个硬件槽）为什么两级；哪块内存落 host/device；命令下发的两条路径（UMD 直发主路径 vs KMD 两阶段非主/禁用路径）。 |
 | [kernel cmd → CP job cmd 字段映射](<./kernel-cmd-to-cp-job-cmd.md>) | `aica_kernel_dispatch_packet_t` 逐字段拆解；澄清"全栈只有一个 `0x10`"；dispatch 包到执行单元的映射链。主文档第 2.4 节的深度展开。 |
 
-> 配套子域入口：[UMD 用户态运行时（aigc-driver）](<../umd/index.md>)、[KMD 面试向深入](<../kmd/kmd-interview-deep-dive.md>)、[CP 固件面试向深入](<../fw/fw-cp-interview-deep-dive.md>)。
+> 配套子域入口：[UMD 用户态运行时（aigc-driver）](<../umd/index.md>)、[KMD 面试向深入](<../kmd/appendix/interview-qa.md>)、[CP 固件面试向深入](<../fw/fw-cp-interview-deep-dive.md>)。
 
 ## 延伸
 

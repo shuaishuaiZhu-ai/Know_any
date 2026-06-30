@@ -9,6 +9,14 @@ tags:
 status: active
 ---
 
+## [2026-06-29] restructure | KMD 知识库全量重构（线性 8 章 + 附录 + 12 张飞书白板风图）
+
+- **`wiki/grace/kmd/` 从扁平 10 区（arch/concepts/ioctl/memory/queue/interrupt/os/hal/flows/review）重构为线性编号 8 章 + 附录**，面向应届生、按当前 ajthunk 代码（80.116）逐函数核实：[index](<./grace/kmd/index.md>) + [00 大局观](<./grace/kmd/00-big-picture.md>)/[01 架构](<./grace/kmd/01-architecture.md>)/[02 数据结构](<./grace/kmd/02-data-structures.md>)/[03 ioctl-ABI](<./grace/kmd/03-ioctl-abi.md>)/[04 内存页表](<./grace/kmd/04-memory-and-pagetables.md>)/[05 提交-中断](<./grace/kmd/05-submission-events-interrupts.md>)/[06 HAL](<./grace/kmd/06-hal-grace.md>)/[07 构建测试](<./grace/kmd/07-build-and-test.md>)/[08 saxpy 端到端](<./grace/kmd/08-end-to-end-saxpy.md>) + `appendix/{glossary,interview-qa,code-review}`。
+- **删除旧 10 个子目录 + `env.md` + `kmd-interview-deep-dive.md`**（内容并入新章节；`env.md`→07、面试→附录、评审→附录）。
+- **12 张图全部改用飞书白板风手绘 SVG**（用户两次明确要求，弃用 Graphviz/内联 mermaid）：存 `_attachments/grace/kmd/diagrams/`（`.svg` 源 + `sharp` 渲染 `.png`），含全景/三层架构/ioctl 路径/子系统地图/所有权树/mem_handle 生命周期/堆-NUMA/4级页表/提交链路/中断-fence/HAL 框图/saxpy 时序。
+- **关键代码纠偏**：`AIP_QUEUE_SUBMIT` 当前 `return -EFAULT`（提交禁用）、kernel 走 UMD 直发 doorbell（HWS）、两级派发由 `aigc_ioctl_tab.h` X-macro 生成、HAL 多块（C2C/D2D/link_ipc）为 bring-up 桩。
+- 同步更新 [Wiki 总索引](<./index.md>)（KMD 快速入口表）、[grace 入口](<./grace/index.md>)、[Hot Cache](<./hot.md>)，并修正 overview 两页指向旧面试页的链接。
+- 分批交付到 GitHub 分支 `wiki/kmd-refactor`（`shuaishuaiZhu-ai/Know_any`），共 7 个 commit（批 1–6 + 收尾）。
 ## [2026-06-29] add | image_tool AddDefault_value 分支设计文档（+ 5 张图解）
 
 - **新增** [image_tool AddDefault_value 分支设计](<./tools/image_tool AddDefault_value 分支设计.md>)（`wiki/tools/`）：GitLab 分支 `zss/AddDefault_value`（`main cc1a244 → 756adeb`，2 commit）的技术设计文档，覆盖默认值机制（`_DEFAULTS` + 仅未传参才提示）、`_check_runtime_deps` 依赖容错、`soc_name` 显式传参、`-j` 去 `argparse.FileType`、启动 `chdir`、`generate_key_and_sign` 的 `try/finally`、平台化退出，以及配套 `architecture.md`/README/`build_image.spec`/`excel2csv`(openpyxl) 改动；附本地未提交工作区重构（`_prompt_choice` 抽取 + `_DEFAULTS` 元组循环）一节。

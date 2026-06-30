@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1010" height="470" viewBox="0 0 1010 470" font-family="Noto Sans CJK SC, sans-serif">
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#52606d"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.8" flood-color="#9aa5b1" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="1010" height="470" fill="#fffdf6"/>
+  <text x="505" y="34" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f2933">mem_handle 的生命周期</text>
+
+  <!-- stage cards -->
+  <g filter="url(#sh)"><rect x="24" y="150" width="178" height="92" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="113" y="180" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#243b53">① 创建</text>
+  <text x="113" y="204" font-size="11.5" text-anchor="middle" fill="#486581">mem_handle_alloc()</text>
+  <text x="113" y="225" font-size="11" text-anchor="middle" fill="#7a8a99">AIP_MEM_CREATE</text>
+
+  <g filter="url(#sh)"><rect x="226" y="150" width="178" height="92" rx="13" fill="#fff4e0" stroke="#d9a441" stroke-width="2"/></g>
+  <text x="315" y="178" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#8a5a00">② 落实后端</text>
+  <text x="315" y="201" font-size="11" text-anchor="middle" fill="#9a6a1a">设备内存 dev_mem_alloc</text>
+  <text x="315" y="220" font-size="11" text-anchor="middle" fill="#9a6a1a">或 系统页 pin_sys_mem</text>
+
+  <g filter="url(#sh)"><rect x="428" y="150" width="178" height="92" rx="13" fill="#e0f0ef" stroke="#5a9b97" stroke-width="2"/></g>
+  <text x="517" y="180" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#2f6b67">③ 写页表</text>
+  <text x="517" y="204" font-size="11" text-anchor="middle" fill="#3a7a76">map_pte()：dva→PA</text>
+  <text x="517" y="225" font-size="11" text-anchor="middle" fill="#6a8a86">AIP_MEM_MAP</text>
+
+  <g filter="url(#sh)"><rect x="630" y="150" width="178" height="92" rx="13" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="719" y="180" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#2f6b3a">④ 使用</text>
+  <text x="719" y="204" font-size="11" text-anchor="middle" fill="#3a7a47">GPU 用 dva 访问</text>
+  <text x="719" y="225" font-size="11" text-anchor="middle" fill="#6a9a76">（含解除映射 unmap）</text>
+
+  <g filter="url(#sh)"><rect x="832" y="150" width="178" height="92" rx="13" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2"/></g>
+  <text x="921" y="180" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#7a3f72">⑤ 释放</text>
+  <text x="921" y="204" font-size="11" text-anchor="middle" fill="#8a5082">put()：kref→0</text>
+  <text x="921" y="225" font-size="11" text-anchor="middle" fill="#8a5082">→ vm_pma_free</text>
+
+  <!-- arrows -->
+  <line x1="202" y1="196" x2="224" y2="196" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="404" y1="196" x2="426" y2="196" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="606" y1="196" x2="628" y2="196" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="808" y1="196" x2="830" y2="196" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+
+  <!-- lock/unlock annotation -->
+  <g filter="url(#sh)"><rect x="226" y="296" width="582" height="56" rx="12" fill="#fffbe6" stroke="#c9a227" stroke-width="1.6"/></g>
+  <text x="517" y="320" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#8a6d0f">Lock / Unlock（AIP_MEM_LOCK / UNLOCK）</text>
+  <text x="517" y="340" font-size="11.5" text-anchor="middle" fill="#7a611a">pin/unpin 并交回主机指针；AIGC_MLF_PIN 让设备内存常驻直到 unpin</text>
+  <line x1="315" y1="242" x2="340" y2="294" stroke="#c9a227" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <line x1="719" y1="242" x2="694" y2="294" stroke="#c9a227" stroke-width="1.6" stroke-dasharray="5 4"/>
+
+  <!-- pma note -->
+  <g filter="url(#sh)"><rect x="226" y="378" width="582" height="58" rx="12" fill="#ffffff" stroke="#d9a441" stroke-width="1.6"/></g>
+  <text x="517" y="402" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#8a5a00">后端物理内存 struct aigc_vm_pma（单独引用计数）</text>
+  <text x="517" y="422" font-size="11.5" text-anchor="middle" fill="#9a6a1a">拥有：主机 pages / 每-NUMA 设备 gen_pool 分配 / 远端 DPA</text>
+</svg>
