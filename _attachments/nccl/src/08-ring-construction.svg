@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 520" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>Ring 构建:从拓扑顺序到有向环</title>
+  <desc>左:图搜索输出的 rank 顺序(一排框)。中:箭头。右:4 个 GPU 排成方形有向环,顺时针 0→1→2→3→0。
+  四条有向边:上边 GPU0→GPU1(head 右,落 GPU1);右边 GPU1→GPU2(head 下,落 GPU2);下边 GPU2→GPU3(head 左,落 GPU3);左边 GPU3→GPU0(head 上,落 GPU0)。标注 GPU0 的 prev/next。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4a9e63"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="520" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="44" font-size="23" font-weight="700" fill="#102027">Ring 构建:把拓扑顺序连成有向环</text>
+
+  <!-- left: rank order -->
+  <text x="60" y="110" font-size="15" font-weight="700" fill="#3d7fc4">图搜索输出 graph.intra[ ]</text>
+  <text x="60" y="132" font-size="12.5" fill="#607d8b">按拓扑(NVLink/PCIe)排出的最优顺序</text>
+  <g font-size="16" text-anchor="middle" font-weight="700">
+    <rect x="60" y="150" width="60" height="56" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="90" y="185" fill="#102027">0</text>
+    <rect x="130" y="150" width="60" height="56" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="160" y="185" fill="#102027">1</text>
+    <rect x="200" y="150" width="60" height="56" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="230" y="185" fill="#102027">2</text>
+    <rect x="270" y="150" width="60" height="56" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="300" y="185" fill="#102027">3</text>
+  </g>
+  <text x="195" y="250" font-size="13" text-anchor="middle" fill="#607d8b">ncclBuildRings → prev/next</text>
+
+  <!-- middle arrow -->
+  <line x1="360" y1="220" x2="520" y2="220" stroke="#8da2ad" stroke-width="3" marker-end="url(#ar)"/>
+
+  <!-- right: square ring -->
+  <text x="870" y="92" font-size="15" font-weight="700" text-anchor="middle" fill="#2e7d4f">channel 0 的环(顺时针)</text>
+  <!-- faint second ring behind (channel 1) -->
+  <rect x="745" y="135" width="100" height="60" rx="11" fill="none" stroke="#cfe8d6" stroke-width="2" stroke-dasharray="5 5"/>
+  <rect x="905" y="135" width="100" height="60" rx="11" fill="none" stroke="#cfe8d6" stroke-width="2" stroke-dasharray="5 5"/>
+
+  <g font-size="15" text-anchor="middle" font-weight="700">
+    <rect x="720" y="140" width="100" height="60" rx="11" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="770" y="176" fill="#102027">GPU 0</text>
+    <rect x="920" y="140" width="100" height="60" rx="11" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="970" y="176" fill="#102027">GPU 1</text>
+    <rect x="920" y="330" width="100" height="60" rx="11" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="970" y="366" fill="#102027">GPU 2</text>
+    <rect x="720" y="330" width="100" height="60" rx="11" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="770" y="366" fill="#102027">GPU 3</text>
+  </g>
+  <!-- directed ring edges -->
+  <g stroke="#4a9e63" stroke-width="3.4" fill="none" marker-end="url(#ar)">
+    <line x1="820" y1="170" x2="916" y2="170"/>
+    <line x1="970" y1="200" x2="970" y2="326"/>
+    <line x1="920" y1="360" x2="824" y2="360"/>
+    <line x1="770" y1="330" x2="770" y2="204"/>
+  </g>
+  <!-- prev/next labels on GPU0 -->
+  <text x="868" y="158" font-size="12" text-anchor="middle" fill="#2e7d4f">next</text>
+  <text x="752" y="270" font-size="12" text-anchor="middle" fill="#2e7d4f">prev</text>
+
+  <!-- note multi-channel -->
+  <text x="600" y="470" font-size="13.5" fill="#607d8b">每个 GPU 只和左右邻居通信;开 nChannels 条环并行(虚线为另一条 channel),把聚合带宽吃满。</text>
+</svg>
