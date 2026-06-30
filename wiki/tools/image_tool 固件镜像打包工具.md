@@ -2,7 +2,7 @@
 type: topic
 title: "image_tool 固件镜像打包工具"
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-06-29
 tags:
   - image-tool
   - firmware-image
@@ -22,6 +22,7 @@ image_tool 的两篇文档分别覆盖用户使用说明和架构说明。它用
 
 ## 关联主题
 
+- [[image_tool AddDefault_value 分支设计]]：GitLab 分支 `zss/AddDefault_value` 的技术设计文档（默认值机制、依赖检查、chdir、try/finally 等 + 5 张图解）。
 - [[AI 协作远程编辑经验]]：image_tool 维护时默认服务器直接编辑，提交需要明确批准。
 
 ## 来源
