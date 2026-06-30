@@ -1,8 +1,8 @@
-﻿---
+---
 type: index
 title: "Codex 反思与进化"
 created: 2026-05-22
-updated: 2026-06-17
+updated: 2026-06-30
 tags:
   - codex
   - reflection
@@ -33,6 +33,7 @@ status: active
 
 ## 最近入口
 
+- [2026-06-30 飞书 Wiki 发布中的 profile / identity 误判复盘](<./evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>)
 - [2026-06-17 飞书 Wiki 权限批处理工作流复盘](<./evolution/2026-06-17-feishu-permission-workflow.md>)
 
 - [2026-06-08 6月5日到6月8日 Codex 工作流复盘](<./evolution/2026-06-08-june5-8-workflow-retrospective.md>)

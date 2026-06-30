@@ -13,6 +13,10 @@ status: active
 
 这是当前知识库的唯一总入口。不要从文件夹树随机翻文件，先从这里进入，再进入对应专区索引。
 
+AI 工作流反思新增：[飞书 Wiki 发布中的 profile / identity 误判复盘](<ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>)，沉淀 `cli_aa9d4e8d9eb91cc4` 下 user 过期但 bot ready 时的发布判断顺序。
+
+AI/飞书发布规则更新：[飞书 Wiki 发布中的 profile / identity 误判复盘](<ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>) 与 [lark-cli 建文档指南](<ai/tools/lark-cli-ai-document-guide.md>) 已记录：本地 wiki 上传飞书时图片统一转/选 PNG image block，不再使用 SVG file card。
+
 ## 当前结构
 
 ```text
