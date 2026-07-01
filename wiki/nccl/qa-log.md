@@ -52,4 +52,22 @@ source:
 
 ---
 
+### Q3:单进程多卡 和 多进程多卡,到底差在哪?
+
+**简答**:两者的本质差别是**"一个 OS 进程手上管几块 GPU、以及 comm 靠什么方式让各 rank 互相认识"**。多进程多卡是分布式训练的标准姿势(一进程一 GPU,可跨机);单进程多卡是单机脚本/小规模测试的写法(一进程管 N 块 GPU,受限于本机)。
+
+| 维度 | 多进程多卡 | 单进程多卡 |
+|------|-----------|-----------|
+| 建 comm 用的 API | `ncclCommInitRank(comm, nranks, id, rank)`,**每个进程各调一次**,自报 rank(`nccl.h.in:186`) | `ncclCommInitAll(comms, ndev, devlist)`,**一个进程一次**建好全部 comm(`nccl.h.in:195`, `init.cc:2581`);或手动对每块卡 `cudaSetDevice`+`ncclCommInitRank` 包进 group |
+| rank 互相"认识"的方式 | uniqueId 必须靠 **NCCL 之外**的手段广播给各进程(MPI `Bcast`、`torch.distributed` 的 store、文件、环境变量 `NCCL_COMM_ID`)——这是 NCCL 和"全功能 MPI"最大的分工差异([03 章](<./03-init-and-bootstrap.md>) 第 2 节) | uniqueId 本来就在同一进程的内存里,`ncclCommInitAll` 内部自己 `ncclGetUniqueId` 生成好直接用,不需要任何跨进程传输(`init.cc:2625`) |
+| 调 collective API 的方式 | 每个进程各自调用一次 `ncclAllReduce(...)`,天然是"1 进程 1 GPU 1 stream"——这正是 Q2 里"为什么只需要一个 stream"的默认场景 | 必须在**一个进程里显式循环调 N 次**(每块 GPU 一次),每次带各自的 `comms[i]`/`streams[i]`,还得包进 `ncclGroupStart/End` |
+| 为什么单进程多卡必须用 group? | 天然并发(每进程各自独立的执行流),不强制需要 group 来"触发并发"([01 章](<./01-concepts-and-api.md>) 第 3.2 节) | 若顺序调用会**死锁**:第 1 块卡的调用在等其它 rank,但其它 GPU 的调用还没发出。`ncclCommInitAll` 内部就是自己包了一层 `ncclGroupStart/End`([03 章](<./03-init-and-bootstrap.md>) 第 6 节表格) |
+| 部署规模 | 可跨机器,是大规模分布式训练/推理的标准形态(K8s/Slurm 一个进程绑一块卡的调度模型贴合)——PyTorch DDP 走这条 | 局限在**单台机器**、这一个进程能看到的所有 GPU,常见于教程 demo、单机 benchmark、验证脚本 |
+
+**一句话记忆**:多进程多卡是"人各一份、靠外部通讯录认亲";单进程多卡是"一人管全家、靠 group 打包避免打起来"。
+
+**详见**:[01 核心概念与 API](<./01-concepts-and-api.md>) 第 1 节(创建 communicator 的三种姿势)、第 3.2 节(group call 用途一);[03 通信器初始化与 Bootstrap](<./03-init-and-bootstrap.md>) 第 2 节(uniqueId)、第 6 节(四种 init API 对照表)。
+
+---
+
 **返回**:[NCCL 学习教程首页](<./index.md>)
