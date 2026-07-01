@@ -9,6 +9,24 @@ tags:
 status: active
 ---
 
+## [2026-06-30] add | ai-infra AI 基础设施专区（知乎专栏 134 篇重写）
+
+- **新增专区** [ai-infra 专区首页](<./ai-infra/index.md>)（`wiki/ai-infra/`，跨生态 AI 基础设施，非 GraceC 专属）：把知乎专栏「大模型训练、推理与AI云平台」（作者常平，134 篇）重写为应届生可懂的知识库，9 大集群约 30 页 + 9 概念锚点：
+  - 分布式训练基础（什么是分布式训练、评价指标、集合通信原语、拓扑与 Horovod、NVLink/统一内存）
+  - NCCL 集合通信库（架构/拓扑算法/传输层/协议机制/核心模块/性能/国产化/未来演进）
+  - 其他通信库（NVSHMEM/UCX/FlagCX/TorchComms/Gloo）
+  - LLM 推理与缓存（PD分离/vLLM/LMCache/Mooncake与NIXL/DeepEP/UCM）
+  - 训练框架与算子（Megatron/FlashAttention/TransformerEngine/TorchTitan/Google Highway）
+  - AI 云/K8s 运维（NVIDIA AI Cloud 栈/K8s GPU 调度/DCGM 监控）
+  - GPU RAS 与故障管理（RAS 体系/AMD 代码架构/Fabric Manager/DCGM/NVSentinel）
+  - 调试与性能工具（msprobe 精度/compare_tools 性能/千卡性能优化）
+  - 概念锚点（AllReduce/Ring-AllReduce/通信隐藏/PD分离/KV-Cache/NVLink/GPUDirect-RDMA 等）
+- **原始材料**：`.raw/zhihu/`（134 篇完整 JSON + `_index.md` 清单 + `_by-number.md` 篇号映射），通过知乎 API 带 Cookie 抓取。施工蓝图见 [主题图](<./ai-infra/_topic-map.md>)。
+- **风格**：每页 frontmatter + 顶部 blockquote TL;DR +「**给应届生**：」内联具象注解 + 内联自绘 mermaid + `[[wikilink]]` 互联 + 国产芯片启示小节 + 专栏原文链接。参照 [[什么是分布式训练]]、[[msprobe精度调试]] 等标杆。
+- **关键事实订正**：Mooncake 出品方是**月之暗面（Moonshot AI）/ Kimi**（GitHub kvcache-ai/Mooncake、论文《Mooncake: A KVCache-centric Disaggregated Architecture》均确认），**非 DeepSeek**。DeepEP 出品方确为 DeepSeek（GitHub deepseek-ai/DeepEP）。已在 Mooncake与NIXL/index/DeepEP/PD分离推理 等 9 处修正。
+- **联动更新**：[Wiki 总索引](<./index.md>)（加 ai-infra 专区入口 + 目录树）、[Hot Cache](<./hot.md>)。
+- 改动未提交 git（待审阅）。
+
 ## [2026-06-30] update | 飞书上传图片统一 PNG image block
 
 - 更新 [飞书 Wiki 发布中的 profile / identity 误判复盘](<./ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>) 与 [AI 使用飞书 lark-cli 创建文档](<./ai/tools/lark-cli-ai-document-guide.md>)：明确以后本地 wiki / Markdown 上传到飞书时，所有本地图像都必须转成或选择 PNG，并用 `docs +media-insert --type image` 插入到原图位；不再使用 SVG file card。

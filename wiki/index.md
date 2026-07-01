@@ -30,6 +30,8 @@ wiki/
 │   ├── fw/           # FW 片上固件
 │   ├── kmd/          # KMD 主机内核驱动
 │   └── tiny-kmd/     # tiny-kmd 最小骨架驱动
+├── ai-infra/         # AI 基础设施（跨生态，非 GraceC 专属）
+│   └── index.md      # 专区首页（知乎专栏134篇重写）
 ├── synthesis/        # 跨源综合、面试、工作笔记
 ├── sources/          # 原始/镜像材料索引和证据（查证层，非首读）
 ├── tools/            # non-AI tool notes
@@ -46,7 +48,8 @@ wiki/
 1. [FW 技术知识库](<./grace/fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。配套 [CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)。
 1. [KMD 内核驱动知识库](<./grace/kmd/index.md>)：`aigc.ko` 内核态驱动——ioctl/ABI、内存与页表、命令队列与调度、中断与 fence、Grace HAL。配套 [KMD 面试向深入](<./grace/kmd/kmd-interview-deep-dive.md>)。
 1. [tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)：最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），以及把 ajthunk 核心移植进来的缺口对照。
-2. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
+2. [AI 基础设施专区 ai-infra](<./ai-infra/index.md>)：**跨生态 AI 基础设施**（非 GraceC 专属）。知乎专栏「大模型训练、推理与AI云平台」（作者常平，134 篇）重写的应届生知识库——分布式训练、[[集合通信原语]]、[[NCCL架构总览]]、LLM 推理（[[PD分离推理]]/[[vLLM]]/[[DeepEP]]）、GPU [[GPU-RAS体系|RAS]]、AI 云/K8s 运维、msprobe/compare_tools 调试工具、[[千卡训练性能优化]]。**想理解分布式训练/NCCL/推理/RAS 全栈的从这里进。** 原始材料见 `.raw/zhihu/`。
+3. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
 3. [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>)：工作笔记主线。
 4. [本地 Markdown 知识图谱](<./synthesis/C-home-shuaishuai-zhu Markdown 知识图谱.md>)：历史本地材料总览。
 5. [工具链知识库](<./tools/index.md>)：image_tool、claude-code-proxy、Codex Skills（含技术图解与普通生图选择）、跨机器共享 skills 仓库(all_skills)、钉钉到飞书迁移、AI 协作、登录环境等工具经验。

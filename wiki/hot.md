@@ -17,6 +17,7 @@ status: active
 
 ## 当前主入口
 
+- **AI 基础设施专区 ai-infra（新增，2026-06-30）**：[ai-infra 专区首页](<./ai-infra/index.md>)——知乎专栏「大模型训练、推理与AI云平台」（作者常平，134 篇）重写为应届生知识库，9 大集群：分布式训练基础、NCCL 集合通信库、其他通信库、LLM 推理与缓存、训练框架与算子、AI 云/K8s 运维、GPU RAS、调试与性能工具。原始材料在 `.raw/zhihu/`，施工蓝图见 [主题图](<./ai-infra/_topic-map.md>)。事实订正：Mooncake 出品方是**月之暗面 Moonshot AI**（Kimi 服务底座），非 DeepSeek。
 - **飞书发布图片统一 PNG（新增，2026-06-30）**：[profile/identity 复盘](<./ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>) 与 [lark-cli 建文档指南](<./ai/tools/lark-cli-ai-document-guide.md>) 已更新：以后本地 wiki 发布到飞书时，所有本地图像都转成/选择 PNG，并以 image block 插入原图位；禁止继续上传 SVG file card。
 - **飞书 Wiki 发布 profile/identity 复盘（新增，2026-06-30）**：[飞书 Wiki 发布中的 profile / identity 误判复盘](<./ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>)——以后发布到飞书前必须分开验证 `profile + identity + target`：`cli_aa9d4e8d9eb91cc4` 的 user 过期不等于任务阻塞，bot ready 且目标可读写时优先用 bot 完成发布并回读验证。
 - **image_tool AddDefault_value 分支设计（新增，2026-06-29）**：[image_tool AddDefault_value 分支设计](<./tools/image_tool AddDefault_value 分支设计.md>)——GitLab 分支 `zss/AddDefault_value`（`cc1a244→756adeb`）技术设计文档：默认值机制、`_check_runtime_deps`、`soc_name` 显式传参、`-j` 去 `argparse.FileType`、启动 chdir、`try/finally`、平台化退出 + 配套文档/spec/openpyxl；5 张图解（SVG+PNG）在 `_attachments/tools/image_tool/`。配套 [[image_tool 固件镜像打包工具]]。
