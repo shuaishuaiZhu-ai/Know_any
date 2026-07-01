@@ -1,8 +1,8 @@
----
+﻿---
 type: topic
 title: "image_tool AddDefault_value 分支设计"
 created: 2026-06-29
-updated: 2026-06-29
+updated: 2026-06-30
 tags:
   - image-tool
   - design
@@ -167,6 +167,17 @@ def generate_key_and_sign(key):
 - **`build_image.spec`（新增）**：声明 `hiddenimports=['gmssl','gmssl.sm2','gmssl.sm3','gmssl.func']`。
 - **`excel2csv.py`**：`xlrd` → `openpyxl`；`convert_str()` 接受 Python 原生类型。
 - **`release/build_exe.py`**：改走 spec 文件并检查返回码。
+
+#### 为什么 `convert_str()` 要跟着改
+
+这不是单独的功能扩展，而是 `xlrd` 迁移到 `openpyxl` 后必须做的配套改动：
+
+- 旧实现接收的是 `xlrd` 的 cell 对象，通过 `cell.ctype` 判断 empty/string/number/date，再取 `cell.value`。
+- 新实现读取 `openpyxl` 的 `cell.value`，传入的是 Python 原生值：`None`、`bool`、`int`、`float`、`datetime`、`str` 等，因此只能按 `isinstance()` 判断类型。
+- 根因是 `xlrd` 2.x 已经不支持 `.xlsx`，而 `image_tool` 的表格输入是 `*.xlsx`，所以必须切到 `openpyxl`。
+- `bool` 分支要放在 `int` 前面，因为 Python 中 `bool` 是 `int` 的子类；否则 `True/False` 会被整数分支吞掉。
+- 数值与日期行为保持旧逻辑：`1.0` 仍输出为 `"1"`，非整数浮点保留小数，日期仍格式化为 `YYYY/MM/DD HH:MM:SS`。
+- 兜底 `return str(value)` 保证写入 CSV 的内容稳定为字符串，避免旧版 `return cell.value` 把非字符串对象直接交给 `csv.writer`。
 
 **图5 模块依赖 + gmssl / PyInstaller hiddenimports**：
 
