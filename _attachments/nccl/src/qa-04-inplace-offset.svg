@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 660" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>in-place vs out-of-place:AllGather 的 buffer 布局对比(以 rank1 为例)</title>
+  <desc>左面板 out-of-place:调用前 sendbuff(蓝色"b")与 recvbuff(4 段,全部虚线空)是两块独立显存;调用后 recvbuff 填满 a/b/c/d,slot1 上方悬一个"b(sendbuff,仍独立)"小方块,一条向下箭头落进 slot1 顶边(不经过、不覆盖 slot0 的 a),代表 directCopySend 多做的一次本地拷贝。
+  右面板 in-place:调用前 recvbuff 的 slot1 就已经是 sendbuff(蓝色"b",无独立 sendbuff 框,也无悬空小块或箭头);调用后同样填满 a/b/c/d,slot1 位置不变,对应位置用绿色"✓ 未变"文字代替箭头。
+  底部两张卡片:公式卡列出各原语 in-place 判定条件;缺点卡列出偏移出错风险与 buffer registration 优化被禁用的代价。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="660" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="34" font-size="21" font-weight="700" fill="#102027">in-place 到底省了什么?—— AllGather 的 buffer 布局对比</text>
+  <text x="40" y="54" font-size="13" fill="#607d8b">以 rank1 的调用为例:in-place 不是"两个指针相等",而是"sendbuff 恰好长在 recvbuff 里属于自己的那一段"</text>
+
+  <!-- ============ Panel A: out-of-place ============ -->
+  <rect x="30" y="78" width="545" height="300" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="42" y="106" font-size="16.5" font-weight="700" fill="#102027">Out-of-place:sendbuff 与 recvbuff 是两块独立显存</text>
+  <text x="42" y="126" font-size="12" fill="#607d8b">rank1 的 sendbuff ≠ recvbuff + 1·sendcount</text>
+
+  <text x="42" y="150" font-size="12.5" font-weight="700" fill="#37474f">调用前</text>
+  <rect x="55" y="158" width="90" height="42" rx="8" fill="#6fa8e6" stroke="#3d7fc4"/>
+  <text x="100" y="184" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">b</text>
+  <g>
+    <rect x="175" y="158" width="80" height="42" rx="6" fill="none" stroke="#c5ced3" stroke-dasharray="4 4"/>
+    <rect x="260" y="158" width="80" height="42" rx="6" fill="none" stroke="#c5ced3" stroke-dasharray="4 4"/>
+    <rect x="345" y="158" width="80" height="42" rx="6" fill="none" stroke="#c5ced3" stroke-dasharray="4 4"/>
+    <rect x="430" y="158" width="80" height="42" rx="6" fill="none" stroke="#c5ced3" stroke-dasharray="4 4"/>
+  </g>
+  <text x="100" y="218" font-size="10.8" text-anchor="middle" fill="#90a4ae">sendbuff(rank1 的 b)</text>
+  <text x="345" y="218" font-size="10.8" text-anchor="middle" fill="#90a4ae">recvbuff(4 段,全部待填)</text>
+
+  <text x="42" y="246" font-size="12.5" font-weight="700" fill="#37474f">调用后</text>
+
+  <!-- ghost sendbuff, sits directly above slot1 only, arrow drops straight down into slot1 (never crosses slot0's "a") -->
+  <rect x="260" y="230" width="80" height="26" rx="6" fill="#e8f1fd" stroke="#3d7fc4" stroke-dasharray="3 3"/>
+  <text x="300" y="248" font-size="11" text-anchor="middle" fill="#1d4e8f">b(sendbuff,仍独立)</text>
+  <line x1="300" y1="256" x2="300" y2="270" stroke="#c77b3c" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="355" y="242" font-size="10.5" fill="#8a5a25">① 先拷贝进 slot1</text>
+  <text x="355" y="256" font-size="10" fill="#8a5a25">(directCopySend)</text>
+
+  <g>
+    <rect x="175" y="272" width="80" height="42" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="215" y="298" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">a</text>
+    <rect x="260" y="272" width="80" height="42" rx="6" fill="#6fa8e6" stroke="#3d7fc4"/><text x="300" y="298" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">b</text>
+    <rect x="345" y="272" width="80" height="42" rx="6" fill="#edc870" stroke="#c89f30"/><text x="385" y="298" font-size="13" font-weight="700" text-anchor="middle" fill="#5a4500">c</text>
+    <rect x="430" y="272" width="80" height="42" rx="6" fill="#a98fe0" stroke="#7d5fc0"/><text x="470" y="298" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">d</text>
+  </g>
+
+  <text x="42" y="350" font-size="12" fill="#37474f">多一次本地拷贝 —— all_gather.h:59 的 else 分支</text>
+
+  <!-- ============ Panel B: in-place ============ -->
+  <rect x="605" y="78" width="545" height="300" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="617" y="106" font-size="16.5" font-weight="700" fill="#102027">In-place:sendbuff 就是 recvbuff 里自己的那一段</text>
+  <text x="617" y="126" font-size="12" fill="#607d8b">rank1 的 sendbuff == recvbuff + 1·sendcount</text>
+
+  <text x="617" y="150" font-size="12.5" font-weight="700" fill="#37474f">调用前</text>
+  <g>
+    <rect x="680" y="158" width="80" height="42" rx="6" fill="none" stroke="#c5ced3" stroke-dasharray="4 4"/>
+    <rect x="765" y="158" width="80" height="42" rx="8" fill="#6fa8e6" stroke="#3d7fc4" stroke-width="2.4"/><text x="805" y="184" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">b</text>
+    <rect x="850" y="158" width="80" height="42" rx="6" fill="none" stroke="#c5ced3" stroke-dasharray="4 4"/>
+    <rect x="935" y="158" width="80" height="42" rx="6" fill="none" stroke="#c5ced3" stroke-dasharray="4 4"/>
+  </g>
+  <text x="805" y="218" font-size="10.8" text-anchor="middle" fill="#90a4ae">slot1 = sendbuff(已经在这儿)</text>
+
+  <text x="617" y="246" font-size="12.5" font-weight="700" fill="#37474f">调用后</text>
+  <text x="805" y="248" font-size="12" font-weight="700" text-anchor="middle" fill="#3d8a5f">✓ slot1 未变,无需拷贝</text>
+
+  <g>
+    <rect x="680" y="272" width="80" height="42" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="720" y="298" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">a</text>
+    <rect x="765" y="272" width="80" height="42" rx="8" fill="#6fa8e6" stroke="#3d7fc4" stroke-width="2.4"/><text x="805" y="298" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">b</text>
+    <rect x="850" y="272" width="80" height="42" rx="6" fill="#edc870" stroke="#c89f30"/><text x="890" y="298" font-size="13" font-weight="700" text-anchor="middle" fill="#5a4500">c</text>
+    <rect x="935" y="272" width="80" height="42" rx="6" fill="#a98fe0" stroke="#7d5fc0"/><text x="975" y="298" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">d</text>
+  </g>
+
+  <text x="617" y="350" font-size="12" fill="#37474f">少一次本地拷贝 —— all_gather.h:57 的 if 分支(directSend)</text>
+
+  <!-- ============ Formula card ============ -->
+  <rect x="30" y="398" width="1120" height="100" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="42" y="427.5" font-size="15" font-weight="700" fill="#102027">in-place 精确条件(源码 nccl.h.in)</text>
+  <text x="42" y="444.75" font-size="12.5" fill="#37474f">非对称原语(一块 buffer 是另一块的 N 倍):AllGather sendbuff == recvbuff + rank·sendcount(:527) · ReduceScatter recvbuff == sendbuff + rank·recvcount(:510)</text>
+  <text x="42" y="461.625" font-size="12.5" fill="#37474f">Gather sendbuff == recvbuff + root·count(:555) · Scatter recvbuff == sendbuff + root·count(:570) —— 偏移算对才叫 in-place,不是指针相等就行</text>
+  <text x="42" y="478.5" font-size="12.5" fill="#37474f">对称原语(Broadcast/Reduce/AllReduce,输入输出一样大)简单得多:直接 sendbuff == recvbuff(:453/481/494)</text>
+
+  <!-- ============ Drawback card ============ -->
+  <rect x="30" y="512" width="1120" height="115" rx="14" fill="#fff3d6" stroke="#c89f30" stroke-width="1.5"/>
+  <text x="42" y="541.5" font-size="15" font-weight="700" fill="#5a4500">两个真实缺点</text>
+  <text x="42" y="558.75" font-size="12.5" fill="#5a4500">① 偏移算错 = 静默脏数据。NCCL 不报错,只是没走 in-place 分支,把数据拷到了错误位置——训练里常表现成偶发梯度错误,难复现。</text>
+  <text x="42" y="575.625" font-size="12.5" fill="#5a4500">② Ring 算法下 in-place 的 AllReduce/Reduce、Tree 算法下任意 in-place 调用,都会禁用 buffer registration 零拷贝优化</text>
+  <text x="42" y="592.5" font-size="12.5" fill="#5a4500">(register/coll_reg.cc:212-216)——省了显存,却可能悄悄退到更保守、稍慢的内部路径,不是纯赚不亏。</text>
+</svg>

@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 540" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>为什么 ncclAllReduce 只需要一个 stream:本地排序 vs 跨 GPU 协调是两套不同机制</title>
+  <desc>上半:GPU0/GPU1 各自的 CUDA stream 队列(计算 kernel→通信 kernel→计算 kernel,纵向箭头=本地顺序)。两个通信 kernel 之间画一条双向箭头"P2P",代表 NVLink 直写对端显存,完全绕开 stream。
+  下半:跨机 NET 情形的 6 步链路(①GPU0 kernel 写 FIFO→②proxy0→③NIC0→(网络,虚线)→④NIC1→⑤proxy1→⑥GPU1 kernel 收 FIFO),全部横向箭头指向右。
+  底部一行加粗结论文字,不含箭头。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/>
+    </marker>
+    <marker id="p2pFwd" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#c77b3c"/>
+    </marker>
+    <marker id="p2pRev" viewBox="0 0 10 10" refX="1.5" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M10 0 L0 5 L10 10 z" fill="#c77b3c"/>
+    </marker>
+    <marker id="netAr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#b08b2e"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="540" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="34" font-size="21" font-weight="700" fill="#102027">为什么 ncclAllReduce 只需要一个 stream?</text>
+  <text x="40" y="54" font-size="13" fill="#607d8b">stream 只管"本地队列排序";跨 GPU 的真正协调走另一套机制,完全不经过 stream</text>
+
+  <!-- ============ Row 1: GPU0 / GPU1 stream queues + P2P ============ -->
+  <rect x="40"  y="88" width="500" height="272" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <rect x="640" y="88" width="500" height="272" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+
+  <text x="60" y="116" font-size="15" font-weight="700" fill="#102027">GPU 0(rank 0)的 CUDA stream 队列</text>
+  <rect x="80" y="130" width="420" height="38" rx="8" fill="#eef1f3" stroke="#c5ced3"/>
+  <text x="290" y="154" font-size="12.5" text-anchor="middle" fill="#37474f">计算 kernel(产出 sendbuff)</text>
+  <line x1="290" y1="168" x2="290" y2="194" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <rect x="80" y="198" width="420" height="42" rx="8" fill="#fff3d6" stroke="#c89f30" stroke-width="2.5"/>
+  <text x="290" y="224" font-size="12.5" font-weight="700" text-anchor="middle" fill="#5a4500">这次 ncclAllReduce 的通信 kernel</text>
+  <line x1="290" y1="240" x2="290" y2="262" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <rect x="80" y="266" width="420" height="38" rx="8" fill="#eef1f3" stroke="#c5ced3"/>
+  <text x="290" y="290" font-size="12.5" text-anchor="middle" fill="#37474f">下游 kernel(消费 recvbuff)</text>
+  <text x="80" y="330" font-size="11.5" fill="#90a4ae">↑ stream 只保证这一列内的先后顺序(异步排队)</text>
+
+  <text x="660" y="116" font-size="15" font-weight="700" fill="#102027">GPU 1(rank 1)的 CUDA stream 队列</text>
+  <rect x="680" y="130" width="420" height="38" rx="8" fill="#eef1f3" stroke="#c5ced3"/>
+  <text x="890" y="154" font-size="12.5" text-anchor="middle" fill="#37474f">计算 kernel(产出 sendbuff)</text>
+  <line x1="890" y1="168" x2="890" y2="194" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <rect x="680" y="198" width="420" height="42" rx="8" fill="#fff3d6" stroke="#c89f30" stroke-width="2.5"/>
+  <text x="890" y="224" font-size="12.5" font-weight="700" text-anchor="middle" fill="#5a4500">这次 ncclAllReduce 的通信 kernel</text>
+  <line x1="890" y1="240" x2="890" y2="262" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <rect x="680" y="266" width="420" height="38" rx="8" fill="#eef1f3" stroke="#c5ced3"/>
+  <text x="890" y="290" font-size="12.5" text-anchor="middle" fill="#37474f">下游 kernel(消费 recvbuff)</text>
+  <text x="680" y="330" font-size="11.5" fill="#90a4ae">↑ stream 只保证这一列内的先后顺序(异步排队)</text>
+
+  <!-- P2P bidirectional arrow between the two communication kernels -->
+  <line x1="502" y1="219" x2="678" y2="219" stroke="#c77b3c" stroke-width="3" marker-start="url(#p2pRev)" marker-end="url(#p2pFwd)"/>
+  <text x="590" y="203" font-size="13" font-weight="700" text-anchor="middle" fill="#8a5a25">P2P(同机 NVLink)</text>
+  <text x="590" y="241" font-size="11" text-anchor="middle" fill="#8a5a25">kernel 直接读写对端显存</text>
+  <text x="590" y="255" font-size="11" text-anchor="middle" fill="#8a5a25">(CUDA IPC 映射,不经 stream)</text>
+
+  <!-- ============ Row 2: cross-machine NET chain ============ -->
+  <text x="40" y="392" font-size="14" font-weight="700" fill="#102027">跨机时:GPU kernel 调不了网卡,靠 proxy 线程(CPU)代劳 ——</text>
+
+  <g font-size="10.8" text-anchor="middle" fill="#37474f">
+    <rect x="40"  y="406" width="150" height="52" rx="8" fill="#e8f1fd" stroke="#6fa8e6"/>
+    <text x="115" y="425">① GPU0 kernel</text><text x="115" y="447">写 FIFO(显存)</text>
+
+    <rect x="220" y="406" width="150" height="52" rx="8" fill="#f0ecfb" stroke="#a98fe0"/>
+    <text x="295" y="425">② proxy0</text><text x="295" y="447">(CPU 轮询)</text>
+
+    <rect x="400" y="406" width="150" height="52" rx="8" fill="#e6fffa" stroke="#68d8c2"/>
+    <text x="475" y="425">③ NIC0</text><text x="475" y="447">ncclNet-&gt;isend</text>
+
+    <rect x="580" y="406" width="150" height="52" rx="8" fill="#e6fffa" stroke="#68d8c2"/>
+    <text x="655" y="425">④ NIC1</text><text x="655" y="447">ncclNet-&gt;irecv</text>
+
+    <rect x="760" y="406" width="150" height="52" rx="8" fill="#f0ecfb" stroke="#a98fe0"/>
+    <text x="835" y="425">⑤ proxy1</text><text x="835" y="447">(CPU 轮询)</text>
+
+    <rect x="940" y="406" width="150" height="52" rx="8" fill="#e8f1fd" stroke="#6fa8e6"/>
+    <text x="1015" y="425">⑥ FIFO→GPU1</text><text x="1015" y="447">kernel 收下</text>
+  </g>
+
+  <line x1="192" y1="432" x2="218" y2="432" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <line x1="372" y1="432" x2="398" y2="432" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <line x1="552" y1="432" x2="578" y2="432" stroke="#b08b2e" stroke-width="2.4" stroke-dasharray="5 4" marker-end="url(#netAr)"/>
+  <text x="565" y="402" font-size="10.5" text-anchor="middle" fill="#8a5a25">网络(跨机)</text>
+  <line x1="732" y1="432" x2="758" y2="432" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+  <line x1="912" y1="432" x2="938" y2="432" stroke="#8da2ad" stroke-width="2.2" marker-end="url(#ar)"/>
+
+  <text x="40" y="495" font-size="14.5" font-weight="700" fill="#102027">无论 P2P 还是 NET,这套跨设备协调都不经过 CUDA stream —— stream 参数只决定"这次调用排进哪个本地队列"</text>
+  <text x="40" y="516" font-size="11.5" fill="#90a4ae">详见 01 章第 3.1 节、07 章 Transport、08 章第 5 节、10 章 Proxy 线程</text>
+</svg>

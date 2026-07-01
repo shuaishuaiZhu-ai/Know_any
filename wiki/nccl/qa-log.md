@@ -28,6 +28,10 @@ source:
 
 **结论**:确定了 02 图里 AllReduce 面板要插入"reduce-scatter 中间态"(Σ0/Σ1/Σ2/Σ3 分散在各 rank)、AllToAll 面板要画出实际的交叉 Send/Recv 路径;其余 5 个原语维持单箭头(语义图,不重复算法图)。
 
+![图解:AllReduce=Reduce-Scatter+All-Gather 两阶段中间态,AllToAll 拆成 N×N 个 Send/Recv 的示例发送](../../_attachments/nccl/qa-01-allreduce-alltoall-steps.png)
+
+> 图解源文件:[`qa-01-allreduce-alltoall-steps.svg`](../../_attachments/nccl/src/qa-01-allreduce-alltoall-steps.svg)
+
 **详见**:[01 核心概念与 API](<./01-concepts-and-api.md>) 第 2 节(恒等式)、[05 Ring AllReduce 算法深入](<./05-ring-allreduce.md>)(Ring 算法真实分 2(N−1) 步的完整图解,`09-ring-allreduce.svg`,不需要在 02 图里重画)。
 
 ---
@@ -48,6 +52,10 @@ source:
 
 4. **一句话总结**:CUDA stream 只负责"一个设备的命令队列内部怎么排序",而 collective 通信的跨设备协调是 NCCL **自己在 kernel 内部(P2P 显存直写)和 kernel 外部(proxy 线程)另起的一套机制**实现的,根本不在 CUDA stream 的管辖范围内。所以 API 只需要一个 stream 参数——它只用来回答"这次调用该排在这块 GPU 的哪条队列上",不需要、也没办法用 stream 来表达"和另一块 GPU 同步"。
 
+![图解:GPU0/GPU1 各自的 stream 队列只管本地顺序;P2P 直写对端显存与跨机 proxy 线程都绕开 stream](../../_attachments/nccl/qa-02-stream-vs-cross-gpu-sync.png)
+
+> 图解源文件:[`qa-02-stream-vs-cross-gpu-sync.svg`](../../_attachments/nccl/src/qa-02-stream-vs-cross-gpu-sync.svg)
+
 **详见**:[01 核心概念与 API](<./01-concepts-and-api.md>) 第 3.1/3.2 节、[07 Transport 传输层](<./07-transport.md>)、[08 Enqueue 与 Kernel 启动](<./08-enqueue-and-launch.md>) 第 5 节、[10 Proxy 线程与网络推进](<./10-proxy-and-net-progress.md>)。
 
 ---
@@ -66,7 +74,29 @@ source:
 
 **一句话记忆**:多进程多卡是"人各一份、靠外部通讯录认亲";单进程多卡是"一人管全家、靠 group 打包避免打起来"。
 
+![图解:多进程多卡各自独立调用+uniqueId外部广播,单进程多卡共享一个进程+ncclGroupStart/End包裹](../../_attachments/nccl/qa-03-single-vs-multi-process.png)
+
+> 图解源文件:[`qa-03-single-vs-multi-process.svg`](../../_attachments/nccl/src/qa-03-single-vs-multi-process.svg)
+
 **详见**:[01 核心概念与 API](<./01-concepts-and-api.md>) 第 1 节(创建 communicator 的三种姿势)、第 3.2 节(group call 用途一);[03 通信器初始化与 Bootstrap](<./03-init-and-bootstrap.md>) 第 2 节(uniqueId)、第 6 节(四种 init API 对照表)。
+
+---
+
+### Q4:in-place 模式是什么、怎么运作、有什么缺点?
+
+**简答**:in-place 是指调用集合通信 API 时 `recvbuff`(输出)和 `sendbuff`(输入)指向同一块显存(或同一块里属于自己的那一段),省一份显存和一次本地拷贝。判定条件分两类:**对称原语**(Broadcast/Reduce/AllReduce,输入输出一样大)是简单的 `sendbuff == recvbuff`;**非对称原语**(AllGather/ReduceScatter/Gather/Scatter,一块 buffer 是另一块的 N 倍)则是精确的**偏移公式**,比如 AllGather 要求 `sendbuff == recvbuff + rank·sendcount`。
+
+**怎么运作**(`src/device/all_gather.h:55`):每个 rank 判断"自己数据现在的位置"和"最终该落在 recvbuff 哪个位置"是不是同一块内存——是就 `directSend`(只发,自己那份已经在正确位置);不是就 `directCopySend`(先拷贝到 recvbuff 对应槎位,再发)。所以 in-place 省的不只是显存,还省了每个 rank 一次本地拷贝。
+
+**两个真实缺点**:
+1. 偏移算错 = 静默脏数据。NCCL 不报错,只是没走 in-place 分支,数据被拷到错误位置——训练里常表现成偶发梯度错误,难复现。
+2. Ring 算法下 in-place 的 AllReduce/Reduce、Tree 算法下任意 in-place 调用,都会**禁用 buffer registration 零拷贝优化**(`register/coll_reg.cc:212-216`)——省了显存,却可能悄悄退到更保守、稍慢的内部路径,不是纯赚不亏。
+
+![图解:AllGather out-of-place(独立 sendbuff+多一次本地拷贝) vs in-place(sendbuff 就是 recvbuff 里自己那段,省一次拷贝)的 buffer 布局对比](../../_attachments/nccl/qa-04-inplace-offset.png)
+
+> 图解源文件:[`qa-04-inplace-offset.svg`](../../_attachments/nccl/src/qa-04-inplace-offset.svg)
+
+**详见**:`src/nccl.h.in:453/481/494/510/527/555/570`(各原语 in-place 判定条件的官方注释)、`src/register/coll_reg.cc:212-217`(buffer registration 禁用条件)。
 
 ---
 
