@@ -9,6 +9,24 @@ tags:
 status: active
 ---
 
+## [2026-06-30] add | ai-infra AI 基础设施专区（知乎专栏 134 篇重写）
+
+- **新增专区** [ai-infra 专区首页](<./ai-infra/index.md>)（`wiki/ai-infra/`，跨生态 AI 基础设施，非 GraceC 专属）：把知乎专栏「大模型训练、推理与AI云平台」（作者常平，134 篇）重写为应届生可懂的知识库，9 大集群约 30 页 + 9 概念锚点：
+  - 分布式训练基础（什么是分布式训练、评价指标、集合通信原语、拓扑与 Horovod、NVLink/统一内存）
+  - NCCL 集合通信库（架构/拓扑算法/传输层/协议机制/核心模块/性能/国产化/未来演进）
+  - 其他通信库（NVSHMEM/UCX/FlagCX/TorchComms/Gloo）
+  - LLM 推理与缓存（PD分离/vLLM/LMCache/Mooncake与NIXL/DeepEP/UCM）
+  - 训练框架与算子（Megatron/FlashAttention/TransformerEngine/TorchTitan/Google Highway）
+  - AI 云/K8s 运维（NVIDIA AI Cloud 栈/K8s GPU 调度/DCGM 监控）
+  - GPU RAS 与故障管理（RAS 体系/AMD 代码架构/Fabric Manager/DCGM/NVSentinel）
+  - 调试与性能工具（msprobe 精度/compare_tools 性能/千卡性能优化）
+  - 概念锚点（AllReduce/Ring-AllReduce/通信隐藏/PD分离/KV-Cache/NVLink/GPUDirect-RDMA 等）
+- **原始材料**：`.raw/zhihu/`（134 篇完整 JSON + `_index.md` 清单 + `_by-number.md` 篇号映射），通过知乎 API 带 Cookie 抓取。施工蓝图见 [主题图](<./ai-infra/_topic-map.md>)。
+- **风格**：每页 frontmatter + 顶部 blockquote TL;DR +「**给应届生**：」内联具象注解 + 内联自绘 mermaid + `[[wikilink]]` 互联 + 国产芯片启示小节 + 专栏原文链接。参照 [[什么是分布式训练]]、[[msprobe精度调试]] 等标杆。
+- **关键事实订正**：Mooncake 出品方是**月之暗面（Moonshot AI）/ Kimi**（GitHub kvcache-ai/Mooncake、论文《Mooncake: A KVCache-centric Disaggregated Architecture》均确认），**非 DeepSeek**。DeepEP 出品方确为 DeepSeek（GitHub deepseek-ai/DeepEP）。已在 Mooncake与NIXL/index/DeepEP/PD分离推理 等 9 处修正。
+- **联动更新**：[Wiki 总索引](<./index.md>)（加 ai-infra 专区入口 + 目录树）、[Hot Cache](<./hot.md>)。
+- 改动未提交 git（待审阅）。
+
 ## [2026-06-30] add | NCCL 学习教程（新建 wiki/nccl/ 专区，13 章 + 14 图）
 
 - **新建顶层专区 `wiki/nccl/`**：从 0 开始、基于 **NVIDIA/nccl v2.30.7**（tarball master，本地 `/root/workspace/nccl`，**不纳入 wiki 仓库**）源码逐文件讲解的多卡集合通信库深度教程。面向应届/面试，每章「面试官会追问」盒子。
@@ -34,6 +52,7 @@ status: active
 
 - 新增 [飞书 Wiki 发布中的 profile / identity 误判复盘](<./ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>)：记录一次把 `image_tool AddDefault_value 分支设计` 发布到飞书 Wiki 时的流程偏差。核心规则：先核对本地流程和显式 profile `cli_aa9d4e8d9eb91cc4`，再分开判断 user/bot identity；user token 过期不等于 profile 不可用，bot ready 且目标可读写时可继续发布；发布后必须回读验证 title、revision、SVG、placeholder、raster image 与 replacement char。
 - 沉淀 `.cmd` wrapper 传含 `&` OAuth URL 的风险：必要时绕过 wrapper 直接调用 Node entrypoint，且不要在未验证 bot 可用性前要求用户重新授权。
+
 ## [2026-06-29] add | image_tool AddDefault_value 分支设计文档（+ 5 张图解）
 
 - **新增** [image_tool AddDefault_value 分支设计](<./tools/image_tool AddDefault_value 分支设计.md>)（`wiki/tools/`）：GitLab 分支 `zss/AddDefault_value`（`main cc1a244 → 756adeb`，2 commit）的技术设计文档，覆盖默认值机制（`_DEFAULTS` + 仅未传参才提示）、`_check_runtime_deps` 依赖容错、`soc_name` 显式传参、`-j` 去 `argparse.FileType`、启动 `chdir`、`generate_key_and_sign` 的 `try/finally`、平台化退出，以及配套 `architecture.md`/README/`build_image.spec`/`excel2csv`(openpyxl) 改动；附本地未提交工作区重构（`_prompt_choice` 抽取 + `_DEFAULTS` 元组循环）一节。
