@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="730" viewBox="0 0 1100 730" font-family="Noto Sans CJK SC, sans-serif">
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#52606d"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="1.2" stdDeviation="1.5" flood-color="#9aa5b1" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="1100" height="730" fill="#fffdf6"/>
+  <text x="550" y="30" font-size="19" font-weight="bold" text-anchor="middle" fill="#1f2933">一次 saxpy 的全程（HWS 默认）</text>
+
+  <!-- lane backgrounds -->
+  <rect x="30"  y="44" width="330" height="664" rx="14" fill="#f3f6fb" stroke="#c7d3e0"/>
+  <rect x="375" y="44" width="330" height="664" rx="14" fill="#eef6ee" stroke="#bcd6bf"/>
+  <rect x="720" y="44" width="350" height="664" rx="14" fill="#f8eff6" stroke="#dcc4d6"/>
+  <text x="195" y="68" font-size="14" font-weight="bold" text-anchor="middle" fill="#3a5675">UMD（用户态）</text>
+  <text x="540" y="68" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f6b3a">KMD（aigc.ko）</text>
+  <text x="895" y="68" font-size="14" font-weight="bold" text-anchor="middle" fill="#7a3f72">CP 固件 / 硬件</text>
+
+  <!-- phase A label -->
+  <text x="44" y="100" font-size="12" font-weight="bold" fill="#8a6d0f">▌设置阶段：KMD 一次性「建场」</text>
+
+  <!-- A rows -->
+  <g filter="url(#sh)"><rect x="50" y="110" width="290" height="44" rx="10" fill="#eef3fb" stroke="#7b93ad"/></g>
+  <text x="195" y="137" font-size="12" text-anchor="middle" fill="#243b53">① open /dev/aigcN</text>
+  <g filter="url(#sh)"><rect x="395" y="110" width="290" height="44" rx="10" fill="#e3f0e3" stroke="#5a9367"/></g>
+  <text x="540" y="137" font-size="12" text-anchor="middle" fill="#2f6b3a">建 aigc_vdev</text>
+
+  <g filter="url(#sh)"><rect x="50" y="166" width="290" height="44" rx="10" fill="#eef3fb" stroke="#7b93ad"/></g>
+  <text x="195" y="193" font-size="12" text-anchor="middle" fill="#243b53">② 建 context</text>
+  <g filter="url(#sh)"><rect x="395" y="166" width="290" height="44" rx="10" fill="#e3f0e3" stroke="#5a9367"/></g>
+  <text x="540" y="193" font-size="12" text-anchor="middle" fill="#2f6b3a">分 VMID + 建页表根</text>
+
+  <g filter="url(#sh)"><rect x="50" y="222" width="290" height="44" rx="10" fill="#eef3fb" stroke="#7b93ad"/></g>
+  <text x="195" y="249" font-size="12" text-anchor="middle" fill="#243b53">③ 分显存</text>
+  <g filter="url(#sh)"><rect x="395" y="222" width="290" height="44" rx="10" fill="#e3f0e3" stroke="#5a9367"/></g>
+  <text x="540" y="249" font-size="12" text-anchor="middle" fill="#2f6b3a">写 PTE：dva → PA</text>
+
+  <g filter="url(#sh)"><rect x="50" y="278" width="290" height="44" rx="10" fill="#eef3fb" stroke="#7b93ad"/></g>
+  <text x="195" y="305" font-size="12" text-anchor="middle" fill="#243b53">④ 建队列</text>
+  <g filter="url(#sh)"><rect x="395" y="278" width="290" height="44" rx="10" fill="#e3f0e3" stroke="#5a9367"/></g>
+  <text x="540" y="300" font-size="11.5" text-anchor="middle" fill="#2f6b3a">填 MCQD + create-queue IPC</text>
+  <text x="540" y="316" font-size="10.5" text-anchor="middle" fill="#6a9a76">并把 doorbell 窗口映射给进程</text>
+  <g filter="url(#sh)"><rect x="730" y="278" width="330" height="44" rx="10" fill="#f6e8f3" stroke="#a86fa0"/></g>
+  <text x="895" y="305" font-size="11.5" text-anchor="middle" fill="#7a3f72">固件登记队列（QDMA/BDMA 绑 HCQD）</text>
+
+  <line x1="340" y1="132" x2="393" y2="132" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="340" y1="188" x2="393" y2="188" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="340" y1="244" x2="393" y2="244" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="340" y1="300" x2="393" y2="300" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="685" y1="300" x2="728" y2="300" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- phase B -->
+  <line x1="40" y1="344" x2="1060" y2="344" stroke="#c9a227" stroke-width="1.4" stroke-dasharray="7 5"/>
+  <text x="44" y="364" font-size="12" font-weight="bold" fill="#a8410f">▌运行阶段：UMD 直发命令，KMD 不经手每个 kernel 包</text>
+
+  <g filter="url(#sh)"><rect x="50" y="376" width="290" height="60" rx="10" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="195" y="401" font-size="12" font-weight="bold" text-anchor="middle" fill="#243b53">⑤ 写 dispatch 包 → stream ring</text>
+  <text x="195" y="421" font-size="11.5" text-anchor="middle" fill="#486581">再敲 doorbell（MMIO）</text>
+  <g filter="url(#sh)"><rect x="730" y="376" width="330" height="60" rx="10" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2"/></g>
+  <text x="895" y="401" font-size="12" font-weight="bold" text-anchor="middle" fill="#7a3f72">⑥ 异步取包，执行 kernel</text>
+  <text x="895" y="421" font-size="11" text-anchor="middle" fill="#8a5082">经页表翻译访问显存（dva）</text>
+
+  <g filter="url(#sh)"><rect x="730" y="448" width="330" height="50" rx="10" fill="#f6e8f3" stroke="#a86fa0"/></g>
+  <text x="895" y="470" font-size="11.5" text-anchor="middle" fill="#7a3f72">算完写结果 + 递增 fence 值</text>
+  <text x="895" y="488" font-size="10.5" text-anchor="middle" fill="#8a5082">写进 fence TS 缓冲</text>
+
+  <line x1="340" y1="406" x2="728" y2="406" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <line x1="895" y1="436" x2="895" y2="446" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- phase C -->
+  <line x1="40" y1="520" x2="1060" y2="520" stroke="#c9a227" stroke-width="1.4" stroke-dasharray="7 5"/>
+  <text x="44" y="540" font-size="12" font-weight="bold" fill="#2f6b3a">▌完成阶段：KMD 回到场</text>
+
+  <g filter="url(#sh)"><rect x="730" y="552" width="330" height="48" rx="10" fill="#f6e8f3" stroke="#a86fa0" stroke-width="2"/></g>
+  <text x="895" y="581" font-size="12" font-weight="bold" text-anchor="middle" fill="#7a3f72">⑦ 抬 MSI-X 向量 40</text>
+  <g filter="url(#sh)"><rect x="395" y="552" width="290" height="48" rx="10" fill="#e3f0e3" stroke="#5a9367" stroke-width="2"/></g>
+  <text x="540" y="574" font-size="11" text-anchor="middle" fill="#2f6b3a">上半部读清 + need_bh</text>
+  <text x="540" y="591" font-size="11" text-anchor="middle" fill="#3a7a47">下半部 drain 事件环 → 唤醒</text>
+
+  <g filter="url(#sh)"><rect x="50" y="624" width="290" height="48" rx="10" fill="#eef3fb" stroke="#7b93ad" stroke-width="2"/></g>
+  <text x="195" y="646" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#243b53">⑧ 看 fence_buf ≥ 预期值</text>
+  <text x="195" y="663" font-size="11" text-anchor="middle" fill="#486581">→ 得知 kernel 完成</text>
+
+  <line x1="728" y1="576" x2="687" y2="576" stroke="#52606d" stroke-width="2.2" marker-end="url(#a)"/>
+  <path d="M395,588 C300,600 240,612 215,622" fill="none" stroke="#52606d" stroke-width="2" marker-end="url(#a)"/>
+</svg>

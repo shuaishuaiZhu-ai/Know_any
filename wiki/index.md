@@ -32,6 +32,7 @@ wiki/
 │   └── tiny-kmd/     # tiny-kmd 最小骨架驱动
 ├── ai-infra/         # AI 基础设施（跨生态，非 GraceC 专属）
 │   └── index.md      # 专区首页（知乎专栏134篇重写）
+├── nccl/             # NVIDIA NCCL 集合通信库学习教程（00–12 + 14 图）
 ├── synthesis/        # 跨源综合、面试、工作笔记
 ├── sources/          # 原始/镜像材料索引和证据（查证层，非首读）
 ├── tools/            # non-AI tool notes
@@ -46,10 +47,12 @@ wiki/
 1. [一个 Kernel 从 .cu 源码到硬件执行的全流程](<./grace/overview/saxpy-kernel-end-to-end.md>)：跨 UMD→KMD→CP→硬件 的端到端长文，以 `test_saxpy_op.cu`（`add1`）为例，10 张手绘 SVG/Graphviz 图、严谨技术风、面试盒子（源码确认 2026-06-26）。**完全没碰过这套栈、想先建立整体地图的，从这篇进。** 配套：[stream/MCQD/HCQD 与命令下发](<./grace/overview/stream-mcqd-hcqd-and-command-submission.md>)、[kernel cmd→CP job cmd 字段映射](<./grace/overview/kernel-cmd-to-cp-job-cmd.md>)。
 1. [UMD 用户态运行时（aigc-driver）](<./grace/umd/index.md>)：应用直接链接的那层——类 CUDA API、ROCm 血缘、kernel 直发 doorbell、源码地图。已系统化通读全代码：总览页含「整体架构」+「子系统导航」，下设 8 个分子系统页（初始化/设备模型、kernel launch、stream/event/signal、code object 与注册、命令模型与队列、dispatch packet 与 doorbell、显存模型、thunk 与同步）+ 开发维护页，共 ~19 张 Graphviz/SVG 图。
 1. [FW 技术知识库](<./grace/fw/index.md>)：GraceC CP MAS、IMC、CP firmware、CLI、RT-Thread、调度、性能与调试。配套 [CP 固件面试向深入](<./grace/fw/fw-cp-interview-deep-dive.md>)。
-1. [KMD 内核驱动知识库](<./grace/kmd/index.md>)：`aigc.ko` 内核态驱动——ioctl/ABI、内存与页表、命令队列与调度、中断与 fence、Grace HAL。配套 [KMD 面试向深入](<./grace/kmd/kmd-interview-deep-dive.md>)。
+1. [KMD 内核驱动知识库](<./grace/kmd/index.md>)：`aigc.ko` 内核态驱动——线性 8 章（架构、数据结构、ioctl/ABI、内存与页表、提交/中断、Grace HAL、构建测试、saxpy 端到端）+ 附录，每章配飞书白板风渲染图。含 [面试向深入问答](<./grace/kmd/appendix/interview-qa.md>)。
 1. [tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)：最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），以及把 ajthunk 核心移植进来的缺口对照。
 2. [AI 基础设施专区 ai-infra](<./ai-infra/index.md>)：**跨生态 AI 基础设施**（非 GraceC 专属）。知乎专栏「大模型训练、推理与AI云平台」（作者常平，134 篇）重写的应届生知识库——分布式训练、[[集合通信原语]]、[[NCCL架构总览]]、LLM 推理（[[PD分离推理]]/[[vLLM]]/[[DeepEP]]）、GPU [[GPU-RAS体系|RAS]]、AI 云/K8s 运维、msprobe/compare_tools 调试工具、[[千卡训练性能优化]]。**想理解分布式训练/NCCL/推理/RAS 全栈的从这里进。** 原始材料见 `.raw/zhihu/`。
 3. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
+1. [NCCL 学习教程](<./nccl/index.md>)：从 0 开始、基于 NVIDIA/nccl v2.30.7 源码的多卡集合通信库深度教程——13 篇编号章（概念→架构→初始化→拓扑/图搜索→Ring/Tree 算法→Transport→enqueue→device kernel→proxy→调优）+ 14 张源码核实图解、面试盒子。**想搞懂多卡训练里 AllReduce 怎么工作的，从这里进。**
+2. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
 3. [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>)：工作笔记主线。
 4. [本地 Markdown 知识图谱](<./synthesis/C-home-shuaishuai-zhu Markdown 知识图谱.md>)：历史本地材料总览。
 5. [工具链知识库](<./tools/index.md>)：image_tool、claude-code-proxy、Codex Skills（含技术图解与普通生图选择）、跨机器共享 skills 仓库(all_skills)、钉钉到飞书迁移、AI 协作、登录环境等工具经验。
@@ -75,20 +78,21 @@ wiki/
 
 ## KMD 快速入口
 
-| 分类 | 入口 | 适合解决的问题 |
+> 已重构为**线性编号 8 章 + 附录**（替换原扁平 10 区），建议从前往后顺序读；每章配飞书白板风渲染图。
+
+| 章 | 入口 | 适合解决的问题 |
 |---|---|---|
-| 总览 | [KMD 内核驱动知识库](<./grace/kmd/index.md>) | 不知道从哪里开始看 `aigc.ko` 内核驱动。 |
-| 架构 | [架构总览](<./grace/kmd/arch/index.md>) | 三层架构、一次 ioctl 的端到端路径、OS 抽象规则。 |
-| 数据结构 | [核心数据结构](<./grace/kmd/concepts/index.md>) | aigc/aigc_lib_device/vdev/ctx/vm/mem_handle 的职责与所有权树。 |
-| ioctl | [ioctl 接口与 ABI](<./grace/kmd/ioctl/index.md>) | `AIP_*` 操作集、两级派发、ABI 稳定性。 |
-| 内存 | [内存与页表](<./grace/kmd/memory/index.md>) | 堆/NUMA/UMA/DSMEM、mem_handle 生命周期、4 级页表、TLB 失效。 |
-| 队列调度 | [命令队列与调度](<./grace/kmd/queue/index.md>) | MCQD/HQD、CP ring/doorbell、调度 kthread。 |
-| 中断 | [中断与 Fence](<./grace/kmd/interrupt/index.md>) | MSI-X 向量、上/下半部、事件环、fence 完成模型。 |
-| OS 抽象 | [OS 抽象层](<./grace/kmd/os/index.md>) | os_interface 缝隙 + NVIDIA 式 conftest。 |
-| HAL | [Grace HAL](<./grace/kmd/hal/index.md>) | CP/arch/IMC/L2C/TCU/互联 bring-up 状态、寄存器映射。 |
-| 流程 | [端到端流程](<./grace/kmd/flows/index.md>) | 从 `Thunk_*` 到硬件完成的 saxpy 全链路。 |
-| 评审 | [代码评审意见](<./grace/kmd/review/index.md>) | kmd 代码评审记录与注释改进项。 |
-| 环境 | [服务器环境与构建](<./grace/kmd/env.md>) | 远端源码路径、构建/加载命令。 |
+| 入口 | [KMD 内核驱动知识库](<./grace/kmd/index.md>) | 不知道从哪开始看 `aigc.ko`；阅读路线 + 全景图 + 术语速查。 |
+| 00 | [大局观：一次请求的一生](<./grace/kmd/00-big-picture.md>) | 先用一个故事建立整体印象。 |
+| 01 | [整体架构](<./grace/kmd/01-architecture.md>) | 三层架构、一次 ioctl 的端到端路径、子系统地图、OS 抽象/conftest。 |
+| 02 | [核心数据结构](<./grace/kmd/02-data-structures.md>) | aigc/lib_device/vdev/ctx/vm/mem_handle 与所有权树。 |
+| 03 | [ioctl 接口与 ABI](<./grace/kmd/03-ioctl-abi.md>) | `AIP_*` 操作集、X-macro 两级派发、ABI 稳定性。 |
+| 04 | [内存与页表](<./grace/kmd/04-memory-and-pagetables.md>) | 堆/NUMA/UMA/DSMEM、mem_handle 生命周期、4 级页表、TLB 失效。 |
+| 05 | [提交、事件与中断](<./grace/kmd/05-submission-events-interrupts.md>) | ctx→queue→CP ring→doorbell、调度 kthread、MSI-X、事件环、fence。 |
+| 06 | [Grace HAL](<./grace/kmd/06-hal-grace.md>) | CP/arch/IMC/L2C/TCU/互联 真驱动 vs bring-up 桩、寄存器映射。 |
+| 07 | [构建与测试](<./grace/kmd/07-build-and-test.md>) | Kbuild + conftest、模块参数、kmd_test 套、QEMU CI。 |
+| 08 | [端到端：一次 saxpy 的全程](<./grace/kmd/08-end-to-end-saxpy.md>) | 把所有子系统串成一条时间线。 |
+| 附录 | [术语表](<./grace/kmd/appendix/glossary.md>) · [面试问答](<./grace/kmd/appendix/interview-qa.md>) · [代码评审](<./grace/kmd/appendix/code-review.md>) | 速查 / 面试 / 评审。 |
 
 ## tiny-kmd 快速入口
 

@@ -53,7 +53,7 @@ source:
 内核用 `dma_alloc_coherent()` 分配，**每个 fd 最多一块**，上限 `AIGC_MISC_MEM_ALLOC_MAX=4MB`（`aigc_misc.h:16`），
 再通过 `mmap` 映射给用户态。probe 末尾 `dma_set_mask(48)` 设定 48 位 DMA 寻址。
 
-> 对比 [[wiki/grace/kmd/memory/index|ajthunk 内存与页表]]：tiny-kmd **没有页表/MMU/VA 翻译**，是「直接 DMA 物理地址」，
+> 对比 [[wiki/grace/kmd/04-memory-and-pagetables|ajthunk 内存与页表]]：tiny-kmd **没有页表/MMU/VA 翻译**，是「直接 DMA 物理地址」，
 > 这是移植 ajthunk 内存/页表模块时最大的缺口之一。
 
 ## 延伸

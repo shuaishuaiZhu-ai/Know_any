@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 460" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>Proxy 网络推进:GPU↔FIFO↔proxy↔网卡↔对端</title>
+  <desc>从左到右一条数据流:机器A 的 GPU kernel→send FIFO→proxy(轮询/isend)→NIC→网络→机器B 的 NIC→proxy(irecv)→recv FIFO→GPU kernel。所有主箭头向右,head 落在下一个框。底部一条虚线反馈箭头从 proxy A 指回 GPU A(推进 head 通知 slot 可复用)。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e0a3a3"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="460" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="42" font-size="22" font-weight="700" fill="#102027">Proxy 网络推进:GPU 不会打网络,proxy 替它收发</text>
+
+  <!-- machine labels -->
+  <text x="270" y="90" font-size="14" font-weight="700" text-anchor="middle" fill="#2e7d4f">机器 A(发送端)</text>
+  <text x="900" y="90" font-size="14" font-weight="700" text-anchor="middle" fill="#3d7fc4">机器 B(接收端)</text>
+  <line x1="585" y1="100" x2="585" y2="300" stroke="#d6dde2" stroke-width="1.5" stroke-dasharray="5 5"/>
+
+  <!-- boxes -->
+  <g font-size="11.5" text-anchor="middle">
+    <!-- GPU A -->
+    <rect x="20" y="170" width="110" height="80" rx="11" fill="#e8f7ec" stroke="#74c98a" stroke-width="2"/><text x="75" y="205" font-weight="700" fill="#102027">GPU kernel</text><text x="75" y="225" fill="#37474f">(发送)</text>
+    <!-- FIFO A -->
+    <rect x="150" y="170" width="110" height="80" rx="11" fill="#ffffff" stroke="#c5ced3"/><text x="205" y="205" font-weight="700" fill="#102027">send FIFO</text><text x="205" y="225" fill="#607d8b">8 slot</text>
+    <!-- proxy A -->
+    <rect x="280" y="170" width="110" height="80" rx="11" fill="#fff8e6" stroke="#edc870" stroke-width="2"/><text x="335" y="202" font-weight="700" fill="#102027">proxy 线程</text><text x="335" y="222" font-size="10" fill="#37474f">sendProxy</text><text x="335" y="237" font-size="10" fill="#37474f">Progress</text>
+    <!-- NIC A -->
+    <rect x="410" y="170" width="110" height="80" rx="11" fill="#102027"/><text x="465" y="205" font-weight="700" fill="#fff">NIC</text><text x="465" y="225" font-size="10" fill="#b0bec5">网卡</text>
+    <!-- network -->
+    <ellipse cx="585" cy="210" rx="48" ry="42" fill="#eef1f3" stroke="#90a4ae" stroke-width="2"/><text x="585" y="206" font-weight="700" fill="#102027">网络</text><text x="585" y="224" font-size="10" fill="#607d8b">IB/以太</text>
+    <!-- NIC B -->
+    <rect x="650" y="170" width="110" height="80" rx="11" fill="#102027"/><text x="705" y="205" font-weight="700" fill="#fff">NIC</text><text x="705" y="225" font-size="10" fill="#b0bec5">网卡</text>
+    <!-- proxy B -->
+    <rect x="780" y="170" width="110" height="80" rx="11" fill="#fff8e6" stroke="#edc870" stroke-width="2"/><text x="835" y="202" font-weight="700" fill="#102027">proxy 线程</text><text x="835" y="222" font-size="10" fill="#37474f">recvProxy</text><text x="835" y="237" font-size="10" fill="#37474f">Progress</text>
+    <!-- FIFO B -->
+    <rect x="910" y="170" width="110" height="80" rx="11" fill="#ffffff" stroke="#c5ced3"/><text x="965" y="205" font-weight="700" fill="#102027">recv FIFO</text><text x="965" y="225" fill="#607d8b">8 slot</text>
+    <!-- GPU B -->
+    <rect x="1040" y="170" width="120" height="80" rx="11" fill="#e8f1fd" stroke="#6fa8e6" stroke-width="2"/><text x="1100" y="205" font-weight="700" fill="#102027">GPU kernel</text><text x="1100" y="225" fill="#37474f">(接收)</text>
+  </g>
+
+  <!-- forward arrows -->
+  <g stroke="#8da2ad" stroke-width="2.4" fill="none" marker-end="url(#ar)">
+    <line x1="130" y1="210" x2="146" y2="210"/>
+    <line x1="260" y1="210" x2="276" y2="210"/>
+    <line x1="390" y1="210" x2="406" y2="210"/>
+    <line x1="520" y1="210" x2="535" y2="210"/>
+    <line x1="635" y1="210" x2="646" y2="210"/>
+    <line x1="760" y1="210" x2="776" y2="210"/>
+    <line x1="890" y1="210" x2="906" y2="210"/>
+    <line x1="1020" y1="210" x2="1036" y2="210"/>
+  </g>
+  <!-- arrow labels -->
+  <g font-size="10.5" text-anchor="middle" fill="#607d8b">
+    <text x="138" y="160">写·推tail</text>
+    <text x="268" y="160">轮询取</text>
+    <text x="398" y="160">isend</text>
+    <text x="703" y="160">irecv</text>
+    <text x="833" y="160">写·推tail</text>
+    <text x="1028" y="160">读</text>
+  </g>
+
+  <!-- feedback dashed arrow proxy A -> GPU A (推进 head) -->
+  <path d="M310 250 L310 295 L60 295 L60 254" stroke="#e0a3a3" stroke-width="2.2" fill="none" stroke-dasharray="6 5" marker-end="url(#arb)"/>
+  <text x="185" y="312" font-size="11" text-anchor="middle" fill="#b06a6a">发完 → 推进 head,通知 GPU slot 可复用</text>
+
+  <!-- caption -->
+  <rect x="40" y="350" width="1100" height="86" rx="14" fill="#fff" stroke="#d6dde2"/>
+  <text x="60" y="378" font-size="13.5" fill="#37474f"><tspan font-weight="700">关键:</tspan>GPU kernel 只管读写 FIFO、看 head/tail(第09章),感知不到对面是 NVLink 邻居还是隔着网络的 proxy。</text>
+  <text x="60" y="404" font-size="13.5" fill="#37474f">proxy 把网络复杂性藏在 FIFO 背后:轮询 tail→ <tspan font-weight="700">ncclNet→isend/irecv</tspan> →test 完成→推指针。每 comm 一个 proxy 线程,服务所有 channel。</text>
+  <text x="60" y="426" font-size="12" fill="#607d8b">开 GDR 时网卡直接 DMA 显存里的 FIFO,数据不经 host;仅跨机(NET)需要 proxy,卡内 P2P/SHM 不需要。</text>
+</svg>

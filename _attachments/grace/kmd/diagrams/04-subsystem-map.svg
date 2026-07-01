@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="600" viewBox="0 0 880 600" font-family="Noto Sans CJK SC, sans-serif">
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#7b8794"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#9aa5b1" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="880" height="600" fill="#fffdf6"/>
+  <text x="440" y="34" font-size="20" font-weight="bold" text-anchor="middle" fill="#1f2933">kmd 子系统地图</text>
+
+  <!-- center -->
+  <g filter="url(#sh)"><rect x="40" y="255" width="176" height="92" rx="16" fill="#e3f0e3" stroke="#5a9367" stroke-width="3"/></g>
+  <text x="128" y="295" font-size="15" font-weight="bold" text-anchor="middle" fill="#2f6b3a">kmd 可移植核心</text>
+  <text x="128" y="320" font-size="13" text-anchor="middle" fill="#3a7a47">kmdlib/</text>
+
+  <!-- cards -->
+  <!-- 1 -->
+  <g filter="url(#sh)"><rect x="330" y="50" width="520" height="92" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="1.8"/></g>
+  <text x="350" y="80" font-size="14" font-weight="bold" fill="#243b53">ioctl ABI 与派发</text>
+  <text x="350" y="104" font-size="12" fill="#486581">aigc_ioctl.c · aigc_fops.c · aigc_ioctl_tab.h</text>
+  <text x="350" y="126" font-size="12" font-weight="bold" fill="#3a7a47">→ 第 03 章</text>
+  <!-- 2 -->
+  <g filter="url(#sh)"><rect x="330" y="166" width="520" height="92" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="1.8"/></g>
+  <text x="350" y="196" font-size="14" font-weight="bold" fill="#243b53">内存与页表</text>
+  <text x="350" y="220" font-size="12" fill="#486581">aigc_mem_handle.c · aigc_devm.c · aigc_page_table.c · genalloc.c</text>
+  <text x="350" y="242" font-size="12" font-weight="bold" fill="#3a7a47">→ 第 04 章</text>
+  <!-- 3 -->
+  <g filter="url(#sh)"><rect x="330" y="282" width="520" height="92" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="1.8"/></g>
+  <text x="350" y="312" font-size="14" font-weight="bold" fill="#243b53">提交 / 事件 / 中断</text>
+  <text x="350" y="336" font-size="12" fill="#486581">aigc_cmd*.c · aigc_cp_ring.c · aigc_sched.c · aigc_interrupt*.c · aigc_kmd_fence.c</text>
+  <text x="350" y="358" font-size="12" font-weight="bold" fill="#3a7a47">→ 第 05 章</text>
+  <!-- 4 -->
+  <g filter="url(#sh)"><rect x="330" y="398" width="520" height="92" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="1.8"/></g>
+  <text x="350" y="428" font-size="14" font-weight="bold" fill="#243b53">Grace HAL</text>
+  <text x="350" y="452" font-size="12" fill="#486581">hal/grace/* · regs/*</text>
+  <text x="350" y="474" font-size="12" font-weight="bold" fill="#3a7a47">→ 第 06 章</text>
+  <!-- 5 -->
+  <g filter="url(#sh)"><rect x="330" y="514" width="520" height="74" rx="13" fill="#eef3fb" stroke="#7b93ad" stroke-width="1.8"/></g>
+  <text x="350" y="544" font-size="14" font-weight="bold" fill="#243b53">构建与测试</text>
+  <text x="600" y="544" font-size="12" fill="#486581">Kbuild · Makefile · kmd/test/* · kmd/scripts/*</text>
+  <text x="350" y="570" font-size="12" font-weight="bold" fill="#3a7a47">→ 第 07 章</text>
+
+  <!-- arrows from center -->
+  <path d="M216,290 C270,250 290,130 328,108" fill="none" stroke="#7b8794" stroke-width="1.8" marker-end="url(#a)"/>
+  <path d="M216,295 C275,275 290,235 328,215" fill="none" stroke="#7b8794" stroke-width="1.8" marker-end="url(#a)"/>
+  <path d="M216,301 C275,310 290,322 328,328" fill="none" stroke="#7b8794" stroke-width="1.8" marker-end="url(#a)"/>
+  <path d="M216,307 C275,330 290,420 328,442" fill="none" stroke="#7b8794" stroke-width="1.8" marker-end="url(#a)"/>
+  <path d="M216,312 C270,355 290,520 328,548" fill="none" stroke="#7b8794" stroke-width="1.8" marker-end="url(#a)"/>
+</svg>

@@ -80,7 +80,7 @@ sequenceDiagram
 
 ## 与 ajthunk 三层架构的对比
 
-tiny-kmd **没有** ajthunk 的 [[wiki/grace/kmd/arch/layered-architecture|三层架构]]——这正是移植时要补的：先给它加一层
+tiny-kmd **没有** ajthunk 的 [[wiki/grace/kmd/01-architecture|三层架构]]——这正是移植时要补的：先给它加一层
 `os_*` 抽象（对齐 [[os_interface]]），再加 `hal/hal.h` 函数指针表，然后才能把 ajthunk 的可移植模块逐个搬进来。
 见 [[wiki/grace/tiny-kmd/gap-vs-ajthunk|缺口对照]]。
 

@@ -27,6 +27,22 @@ status: active
 - **联动更新**：[Wiki 总索引](<./index.md>)（加 ai-infra 专区入口 + 目录树）、[Hot Cache](<./hot.md>)。
 - 改动未提交 git（待审阅）。
 
+## [2026-06-30] add | NCCL 学习教程（新建 wiki/nccl/ 专区，13 章 + 14 图）
+
+- **新建顶层专区 `wiki/nccl/`**：从 0 开始、基于 **NVIDIA/nccl v2.30.7**（tarball master，本地 `/root/workspace/nccl`，**不纳入 wiki 仓库**）源码逐文件讲解的多卡集合通信库深度教程。面向应届/面试，每章「面试官会追问」盒子。
+- **13 篇编号章**：[index](<./nccl/index.md>) + 00 概览 / 01 概念API / 02 架构代码地图 / 03 初始化bootstrap / 04 拓扑图搜索 / 05 Ring AllReduce⭐ / 06 Tree及其他算法 / 07 Transport / 08 enqueue启动 / 09 device kernel⭐ / 10 proxy / 11 调优 / 12 附录。
+- **14 张源码核实图解**存 `_attachments/nccl/`（`.svg` 源在 `src/` + resvg 渲染 `.png`，逐张视觉验证箭头/标签/溢出）：AllReduce在训练中位置、7原语语义、架构分层、代码地图、ncclComm所有权树、初始化时序、单节点拓扑、Ring构建、Ring AllReduce三态、Tree vs Ring、Transport决策树、FIFO同步、enqueue数据流、proxy推进。
+- **源码确认要点**（均给文件:行号）：所有原语收敛 `ncclEnqueueCheck`；uniqueId=rank0门牌号+环all-gather；`ncclTopoCompute` 按 PATH_* 偏好搜环/树；Ring 2(N−1)步、通信量≈2S 与 N 无关；double binary tree 补带宽；7算法×3协议成本模型自动选；P2P(CUDA IPC零拷贝)/SHM/NET 按优先级选；work FIFO + cuLaunchKernel(grid=nChannels) + CUDA Graph；device 端 head/tail FIFO 同步 + Simple/LL/LL128；proxy 线程替 GPU 收发跨机网络包。环境变量速查表全部 grep 核实。
+- 同步更新 [Wiki 总索引](<./index.md>)（结构树 + 入口优先级）、[Hot Cache](<./hot.md>)。分批交付到 GitHub 分支 `wiki/nccl-tutorial`（`shuaishuaiZhu-ai/Know_any`），共 6 个 commit（批 1–6）。
+
+## [2026-06-29] restructure | KMD 知识库全量重构（线性 8 章 + 附录 + 12 张飞书白板风图）
+
+- **`wiki/grace/kmd/` 从扁平 10 区（arch/concepts/ioctl/memory/queue/interrupt/os/hal/flows/review）重构为线性编号 8 章 + 附录**，面向应届生、按当前 ajthunk 代码（80.116）逐函数核实：[index](<./grace/kmd/index.md>) + [00 大局观](<./grace/kmd/00-big-picture.md>)/[01 架构](<./grace/kmd/01-architecture.md>)/[02 数据结构](<./grace/kmd/02-data-structures.md>)/[03 ioctl-ABI](<./grace/kmd/03-ioctl-abi.md>)/[04 内存页表](<./grace/kmd/04-memory-and-pagetables.md>)/[05 提交-中断](<./grace/kmd/05-submission-events-interrupts.md>)/[06 HAL](<./grace/kmd/06-hal-grace.md>)/[07 构建测试](<./grace/kmd/07-build-and-test.md>)/[08 saxpy 端到端](<./grace/kmd/08-end-to-end-saxpy.md>) + `appendix/{glossary,interview-qa,code-review}`。
+- **删除旧 10 个子目录 + `env.md` + `kmd-interview-deep-dive.md`**（内容并入新章节；`env.md`→07、面试→附录、评审→附录）。
+- **12 张图全部改用飞书白板风手绘 SVG**（用户两次明确要求，弃用 Graphviz/内联 mermaid）：存 `_attachments/grace/kmd/diagrams/`（`.svg` 源 + `sharp` 渲染 `.png`），含全景/三层架构/ioctl 路径/子系统地图/所有权树/mem_handle 生命周期/堆-NUMA/4级页表/提交链路/中断-fence/HAL 框图/saxpy 时序。
+- **关键代码纠偏**：`AIP_QUEUE_SUBMIT` 当前 `return -EFAULT`（提交禁用）、kernel 走 UMD 直发 doorbell（HWS）、两级派发由 `aigc_ioctl_tab.h` X-macro 生成、HAL 多块（C2C/D2D/link_ipc）为 bring-up 桩。
+- 同步更新 [Wiki 总索引](<./index.md>)（KMD 快速入口表）、[grace 入口](<./grace/index.md>)、[Hot Cache](<./hot.md>)，并修正 overview 两页指向旧面试页的链接。
+- 分批交付到 GitHub 分支 `wiki/kmd-refactor`（`shuaishuaiZhu-ai/Know_any`），共 7 个 commit（批 1–6 + 收尾）。
 ## [2026-06-30] update | 飞书上传图片统一 PNG image block
 
 - 更新 [飞书 Wiki 发布中的 profile / identity 误判复盘](<./ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>) 与 [AI 使用飞书 lark-cli 创建文档](<./ai/tools/lark-cli-ai-document-guide.md>)：明确以后本地 wiki / Markdown 上传到飞书时，所有本地图像都必须转成或选择 PNG，并用 `docs +media-insert --type image` 插入到原图位；不再使用 SVG file card。

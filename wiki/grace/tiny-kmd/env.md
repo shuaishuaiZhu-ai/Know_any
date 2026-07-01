@@ -12,7 +12,7 @@ status: active
 
 # tiny-kmd 环境与构建
 
-**关联**: [[wiki/grace/tiny-kmd/index|tiny-kmd 知识库]] | [[wiki/grace/kmd/env|ajthunk KMD 环境]]
+**关联**: [[wiki/grace/tiny-kmd/index|tiny-kmd 知识库]] | [[wiki/grace/kmd/07-build-and-test|ajthunk KMD 环境]]
 
 ## 仓库与路径
 
@@ -44,4 +44,4 @@ make clean
 ## 延伸
 
 - [[wiki/grace/tiny-kmd/architecture]]
-- [[wiki/grace/kmd/env|ajthunk KMD 环境]]：移植目标侧（ajthunk）的构建。
+- [[wiki/grace/kmd/07-build-and-test|ajthunk KMD 环境]]：移植目标侧（ajthunk）的构建。

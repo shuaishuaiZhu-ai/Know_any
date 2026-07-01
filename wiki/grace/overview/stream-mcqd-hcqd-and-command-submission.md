@@ -15,7 +15,7 @@ source:
   - "shuaishuai.zhu@192.168.80.116:~/aigc-driver（UMD，源码确认 2026-06-26）"
   - "shuaishuai.zhu@192.168.80.116:~/ajthunk/kmd（KMD aigc.ko，源码确认 2026-06-26）"
   - "shuaishuai.zhu@192.168.80.116:~/fw（CP 固件）"
-  - "[[wiki/grace/kmd/flows/queue-create-flow|AIP_QUEUE_CREATE 流程]]"
+  - "[[wiki/grace/kmd/05-submission-events-interrupts|AIP_QUEUE_CREATE 流程]]"
   - "[[wiki/grace/fw/cp-master/qdma|CP Master QDMA]]"
 ---
 
@@ -77,7 +77,7 @@ source:
 
 ### 2.1 MCQD 是谁、在什么时候、填了哪些字段（源码确认）
 
-在 HWS 默认调度模式下，MCQD 由 **KMD 在 `AIP_QUEUE_CREATE` 时填好**（详见 [[queue-create-flow|命令队列创建代码流程]]）：
+在 HWS 默认调度模式下，MCQD 由 **KMD 在 `AIP_QUEUE_CREATE` 时填好**（详见 [[wiki/grace/kmd/05-submission-events-interrupts|命令队列创建代码流程]]）：
 
 - 入口：`aigc_ioctl_queue_create` → `create_queue_cpsche`；
 - 在该 context 的 **KCACHE** 区算出 MCQD 地址（`mcqd_base + qid 槽`），映射到内核 VA 并清零；
@@ -210,7 +210,7 @@ KMD 里**另有**一套“两阶段提交”机制，用一个后台 kthread 把
 ## 7. 延伸阅读
 
 - **主文档**：[[saxpy-kernel-end-to-end|一个 Kernel 从 .cu 到硬件执行的全流程]]——本文是它的配套深入篇。
-- **KMD 队列创建**：[[queue-create-flow|命令队列创建代码流程（AIP_QUEUE_CREATE）]]、[[mem-create-flow|显存创建流程]]、[[context-create-flow|context 创建流程]]、[[wiki/grace/kmd/queue/aigc_cp_ring|CP ring]]、[[wiki/grace/kmd/queue/aigc_sched|调度器]]。
+- **KMD 队列创建**：[[wiki/grace/kmd/05-submission-events-interrupts|命令队列创建代码流程（AIP_QUEUE_CREATE）]]、[[wiki/grace/kmd/04-memory-and-pagetables|显存创建流程]]、[[wiki/grace/kmd/02-data-structures|context 创建流程]]、[[wiki/grace/kmd/05-submission-events-interrupts|CP ring]]、[[wiki/grace/kmd/05-submission-events-interrupts|调度器]]。
 - **KMD 提交流程（含需纠正之处）**：[[command-submission-flow|命令提交与下发代码流程]]（注意：其主线对 HWS 默认是误导，见本文第 4.2 节）。
 - **CP 侧 MCQD/HCQD 调度**：[[wiki/grace/fw/cp-master/qdma|QDMA 查询与入队]]、[[wiki/grace/fw/concepts/MCQD|MCQD]]、[[wiki/grace/fw/concepts/HCQD|HCQD]]、[[wiki/grace/fw/concepts/Interaction-Buffer|Interaction Buffer]]、[[wiki/grace/fw/flows/CP command processing flow|CP 命令处理流程]]。
 - **芯片栈总入口**：[[wiki/grace/index|GraceC 芯片软硬件栈]]。

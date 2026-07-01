@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 600" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>NCCL 源码地图:主干 .cc / 子目录 / v2.30.7 新增</title>
+  <desc>三个分组区域,纯标签框网格,无连线。A 控制面主干 .cc(蓝);B 核心子目录(绿);C v2.30.7 新增子目录(紫)。每个框是"名字 + 一句话职责"。</desc>
+  <rect x="0" y="0" width="1180" height="600" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="44" font-size="24" font-weight="700" fill="#102027">NCCL 源码地图(src/,v2.30.7)</text>
+
+  <!-- Section A -->
+  <text x="40" y="84" font-size="16" font-weight="700" fill="#3d7fc4">A. 控制面主干 .cc</text>
+  <g font-size="13">
+    <g><rect x="40" y="94" width="260" height="58" rx="9" fill="#e8f1fd" stroke="#6fa8e6"/><text x="52" y="116" font-weight="700" fill="#102027">collectives.cc</text><text x="52" y="138" fill="#37474f">7 类原语 API 入口</text></g>
+    <g><rect x="320" y="94" width="260" height="58" rx="9" fill="#e8f1fd" stroke="#6fa8e6"/><text x="332" y="116" font-weight="700" fill="#102027">init.cc</text><text x="332" y="138" fill="#37474f">建通信器:拓扑/环树/连接</text></g>
+    <g><rect x="600" y="94" width="260" height="58" rx="9" fill="#e8f1fd" stroke="#6fa8e6"/><text x="612" y="116" font-weight="700" fill="#102027">bootstrap.cc</text><text x="612" y="138" fill="#37474f">rank 间带外握手(环 all-gather)</text></g>
+    <g><rect x="880" y="94" width="260" height="58" rx="9" fill="#e8f1fd" stroke="#6fa8e6"/><text x="892" y="116" font-weight="700" fill="#102027">transport.cc</text><text x="892" y="138" fill="#37474f">选 P2P/SHM/NET、建 connector</text></g>
+    <g><rect x="40" y="160" width="260" height="58" rx="9" fill="#e8f1fd" stroke="#6fa8e6"/><text x="52" y="182" font-weight="700" fill="#102027">enqueue.cc</text><text x="52" y="204" fill="#37474f">调用→task→plan→launch</text></g>
+    <g><rect x="320" y="160" width="260" height="58" rx="9" fill="#e8f1fd" stroke="#6fa8e6"/><text x="332" y="182" font-weight="700" fill="#102027">group.cc</text><text x="332" y="204" fill="#37474f">GroupStart/End 批处理调度</text></g>
+    <g><rect x="600" y="160" width="260" height="58" rx="9" fill="#e8f1fd" stroke="#6fa8e6"/><text x="612" y="182" font-weight="700" fill="#102027">channel.cc</text><text x="612" y="204" fill="#37474f">channel/peer/connector 分配</text></g>
+    <g><rect x="880" y="160" width="260" height="58" rx="9" fill="#e8f1fd" stroke="#6fa8e6"/><text x="892" y="182" font-weight="700" fill="#102027">proxy.cc</text><text x="892" y="204" fill="#37474f">网络收发后台线程</text></g>
+  </g>
+
+  <!-- Section B -->
+  <text x="40" y="256" font-size="16" font-weight="700" fill="#2e7d4f">B. 核心子目录</text>
+  <g font-size="13">
+    <g><rect x="40" y="266" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="52" y="288" font-weight="700" fill="#102027">graph/</text><text x="52" y="310" fill="#37474f">topo·paths·rings·trees·search·tuning</text></g>
+    <g><rect x="320" y="266" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="332" y="288" font-weight="700" fill="#102027">transport/</text><text x="332" y="310" fill="#37474f">p2p·shm·net(ib/socket)·collnet·nvls</text></g>
+    <g><rect x="600" y="266" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="612" y="288" font-weight="700" fill="#102027">device/</text><text x="612" y="310" fill="#37474f">GPU kernel + prims_simple/ll/ll128</text></g>
+    <g><rect x="880" y="266" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="892" y="288" font-weight="700" fill="#102027">include/</text><text x="892" y="310" fill="#37474f">comm.h·device.h·transport.h…</text></g>
+    <g><rect x="40" y="332" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="52" y="354" font-weight="700" fill="#102027">misc/</text><text x="52" y="376" fill="#37474f">socket·param·cudawrap·nvmlwrap</text></g>
+    <g><rect x="320" y="332" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="332" y="354" font-weight="700" fill="#102027">register/</text><text x="332" y="376" fill="#37474f">用户 buffer 注册(GDRCopy/零拷贝)</text></g>
+  </g>
+
+  <!-- Section C -->
+  <text x="40" y="428" font-size="16" font-weight="700" fill="#7d5fc0">C. v2.30.7 新增(主线之外,见附录)</text>
+  <g font-size="13">
+    <g><rect x="40" y="438" width="260" height="58" rx="9" fill="#f0ecfb" stroke="#a98fe0"/><text x="52" y="460" font-weight="700" fill="#102027">nccl_device/</text><text x="52" y="482" fill="#37474f">设备侧 API(GPU 上发起通信)</text></g>
+    <g><rect x="320" y="438" width="260" height="58" rx="9" fill="#f0ecfb" stroke="#a98fe0"/><text x="332" y="460" font-weight="700" fill="#102027">gin/</text><text x="332" y="482" fill="#37474f">GPU Interconnect 抽象</text></g>
+    <g><rect x="600" y="438" width="260" height="58" rx="9" fill="#f0ecfb" stroke="#a98fe0"/><text x="612" y="460" font-weight="700" fill="#102027">rma/</text><text x="612" y="482" fill="#37474f">远程内存访问 Put/Get/Signal</text></g>
+    <g><rect x="880" y="438" width="260" height="58" rx="9" fill="#f0ecfb" stroke="#a98fe0"/><text x="892" y="460" font-weight="700" fill="#102027">scheduler/</text><text x="892" y="482" fill="#37474f">对称 kernel / AllGatherV 调度</text></g>
+    <g><rect x="40" y="504" width="260" height="58" rx="9" fill="#f0ecfb" stroke="#a98fe0"/><text x="52" y="526" font-weight="700" fill="#102027">param/</text><text x="52" y="548" fill="#37474f">NCCL_* 参数注册中心</text></g>
+    <g><rect x="320" y="504" width="260" height="58" rx="9" fill="#f0ecfb" stroke="#a98fe0"/><text x="332" y="526" font-weight="700" fill="#102027">ras/</text><text x="332" y="548" fill="#37474f">可靠性:故障检测/上报</text></g>
+  </g>
+</svg>
