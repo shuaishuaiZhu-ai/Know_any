@@ -42,6 +42,8 @@ NCCL 的通信 kernel 入口是 `ncclDevKernel_Generic`(`common.cu:23`),它调 `
 
 每条 connector 的 buffer(`ncclConnInfo.buffs`,`device.h:133`)被切成 **`NCCL_STEPS = 8`**(`device.h:26`)个 slot,首尾相接成环形 FIFO。两个指针:
 
+> 💭 **为什么是 8,不是 4/16/32?** `device.h:26` 只是一条裸的 `#define`,源码没有注释解释这个具体数值,以下是**推断**:buffer 总显存预算(`comm->buffSizes[protocol]`)是固定的,`stepSize = buffSizes[protocol]/NCCL_STEPS`——slot 数越多,每个 slot 越小,流水线气泡越少,但每条 connector×每条 channel×NCCL_STEPS 份 slot 都要占显存,slot 数翻倍意味着通信 buffer 显存开销也翻倍,在多 channel、多 connector 的大规模场景这个开销会被放大;slot 数太少(比如 4)则流水线深度不够,发送方很快追上 `head+NCCL_STEPS>=step` 的上限,GPU 侧的 warp 会阻塞在 spin-wait 等接收方腾出空位,拉高延迟。8 是"显存开销"和"流水线深度"这对权衡下的一个经验取值,不是理论最优解。一个佐证是 `NCCL_LL_CLEAN_MASK % NCCL_STEPS == 0` 这条 `static_assert`(`device.h:108`):8 这个值和 LL 协议的 flag 回绕机制是绑定设计的,不能随便改成任意数字。
+
 - **`tail`**:生产者(发送方)写到哪了——"已生产"水位。
 - **`head`**:消费者(接收方)读到哪了——"已消费"水位。
 
@@ -105,6 +107,8 @@ NCCL 的通信 kernel 入口是 `ncclDevKernel_Generic`(`common.cu:23`),它调 `
 
 接收方不看独立的 tail 指针,而是**轮询 flag**:flag 等于本轮期望值(一个递增 counter,`NCCL_LL_FLAG`,8 bit)就说明这 4 字节数据到了。妙处:**flag 和数据在同一次原子写里**(`storeLL`,:154),所以**不需要单独的内存 fence**——flag 可见即数据可见。
 
+**为什么恰好是 4B+4B 这个切法**:`ncclLLFifoLine` 的源码注释(`device.h:76-79`)直接给了设计约束——"Flags have to be *after* data, because otherwise, an incomplete receive from the network may receive the flag but not the data"。也就是说:flag 必须放在 data **之后**,否则网络分片传输时可能先到 flag、后到 data,接收方会误判"flag 已翻转 = 数据已到"而读到脏数据。至于单位为什么是 4B 而不是 2B/8B,注释接着写"assuming...data is written with an atomicity of 8 bytes (IB/RDMA)"——8 字节(一个 `uint64_t`)是 CPU/网络硬件能保证的最大可移植原子写粒度,一次 8B store 里必须塞下"4B 有效数据 + 4B flag"才能让"flag 落地"和"data 落地"是同一个不可分割的操作;再大就没有通用原子性保证了,再小则浪费更多字节给 flag。`ncclLLFifoLine` 用 `uint64_t v[2]`(16B=2×8B,`device.h:86`)正是因为一次要传 8B 有效数据,需要两个"4B data+4B flag"对子拼起来。**需要指出**:源码注释解释了"为什么 flag 在后"和"原子性单位是 8B",但没有显式解释"为什么不牺牲通用性换更大原子单元、换更高带宽利用率"——这一点是**推断**:更大的原子单元(比如 128B,即下面的 LL128)需要更强的硬件保证(只有 NVLink 能给),LL 协议的设计目标恰恰是"通用性优先于带宽利用率"(要能在 socket/IB 上也能跑),所以只能用最保守的 8B。
+
 - **优点**:延迟极低(省掉 fence 往返)。
 - **代价**:一半字节是 flag,**有效带宽只有约 50%**。
 
@@ -120,6 +124,14 @@ NCCL 的通信 kernel 入口是 `ncclDevKernel_Generic`(`common.cu:23`),它调 `
 
 带宽利用率 **120/128 ≈ 94%**,延迟接近 LL(同样靠 flag、少 fence)。代价:**依赖 NVLink 保证 128 字节写的原子性**(PCIe/网络不保证),所以主要用在 NVLink 互联上。
 
+**为什么在 PCIe 上会失效(推断)**:LL128 的 flag 放在 `NCCL_LL128_FLAGTHREAD = NCCL_LL128_LINEELEMS - 1`(`device.h:10`,`prims_ll128.h:10`)——即整块 128B 里第 15 个 uint64,在数据**之后**。这个设计假设"128B 是一次不可分割的写"整体落地或整体未落地。但 PCIe 上一次写事务通常按 cacheline(64B)或更小粒度提交,128B 的写可能被硬件拆成 2 个独立事务、乱序到达对端显存:如果含 flag 的"后 64B"先于"前 64B 数据"到达,接收方会看到 flag 已翻转、却读到还没更新的旧数据——这正是源码里 `needReload`(`prims_ll128.h:200,245` 附近)要反复重读校验的原因,但重读只能兜底"最终一致",换不回"flag 可见即数据可见"这条 LL128 赖以省 fence 的核心假设。也就是说,LL128 在 PCIe 上必须退化成多轮重读,等效于变相加了 fence,低延迟优势因此消失——这就是它被限定只用在 NVLink 上的根本原因,而不是简单的"官方限定"。
+
+**为什么是 128B(推断)**:128B 恰好是 NVLink 一次原子写能担保的粒度上限;`NCCL_LL128_LINEELEMS = 128/8 = 16` 个 uint64,拿出 1 个放 flag、剩下 15 个(`NCCL_LL128_DATAELEMS`,`device.h:112`)放数据,带宽利用率 15/16≈94%。如果做成 256B(31 data+1 flag,利用率能到 ~97%),需要 NVLink 保证 256B 写的原子性,风险更高、代际兼容性更差;如果只做 64B(7 data+1 flag,利用率 87.5%),牺牲了带宽却没换来实际收益(NVLink 已经能稳定担保 128B)。128B 是"硬件能给的原子性上限"与"带宽利用率"之间的平衡点——本质上和 LL 用 8B(通用硬件的原子性上限)是同一个设计思路在不同硬件信任等级下的两个实例化。
+
+![图:LL 在通用硬件上 8B 原子写始终成立,LL128 在 NVLink 上 128B 原子写成立、但在 PCIe 上会被拆成多个事务乱序到达导致 flag 与数据不同步 图解](../../_attachments/nccl/16-ll-vs-ll128-atomicity.png)
+
+> 图解源文件:[`16-ll-vs-ll128-atomicity.svg`](../../_attachments/nccl/src/16-ll-vs-ll128-atomicity.svg)
+
 ### 3.3 三协议对照
 
 | | Simple | LL | LL128 |
@@ -132,6 +144,14 @@ NCCL 的通信 kernel 入口是 `ncclDevKernel_Generic`(`common.cu:23`),它调 `
 | 适用 | **大消息** | **小消息** | NVLink 上中等消息 |
 
 > 💡 这三种协议正是 [第 06 章](<./06-tree-and-other-algos.md>) 调优模型里 `NCCL_PROTO` 那一维。和算法(Ring/Tree)正交组合:小消息常用 `Tree + LL`,大消息常用 `Ring + Simple`,NVLink 集群上 `LL128` 很常见。选哪个由成本模型按消息大小自动定。
+
+**"选哪个"不是拍脑袋,是一个具体的成本函数**(`ncclTopoGetAlgoTime`,`tuning.cc:630-653`):
+
+```
+time = lat * latCount + nBytes / (1000 * bw)
+```
+
+`lat`/`bw` 分别来自 init 阶段填好的 `comm->latencies[coll][algo][proto]` 和 `comm->bandwidths[coll][algo][proto]` 两张表(`tuning.cc:243` 起)。enqueue 时对每个 (algo, proto) 组合各算一遍 `time`,取最小的——这就是"小消息→LL、大消息→Simple"背后的真实机制:两条协议的 `time` 曲线(延迟项固定、带宽项随 `nBytes` 线性增长)会有一个交叉点,消息小于交叉点时低延迟协议更快,大于交叉点时高带宽协议更快。这个交叉点随硬件(NVLink 代际、GPU/节点数)变化,不是全局常数,精确阈值和完整推导见 [第 11 章 §3](<./11-tuning-and-perf.md>)——这里只需要知道"协议对照表里的横向对比不是经验描述,而是有精确成本函数支撑的"。
 
 ---
 
