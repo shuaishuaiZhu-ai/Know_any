@@ -24,22 +24,9 @@ source:
 
 FM 严格遵循"用户态决策、内核态执行"的分离原则：
 
-```mermaid
-flowchart TB
-    subgraph U["用户态"]
-        F["FM 服务 nvidia-fabricmanager<br/>配置解析/分区/状态监控/故障决策"]
-        L["NVLSM 四代专属<br/>拓扑发现/路由表编程/PKEY"]
-    end
-    subgraph K["内核态"]
-        D["NVSwitch 驱动 nvidia-nvswitch.ko<br/>端口启停/链路训练/寄存器读写"]
-        G["GPU 驱动 nvidia.ko<br/>GPU 侧 NVLink 配置"]
-    end
-    H["设备节点<br/>/dev/nvidia-nvlink<br/>/dev/nvidia-nvswitchctl"]
-    F --> D
-    L --> D
-    D --> H
-    G --> H
-```
+![架构：用户态管理 + 内核态执行 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/Fabric-Manager与NVLink/whiteboard-mermaid/01-架构-用户态管理-+-内核态执行-flowchart.png)
+
+> 图解源文件：[`01-架构-用户态管理-+-内核态执行-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/Fabric-Manager与NVLink/whiteboard-mermaid/01-架构-用户态管理-+-内核态执行-flowchart.mmd)。
 
 | 层级 | 组件 | 职责 |
 |---|---|---|
@@ -80,16 +67,9 @@ flowchart TB
 
 ### Xid 与 SXid 错误码
 
-```mermaid
-flowchart LR
-    HW["硬件故障<br/>链路误码/寄存器错误"] --> DRV["内核驱动捕获"]
-    DRV --> X["生成错误码"]
-    X --> X1["Xid GPU 错误<br/>如 45/74/79/13"]
-    X --> X2["SXid NVSwitch 错误<br/>非致命/致命"]
-    X1 --> LOG["写内核日志"] & LOG
-    X2 --> LOG
-    LOG --> FM["FM 监控→执行策略"]
-```
+![Xid 与 SXid 错误码 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/Fabric-Manager与NVLink/whiteboard-mermaid/02-Xid-与-SXid-错误码-flowchart.png)
+
+> 图解源文件：[`02-Xid-与-SXid-错误码-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/Fabric-Manager与NVLink/whiteboard-mermaid/02-Xid-与-SXid-错误码-flowchart.mmd)。
 
 - **Xid（GPU 侧）**：Xid 45 NVLink 致命错误、Xid 74 GPU-NVSwitch 连接故障、Xid 79 GPU 掉 PCIe、Xid 13 SM 异常。
 - **SXid（NVSwitch 侧）**：分非致命（仅记录，可能短暂降速）与致命（终止任务、需显式恢复）。
@@ -110,13 +90,9 @@ FM 按"最小影响"分级响应，三个关键可配策略：
 
 ### 标准化恢复流程
 
-```mermaid
-flowchart TD
-    Q{故障范围?}
-    Q -->|单 GPU| S1["终止 GPU 任务<br/>nvidia-smi -r -i id 重置<br/>验证后重新提交"]
-    Q -->|NVSwitch 端口| S2["SXid 定位端口<br/>重置关联 GPU<br/>观察日志"]
-    Q -->|跨基板 NVLink| S3["停 FM → 杀 CUDA →<br/>nvidia-smi -r 全局重置 →<br/>启 FM 验证"]
-```
+![标准化恢复流程 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/Fabric-Manager与NVLink/whiteboard-mermaid/03-标准化恢复流程-flowchart.png)
+
+> 图解源文件：[`03-标准化恢复流程-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/Fabric-Manager与NVLink/whiteboard-mermaid/03-标准化恢复流程-flowchart.mmd)。
 
 状态文件（`STATE_FILE_NAME`，默认 `state.json`）持久化分区配置与链路状态，FM 重启自动加载，无需重新配置。
 
@@ -126,17 +102,9 @@ FM 与 NVIDIA 工具链深度集成：DCGM 实时采集 NVLink 链路状态/ECC/
 
 ## NVIDIA 与 AMD 互联 RAS 对照
 
-```mermaid
-flowchart LR
-    subgraph NV["NVIDIA"]
-        N1["Fabric Manager 守护进程<br/>管 NVSwitch 拓扑/分区"]
-        N2["Xid/SXid 错误码<br/>分级降级隔离"]
-    end
-    subgraph AMD["AMD"]
-        A1["XGMI 互联"]
-        A2["sysfs/ras_ctrl<br/>可 echo 注入错误"]
-    end
-```
+![NVIDIA 与 AMD 互联 RAS 对照 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/Fabric-Manager与NVLink/whiteboard-mermaid/04-NVIDIA-与-AMD-互联-RAS-对照-flowchart.png)
+
+> 图解源文件：[`04-NVIDIA-与-AMD-互联-RAS-对照-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/Fabric-Manager与NVLink/whiteboard-mermaid/04-NVIDIA-与-AMD-互联-RAS-对照-flowchart.mmd)。
 
 NVIDIA 侧互联 RAS 走"子系统+守护进程+错误码体系"；AMD 侧 XGMI 把 RAS 能力暴露成 sysfs 文件，详见 [[AMD-GPU-RAS]]。
 

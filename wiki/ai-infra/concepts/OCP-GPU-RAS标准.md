@@ -1,12 +1,12 @@
 ---
-type: entity
+type: concept
 title: "OCP GPU RAS 标准"
 created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, gpu-ras, standard, concept]
 status: active
 source:
-  - "知乎专栏第109篇｜https://zhuanlan.zhihu.com/p/1988008157331600229"
+  - "知乎专栏《大模型训练、推理与AI云平台》第109篇｜作者常平｜https://zhuanlan.zhihu.com/p/1988008157331600229"
 ---
 
 # OCP GPU RAS 标准

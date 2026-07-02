@@ -1,0 +1,8 @@
+flowchart LR
+    Q["一次集合通信"] --> A{"算法<br/>数据怎么流"}
+    A --> R["Ring/Tree/NVLS/CollNet"]
+    Q --> P{"协议<br/>怎么打包"}
+    P --> PR["Simple/LL/LL128"]
+    Q --> T{"传输<br/>走哪条路"}
+    T --> TR["P2P/SHM/NET/NVLS"]
+    R & PR & TR --> O["最优组合执行"]

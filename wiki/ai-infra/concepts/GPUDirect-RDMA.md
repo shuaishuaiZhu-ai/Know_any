@@ -1,12 +1,12 @@
 ---
-type: entity
+type: concept
 title: "GPUDirect RDMA"
 created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, gpu, rdma, concept]
 status: active
 source:
-  - "知乎专栏第74篇｜https://zhuanlan.zhihu.com/p/1981507594146305320"
+  - "知乎专栏《大模型训练、推理与AI云平台》第74篇｜作者常平｜https://zhuanlan.zhihu.com/p/1981507594146305320"
 ---
 
 # GPUDirect RDMA

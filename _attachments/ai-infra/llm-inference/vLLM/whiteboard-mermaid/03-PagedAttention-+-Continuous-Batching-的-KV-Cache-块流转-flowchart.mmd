@@ -1,0 +1,10 @@
+flowchart TD
+    W["waiting 队列<br/>新请求排队"] -->|"Scheduler 挑选"| A["分配 Block"]
+    A -->|"Block Pool 有空闲"| B["写入 Block Table<br/>req.block_ids = [3,7,12]"]
+    A -->|"Block Pool 不足"| P["Preemption<br/>抢占低优先级请求的 Block<br/>被抢占请求回 waiting 队列"]
+    P --> A
+    B --> C["Prefill: 计算 KV, 写入 Block"]
+    C --> D["Decode: 每步读 Block Table<br/>PagedAttention kernel 按映射访问 KV"]
+    D -->|"生成结束"| F["释放 Block<br/>block_pool.free_blocks.append(block_id)"]
+    D -->|"未结束"| D
+    F -->|"前缀缓存命中"| H["引用计数 +1<br/>共享物理 Block, 不拷贝"]

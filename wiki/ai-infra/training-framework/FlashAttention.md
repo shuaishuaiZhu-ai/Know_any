@@ -30,15 +30,9 @@ FlashAttention 把 Q/K/V 切成小块（tile），分块加载到 GPU 的片上 
 
 **online softmax 思路**：维护两个统计量——行最大值 `m` 和指数和 `l`。每加载一个新的 K/V 块，就用新块的局部最大值更新 `m`，并校正之前累加的结果（乘以 `exp(m_old - m_new)` 重新缩放），边算边更新，最后用最新的 `m, l` 归一化输出。这样不需要先看完所有 K/V 再算 softmax，流式推进即可。
 
-```mermaid
-flowchart TB
-    Q["Q 块加载到 SRAM<br/>外循环"] --> Loop["遍历 K/V 块<br/>内循环"]
-    Loop --> S["S = Q·K^T<br/>在 SRAM 算"]
-    S --> OS["online softmax<br/>更新 m, l<br/>校正累加器 O"]
-    OS --> O["O += P·V<br/>SRAM 内"]
-    O -->|"K/V 块用完"| Norm["O = O / l 归一化<br/>写回 HBM"]
-    OS -.不等结果.-> Loop
-```
+![核心算法：tiling + online softmax lark-whiteboard 图解](../../../_attachments/ai-infra/training-framework/FlashAttention/whiteboard-mermaid/01-核心算法-tiling-+-online-softmax-flowchart.png)
+
+> 图解源文件：[`01-核心算法-tiling-+-online-softmax-flowchart.mmd`](../../../_attachments/ai-infra/training-framework/FlashAttention/whiteboard-mermaid/01-核心算法-tiling-+-online-softmax-flowchart.mmd)。
 
 **为什么精确**：数学上 online softmax 和标准 softmax 完全等价，只是换了计算顺序（先减最大值再 exp、流式累加），没有近似。省的是「不物化 N×N 矩阵到 HBM」的 IO 开销。
 

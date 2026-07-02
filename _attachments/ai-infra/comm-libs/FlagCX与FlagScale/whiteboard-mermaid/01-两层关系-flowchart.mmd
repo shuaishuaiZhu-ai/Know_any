@@ -1,0 +1,8 @@
+flowchart TD
+    A["FlagScale 全生命周期工具<br/>配置·训练·推理·服务·压缩·容错·调优"] --> B["FlagCX 异构通信库"]
+    B --> C["适配器层"]
+    C --> C1["Device: CUDA/HIP/MLU/CANN/MUSA"]
+    C --> C2["CCL: NCCL/HCCL/CNCL/MCCL/XCCL..."]
+    C --> C3["Net: IBRC/UCX/SOCKET"]
+    C1 & C2 & C3 --> D["硬件：NVIDIA/寒武纪/华为/Metax..."]
+    A --> E["后端封装：Megatron-LM / vLLM / sglang"]

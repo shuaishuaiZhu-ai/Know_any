@@ -1,0 +1,7 @@
+flowchart TB
+    H["① 基础架构层<br/>硬件防护 + 固件适配<br/>ECC显存/冗余/传感器/BERT"]
+    D["② 检测处置层<br/>实时检测 + 分类 + 恢复<br/>CE/UE/Poison + Checkpoint"]
+    O["③ 可观测层<br/>DCGM-exporter + Prometheus<br/>+ Grafana + ELK日志"]
+    S["④ 标准化层<br/>OCP RAS / ACPI / UEFI<br/>BERT / CPER 格式"]
+    H --> D --> O
+    S -.约束.-> H & D & O

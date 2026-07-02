@@ -35,66 +35,17 @@ LLM 生成一个回答，内部走了两条完全不同的计算路径：
 
 分离后，Prefill 实例群用高算力 GPU + 大 TP（张量并行），Decode 实例群用适中 TP + 大并发 batch，各配各的，互不干扰。
 
-```mermaid
-flowchart LR
-    subgraph 一体化["传统一体化（混跑）"]
-        direction TB
-        P1["Prefill 任务<br/>（compute-bound）"] -->|"抢占算力"| D1["Decode 任务<br/>（memory-bound）"]
-        D1 -->|"拖慢响应"| P1
-    end
+![为什么必须分离 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/PD分离推理/whiteboard-mermaid/01-为什么必须分离-flowchart.png)
 
-    subgraph PD分离["PD 分离架构"]
-        direction LR
-        Client["客户端请求"] --> Proxy["Proxy/Router<br/>改 max_tokens=1<br/>转发到两路"]
-        Proxy -->|"1. Prefill 请求"| Prefill["Prefill 实例群<br/>高 TP · 计算优化"]
-        Prefill -->|"2. 生成 KV Cache<br/>通过高速网络传输"| KV["KV Cache 流转层<br/>LMCache + NIXL/Mooncake"]
-        KV -->|"3. Decode 拉取 KV"| Decode["Decode 实例群<br/>大并发 · 访存优化"]
-        Decode -->|"4. 逐 token 输出"| Client
-    end
-
-    style 一体化 fill:#2a1a1a,stroke:#d4a574,stroke-width:1px
-    style PD分离 fill:#1a2a1a,stroke:#d4a574,stroke-width:1px
-```
+> 图解源文件：[`01-为什么必须分离-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/PD分离推理/whiteboard-mermaid/01-为什么必须分离-flowchart.mmd)。
 
 ## PD 分离架构总览
 
 核心思路：把推理拆成三个角色 —— Prefill 实例、Decode 实例、中间的 KV Cache 传输层。
 
-```mermaid
-flowchart TB
-    subgraph 客户端层["客户端请求"]
-        C["用户请求<br/>prompt + 参数"]
-    end
+![PD 分离架构总览 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/PD分离推理/whiteboard-mermaid/02-PD-分离架构总览-flowchart.png)
 
-    subgraph Proxy层["Proxy / Router（端口 8192）"]
-        PR["请求路由与调度<br/>- Prefill 请求改 max_tokens=1<br/>- 转发原始请求至 Decoder<br/>- 关联 request_id"]
-    end
-
-    subgraph Prefill集群["Prefill 实例群（kv_producer）"]
-        P1["vLLM Prefill<br/>GPU 0 · 端口 8100"]
-        P2["vLLM Prefill<br/>GPU 1 · 端口 8101"]
-        P3["vLLM Prefill<br/>..."]
-    end
-
-    subgraph Decode集群["Decode 实例群（kv_consumer）"]
-        D1["vLLM Decode<br/>GPU 2 · 端口 8200"]
-        D2["vLLM Decode<br/>GPU 3 · 端口 8201"]
-        D3["vLLM Decode<br/>..."]
-    end
-
-    subgraph KV传输层["KV Cache 传输层"]
-        LM["LMCache 引擎<br/>序列化 / 元数据 / 路由"]
-        TR["传输层（二选一）<br/>① NIXL + UCX（RDMA 点对点）<br/>② Mooncake Transfer Engine（多协议分布式）"]
-    end
-
-    C --> PR
-    PR -->|"Prefill 请求"| Prefill集群
-    PR -->|"Decode 请求"| Decode集群
-    Prefill集群 -->|"send_kv_caches()"| LM
-    LM --> TR
-    TR -->|"RDMA / TCP / NVMe-oF"| LM
-    LM -->|"recv_kv_caches()"| Decode集群
-```
+> 图解源文件：[`02-PD-分离架构总览-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/PD分离推理/whiteboard-mermaid/02-PD-分离架构总览-flowchart.mmd)。
 
 **给应届生**：可以把 PD 分离想象成餐厅后厨的分工 —— Prefill = 切菜备料（一次性备好所有食材），Decode = 掌勺出菜（一道一道炒）。中间那个 KV Cache 传输层就是"传菜口"—— 备好的料通过传菜口快速递给炒菜师傅，不能卡、不能丢。Proxy 就是前厅服务员，把客人点的菜分发给备料区和炒菜区。
 
@@ -113,37 +64,18 @@ flowchart TB
 
 ### 数据路径
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant Proxy as Proxy/Router
-    participant P as Prefill 实例<br/>(kv_producer)
-    participant L_P as LMCache<br/>(Sender)
-    participant NIXL as NIXL + UCX<br/>RDMA 传输
-    participant L_D as LMCache<br/>(Receiver)
-    participant D as Decode 实例<br/>(kv_consumer)
+![数据路径 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/PD分离推理/whiteboard-mermaid/03-数据路径-sequencediagram.png)
 
-    C->>Proxy: POST /chat/completions
-    Proxy->>P: 转发 Prefill 请求（max_tokens=1）
-    P->>P: execute_model()<br/>生成 KV Cache（GPU VRAM）
-    P->>L_P: send_kv_caches(sequence_id, kv_caches)
-    L_P->>L_P: 序列化 + Chunk Hash 计算
-    L_P->>NIXL: send_batch(MemoryObj)
-    NIXL->>NIXL: Side Channel（ZMQ）交换元数据<br/>+ RDMA Write（GPU Direct 零拷贝）
-    NIXL-->>L_D: recv_batch() → MemoryObj
-    L_D->>L_D: 反序列化 + 索引建立
-    Proxy->>D: 转发 Decode 请求（带相同 request_id）
-    D->>L_D: recv_kv_caches(sequence_id)
-    L_D-->>D: 返回 KV Cache Tensor
-    D->>D: Attention.forward(kv=loaded_kv)<br/>跳过 Prefill，逐 token 生成
-    D-->>C: streaming response
-```
+> 图解源文件：[`03-数据路径-sequencediagram.mmd`](../../../_attachments/ai-infra/llm-inference/PD分离推理/whiteboard-mermaid/03-数据路径-sequencediagram.mmd)。
 
 **关键性能**：Prefill 生成 KV Cache 约 50ms + RDMA 传输 32MB KV Cache 约 1ms（70GB/s）+ Decode 首 token 约 10ms，总 TTFT 约 62ms。同节点 GPU Direct RDMA 延迟 < 1us。
 
 ## 方案2：DeepSeek-V3 + Mooncake Transfer Engine
 
-以 DeepSeek-V3（671B）为服务模型、借用 Mooncake Transfer Engine（月之暗面 Moonshot AI 出品的 KVCache 传输引擎，LMCache 可通过 MooncakeStore Connector 对接）的方案，适合**多节点分布式集群**。注意：Mooncake 出自月之暗面（Kimi 服务底座），与 DeepSeek 非同一出品方，这里是将开源的 Mooncake 作为传输组件复用。
+以 DeepSeek-V3（671B）为服务模型、借用 Mooncake Transfer Engine（LMCache 可通过 MooncakeStore Connector 对接）的方案，适合**多节点分布式集群**。
+
+> [!warning] Mooncake ≠ DeepSeek 出品
+> Mooncake Transfer Engine 出自**月之暗面 Moonshot AI**（Kimi 服务底座），不是 DeepSeek 出品。本方案是把开源的 Mooncake 作为 KVCache 传输组件，复用到 DeepSeek-V3 推理服务里——两者是"模型"与"传输引擎"的搭配关系，非同一出品方。详见 [[Mooncake与NIXL]]。
 
 ### 为什么 DeepSeek 需要单独一套方案
 

@@ -1,0 +1,7 @@
+flowchart TD
+    Q{"数据搬多远?"}
+    Q -->|"同主机内 GPU 间"| P2P["P2P 传输<br/>NVLink/PCIe 直连显存<br/>零拷贝 最高带宽最低延迟"]
+    Q -->|"同主机进程间"| SHM["SHM 传输<br/>共享内存<br/>P2P 不可用时的备选"]
+    Q -->|"跨主机"| NET["NET 传输<br/>RDMA/IB/RoCE<br/>GPUDirect RDMA 零拷贝"]
+    Q -->|"NVSwitch 全连"| NVLS["NVLS 传输<br/>NVLink SHARP<br/>硬件树形归约"]
+    Q -->|"IB SHARP 网络"| COLL["CollNet 传输<br/>交换机侧集合归约"]

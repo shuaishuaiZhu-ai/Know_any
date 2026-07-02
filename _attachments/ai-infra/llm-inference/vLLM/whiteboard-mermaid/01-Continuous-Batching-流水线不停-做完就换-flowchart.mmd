@@ -1,0 +1,12 @@
+flowchart LR
+    subgraph Step1["Step 1"]
+        R1["Req1"] --> R2["Req2"] --> R3["Req3"] --> R4["Req4"]
+    end
+    Step1 -->|"Req2 完成, 加入 Req5"| Step2
+    subgraph Step2["Step 2"]
+        R1b["Req1"] --> R3b["Req3"] --> R4b["Req4"] --> R5["Req5"]
+    end
+    Step2 -->|"Req1+Req4 完成, 加入 Req6+Req7"| Step3
+    subgraph Step3["Step 3"]
+        R3c["Req3"] --> R5c["Req5"] --> R6["Req6"] --> R7["Req7"]
+    end

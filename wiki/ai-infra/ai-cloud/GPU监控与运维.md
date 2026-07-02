@@ -20,14 +20,9 @@ source:
 
 ## 监控链路：DCGM → Exporter → Prometheus → Grafana
 
-```mermaid
-flowchart LR
-    HW["GPU 硬件<br/>A100/H100"] -->|"libdcgm.so / NVML"| DCGM["DCGM<br/>nv-hostengine + libdcgm.so<br/>字段订阅/采集"]
-    DCGM -->|"GetLatestValues"| EXP["DCGM-Exporter<br/>:9400 /metrics<br/>翻译成 Prom 格式<br/>+Pod 标签"]
-    EXP -->|"Pull 每 30s"| PROM["Prometheus<br/>时序存储"]
-    PROM --> GRAF["Grafana<br/>仪表盘/告警"]
-    KUBE["Kubelet Pod Resources API"] -.->|"GPU→Pod 映射"| EXP
-```
+![监控链路：DCGM → Exporter → Prometheus → Grafana lark-whiteboard 图解](../../../_attachments/ai-infra/ai-cloud/GPU监控与运维/whiteboard-mermaid/01-监控链路-DCGM-→-Exporter-→-Prometheus-→-Grafana-flowchart.png)
+
+> 图解源文件：[`01-监控链路-DCGM-→-Exporter-→-Prometheus-→-Grafana-flowchart.mmd`](../../../_attachments/ai-infra/ai-cloud/GPU监控与运维/whiteboard-mermaid/01-监控链路-DCGM-→-Exporter-→-Prometheus-→-Grafana-flowchart.mmd)。
 
 - **DCGM**（Data Center GPU Manager）= 采集层。`nv-hostengine` 守护进程 + `libdcgm.so` 库，持续监控温度/功率/利用率/显存/ECC/XID，支持 `WatchFields` 按频率订阅。
 - **DCGM-Exporter** = 翻译+出口层。调 `GetLatestValuesForFields` 取值，按 CSV 配置映射成 `DCGM_FI_DEV_*` 指标，经 PodMapper（查 Kubelet Pod Resources API 把 GPU UUID 映射到 Pod/namespace）注入标签，在 :9400 `/metrics` 以 Prometheus 文本暴露。两种连 DCGM 模式：Embedded（进程内链 libdcgm.so）/ Remote（TCP:5555 连独立 nv-hostengine）。
@@ -40,13 +35,9 @@ flowchart LR
 
 Operator 模式 = CRD（声明期望状态）+ Controller（Reconcile 循环把实际状态协调到期望）。GPU-Operator 用 `ClusterPolicy` CR 让用户声明"我要这套 GPU 软件栈"，Controller 盯集群事件自动干活。
 
-```mermaid
-flowchart LR
-    U["kubectl apply ClusterPolicy"] --> RC["Reconcile 循环<br/>Informer→Workqueue→Worker"]
-    RC --> SM["StateManager<br/>18 个 State 串行"]
-    SM --> DS["逐 State: 渲染YAML→Apply DaemonSet→Wait Ready"]
-    DS --> NODE["每个 GPU 节点跑一套<br/>Driver/Toolkit/DevicePlugin/DCGM-Exporter/GFD"]
-```
+![GPU-Operator：Day-0 自动化 lark-whiteboard 图解](../../../_attachments/ai-infra/ai-cloud/GPU监控与运维/whiteboard-mermaid/02-GPU-Operator-Day-0-自动化-flowchart.png)
+
+> 图解源文件：[`02-GPU-Operator-Day-0-自动化-flowchart.mmd`](../../../_attachments/ai-infra/ai-cloud/GPU监控与运维/whiteboard-mermaid/02-GPU-Operator-Day-0-自动化-flowchart.mmd)。
 
 串行 18 个 State 像装修打卡单：先打地基（Driver）→ 接管线（Toolkit）→ 装插座（Device Plugin）→ 装监控（DCGM/Exporter）→ 贴标签（GFD），一项 Ready 才进下一项。管理范围覆盖 Driver、Container Toolkit、Device Plugin、DCGM、DCGM-Exporter、GFD、MIG Manager、VFIO/vGPU Manager、Kata Manager、机密计算（CC Manager）、Validator 等。驱动自动升级走 Cordon→Drain→滚动换版→Uncordon；依赖 NFD 的节点标签触发新节点自动补齐。
 

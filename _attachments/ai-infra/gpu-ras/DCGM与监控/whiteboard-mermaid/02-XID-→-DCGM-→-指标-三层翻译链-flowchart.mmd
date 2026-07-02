@@ -1,0 +1,4 @@
+flowchart LR
+    X["XID 底层错误码<br/>驱动 nvidia.ko 生成<br/>写 dmesg/syslog"] --> DC["DCGM 错误码<br/>语义化封装<br/>dcgm_errors.h"]
+    DC --> EX["dcgm-exporter 指标<br/>Prometheus 兼容<br/>/metrics HTTP"]
+    EX --> PM["Prometheus 采集"] --> AL["Grafana/告警"]

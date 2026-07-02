@@ -1,0 +1,7 @@
+flowchart TD
+    A["应用层<br/>PyTorch / MPI / 用户程序"] --> B["集合算法层<br/>AllReduce(Ring/HalvingDoubling/Bcube) · AllGather · Broadcast · Barrier"]
+    B --> C["上下文层<br/>Context(rank/size/slot) · Algorithm · ReductionFunction"]
+    C --> D["传输抽象层<br/>transport: Device / Pair / Buffer / UnboundBuffer"]
+    D --> E["具体传输<br/>TCP(epoll) · InfiniBand(ibverbs) · libuv(Windows)"]
+    F["会合层 rendezvous<br/>Store: Redis/File/Hash → 建全网格 Pair"] -.-> C
+    E --> G["硬件<br/>NIC · IB HCA · GPU"]

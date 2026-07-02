@@ -31,27 +31,9 @@ UCM 用一个统一抽象把 KV Cache 从"引擎私有财产"变成"跨引擎共
 
 UCM 采用 4 层核心模块 + 1 个 PD 解耦横切层：
 
-```mermaid
-flowchart TB
-    subgraph PLUS["+1 PD 解耦层"]
-        PD["PD 解耦<br/>Prefill / Decode 分离<br/>异构 GPU 混部（A100+L40）"]
-    end
-    subgraph L1["① vLLM 集成层"]
-        INT["UnifiedCacheConnectorV1<br/>实现 KVConnectorBase_V1<br/>管理 RequestBlockInfo"]
-    end
-    subgraph L2["② 稀疏注意力层"]
-        SA["UcmSparseBase（策略模式）<br/>ESA | KvComp | GSA | KVStar<br/>Scheduler / Worker 双角色"]
-    end
-    subgraph L3["③ 存储抽象层"]
-        STORE["UcmKVStoreBase（适配器模式）<br/>create / lookup / load / dump / commit<br/>DramStore | NfsStore | MooncakeStore | LocalStore"]
-    end
-    subgraph L4["④ 基础设施层"]
-        INFRA["Device 抽象<br/>CUDA / Ascend NPU<br/>Thread | Memory | File"]
-    end
-    INT --> SA --> STORE --> INFRA
-    PD -.-> INT
-    PD -.-> STORE
-```
+![4+1 架构 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/UCM/whiteboard-mermaid/01-4+1-架构-flowchart.png)
+
+> 图解源文件：[`01-4+1-架构-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/UCM/whiteboard-mermaid/01-4+1-架构-flowchart.mmd)。
 
 | 层 | 干什么 | 关键抽象 |
 |---|---|---|
@@ -79,25 +61,9 @@ flowchart TB
 
 ### 统一缓存池化数据流
 
-```mermaid
-flowchart LR
-    subgraph ENGINES["推理引擎"]
-        V1["vLLM 实例 A<br/>KV Producer"]
-        V2["vLLM 实例 B<br/>KV Consumer"]
-        SG["SGLang 实例"]
-    end
-    subgraph UCM["UCM 统一缓存池"]
-        ABS["UcmKVStoreBase 统一接口"]
-        L1["L1: GPU HBM<br/>热 KV，40-80GB<br/>~100ns"]
-        L2["L2: DRAM（DramStore）<br/>温 KV，512GB-2TB<br/>~100μs"]
-        L3["L3: SSD / NFS<br/>冷 KV，1-10TB<br/>~100μs-5ms"]
-        L4["L4: Mooncake 分布式<br/>共享池，10-100TB<br/>~1-10ms（RDMA）"]
-    end
-    V1 -->|"dump KV"| ABS
-    V2 -->|"load KV"| ABS
-    SG -->|"lookup / prefetch"| ABS
-    ABS --> L1 --> L2 --> L3 --> L4
-```
+![统一缓存池化数据流 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/UCM/whiteboard-mermaid/02-统一缓存池化数据流-flowchart.png)
+
+> 图解源文件：[`02-统一缓存池化数据流-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/UCM/whiteboard-mermaid/02-统一缓存池化数据流-flowchart.mmd)。
 
 多个引擎通过统一接口共享同一套四级缓存池，UCM 按冷热自动分级：刚算出的 KV 在 GPU HBM，最近访问过的在 DRAM，长期不用的落到 SSD / 分布式存储。
 

@@ -22,15 +22,9 @@ source:
 
 ## NCCL 四层架构与移植难度
 
-```mermaid
-flowchart LR
-    L1["① 设备抽象层<br/>device.h/common.h<br/>线程/共享内存/同步原语<br/>CUDA 依赖：极高"]
-    L2["② 传输层<br/>transport/p2p,shm,net,nvls<br/>IPC+RDMA<br/>依赖：高(可换协议)"]
-    L3["③ 拓扑发现与调度<br/>graph/topo.cc<br/>NVML API<br/>依赖：中(可不支持NVML)"]
-    L4["④ 设备端内核<br/>device/prims_*,all_reduce.h<br/>自定义算子<br/>依赖：极高"]
-    L1 --> L2 --> L3
-    L1 --> L4
-```
+![NCCL 四层架构与移植难度 lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL国产化需求/whiteboard-mermaid/01-NCCL-四层架构与移植难度-flowchart.png)
+
+> 图解源文件：[`01-NCCL-四层架构与移植难度-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL国产化需求/whiteboard-mermaid/01-NCCL-四层架构与移植难度-flowchart.mmd)。
 
 | 层 | CUDA 依赖度 | 移植要点 |
 |---|---|---|
@@ -41,13 +35,9 @@ flowchart LR
 
 ## 五阶段移植工作分解
 
-```mermaid
-flowchart LR
-    P1["① HAL 硬件抽象层<br/>CUDA Runtime API 替换<br/>kernel 移植/内存模型"] --> P2["② 传输层适配<br/>P2P/SHM/NET"]
-    P2 --> P3["③ 拓扑发现调度<br/>NVML→自研 API"]
-    P3 --> P4["④ 内核优化<br/>集合算法/Reduction/协议"]
-    P4 --> P5["⑤ 测试验证<br/>功能+性能基准"]
-```
+![五阶段移植工作分解 lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL国产化需求/whiteboard-mermaid/02-五阶段移植工作分解-flowchart.png)
+
+> 图解源文件：[`02-五阶段移植工作分解-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL国产化需求/whiteboard-mermaid/02-五阶段移植工作分解-flowchart.mmd)。
 
 关键工程点：建一个 `ncclDeviceOps_t` 抽象层（getDeviceCount/setDevice/malloc/memcpy/stream/event 等回调），把所有 `cudaMalloc/cudaMemcpy` 调用收口到这一层，后续只换实现。
 

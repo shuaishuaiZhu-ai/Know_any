@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant W1 as Worker rank1
+    participant W2 as Worker rank2
+    participant C as Coordinator rank0
+    W1->>C: tensor1 请求（我算出了梯度1）
+    W2->>C: tensor1 请求（我也算出了）
+    C->>C: message_table 累加<br/>请求数 == 节点数?
+    C-->>W1: response: tensor1 可规约
+    C-->>W2: response: tensor1 可规约
+    Note over W1,W2: 全员到齐 → 触发 AllReduce

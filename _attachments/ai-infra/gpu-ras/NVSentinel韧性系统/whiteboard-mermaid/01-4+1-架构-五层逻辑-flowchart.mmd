@@ -1,0 +1,7 @@
+flowchart TB
+    M["① 监控检测层 Health Monitors<br/>GPU/Syslog/CSP/K8s Object"] -->|gRPC HealthEvent| P
+    P["② 接入与存储层 Platform Connectors<br/>校验→写 MongoDB/PG→更新 Node Condition"] -->|Change Stream| R
+    R["③ 故障响应层 Core Modules<br/>Quarantine/Drainer/Remediation/Janitor"] --> SUP
+    SUP["④ 辅助服务层<br/>Labeler/MetadataCollector/LogCollector/StateManager"]
+    EXT["⑤ 外部集成层<br/>K8s API/调度器/监控/云厂商API"]
+    R --> EXT

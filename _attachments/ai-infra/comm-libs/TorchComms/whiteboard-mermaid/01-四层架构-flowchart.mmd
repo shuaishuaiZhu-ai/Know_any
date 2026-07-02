@@ -1,0 +1,5 @@
+flowchart TD
+    A["应用层<br/>PyTorch DDP / FSDP / Megatron"] --> B["API 抽象层<br/>TorchComm / TorchCommBackend / TorchWork / TorchCommFactory"]
+    B --> C["后端实现层<br/>NCCLX | NCCL | GLOO | RCCL | RCCLX<br/>（NCCLX 内含 meta/ 扩展）"]
+    C --> D["CTran 传输层<br/>Bootstrap / MemCache / Mapper / Profiler"]
+    D --> E["硬件<br/>IPC / RDMA / Socket / GPUDirect"]

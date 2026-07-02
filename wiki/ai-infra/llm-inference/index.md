@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, llm-inference, index]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》第8、26-37、43-46篇｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # LLM 推理与缓存
@@ -13,17 +15,9 @@ status: active
 
 ## 主线：以 PD 分离串起 6 个组件
 
-```mermaid
-flowchart TB
-    REQ["用户请求"] --> PD
-    PD["[[PD分离推理]]<br/>Prefill / Decode 拆到不同实例"]
-    PD --> V["[[vLLM]]<br/>推理引擎·PagedAttention·Continuous Batching"]
-    V -->|"生成 / 复用 KV Cache"| LM["[[LMCache]]<br/>KV Cache 冷热分级 + 跨请求复用"]
-    LM -->|"跨实例搬 KV Cache"| MN["[[Mooncake与NIXL]]<br/>KV Cache 传输引擎<br/>（中央池化 / 点对点零拷贝）"]
-    V -.->|"MoE 专家路由通信"| DE["[[DeepEP]]<br/>MoE all-to-all<br/>（高吞吐 / 低延迟双模式）"]
-    UC["[[UCM]]<br/>统一缓存管理（跨引擎池化）"] -.->|"上层统一抽象"| LM
-    UC -.-> MN
-```
+![主线：以 PD 分离串起 6 个组件 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/index/whiteboard-mermaid/01-主线-以-PD-分离串起-6-个组件-flowchart.png)
+
+> 图解源文件：[`01-主线-以-PD-分离串起-6-个组件-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/index/whiteboard-mermaid/01-主线-以-PD-分离串起-6-个组件-flowchart.mmd)。
 
 **给应届生**：把这页当导航图，记住一根主线——**Prefill 算出 KV Cache，Decode 消费 KV Cache，中间所有组件都在围绕"KV Cache 怎么存、怎么省、怎么传、怎么管"打转**。vLLM 是舞台（引擎），KV Cache 是主角，LMCache/Mooncake/NIXL/UCM 是围绕主角的道具，DeepEP 是 MoE 模型特有的通信戏份，PD 分离是把这些组件组合起来的导演方案。
 

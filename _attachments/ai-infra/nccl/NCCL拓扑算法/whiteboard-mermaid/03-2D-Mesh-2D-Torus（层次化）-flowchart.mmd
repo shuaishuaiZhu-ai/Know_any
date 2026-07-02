@@ -1,0 +1,9 @@
+flowchart TB
+    subgraph 行["行内（主机内 NVLink）"]
+        R1["GPU0-GPU1-GPU2-GPU3 组 ring"]
+    end
+    subgraph 列["列内（主机间 RDMA）"]
+        C1["跨节点同列 GPU 组 ring"]
+    end
+    行 --> 列
+    列 --> 行

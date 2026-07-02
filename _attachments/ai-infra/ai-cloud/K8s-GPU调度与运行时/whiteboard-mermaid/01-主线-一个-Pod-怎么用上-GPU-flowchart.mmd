@@ -1,0 +1,8 @@
+flowchart LR
+    POD["Pod 请求 nvidia.com/gpu:2"] --> SCH["Scheduler 选节点"]
+    SCH --> KL["Kubelet 调插件<br/>Allocate / PrepareResourceClaims"]
+    KL --> RES["返回 NVIDIA_VISIBLE_DEVICES + CDI"]
+    RES --> CRT["nvidia-container-runtime"]
+    CRT --> INJ["Toolkit/hook 注入<br/>/dev/nvidia* + libcuda.so"]
+    INJ --> APP["容器内 CUDA 可用"]
+    LIB["go-nvml → libnvidia-ml.so → nvidia.ko → GPU"] -. 全程底层 .-> KL

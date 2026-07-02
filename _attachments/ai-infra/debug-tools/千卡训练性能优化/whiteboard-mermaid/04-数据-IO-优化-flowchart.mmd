@@ -1,0 +1,5 @@
+flowchart LR
+    S["存储层<br/>NVMe RAID0 / 分布式存储并发读"] --> P
+    P["预处理<br/>多进程 DataLoader / 顺序大块读 / 离线预处理"] --> M
+    M["内存层<br/>Pinned Memory 锁页 / prefetch 预取"] --> T
+    T["传输层<br/>异步 Host→Device / GPUDirect Storage"]

@@ -1,0 +1,6 @@
+flowchart TB
+    C["客户端层<br/>dcgmi CLI / 应用 / dcgm-exporter"] --> A
+    A["API & SDK 层 dcgmlib<br/>dcgm_agent.h 统一门面"] --> HE
+    HE["HostEngine 核心层<br/>nv-hostengine 守护进程<br/>Cache/Group/FieldGroup/Topology"] --> M
+    M["模块层 modules/<br/>diag/health/policy/profiling<br/>sysmon/mndiag/nvswitch/vgpu"] --> D
+    D["设备驱动层<br/>NVML / NVIDIA 驱动 / GPU/NVSwitch"]

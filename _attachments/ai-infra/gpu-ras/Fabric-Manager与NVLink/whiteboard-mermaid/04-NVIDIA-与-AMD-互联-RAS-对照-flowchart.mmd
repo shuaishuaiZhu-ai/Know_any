@@ -1,0 +1,9 @@
+flowchart LR
+    subgraph NV["NVIDIA"]
+        N1["Fabric Manager 守护进程<br/>管 NVSwitch 拓扑/分区"]
+        N2["Xid/SXid 错误码<br/>分级降级隔离"]
+    end
+    subgraph AMD["AMD"]
+        A1["XGMI 互联"]
+        A2["sysfs/ras_ctrl<br/>可 echo 注入错误"]
+    end

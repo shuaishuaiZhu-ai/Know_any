@@ -24,15 +24,9 @@ source:
 
 ## 全栈 RAS：四层设计
 
-```mermaid
-flowchart TB
-    H["① 基础架构层<br/>硬件防护 + 固件适配<br/>ECC显存/冗余/传感器/BERT"]
-    D["② 检测处置层<br/>实时检测 + 分类 + 恢复<br/>CE/UE/Poison + Checkpoint"]
-    O["③ 可观测层<br/>DCGM-exporter + Prometheus<br/>+ Grafana + ELK日志"]
-    S["④ 标准化层<br/>OCP RAS / ACPI / UEFI<br/>BERT / CPER 格式"]
-    H --> D --> O
-    S -.约束.-> H & D & O
-```
+![全栈 RAS：四层设计 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/GPU-RAS体系/whiteboard-mermaid/01-全栈-RAS-四层设计-flowchart.png)
+
+> 图解源文件：[`01-全栈-RAS-四层设计-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/GPU-RAS体系/whiteboard-mermaid/01-全栈-RAS-四层设计-flowchart.mmd)。
 
 ### ① 基础架构层（硬件 + 固件）
 
@@ -52,12 +46,9 @@ flowchart TB
 | 永久性 | 硬件物理损坏 | 需更换 | 须换件 |
 
 **分级处置**：
-```mermaid
-flowchart LR
-    L["轻度 CE<br/>自动纠正+计数+趋势监控"] --> M["中度 间歇<br/>任务暂停+GPU重启+恢复"]
-    M --> H["重度 UE<br/>任务迁移+故障GPU隔离+报警"]
-    H --> F["致命 永久<br/>节点下线+硬件更换+数据恢复"]
-```
+![② 检测处置层（核心） lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/GPU-RAS体系/whiteboard-mermaid/02-②-检测处置层（核心）-flowchart.png)
+
+> 图解源文件：[`02-②-检测处置层（核心）-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/GPU-RAS体系/whiteboard-mermaid/02-②-检测处置层（核心）-flowchart.mmd)。
 
 **恢复手段**：
 - **任务级**：Checkpoint/Restore 定期存状态，故障时迁移到备用 GPU 从最近 Checkpoint 恢复。
@@ -74,19 +65,9 @@ Google/Microsoft/NVIDIA 联合推动三大标准化：固件更新标准化、RA
 
 ## NVIDIA vs AMD 的 RAS 实现
 
-```mermaid
-flowchart LR
-    subgraph NV["NVIDIA"]
-        N1["NCCL RAS 子系统<br/>进程间TCP心跳<br/>localhost:28028 查状态"]
-        N2["BMC SEL + BERT<br/>UEFI配置HEST"]
-        N3["Blackwell 专用RAS引擎<br/>+ NVLink故障隔离"]
-    end
-    subgraph AMD["AMD"]
-        A1["sysfs/debugfs<br/>/sys/.../ras/features<br/>err_count 节点"]
-        A2["ras_ctrl 命令行<br/>echo 注入错误"]
-        A3["多IP块独立配置<br/>UMC/SDMA/GFX 各自策略"]
-    end
-```
+![NVIDIA vs AMD 的 RAS 实现 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/GPU-RAS体系/whiteboard-mermaid/03-NVIDIA-vs-AMD-的-RAS-实现-flowchart.png)
+
+> 图解源文件：[`03-NVIDIA-vs-AMD-的-RAS-实现-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/GPU-RAS体系/whiteboard-mermaid/03-NVIDIA-vs-AMD-的-RAS-实现-flowchart.mmd)。
 
 **给应届生**：两家思路不同——NVIDIA 偏"子系统+网络化"（NCCL RAS 像个独立服务，进程间用心跳互探），AMD 偏"文件接口+可注入"（把 RAS 能力暴露成 sysfs 文件，能用 echo 命令主动注入错误测试）。AMD 的代码级架构（Legacy RAS vs UniRAS 双路径）见 [[AMD-GPU-RAS]]。
 

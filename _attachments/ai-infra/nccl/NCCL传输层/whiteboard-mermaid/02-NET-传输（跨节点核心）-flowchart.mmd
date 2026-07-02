@@ -1,0 +1,5 @@
+flowchart LR
+    G1["源 GPU HBM"] -->|"RDMA Write 网卡直传"| N["RDMA 网卡"]
+    N -->|"跨节点网络"| N2["对端网卡"]
+    N2 -->|"直读 GPU 显存"| G2["目的 GPU HBM"]
+    CPU["CPU/OS内核"] -.完全不参与.-> G1

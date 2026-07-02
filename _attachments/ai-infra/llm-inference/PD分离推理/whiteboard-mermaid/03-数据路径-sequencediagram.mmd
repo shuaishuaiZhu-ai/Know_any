@@ -1,0 +1,23 @@
+sequenceDiagram
+    participant C as 客户端
+    participant Proxy as Proxy/Router
+    participant P as Prefill 实例<br/>(kv_producer)
+    participant L_P as LMCache<br/>(Sender)
+    participant NIXL as NIXL + UCX<br/>RDMA 传输
+    participant L_D as LMCache<br/>(Receiver)
+    participant D as Decode 实例<br/>(kv_consumer)
+
+    C->>Proxy: POST /chat/completions
+    Proxy->>P: 转发 Prefill 请求（max_tokens=1）
+    P->>P: execute_model()<br/>生成 KV Cache（GPU VRAM）
+    P->>L_P: send_kv_caches(sequence_id, kv_caches)
+    L_P->>L_P: 序列化 + Chunk Hash 计算
+    L_P->>NIXL: send_batch(MemoryObj)
+    NIXL->>NIXL: Side Channel（ZMQ）交换元数据<br/>+ RDMA Write（GPU Direct 零拷贝）
+    NIXL-->>L_D: recv_batch() → MemoryObj
+    L_D->>L_D: 反序列化 + 索引建立
+    Proxy->>D: 转发 Decode 请求（带相同 request_id）
+    D->>L_D: recv_kv_caches(sequence_id)
+    L_D-->>D: 返回 KV Cache Tensor
+    D->>D: Attention.forward(kv=loaded_kv)<br/>跳过 Prefill，逐 token 生成
+    D-->>C: streaming response

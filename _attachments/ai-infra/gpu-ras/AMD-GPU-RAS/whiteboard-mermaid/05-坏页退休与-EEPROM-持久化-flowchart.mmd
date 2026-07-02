@@ -1,0 +1,7 @@
+flowchart LR
+    E1["BAD_PAGE_DETECTED 事件"] --> E2["retire_page_dwork 延迟工作"]
+    E2 --> E3["ras_umc_handle_bad_pages<br/>MCA→物理地址转换"]
+    E3 --> E4["ras_eeprom_append<br/>写入EEPROM持久化"]
+    E4 --> E5{超阈值?}
+    E5 -->|是| RMA["RMA 置位<br/>坏页过多→建议返厂换卡"]
+    E5 -->|否| RET["保留坏页 reserve_page"]

@@ -1,0 +1,10 @@
+flowchart LR
+    subgraph 主线程["主线程 (耗时长)"]
+        D["DetailPerformanceGenerator<br/>各 Comparator 比对<br/>→ ExcelView 写 xlsx"]
+    end
+    subgraph 子线程["子线程 (耗时短)"]
+        O["OverallPerformanceGenerator<br/>整体性能<br/>→ ScreenView 终端打印"]
+    end
+    M["ComparisonGenerator<br/>并发启动"] --> D & O
+    D --> J["join 等待子线程"]
+    O --> J

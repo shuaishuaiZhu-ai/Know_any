@@ -1,0 +1,8 @@
+flowchart LR
+    subgraph ScatterReduce["阶段1 ScatterReduce N-1次"]
+        SR["大梯度拆N块 → 每卡收前向发后向累加 → 每卡得一块完整同维梯度"]
+    end
+    subgraph AllGather["阶段2 AllGather N-1次"]
+        AG["每卡把自己块复制给其他卡 → 每卡得完整大梯度"]
+    end
+    ScatterReduce --> AllGather

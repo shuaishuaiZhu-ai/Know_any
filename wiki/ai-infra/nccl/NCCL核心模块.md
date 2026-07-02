@@ -20,7 +20,7 @@ source:
   - "知乎专栏《大模型训练、推理与AI云平台》第101篇｜作者常平｜https://zhuanlan.zhihu.com/p/1986076264847675679"
   - "知乎专栏《大模型训练、推理与AI云平台》第102篇｜作者常平｜https://zhuanlan.zhihu.com/p/1986076548411978543"
   - "知乎专栏《大模型训练、推理与AI云平台》第103篇｜作者常平｜https://zhuanlan.zhihu.com/p/1986076896308527650"
-  - "知乎专栏《大模型训练、推理与AI云平台》第103篇（原文编号笔误，实为 Register 篇，按序应为第104篇）｜作者常平｜https://zhuanlan.zhihu.com/p/1986077323959751117"
+  - "知乎专栏《大模型训练、推理与AI云平台》第104篇｜作者常平｜https://zhuanlan.zhihu.com/p/1986077323959751117"
 ---
 
 # NCCL 核心模块
@@ -29,28 +29,9 @@ source:
 
 ## 模块全景与数据流主线
 
-```mermaid
-flowchart TB
-    subgraph Host["Host 端（CPU 管理）"]
-        API["Collectives(88)<br/>用户 API 薄封装"]
-        INIT["Init(86) + Bootstrap(89)<br/>通信域创建/建连点名"]
-        TOPO["Graph(85) + Channel(87)<br/>拓扑画图 + 修车道"]
-        SCHED["Enqueue(90) + Scheduler(99)<br/>排队选算法/通道分配"]
-        RT["Dev_Runtime(98) + Proxy(101) + Register(103)<br/>对称运行时/后台代发/内存注册"]
-        BASE["Misc(102) + Debug(103)<br/>基础设施/日志"]
-    end
-    subgraph Device["Device 端（GPU 执行）"]
-        DEV["nccl_device(100)<br/>LSA/GIN Barrier、LL-A2A 原语"]
-        SYM["Symmetric Kernel(91)<br/>对称内核 11 变体"]
-        CE["CE Collective(92)<br/>Copy Engine 硬件通信"]
-    end
-    API --> SCHED
-    INIT --> TOPO --> SCHED
-    SCHED --> DEV
-    RT -.桥接.-> DEV
-    SCHED --> SYM
-    SCHED --> CE
-```
+![模块全景与数据流主线 lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL核心模块/whiteboard-mermaid/01-模块全景与数据流主线-flowchart.png)
+
+> 图解源文件：[`01-模块全景与数据流主线-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL核心模块/whiteboard-mermaid/01-模块全景与数据流主线-flowchart.mmd)。
 
 **给应届生**：NCCL 的模块分工就是「Host 是指挥部、Device 是搬运工」——CPU 侧（Init/Bootstrap/Graph/Channel/Enqueue）负责勘测路网、画图、排班、发车单，GPU 侧（nccl_device/Symmetric Kernel/CE）才真正搬数据。Proxy 是中间的「外勤」，替 GPU 处理跨节点的网络收发，让 GPU kernel 不必死等网络。记住这条分工，15 个模块谁干什么就清晰了。
 
@@ -78,7 +59,7 @@ flowchart TB
 
 - **Dev_Runtime（98，`dev_runtime.cc`）**：Host↔Device 对称运行时核心，Symmetric Kernel/CE/nccl_device 的底座。`ncclDevrState`/`ncclDevrMemory`/`ncclDevrWindow`/`ncclDevComm`。`symMemoryObtain`（去重+LSA 映射+多播绑定+GIN 注册）→ `symWindowCreate` → `symTeamObtain`（`cuMulticastCreate`+`BindMem`）。bigSize 对齐 1GB。**比喻：对称内存的地籍登记+门牌系统，给每块内存发统一门牌号。**
 - **Proxy（101，`proxy.cc`）**：独立服务/进度线程处理跨 rank 异步网络 I/O。`ncclProxyOp`/`ncclProxyArgs`。主线程 `ncclProxySaveOp` 入队 → 发布到 `ncclProxyOpsPool` + `pthread_cond_signal` → Progress Thread 批量取 → 调传输层 progress 实际收发。**比喻：后台代发跨节点的快递员，GPU 只管把货交到柜台。**
-- **Register（103，`register/`）**：预注册用户缓冲区，给 NET/NVLS/IPC/CollNet 提供物理内存句柄，避免每次通信重复映射。`ncclRegCache`（按 begAddr 排序）+ `ncclReg`。命中加引用、未命中建记录调传输层注册，归零 `regCleanup`。`NCCL_LOCAL_REGISTER=1`。**比喻：内存门禁登记，给缓冲区办一次通行证反复用。**
+- **Register（104，`register/`）**：预注册用户缓冲区，给 NET/NVLS/IPC/CollNet 提供物理内存句柄，避免每次通信重复映射。`ncclRegCache`（按 begAddr 排序）+ `ncclReg`。命中加引用、未命中建记录调传输层注册，归零 `regCleanup`。`NCCL_LOCAL_REGISTER=1`。**比喻：内存门禁登记，给缓冲区办一次通行证反复用。**
 
 ## Host 基础设施层
 
@@ -101,4 +82,4 @@ flowchart TB
 - [[NCCL传输层]] — Channel 的 selectTransport 细节
 - [[NCCL性能优化]] — 调度与内核的性能建模
 - [[NCCL未来演进]] — Symmetric Kernel / CE / Dev_Runtime 的演进方向
-- 专栏原文：[第85篇 Graph](https://zhuanlan.zhihu.com/p/1983245474019448280) ｜[第86篇 Init](https://zhuanlan.zhihu.com/p/1983249710685918697) ｜[第87篇 Channel](https://zhuanlan.zhihu.com/p/1983252934595735579) ｜[第88篇 Collectives](https://zhuanlan.zhihu.com/p/1983254995928387620) ｜[第89篇 Bootstrap](https://zhuanlan.zhihu.com/p/1983257571285550649) ｜[第90篇 Enqueue](https://zhuanlan.zhihu.com/p/1983268401880249277) ｜[第91篇 Symmetric Kernel](https://zhuanlan.zhihu.com/p/1983282727542342786) ｜[第92篇 CE](https://zhuanlan.zhihu.com/p/1983283148851783451) ｜[第98篇 Dev_Runtime](https://zhuanlan.zhihu.com/p/1986072655397421529) ｜[第99篇 Scheduler](https://zhuanlan.zhihu.com/p/1986075222235972001) ｜[第100篇 nccl_device](https://zhuanlan.zhihu.com/p/1986075698117510270) ｜[第101篇 Proxy](https://zhuanlan.zhihu.com/p/1986076264847675679) ｜[第102篇 Misc](https://zhuanlan.zhihu.com/p/1986076548411978543) ｜[第103篇 Debug](https://zhuanlan.zhihu.com/p/1986076896308527650) ｜[第103篇 Register](https://zhuanlan.zhihu.com/p/1986077323959751117)
+- 专栏原文：[第85篇 Graph](https://zhuanlan.zhihu.com/p/1983245474019448280) ｜[第86篇 Init](https://zhuanlan.zhihu.com/p/1983249710685918697) ｜[第87篇 Channel](https://zhuanlan.zhihu.com/p/1983252934595735579) ｜[第88篇 Collectives](https://zhuanlan.zhihu.com/p/1983254995928387620) ｜[第89篇 Bootstrap](https://zhuanlan.zhihu.com/p/1983257571285550649) ｜[第90篇 Enqueue](https://zhuanlan.zhihu.com/p/1983268401880249277) ｜[第91篇 Symmetric Kernel](https://zhuanlan.zhihu.com/p/1983282727542342786) ｜[第92篇 CE](https://zhuanlan.zhihu.com/p/1983283148851783451) ｜[第98篇 Dev_Runtime](https://zhuanlan.zhihu.com/p/1986072655397421529) ｜[第99篇 Scheduler](https://zhuanlan.zhihu.com/p/1986075222235972001) ｜[第100篇 nccl_device](https://zhuanlan.zhihu.com/p/1986075698117510270) ｜[第101篇 Proxy](https://zhuanlan.zhihu.com/p/1986076264847675679) ｜[第102篇 Misc](https://zhuanlan.zhihu.com/p/1986076548411978543) ｜[第103篇 Debug](https://zhuanlan.zhihu.com/p/1986076896308527650) ｜[第104篇 Register](https://zhuanlan.zhihu.com/p/1986077323959751117)

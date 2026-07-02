@@ -1,0 +1,8 @@
+flowchart LR
+    HW["硬件故障<br/>链路误码/寄存器错误"] --> DRV["内核驱动捕获"]
+    DRV --> X["生成错误码"]
+    X --> X1["Xid GPU 错误<br/>如 45/74/79/13"]
+    X --> X2["SXid NVSwitch 错误<br/>非致命/致命"]
+    X1 --> LOG["写内核日志"] & LOG
+    X2 --> LOG
+    LOG --> FM["FM 监控→执行策略"]

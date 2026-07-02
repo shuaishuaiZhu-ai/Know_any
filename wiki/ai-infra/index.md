@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, index]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》第1-134篇（全专栏）｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # ai-infra · AI 基础设施专区
@@ -13,36 +15,9 @@ status: active
 
 ## 全景：训练 ↔ 推理 ↔ 通信 ↔ 可靠性
 
-```mermaid
-flowchart TB
-    subgraph 训练["训练侧"]
-        DT["分布式训练基础<br/>系统=要素×连接+目的+边界"]
-        TF["训练框架/算子<br/>Megatron/FlashAttn"]
-    end
-    subgraph 通信["通信底座"]
-        CC["集合通信原语"]
-        NCCL["NCCL 通信库<br/>Ring/2D拓扑/传输层"]
-        CL["其他通信库<br/>NVSHMEM/UCX/Gloo"]
-    end
-    subgraph 推理["推理侧"]
-        LL["LLM 推理/缓存<br/>vLLM/Mooncake/DeepEP/PD分离"]
-    end
-    subgraph 可靠["可靠性"]
-        RAS["GPU RAS<br/>故障检测/恢复"]
-        AC["AI 云/K8s 运维<br/>Device Plugin/DCGM"]
-    end
-    subgraph 工具["调试工具"]
-        DT2["msprobe 精度<br/>compare_tools 性能"]
-        P["千卡性能优化"]
-    end
-    DT --> CC & TF
-    CC --> NCCL & CL
-    NCCL --> LL & P
-    TF --> P
-    LL --> RAS
-    RAS --> AC
-    AC --> P
-```
+![全景：训练 ↔ 推理 ↔ 通信 ↔ 可靠性 lark-whiteboard 图解](../../_attachments/ai-infra/_root/index/whiteboard-mermaid/01-全景-训练-↔-推理-↔-通信-↔-可靠性-flowchart.png)
+
+> 图解源文件：[`01-全景-训练-↔-推理-↔-通信-↔-可靠性-flowchart.mmd`](../../_attachments/ai-infra/_root/index/whiteboard-mermaid/01-全景-训练-↔-推理-↔-通信-↔-可靠性-flowchart.mmd)。
 
 **给应届生**：这张图是整个专区的导航。记住一根主线——**训练靠通信（集合通信库）聚合梯度，推理靠通信（PD分离/KV传输）调度，两者都要 RAS 保稳定、要工具查问题、要性能优化调到快**。从任一节点进入都能顺着链路理解全貌。
 

@@ -1,0 +1,6 @@
+flowchart LR
+    G["GPU 训出 baseline 模型<br/>(精度已达标)"] --> T["TensorBoard 对比"]
+    X["XPU 训出新模型"] --> T
+    T --> C{"三条曲线是否吻合?"}
+    C -->|是| OK["✅ 可生产"]
+    C -->|否| DBG["❓ 精度/收敛有问题<br/>见 msprobe"]

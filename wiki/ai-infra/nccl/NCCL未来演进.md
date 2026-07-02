@@ -27,12 +27,9 @@ source:
 
 ## 硬件演进主线
 
-```mermaid
-flowchart LR
-    H["Hopper 2023<br/>NVLink4 900GB/s<br/>NVLS 16通道<br/>CE 9个"] --> B["Blackwell 2024<br/>NVLink5 1.8TB/s<br/>MNNVL跨节点<br/>NVLS 32通道<br/>CE 12-16个"]
-    B --> R["Rubin 2026<br/>NVLink6 3.6TB/s<br/>光电混合<br/>LSA 2.0分层<br/>CE >20个"]
-    R --> F["Feynman 2027+<br/>NVLink7 7.2TB/s<br/>全光子<br/>CPO硅光集成"]
-```
+![硬件演进主线 lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL未来演进/whiteboard-mermaid/01-硬件演进主线-flowchart.png)
+
+> 图解源文件：[`01-硬件演进主线-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL未来演进/whiteboard-mermaid/01-硬件演进主线-flowchart.mmd)。
 
 - **NVLink 代际**：4.0(900GB/s) → 5.0(1.8TB/s) → 6.0(3.6TB/s, 光电混合, <100ns) → 7.0(7.2TB/s, 全光子, 2028+)。
 - **Copy Engine 数量**：Ampere 2-3 个 → Hopper 9 个 → Blackwell 12-16 → Rubin >20。CE 越多，CE Collective 能并行搬的流越多。
@@ -57,13 +54,9 @@ flowchart LR
 
 ## 路线图
 
-```mermaid
-timeline
-    title NCCL 演进时间线
-    2025-2026 短期 : MNNVL 生产就绪 : CE 12-16个 + cudaMemcpyBatchAsync : NVLink5 1.8TB/s : UMA 1.0 + JIT内核(Alpha) : IB XDR / RoCEv3
-    2026-2027 中期 : Rubin LSA 2.0 分层对称内存 : CE 2.0 自主调度+硬件压缩 : NVLink6 3.6TB/s 光电混合 : CXL 3.0 池化 : ML调参 / RL路由 / 预测性维护
-    2027-2030 长期 : NVLink7 全光子 7.2TB/s : CPO 硅光封装集成 : 量子互联探索 : 革命性架构 : CCL开放标准生态
-```
+![路线图 lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL未来演进/whiteboard-mermaid/02-路线图-timeline.png)
+
+> 图解源文件：[`02-路线图-timeline.mmd`](../../../_attachments/ai-infra/nccl/NCCL未来演进/whiteboard-mermaid/02-路线图-timeline.mmd)。
 
 ## 对国产化的启示
 

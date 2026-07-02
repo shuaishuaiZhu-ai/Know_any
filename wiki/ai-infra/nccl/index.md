@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, nccl, index]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》第9-22、61-69、74-105篇｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # NCCL 集合通信库
@@ -24,16 +26,9 @@ status: active
 
 ## NCCL 三维度主线
 
-```mermaid
-flowchart LR
-    Q["一次集合通信"] --> A{"算法<br/>数据怎么流"}
-    A --> R["Ring/Tree/NVLS/CollNet"]
-    Q --> P{"协议<br/>怎么打包"}
-    P --> PR["Simple/LL/LL128"]
-    Q --> T{"传输<br/>走哪条路"}
-    T --> TR["P2P/SHM/NET/NVLS"]
-    R & PR & TR --> O["最优组合执行"]
-```
+![NCCL 三维度主线 lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/index/whiteboard-mermaid/01-NCCL-三维度主线-flowchart.png)
+
+> 图解源文件：[`01-NCCL-三维度主线-flowchart.mmd`](../../../_attachments/ai-infra/nccl/index/whiteboard-mermaid/01-NCCL-三维度主线-flowchart.mmd)。
 
 **给应届生**：NCCL 所有能力归到三个正交维度——算法（Ring/Tree…）、协议（Simple/LL…）、传输（P2P/NET…）。初始化时探测硬件拓扑，三维各选最优组合。理解 NCCL = 理解这三个维度各自选什么、为什么。
 

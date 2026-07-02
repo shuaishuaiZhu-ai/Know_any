@@ -1,0 +1,29 @@
+flowchart TB
+    subgraph View["+1 Worker 视图层"]
+        W["LMCacheWorker<br/>ZeroMQ 分布式协调<br/>注册/心跳/调度"]
+    end
+
+    subgraph Core["4 核心模块"]
+        direction TB
+        E["LMCacheEngine<br/>store / retrieve / lookup / prefetch"]
+        T["TokenDatabase<br/>Token → Cache Key<br/>Chunked / Segment 分块哈希"]
+        G["GPUConnector<br/>GPU ↔ CPU 双向转换<br/>适配 vLLM PagedAttention / SGLang"]
+        S["StorageManager<br/>多后端路由 / 负载均衡<br/>跨层级数据迁移"]
+    end
+
+    subgraph Backend["后端层"]
+        direction LR
+        LCPU["LocalCPU<br/>DRAM 热缓存<br/>1-5ms"]
+        LD["LocalDisk<br/>NVMe SSD<br/>10-50ms"]
+        R["Remote<br/>Redis/S3/Mooncake<br/>50-200ms"]
+        P2P["P2P/PD<br/>NIXL RDMA<br/>0.05-0.5ms"]
+    end
+
+    E --> T
+    E --> G
+    E --> S
+    S --> LCPU
+    S --> LD
+    S --> R
+    S --> P2P
+    W -.-> E

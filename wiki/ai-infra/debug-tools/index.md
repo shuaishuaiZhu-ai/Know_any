@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, debug, index]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》第132-134篇｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # 调试与性能工具
@@ -19,13 +21,9 @@ status: active
 
 ## 精度 vs 性能：两个工具怎么选
 
-```mermaid
-flowchart TD
-    Q{问题类型}
-    Q -->|"训得不对 精度问题<br/>NPU vs CPU/GPU 数值不一致"| M["msprobe<br/>精度比对/溢出检测/NaN溯源"]
-    Q -->|"训得不快 性能问题<br/>NPU 比 GPU 慢"| C["compare_tools<br/>性能维度比对"]
-    Q -->|"又慢又不对<br/>大规模集群综合调优"| K["千卡训练性能优化<br/>系统级方法论"]
-```
+![精度 vs 性能：两个工具怎么选 lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/index/whiteboard-mermaid/01-精度-vs-性能-两个工具怎么选-flowchart.png)
+
+> 图解源文件：[`01-精度-vs-性能-两个工具怎么选-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/index/whiteboard-mermaid/01-精度-vs-性能-两个工具怎么选-flowchart.mmd)。
 
 **给应届生**：msprobe 和 compare_tools 是姊妹工具，一个查"对不对"（数值精度），一个查"快不快"（执行性能）。千卡优化是更高层的系统方法论，告诉你该调哪里。三者配合：先 msprobe 保证精度对，再 compare_tools 找性能瓶颈，最后用千卡方法论系统调优。
 

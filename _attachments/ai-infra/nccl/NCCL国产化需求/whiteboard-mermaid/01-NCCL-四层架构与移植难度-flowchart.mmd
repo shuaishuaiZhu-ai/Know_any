@@ -1,0 +1,7 @@
+flowchart LR
+    L1["① 设备抽象层<br/>device.h/common.h<br/>线程/共享内存/同步原语<br/>CUDA 依赖：极高"]
+    L2["② 传输层<br/>transport/p2p,shm,net,nvls<br/>IPC+RDMA<br/>依赖：高(可换协议)"]
+    L3["③ 拓扑发现与调度<br/>graph/topo.cc<br/>NVML API<br/>依赖：中(可不支持NVML)"]
+    L4["④ 设备端内核<br/>device/prims_*,all_reduce.h<br/>自定义算子<br/>依赖：极高"]
+    L1 --> L2 --> L3
+    L1 --> L4

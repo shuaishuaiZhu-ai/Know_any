@@ -1,0 +1,5 @@
+flowchart LR
+    A["Base 算子序列<br/>(GPU)"] --> L["LCS 匹配<br/>O(M×N) 时间 O(N) 空间"]
+    B["Comparison 算子序列<br/>(NPU)"] --> L
+    L --> R["配对结果<br/>[base_op, comp_op]<br/>未配对标 None"]
+    R --> D["可选下钻 _drill_down<br/>max_kernel_num 控制粒度"]

@@ -21,16 +21,9 @@ source:
 
 ## 主线：一个 Pod 怎么用上 GPU
 
-```mermaid
-flowchart LR
-    POD["Pod 请求 nvidia.com/gpu:2"] --> SCH["Scheduler 选节点"]
-    SCH --> KL["Kubelet 调插件<br/>Allocate / PrepareResourceClaims"]
-    KL --> RES["返回 NVIDIA_VISIBLE_DEVICES + CDI"]
-    RES --> CRT["nvidia-container-runtime"]
-    CRT --> INJ["Toolkit/hook 注入<br/>/dev/nvidia* + libcuda.so"]
-    INJ --> APP["容器内 CUDA 可用"]
-    LIB["go-nvml → libnvidia-ml.so → nvidia.ko → GPU"] -. 全程底层 .-> KL
-```
+![主线：一个 Pod 怎么用上 GPU lark-whiteboard 图解](../../../_attachments/ai-infra/ai-cloud/K8s-GPU调度与运行时/whiteboard-mermaid/01-主线-一个-Pod-怎么用上-GPU-flowchart.png)
+
+> 图解源文件：[`01-主线-一个-Pod-怎么用上-GPU-flowchart.mmd`](../../../_attachments/ai-infra/ai-cloud/K8s-GPU调度与运行时/whiteboard-mermaid/01-主线-一个-Pod-怎么用上-GPU-flowchart.mmd)。
 
 **给应届生**：先记住三个缩写——**CRI** = 容器运行时接口，K8s 不直接管 docker/containerd，通过 CRI 这层标准接口调度；**Device Plugin** ≈ K8s 给 GPU 发门禁卡的窗口，pod 要用 GPU 得先刷卡；**CDI** = 容器设备接口，把"该挂哪些设备文件"标准化成 spec，逐步替代老的 runtime hook。
 

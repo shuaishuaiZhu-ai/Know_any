@@ -1,0 +1,3 @@
+flowchart TD
+    P1["Poison 创建 DE<br/>UMC检测到UE → 硬件创建毒化<br/>RAS_IH_FROM_BLOCK_CONTROLLER<br/>→ de_seqno_fifo"] --> P2["Poison 消费<br/>消费者(GFX/SDMA等)访问毒化页<br/>RAS_IH_FROM_CONSUMER_CLIENT<br/>→ consumption_seqno_fifo"]
+    P2 --> P3["处理<br/>ras_process_thread<br/>通知用户态 pasid_fn<br/>可选GPU复位"]

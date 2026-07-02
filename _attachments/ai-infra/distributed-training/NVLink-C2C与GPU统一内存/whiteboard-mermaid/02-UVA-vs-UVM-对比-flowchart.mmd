@@ -1,0 +1,10 @@
+flowchart TB
+    subgraph UVA["UVA：统一门牌号"]
+        U1["一个虚拟地址跨设备有效<br/>cudaMalloc / cudaHostAlloc 各自分配"] --> U2["指针可跨设备传递"]
+        U2 --> U3["数据不在本地 → 访问报错<br/>仍需 cudaMemcpy 手动搬"]
+    end
+    subgraph UVM["UVM：连搬家也代劳"]
+        M1["cudaMallocManaged 申请统一内存池"] --> M2["访问缺页 → 驱动经 PCIe/NVLink 自动迁移页"]
+        M2 --> M3["缓存一致性由硬件保障<br/>零拷贝编程"]
+    end
+    UVA -->|"UVM = UVA + 自动数据迁移"| UVM

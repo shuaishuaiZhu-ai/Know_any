@@ -1,0 +1,29 @@
+flowchart TB
+    subgraph App["应用层"]
+        PF2["Prefill Agent<br/>序列化 KV Cache"]
+        DC2["Decode Agent<br/>反序列化 KV Cache"]
+    end
+
+    subgraph Agent["Agent 层（节点级管理）"]
+        AG["NIXL Agent<br/>注册/发现/连接管理<br/>内存注册 + 零拷贝"]
+    end
+
+    subgraph Backend["Backend 层（传输实现）"]
+        BE["NIXL Backend<br/>UCX Transport<br/>GPUDirect RDMA / GDRCopy"]
+    end
+
+    subgraph Object["Cache Object 层"]
+        CO["Cache Object<br/>序列化描述符<br/>tensor 元数据 + 存储位置"]
+    end
+
+    subgraph Plugin2["Plugin 层（存储后端）"]
+        SP["Storage Plugin<br/>本地内存 / 分布式存储 / 磁盘"]
+    end
+
+    PF2 -->|"put(key, tensor)"| AG
+    AG -->|"register_memory"| BE
+    BE -->|"UCX rkey 交换"| BE
+    AG --> CO
+    CO --> SP
+    DC2 -->|"get(key)"| AG
+    AG -->|"get_rkey + UCX get"| BE

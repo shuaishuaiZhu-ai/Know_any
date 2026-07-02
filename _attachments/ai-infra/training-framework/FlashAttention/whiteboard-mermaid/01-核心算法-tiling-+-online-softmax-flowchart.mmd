@@ -1,0 +1,7 @@
+flowchart TB
+    Q["Q 块加载到 SRAM<br/>外循环"] --> Loop["遍历 K/V 块<br/>内循环"]
+    Loop --> S["S = Q·K^T<br/>在 SRAM 算"]
+    S --> OS["online softmax<br/>更新 m, l<br/>校正累加器 O"]
+    OS --> O["O += P·V<br/>SRAM 内"]
+    O -->|"K/V 块用完"| Norm["O = O / l 归一化<br/>写回 HBM"]
+    OS -.不等结果.-> Loop

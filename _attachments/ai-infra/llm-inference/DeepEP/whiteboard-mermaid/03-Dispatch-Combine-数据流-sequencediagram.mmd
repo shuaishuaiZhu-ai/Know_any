@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant 用户 as 用户代码
+    participant Layout as Layout Kernel
+    participant Notify as Notify Kernel
+    participant Dispatch as Dispatch Kernel
+    participant Expert as MoE 专家计算
+    participant Combine as Combine Kernel
+
+    用户->>Layout: get_dispatch_layout(topk_idx)
+    Layout-->>用户: num_tokens_per_rank, is_token_in_rank
+    用户->>Notify: notify_dispatch（通知各 rank 预期收多少 token）
+    Notify-->>Dispatch: atomic_add 计数
+    用户->>Dispatch: dispatch(x, layout)
+    Dispatch-->>用户: recv_x（各 rank 收到归属于自己的 token）
+    用户->>Expert: 本地 MoE FFN 计算
+    Expert-->>用户: expert_out
+    用户->>Combine: combine(expert_out, topk_weights)
+    Combine-->>用户: combined_x（加权求和结果）

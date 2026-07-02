@@ -25,21 +25,15 @@ source:
 
 ## 分层架构
 
-```mermaid
-flowchart TD
-    A["应用层<br/>PyTorch / MPI / 用户程序"] --> B["集合算法层<br/>AllReduce(Ring/HalvingDoubling/Bcube) · AllGather · Broadcast · Barrier"]
-    B --> C["上下文层<br/>Context(rank/size/slot) · Algorithm · ReductionFunction"]
-    C --> D["传输抽象层<br/>transport: Device / Pair / Buffer / UnboundBuffer"]
-    D --> E["具体传输<br/>TCP(epoll) · InfiniBand(ibverbs) · libuv(Windows)"]
-    F["会合层 rendezvous<br/>Store: Redis/File/Hash → 建全网格 Pair"] -.-> C
-    E --> G["硬件<br/>NIC · IB HCA · GPU"]
-```
+![分层架构 lark-whiteboard 图解](../../../_attachments/ai-infra/comm-libs/Gloo/whiteboard-mermaid/01-分层架构-flowchart.png)
+
+> 图解源文件：[`01-分层架构-flowchart.mmd`](../../../_attachments/ai-infra/comm-libs/Gloo/whiteboard-mermaid/01-分层架构-flowchart.mmd)。
 
 关键设计：算法层只依赖 `getPair(rank)` + `buffer->send/waitRecv`，**完全不感知底层传输**。
 
 ## 关键机制
 
-- **Ring/Tree 集合算法**：Ring 把张量分块沿环形流水传递，N 步聚合（[[Ring-AllReduce]] 思路）；Halving-Doubling 按距离折半加倍，log2(N) 步收敛（像锦标赛淘汰+决赛重排）。
+- **Ring/Tree 集合算法**：Ring 把张量分块沿环形流水传递，N 步聚合（[[Ring-AllReduce]] 思路）；Halving-Doubling 按"配对距离"折半加倍——第 k 轮每个进程与编号差 2^k 的伙伴配对交换（第 1 轮差 1、第 2 轮差 2、第 3 轮差 4…），log2(N) 步收敛（像锦标赛淘汰+决赛重排）。
 - **transport 抽象**：Device 工厂造 Pair，Pair 管 send/recv；TCP 用 epoll 事件循环，IB 用 QP+MR 做 RDMA write。一套算法复用多种传输。
 
 **给应届生**：Ring AllReduce ≈「传花接力」——每人加自己那一份再传给下一个，绕一圈后每个人都拿到总和。transport 抽象 ≈「统一快递接口，底下可换顺丰/京东/自建车队」，算法不关心谁送，只管送。

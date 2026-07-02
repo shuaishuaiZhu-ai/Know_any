@@ -1,17 +1,17 @@
 ---
-type: entity
+type: concept
 title: "NVLink"
 created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, gpu, interconnect, concept]
 status: active
 source:
-  - "知乎专栏第106篇｜https://zhuanlan.zhihu.com/p/1987297824543627187"
+  - "知乎专栏《大模型训练、推理与AI云平台》第106篇｜作者常平｜https://zhuanlan.zhihu.com/p/1987297824543627187"
 ---
 
 # NVLink
 
-> NVIDIA 的高速 GPU 互联协议，带宽远超 PCIe（NVLink >600GB/s vs PCIe ~64GB/s）。是主机内多卡高速通信的物理基础，[[Ring-AllReduce]] 等拓扑算法的"快车道"。
+> NVIDIA 的高速 GPU 互联协议，带宽远超 PCIe（NVLink 4.0 单机聚合 >600GB/s vs PCIe Gen4 x16 单向 ~32GB/s、双向 ~64GB/s；不同代际与统计口径有差异，对比时注意是"单链路"还是"整机聚合"）。是主机内多卡高速通信的物理基础，[[Ring-AllReduce]] 等拓扑算法的"快车道"。
 
 ## 与 PCIe 对比
 - **带宽层次**：NVLink（片间） >> PCIe Switch >> QPI/UPI（CPU 间）。

@@ -23,16 +23,9 @@ source:
 
 ## 两层关系
 
-```mermaid
-flowchart TD
-    A["FlagScale 全生命周期工具<br/>配置·训练·推理·服务·压缩·容错·调优"] --> B["FlagCX 异构通信库"]
-    B --> C["适配器层"]
-    C --> C1["Device: CUDA/HIP/MLU/CANN/MUSA"]
-    C --> C2["CCL: NCCL/HCCL/CNCL/MCCL/XCCL..."]
-    C --> C3["Net: IBRC/UCX/SOCKET"]
-    C1 & C2 & C3 --> D["硬件：NVIDIA/寒武纪/华为/Metax..."]
-    A --> E["后端封装：Megatron-LM / vLLM / sglang"]
-```
+![两层关系 lark-whiteboard 图解](../../../_attachments/ai-infra/comm-libs/FlagCX与FlagScale/whiteboard-mermaid/01-两层关系-flowchart.png)
+
+> 图解源文件：[`01-两层关系-flowchart.mmd`](../../../_attachments/ai-infra/comm-libs/FlagCX与FlagScale/whiteboard-mermaid/01-两层关系-flowchart.mmd)。
 
 - **FlagCX**（底层通信库）：应用层 → 统一 API（`flagcx.h`）→ Runner（HomoRunner 同构 / HybridRunner 异构 C2C / HostRunner / UniRunner）→ 核心组件（Topology/Proxy/Bootstrap/Transport/Tuner）→ 适配器层（Device+CCL+Net+Host）→ 硬件。
 - **FlagScale**（上层工具）：Hydra 配置驱动，CLI 入口 → Runner（train/inference/serve/elastic/auto_tuner）→ 任务逻辑（Megatron-LM 训练 / vLLM 推理）→ 通用能力（compress/transformations）→ 后端适配。通过 `cpu:gloo,cuda:flagcx` 复合 backend 集成 FlagCX。
@@ -41,11 +34,9 @@ flowchart TD
 
 异构 AllReduce 的关键——各厂商 CCL 不能直接互通，就用三阶段绕开：
 
-```mermaid
-flowchart LR
-    S1["① 集群内 Reduce<br/>各厂商用自己原生 CCL<br/>先内部归约"] --> S2["② 跨集群交换<br/>RDMA Send/Recv<br/>代表互传"]
-    S2 --> S3["③ 集群内 Broadcast<br/>各厂商原生 CCL<br/>结果广播回所有卡"]
-```
+![C2C 三阶段算法（核心创新） lark-whiteboard 图解](../../../_attachments/ai-infra/comm-libs/FlagCX与FlagScale/whiteboard-mermaid/02-C2C-三阶段算法（核心创新）-flowchart.png)
+
+> 图解源文件：[`02-C2C-三阶段算法（核心创新）-flowchart.mmd`](../../../_attachments/ai-infra/comm-libs/FlagCX与FlagScale/whiteboard-mermaid/02-C2C-三阶段算法（核心创新）-flowchart.mmd)。
 
 **给应届生**：类比「国际会议」——各国先内部开会汇总（说本国语言=CCL），再派代表用英语到国际会议交换（RDMA），回国再广播给国民。32 GPU 异构全局 AllReduce，1GB 数据约 2ms、聚合带宽约 500GB/s。
 

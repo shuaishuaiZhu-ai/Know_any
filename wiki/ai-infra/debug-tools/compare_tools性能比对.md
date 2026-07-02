@@ -38,16 +38,9 @@ compare_tools 把两份 Profiling 数据对齐比对，输出终端一览表 + E
 
 ## 架构：分层
 
-```mermaid
-flowchart TB
-    E["入口层<br/>CLI / ComparisonInterface API"] --> G
-    G["主控层 ComparisonGenerator<br/>加载双路数据 + 并发生成"] --> P
-    P["解析层<br/>GPU/NPU Profiling Parser"] --> DP
-    DP["预处理层<br/>Module/Operator DataPrepare<br/>+ SequencePreMatching(LCS)"] --> C
-    C["比对层 Comparator 策略模式<br/>各维度 Comparator"] --> B
-    B["数据层 Bean<br/>表头/列定义"] --> V
-    V["视图层<br/>ScreenView / ExcelView"]
-```
+![架构：分层 lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/compare_tools性能比对/whiteboard-mermaid/01-架构-分层-flowchart.png)
+
+> 图解源文件：[`01-架构-分层-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/compare_tools性能比对/whiteboard-mermaid/01-架构-分层-flowchart.mmd)。
 
 **给应届生**：这是典型的**分层 + 策略模式**架构。每个比对维度是一个 Comparator（整体/算子/通信/内存/Kernel），继承同一个 BaseComparator，用同一套 Bean 定义表头、同一套 View 渲染。加新维度 = 加一个 Comparator+Bean，不动老代码。这是大型工具扩展性的标准做法。
 
@@ -55,13 +48,9 @@ flowchart TB
 
 GPU 和 NPU 的算子名、调用顺序可能不同，怎么"对齐"同一个算子？用**最长公共子序列（LCS）**算法：
 
-```mermaid
-flowchart LR
-    A["Base 算子序列<br/>(GPU)"] --> L["LCS 匹配<br/>O(M×N) 时间 O(N) 空间"]
-    B["Comparison 算子序列<br/>(NPU)"] --> L
-    L --> R["配对结果<br/>[base_op, comp_op]<br/>未配对标 None"]
-    R --> D["可选下钻 _drill_down<br/>max_kernel_num 控制粒度"]
-```
+![核心难点：跨平台算子匹配（LCS） lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/compare_tools性能比对/whiteboard-mermaid/02-核心难点-跨平台算子匹配（LCS）-flowchart.png)
+
+> 图解源文件：[`02-核心难点-跨平台算子匹配（LCS）-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/compare_tools性能比对/whiteboard-mermaid/02-核心难点-跨平台算子匹配（LCS）-flowchart.mmd)。
 
 优化手段：numpy int32 数组替代 Python list（省 4x 内存、快 3-5x）、BitMap 替代 bool 矩阵（省 8x 内存）、名称 hash 化（字符串比较转整数比较）。M×N>5×10⁹ 时预警提示加 `--disable_details`。
 
@@ -74,31 +63,17 @@ flowchart LR
 
 ## 并发执行
 
-```mermaid
-flowchart LR
-    subgraph 主线程["主线程 (耗时长)"]
-        D["DetailPerformanceGenerator<br/>各 Comparator 比对<br/>→ ExcelView 写 xlsx"]
-    end
-    subgraph 子线程["子线程 (耗时短)"]
-        O["OverallPerformanceGenerator<br/>整体性能<br/>→ ScreenView 终端打印"]
-    end
-    M["ComparisonGenerator<br/>并发启动"] --> D & O
-    D --> J["join 等待子线程"]
-    O --> J
-```
+![并发执行 lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/compare_tools性能比对/whiteboard-mermaid/03-并发执行-flowchart.png)
+
+> 图解源文件：[`03-并发执行-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/compare_tools性能比对/whiteboard-mermaid/03-并发执行-flowchart.mmd)。
 
 整体性能（屏幕输出，快）和详细比对（Excel，慢）并发跑，缩短总时长。
 
 ## 性能分析推荐顺序
 
-```mermaid
-flowchart TD
-    S1["① 整体性能比对<br/>看 E2E/计算/通信时间<br/>判断瓶颈在计算还是通信"] --> S2
-    S2["② 算子比对<br/>Module 级定位哪个模块慢<br/>Operator 级定位具体算子"] --> S3
-    S3["③ Kernel 比对<br/>NPU vs GPU Kernel 粒度差异<br/>--use_kernel_type 按类型聚合"] --> S4
-    S4["④ 通信比对<br/>RDMA/SDMA 带宽利用率<br/>通信未被计算覆盖的 Wait Time"] --> S5
-    S5["⑤ 内存比对<br/>找内存占用差异大的算子"]
-```
+![性能分析推荐顺序 lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/compare_tools性能比对/whiteboard-mermaid/04-性能分析推荐顺序-flowchart.png)
+
+> 图解源文件：[`04-性能分析推荐顺序-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/compare_tools性能比对/whiteboard-mermaid/04-性能分析推荐顺序-flowchart.mmd)。
 
 **给应届生**：调性能的套路——**先看整体定方向（计算 or 通信瓶颈），再逐层下钻**。不要一上来就钻到某个算子，容易瞎子摸象。整体→模块→算子→Kernel，每层缩小范围。
 

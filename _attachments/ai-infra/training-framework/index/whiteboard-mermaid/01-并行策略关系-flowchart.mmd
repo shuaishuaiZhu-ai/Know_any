@@ -1,0 +1,10 @@
+flowchart TB
+    Model["大模型<br/>装不下单卡"] --> Split{"怎么切?"}
+    Split -->|"单层权重太大"| TP["TP 张量并行<br/>切权重矩阵<br/>Megatron/TorchTitan<br/>节点内 NVLink"]
+    Split -->|"总层数太多"| PP["PP 流水并行<br/>按层切<br/>跨节点 IB"]
+    Split -->|"序列太长"| CP["CP 上下文并行<br/>Ring 切长序列"]
+    Split -->|"MoE 专家多"| EP["EP 专家并行<br/>All-to-All"]
+    TP --> SP["SP 序列并行<br/>配 TP 省激活显存"]
+    Split -->|"剩余卡"| DP["DP/FSDP<br/>切数据/梯度/参数"]
+    TP & PP & CP & EP & DP --> TE["TransformerEngine<br/>FP8 fused 算子<br/>含 FlashAttention"]
+    TE --> HWY["Highway 向量化<br/>算子底层 SIMD"]

@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph Host["Host 端（CPU 管理）"]
+        API["Collectives(88)<br/>用户 API 薄封装"]
+        INIT["Init(86) + Bootstrap(89)<br/>通信域创建/建连点名"]
+        TOPO["Graph(85) + Channel(87)<br/>拓扑画图 + 修车道"]
+        SCHED["Enqueue(90) + Scheduler(99)<br/>排队选算法/通道分配"]
+        RT["Dev_Runtime(98) + Proxy(101) + Register(104)<br/>对称运行时/后台代发/内存注册"]
+        BASE["Misc(102) + Debug(103)<br/>基础设施/日志"]
+    end
+    subgraph Device["Device 端（GPU 执行）"]
+        DEV["nccl_device(100)<br/>LSA/GIN Barrier、LL-A2A 原语"]
+        SYM["Symmetric Kernel(91)<br/>对称内核 11 变体"]
+        CE["CE Collective(92)<br/>Copy Engine 硬件通信"]
+    end
+    API --> SCHED
+    INIT --> TOPO --> SCHED
+    SCHED --> DEV
+    RT -.桥接.-> DEV
+    SCHED --> SYM
+    SCHED --> CE

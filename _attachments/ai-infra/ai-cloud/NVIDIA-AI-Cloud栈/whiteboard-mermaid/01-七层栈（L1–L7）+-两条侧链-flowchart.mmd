@@ -1,0 +1,12 @@
+flowchart TB
+    L7["L7 应用<br/>PyTorch DDP / vLLM / Megatron / Triton"] --> L6
+    L6["L6 K8s 编排<br/>Scheduler / ResourceQuota / Taint / DRA ResourceClaim"] --> L5
+    L5["L5 GPU-Operator 控制平面<br/>ClusterPolicy CR + Reconcile 循环"] --> L4
+    L4["L4 设备插件与资源管理（调度运行时页）<br/>k8s-device-plugin / DRA Driver / GPUShare"] --> L3
+    L3["L3 容器运行时（调度运行时页）<br/>nvidia-container-runtime + Toolkit / CDI"] --> L2
+    L2["L2 OS 与驱动<br/>NVIDIA Driver / OFED / nv-peer-mem"] --> L1
+    L1["L1 硬件<br/>GPU / NVLink / NVSwitch / IB+RoCE / BlueField DPU"]
+    OBS["可观测性侧链（监控运维页）<br/>DCGM→DCGM-Exporter→Prometheus→Grafana"] -. 部署 .-> L5
+    OBS -. 采集 .-> L1
+    FND["发现侧链（监控运维页）<br/>NFD + gpu-feature-discovery 打标签"] -. 标签 .-> L6
+    LIB["库层<br/>go-nvml / go-nvlib 横切共享"] -. 被调用 .-> L4

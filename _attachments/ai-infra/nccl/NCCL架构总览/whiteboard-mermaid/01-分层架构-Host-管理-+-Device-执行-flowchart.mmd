@@ -1,0 +1,15 @@
+flowchart TB
+    subgraph Host["Host 端（CPU 管理）"]
+        A["用户 API 层<br/>collectives.cc<br/>AllReduce/AllGather/Broadcast..."]
+        E["调度入队层<br/>enqueue.cc<br/>批处理 + 内核启动 + 资源规划 + Proxy"]
+        C["通信器层<br/>ncclComm<br/>生命周期/拓扑/通道/网络"]
+        T["拓扑层<br/>graph/topo.cc<br/>节点/链路/路径 + 算法搜索"]
+    end
+    subgraph Device["Device 端（GPU 执行）"]
+        K["通信 Kernel<br/>按算法+协议执行<br/>实际搬数据"]
+        P["Proxy 机制<br/>跨 rank 异步网络通信"]
+    end
+    A --> E --> C --> T
+    E --> K
+    C --> P
+    P -.网络.-> K

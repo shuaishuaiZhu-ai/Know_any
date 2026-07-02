@@ -1,0 +1,16 @@
+flowchart LR
+    subgraph S1["阶段1 ScatterReduce (N-1 次迭代)"]
+        direction TB
+        SR1["把大梯度拆成 N 块<br/>8 卡=8 块"]
+        SR2["每轮每卡收前向一块、发后向一块、累加"]
+        SR3["迭代后每卡得一块<br/>含所有卡该块的累加和"]
+        SR1 --> SR2 --> SR3
+    end
+    subgraph S2["阶段2 AllGather (N-1 次迭代)"]
+        direction TB
+        AG1["每卡把自己那块完整累加值"]
+        AG2["逐轮复制给其他卡"]
+        AG3["迭代后每卡得完整大梯度"]
+        AG1 --> AG2 --> AG3
+    end
+    S1 --> S2

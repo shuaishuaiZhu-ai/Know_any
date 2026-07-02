@@ -1,0 +1,5 @@
+flowchart LR
+    D["① 检测<br/>GPU/Syslog Monitor 生成 HealthEvent"] --> Q["② 隔离<br/>Fault Quarantine cordon+taint"]
+    Q --> DR["③ 排空<br/>Node Drainer 驱逐 Pod"]
+    DR --> RM["④ 修复<br/>Remediation 创建 CR/Janitor reset/reboot"]
+    RM --> RC["⑤ 恢复<br/>健康事件解除隔离 uncordon"]

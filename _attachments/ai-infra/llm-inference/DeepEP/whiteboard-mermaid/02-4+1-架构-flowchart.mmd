@@ -1,0 +1,33 @@
+flowchart TB
+    subgraph 接口层["+1 接口层（Python API）"]
+        BUF["Buffer 类<br/>dispatch / combine / low_latency_dispatch / low_latency_combine"]
+        EVT["EventOverlap<br/>CUDA 事件 + 流重叠管理"]
+    end
+
+    subgraph 核心1["核心 1：Layout 计算"]
+        LAY["layout.cu<br/>根据 topk_idx 计算<br/>token → expert → rank 路由<br/>生成 is_token_in_rank 稀疏矩阵"]
+    end
+
+    subgraph 核心2["核心 2：Dispatch Kernel"]
+        DISP_INTRA["intranode.cu<br/>节点内 NVLink 分发"]
+        DISP_INTER["internode.cu<br/>跨节点 NVLink + RDMA 分发"]
+        DISP_LL["internode_ll.cu<br/>低延迟 IBGDA 纯 RDMA"]
+    end
+
+    subgraph 核心3["核心 3：Combine Kernel"]
+        COMB_INTRA["节点内 NVLink 归约"]
+        COMB_INTER["跨节点 RDMA 归约"]
+        COMB_LL["低延迟 IBGDA + LogFMT 量化"]
+    end
+
+    subgraph 核心4["核心 4：Buffer 与同步管理"]
+        BUF_MGR["C++ Buffer 管理器<br/>IPC 共享 / NVSHMEM 初始化<br/>NVLink 栅栏 / 双缓冲"]
+    end
+
+    BUF --> LAY
+    BUF --> DISP_INTRA & DISP_INTER & DISP_LL
+    BUF --> COMB_INTRA & COMB_INTER & COMB_LL
+    BUF --> BUF_MGR
+    LAY --> DISP_INTRA & DISP_INTER & DISP_LL
+    BUF_MGR --> DISP_INTRA & DISP_INTER & DISP_LL
+    BUF_MGR --> COMB_INTRA & COMB_INTER & COMB_LL

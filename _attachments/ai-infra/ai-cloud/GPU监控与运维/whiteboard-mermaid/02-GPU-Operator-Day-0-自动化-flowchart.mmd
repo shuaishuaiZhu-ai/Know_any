@@ -1,0 +1,5 @@
+flowchart LR
+    U["kubectl apply ClusterPolicy"] --> RC["Reconcile 循环<br/>Informer→Workqueue→Worker"]
+    RC --> SM["StateManager<br/>18 个 State 串行"]
+    SM --> DS["逐 State: 渲染YAML→Apply DaemonSet→Wait Ready"]
+    DS --> NODE["每个 GPU 节点跑一套<br/>Driver/Toolkit/DevicePlugin/DCGM-Exporter/GFD"]

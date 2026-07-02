@@ -1,0 +1,5 @@
+flowchart LR
+    E["GPU PCIe 链路断开"] --> D["dmesg:<br/>Xid 79 GPU fallen off the bus"]
+    D --> DC["DCGM 映射为错误码 20<br/>GPU_IS_LOST，标记 faulted"]
+    DC --> EX["dcgm-exporter:<br/>dcgm_faulted=1<br/>dcgm_xid_errors{xid=79}=1<br/>dcgm_error_count{error_code=20}=1"]
+    EX --> P["Prometheus:<br/>dcgm_faulted==1 告警"]

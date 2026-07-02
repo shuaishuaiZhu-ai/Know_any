@@ -1,0 +1,6 @@
+flowchart LR
+    I["ncclCommInitRank<br/>建立 communicator"] --> B["Bootstrap<br/>各 rank 建初始连接"]
+    B --> T["拓扑探测<br/>graph/topo 搜索最优图"]
+    T --> P["选传输+算法<br/>P2P/NET + Ring/Tree"]
+    P --> C["建 Channel<br/>分配缓冲区/连接"]
+    C --> K["生成 Kernel Plan<br/>enqueue.cc 调度"]

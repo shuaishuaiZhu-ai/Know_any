@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, training-framework, index]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》第7、38-48、110-111、120篇｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # 训练框架与算子
@@ -22,18 +24,9 @@ status: active
 
 Megatron 与 TorchTitan 把一个大模型的训练拆成多种并行正交组合，总 GPU 数 = TP × PP × CP × EP × DP：
 
-```mermaid
-flowchart TB
-    Model["大模型<br/>装不下单卡"] --> Split{"怎么切?"}
-    Split -->|"单层权重太大"| TP["TP 张量并行<br/>切权重矩阵<br/>Megatron/TorchTitan<br/>节点内 NVLink"]
-    Split -->|"总层数太多"| PP["PP 流水并行<br/>按层切<br/>跨节点 IB"]
-    Split -->|"序列太长"| CP["CP 上下文并行<br/>Ring 切长序列"]
-    Split -->|"MoE 专家多"| EP["EP 专家并行<br/>All-to-All"]
-    TP --> SP["SP 序列并行<br/>配 TP 省激活显存"]
-    Split -->|"剩余卡"| DP["DP/FSDP<br/>切数据/梯度/参数"]
-    TP & PP & CP & EP & DP --> TE["TransformerEngine<br/>FP8 fused 算子<br/>含 FlashAttention"]
-    TE --> HWY["Highway 向量化<br/>算子底层 SIMD"]
-```
+![并行策略关系 lark-whiteboard 图解](../../../_attachments/ai-infra/training-framework/index/whiteboard-mermaid/01-并行策略关系-flowchart.png)
+
+> 图解源文件：[`01-并行策略关系-flowchart.mmd`](../../../_attachments/ai-infra/training-framework/index/whiteboard-mermaid/01-并行策略关系-flowchart.mmd)。
 
 - **TP/SP/CP** 层内并行，通信高频小数据，放**节点内 NVLink**；SP 是 TP 的扩展（省激活显存，和 CP 二选一）。
 - **PP** 层间并行，P2P 传激活，放**节点间 IB**，靠 micro-batch 流水线填气泡。

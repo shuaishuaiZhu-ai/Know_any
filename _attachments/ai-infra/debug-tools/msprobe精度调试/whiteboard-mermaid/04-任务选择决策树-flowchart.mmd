@@ -1,0 +1,9 @@
+flowchart TD
+    Q{问题类型}
+    Q -->|精度不一致 NPU vs CPU/GPU| A1["statistics L1 → compare Excel"]
+    Q -->|想看具体 tensor 值| A2["tensor L1 → npy"]
+    Q -->|NaN/Inf 溢出| A3["overflow_check → run_overflow_check<br/>找 critical_apis"]
+    Q -->|分布式 NaN 溯源| A4["statistics 先dump → nan_analyze"]
+    Q -->|loss不收敛/梯度异常| A5["grad_probe → compare → 相似度曲线"]
+    Q -->|想可视化计算图| A6["graph → vis.db → MindStudio"]
+    Q -->|精确控制观察点| A7["debug → save(variable, name)"]
