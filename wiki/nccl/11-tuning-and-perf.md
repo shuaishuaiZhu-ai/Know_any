@@ -2,7 +2,7 @@
 type: topic
 title: "11 调优与性能模型"
 created: 2026-06-30
-updated: 2026-06-30
+updated: 2026-07-02
 tags:
   - nccl
   - tuning
@@ -54,7 +54,13 @@ NCCL 在 init 时为每个 (集合, 算法, 协议) 建成本表(`ncclTopoTuneMo
 time = 延迟 + 数据量 / 带宽
 ```
 
-选 time 最小的组合(`enqueue.cc` 的 `topoGetAlgoInfo`)。**小消息延迟主导 → Tree/LL;大消息带宽主导 → Ring/Simple。** 多数情况信任它即可。下面的环境变量是"模型选错"或"排障"时的手动旋钮。
+选 time 最小的组合(`enqueue.cc:2028` 的 `topoGetAlgoInfo`;公式本体在 `ncclTopoGetAlgoTime`,`tuning.cc:653`:`time = lat × latCount + nBytes/(1000 × bw)`)。**小消息延迟主导 → Tree/LL;大消息带宽主导 → Ring/Simple。** 多数情况信任它即可。下面的环境变量是"模型选错"或"排障"时的手动旋钮。
+
+把这两件事画在一起——左边是调优模型"换挡"的原理,右边是你在 nccl-tests 里实际看到的 busbw 曲线:
+
+![图19:NCCL 性能模型 — time=延迟+字节数/带宽 的自动换挡逻辑,与 busbw 随消息大小逼近硬件峰值的曲线 图解](../../_attachments/nccl/19-perf-model.png)
+
+> 图解源文件:[`19-perf-model.svg`](../../_attachments/nccl/src/19-perf-model.svg)
 
 ---
 

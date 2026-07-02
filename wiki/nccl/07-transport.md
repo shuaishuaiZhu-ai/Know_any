@@ -2,7 +2,7 @@
 type: topic
 title: "07 Transport 传输层:P2P / SHM / NET"
 created: 2026-06-30
-updated: 2026-06-30
+updated: 2026-07-02
 tags:
   - nccl
   - transport
@@ -103,6 +103,8 @@ GPU A ──写──> host 共享内存(/dev/shm) <──读── GPU B
 
 发送方 GPU 把数据拷到共享内存,接收方 GPU 从共享内存读。`shmSendConnect`(`shm.cc:153`)用 `ncclShmImportShareableBuffer` 把对端的 shm 段映射过来,head/tail 指针做流控。这条路要过 host 内存,比 P2P 慢,但比"绕一大圈过 CPU 的 P2P"在某些拓扑下更稳。
 
+> ⚠️ 常见误解:"SHM 走 host 内存,所以要 proxy 线程帮忙搬"。**不对**。共享内存段映射好之后,GPU kernel 通过映射进自己地址空间的指针**直接读写**它(legacy 路径用 `cudaHostRegister + cudaHostGetDevicePointer`,`os/linux.cc:829`),和 P2P 一样不需要任何 CPU 线程站在数据通路上——v2.30.7 里 `shmTransport` 注册的 `proxyProgress` 槽位是 `NULL`(`shm.cc:470-471`,对照 `transport.h:117-129` 的字段顺序),proxy 只在**建连时**替它分配 host 共享内存资源(`shmSendProxySetup`,`shm.cc:245`),数据面完全不经 proxy。真正让 proxy 持续推进数据的只有 NET(第 10 章)。
+
 ---
 
 ## 5. NET:跨机走网络,proxy 线程登场
@@ -133,18 +135,18 @@ GPU A ──写──> host 共享内存(/dev/shm) <──读── GPU B
 
 ---
 
-## 6. 四种传输一览
+## 6. 三种传输一览
 
 | | P2P | SHM | NET |
 |---|---|---|---|
 | 何时用 | 同机 + 可 peer access | 同机 + 不可 P2P | 跨机 |
 | 关键判据 | `cudaDeviceCanAccessPeer` | 同机 + 共享 /dev/shm | hostHash 不同 |
 | 数据路径 | GPU→GPU(零拷贝) | GPU→host shm→GPU | GPU→网卡→网络→GPU |
-| 需要 proxy? | 否(kernel 直连) | 是(轮询 shm) | 是(收发网络包) |
+| 数据面需要 proxy? | 否(kernel 直连) | 否(kernel 直接读写映射好的 shm) | 是(proxy 收发网络包) |
 | GDR | — | — | 支持(网卡直 DMA 显存) |
 | 注册处 | `p2p.cc:1466` | `shm.cc:467` | `net.cc:2085` |
 
-> 这张表正是第 02 章 connector → transportComm 的"四种实现"。同一个 Ring/Tree 逻辑,落到不同 rank 对之间,可能各走不同 transport:机内 NVLink 走 P2P、跨机那一跳走 NET。**NCCL 自动为每条边选最优**,这就是它"拓扑感知"在传输层的体现。
+> 这张表正是第 02 章 connector → transportComm 的三种主力实现(第四种 collNetTransport 把归约下放给网络硬件,见第 06 章)。同一个 Ring/Tree 逻辑,落到不同 rank 对之间,可能各走不同 transport:机内 NVLink 走 P2P、跨机那一跳走 NET。**NCCL 自动为每条边选最优**,这就是它"拓扑感知"在传输层的体现。
 
 ---
 

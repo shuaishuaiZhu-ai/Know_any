@@ -111,7 +111,7 @@
     <text x="921" y="210">c0</text><text x="963" y="210">c1</text><text x="1005" y="210">c2</text><text x="1047" y="210">c3</text>
   </g>
   <g font-size="11" text-anchor="end" fill="#607d8b">
-    <text x="912" y="240">G0</text><text x="912" y="274">G1</text><text x="912" y="308">G2</text><text x="912" y="342">G3</text>
+    <text x="892" y="240">G0</text><text x="892" y="274">G1</text><text x="892" y="308">G2</text><text x="892" y="342">G3</text>
   </g>
   <g font-size="11.5" text-anchor="middle" font-weight="700" fill="#fff">
     <rect x="900" y="220" width="42" height="34" fill="#102027"/><text x="921" y="242">Σ0</text>

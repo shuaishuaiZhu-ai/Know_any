@@ -118,20 +118,59 @@ ncclAllReduce(sendbuff, recvbuff, count, ncclFloat, ncclSum, comm, stream);
 
 > ⚠️ 常见 bug:`ncclAllReduce` 返回了就以为数据好了 → 读到旧值。返回 ≠ 完成。
 
-### 3.2 group call:把多个调用"打包"
+### 3.2 group call:把多个调用"打包",先登记后统一发起
 
-`ncclGroupStart()` / `ncclGroupEnd()`(`nccl.h.in` 末尾)把中间的一串调用**聚合成一次启动**。两个核心用途:
+这是最多人"看了 API 说明还是不知道它为什么存在"的一个概念。别急着背 API,先想清楚它要解决的问题。
 
-**用途一:单进程管多卡,避免死锁。** 若一个进程要替 N 块 GPU 各发一次 AllReduce,逐个同步调用会死锁(第 1 个在等其它 rank,但其它 rank 的调用还没发出)。包进 group 里,NCCL 先收集全部、再一起发:
+#### 先建立一个认知:集合调用是"集体行动",不是"我一个人的事"
+
+`ncclAllReduce` 这类调用,语义上要求**所有 rank 一起参与**才有意义。所以你在某个 rank 上发起的这一次调用,本质只表达一件事:**"我这一方(这个 rank)到位了,想参加这一轮 AllReduce。"**
+
+关键在于:NCCL 要把这次调用"发起成功",在 CPU 侧还得和**其它 rank 做一次握手**——官方源码注释把它叫作 **inter-CPU synchronization**(`src/nccl.h.in:697`):建立/复用连接、交换对端的 buffer 地址与句柄等,这些都需要**对端 rank 的对应调用也出现在场**,两边 CPU 配对上,这次调用才算真正发起、才会返回。
+
+> 一句话:**一次集合调用能不能"握上手",取决于所有参与方的 CPU 是不是都发起了各自的那一次调用。** 记住这句,下面的死锁就顺理成章了。
+
+#### 问题:单进程管多卡时,逐个阻塞调用会死锁
+
+![图:单进程多卡下 group call 的必要性 — 没有 group 顺序阻塞会死锁,用 ncclGroupStart/End 延迟登记再统一发起才成功 图解](../../_attachments/nccl/15-group-call-deadlock.png)
+
+> 图解源文件:[`15-group-call-deadlock.svg`](../../_attachments/nccl/src/15-group-call-deadlock.svg)
+
+对照上图左半边,把时序摊开看(单进程、单线程,for 循环替 N 块卡各调一次):
+
+1. 第 1 次:调 `ncclAllReduce(comms[0], streams[0])`。它要和 rank 1/2/3 握手才能返回,于是**阻塞,等其它 rank 到齐**。
+2. 可"其它 rank 的调用"(`comms[1..3]`)排在 for 循环的后几轮——CPU 正卡在第 1 次调用上,**根本走不到**后面那几轮。
+3. 于是:第 1 个调用等后面的调用出现,后面的调用又被第 1 个调用堵着发不出。**互相等待 = 死锁。**
+
+> ⚠️ 注意死锁的是 **CPU 主机线程**,不是 GPU。根因是"集体行动"要求各方 CPU 都先发起,而单线程做不到"同时发起多个"。
+
+**为什么多进程模式不会有这个问题?**(右下角对比)标准分布式训练里每个 rank 是**独立的进程/线程**,各有自己的执行流:第 1 个进程阻塞等待时,别的进程照样在跑、发起自己那一次调用,握手自然配得上。所以**多进程模式不强制用 group**——这也是 PyTorch DDP 平时不用你手写 group 的原因。死锁只在"一个线程串行替多块卡发起调用"时才出现。
+
+#### group call 做了什么:延迟登记 + 到 GroupEnd 统一发起
+
+`ncclGroupStart()` / `ncclGroupEnd()` 之间的调用**不立即执行,只"登记"**(上图右半边):
+
+- 每次 `ncclAllReduce(...)` 只是把这次任务**入队**(`ncclAsyncJobs` 队列,`src/group.cc:65`),然后**立即返回、不阻塞**,CPU 顺畅推进到下一轮。
+- 直到最外层 `ncclGroupEnd()`,深度归 0,才把攒下的 N 个调用**一次性并发发起**(`src/group.cc:788`)。此刻所有参与方都"在场",CPU 侧握手**全部配对成功**。
+
+有个值得记住的实现事实,能帮你彻底想通这套机制:
+
+> 💡 **一次普通的"裸"集合调用,其实是被隐式包了一层 group。** 源码里当 `ncclGroupDepth == 0`(不在任何 group 内)时,`ncclAsyncLaunch` 直接执行这次任务(`src/group.cc:40`);`ncclGroupStart()` 做的仅仅是 `ncclGroupDepth++`(`src/include/group.h:88`,thread-local 计数,支持嵌套)。所以"单次调用 vs group"不是两套逻辑,而是**同一套逻辑在 depth 0 和 depth>0 时的两种表现**——group 只是把"立即执行"改成了"先攒着,末尾一起执行"。
+
+#### 三个用途(按适用场景记)
+
+**用途一:单进程多卡,避免死锁**(就是上面那张图的场景):
 
 ```c
 ncclGroupStart();
 for (int i = 0; i < nGpu; i++)
     ncclAllReduce(send[i], recv[i], count, ncclFloat, ncclSum, comms[i], streams[i]);
-ncclGroupEnd();   // ← 到这里才真正发起,内部协调好,不死锁
+ncclGroupEnd();   // ← 到这里才真正发起,已收齐、统一并发,不死锁
 ```
 
-**用途二:融合多个点对点,实现 AllToAll。** `ncclSend`/`ncclRecv` 必须成对、且常需并发推进。把一轮要发要收的全部 `Send/Recv` 包进一个 group,NCCL 才能让它们并行而不互相阻塞:
+`ncclCommInitAll` 内部就是自己包了一层 group 来并发建多块卡的 comm(见 [03 章](<./03-init-and-bootstrap.md>) 第 6 节)。
+
+**用途二:融合多个点对点,实现 AllToAll。** 单个阻塞式 `ncclSend` 可能正等着它的 `ncclRecv` 配对(和上面的死锁同源)。把一轮要发要收的全部 `Send/Recv` 包进一个 group,NCCL 才能让它们**并发推进而非串行互等**:
 
 ```c
 ncclGroupStart();
@@ -139,10 +178,15 @@ for (int r = 0; r < nranks; r++) {
     ncclSend(sendbuf + r*chunk, chunk, type, r, comm, stream);
     ncclRecv(recvbuf + r*chunk, chunk, type, r, comm, stream);
 }
-ncclGroupEnd();   // 这就是一次 AllToAll
+ncclGroupEnd();   // 这就是一次 AllToAll(NCCL 没有独立 AllToAll kernel,见第 4 节)
 ```
 
-> 💡 **`ncclCommInitRank` 也能放进 group**(并发建多个 comm),但**不能和集合通信混在同一个 group 里**(`nccl.h.in:708` 明确说明)。
+**用途三(性能):把同设备的多个操作融合成一次 kernel launch。** 官方注释叫 "fuse multiple operations to improve performance"(`nccl.h.in:711`)。group 内的多个 collective 会被编排进同一个 plan、合并成一次启动,省下多次 `cudaLaunchKernel` 的开销(第 08 章)。**这条对多进程也有用**——多进程虽不需要 group 来防死锁,但仍可用它把多个小 collective 融合、降低 launch 次数。
+
+#### 两个必须知道的边界
+
+- **GroupEnd 返回 ≠ 通信完成。** 它只保证操作已经**入队到 stream**,不保证已经算完(`nccl.h.in:704`)。想拿结果,仍要 `cudaStreamSynchronize`(同 3.1 节的坑)。
+- **`ncclCommInitRank` 能放进 group(并发建多个 comm),但不能和集合通信混在同一个 group 里**(`nccl.h.in:708` 明确说明)。建 comm 归建 comm、做通信归做通信,各自成组。
 
 ---
 

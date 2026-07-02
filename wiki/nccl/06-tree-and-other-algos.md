@@ -2,7 +2,7 @@
 type: topic
 title: "06 Tree 及其他算法:延迟 vs 带宽"
 created: 2026-06-30
-updated: 2026-06-30
+updated: 2026-07-02
 tags:
   - nccl
   - tree
@@ -84,12 +84,21 @@ NCCL 的延迟模型(`tuning.cc:289` 起)对两者的估算:
 
 ## 4. CollNet 与 NVLS:把归约下放到硬件
 
-Ring/Tree 都是"GPU 自己边搬边算"。还有两类算法**把归约 offload 给专用硬件**,GPU 只管发:
+Ring/Tree 都是"GPU 自己边搬边算"。还有两类算法**把归约 offload 给专用硬件**,GPU 只管发。
 
-- **CollNet**(`transport/coll_net.cc`,结构 `ncclDirect` `device.h:200`):把归约下放到**网络交换机**(InfiniBand SHARP)。GPU 把数据发上网,交换机在网络里完成求和,再发回。分 scatter → reduce(在网络) → gather 三段(`all_reduce.h:248`)。适合多机、有 SHARP 的 IB 网络。
-- **NVLS**(NVLink SHARP,`transport/nvls.cc`,结构 `ncclNvls` `device.h:215`):用 **NVSwitch 的硬件 multicast + reduce**。GPU 把数据写进 NVLS multicast 地址,NVSwitch 硬件完成归约。延迟极低(`tuning.cc:425`:几乎只有一个 intraLat)。需要 NVSwitch + CUDA ≥ 12.1(`nvls.cc:19`)。
+**先想清楚动机**:无论 Ring 还是 Tree,每个数据元素都要"进 GPU SM 加一次、再发出去"——归约本身占 SM 算力,数据也至少在 GPU 间搬 2 趟(第 05 章:收发各 ≈S)。如果**网络交换机自己会做加法**,GPU 只需要把数据发出去、等结果回来:每 GPU 收发各降到 ≈S 的一半量级,SM 完全不参与归约。这就是 SHARP(Scalable Hierarchical Aggregation and Reduction Protocol)类硬件的价值。
 
-这两者把"算"从 GPU SM 卸到交换机芯片,省了 GPU 算力、也少搬一趟数据。它们和 Ring/Tree 一样,都只是 `ncclTopoCompute` 搜出的一种 graph(第 04 章),能不能用取决于硬件。
+- **CollNet**(`transport/coll_net.cc`,device 侧结构 `ncclDirect`,`device.h:200`):把归约下放到 **InfiniBand 交换机**(SHARP)。它是第 07 章传输数组里的第 4 个 transport(`collNetTransport`,`coll_net.cc:1867`),数据面同样靠 proxy 驱动:proxy 调网络插件的 **`iallreduce`** 接口(`coll_net.cc:796`)——注意不是普通 `isend/irecv`,而是"把这块数据交给网络,收回来的就是全局和"。控制面上 `ncclCollNetSetup`(`coll_net.cc:1691`)建 SHARP 组,还要逐个 (数据类型 × 归约操作) 探测交换机支持哪些组合(`collNetReduceSupport`,`coll_net.cc:1833`)——交换机的 ALU 不像 GPU 那样什么都会算。device 端分 scatter → 网络内 reduce → gather 三段(`all_reduce.h:248`)。
+- **NVLS**(NVLink SHARP,`transport/nvls.cc`,device 侧结构 `ncclNvls`,`device.h:215`):同一思想搬进机内——用 **NVSwitch 的硬件 multicast + reduce**。init 时 `ncclNvlsSetup`(`nvls.cc:496`)用 CUDA 的 multicast API 建一块"多播显存":`cuMulticastCreate`(`nvls.cc:60`)创建 multicast 对象,各 rank `cuMulticastBindMem`(`nvls.cc:372`)把自己的显存绑上去。之后 GPU 对 multicast 地址一次写 = 广播到所有卡,一次带归约的读 = 拿到全局和——加法在 NVSwitch 芯片里完成。延迟极低(`tuning.cc:425`:几乎只有一个 intraLat)。需要 NVSwitch + CUDA ≥ 12.1(`nvls.cc:19` 的 `#if CUDART_VERSION >= 12010`)。
+
+**代价与限制**(为什么它们没有取代 Ring/Tree):
+
+1. **硬件门槛**:CollNet 要求 IB 交换机带 SHARP 且集群管理员启用;NVLS 要求 NVSwitch(PCIe 互联机器无缘)。硬件不满足时 `ncclTopoCompute` 根本搜不出这类 graph(第 04 章)。
+2. **资源有限**:交换机上的 SHARP 归约树是稀缺资源,多租户集群里 job 一多就分不到;NVLS 的 multicast buffer 也要额外占显存。
+3. **支持面窄**:交换机 ALU 只支持部分 (类型 × 操作) 组合(所以才有 `collNetReduceSupport` 的探测矩阵);自定义归约(`ncclRedOpCreatePreMulSum`)这类灵活操作仍得回 GPU 算。
+4. **收益看场景**:大消息、超大规模时优势明显;小规模机内通信里,常规 NVLink P2P 的 Ring 已经够快,offload 的建组开销反而不划算——最终还是交给第 5 节的调优模型按 time 公式定夺。
+
+它们和 Ring/Tree 一样,都只是 `ncclTopoCompute` 搜出的一种 graph(第 04 章),能不能用、要不要用,分别取决于硬件和调优模型。
 
 ---
 

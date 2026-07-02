@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 560" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>单进程多卡 vs 多进程多卡:一个 OS 进程管几块 GPU、uniqueId 怎么让各 rank 认识彼此</title>
+  <desc>左面板"多进程多卡":3 个 Process 卡片横排,各自独立调用 ncclCommInitRank;卡片下方各引一条竖直虚线连到一条横向虚线总线,代表 uniqueId 靠外部广播,无箭头,仅连接关系。
+  右面板"单进程多卡":一个虚线外框代表唯一进程,内含 3 个 GPU 子卡片(共享同一进程),外框下方文字说明 for 循环 + ncclGroupStart/End 包裹。
+  两面板均为静态对比布局,不含方向性箭头。底部一行加粗总结文字。</desc>
+  <rect x="0" y="0" width="1180" height="560" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="34" font-size="21" font-weight="700" fill="#102027">单进程多卡 vs 多进程多卡</text>
+  <text x="40" y="54" font-size="13" fill="#607d8b">核心差别:一个 OS 进程管几块 GPU、以及 comm 靠什么方式让各 rank 互相认识</text>
+
+  <!-- ============ Panel A: 多进程多卡 ============ -->
+  <rect x="30" y="78" width="545" height="400" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="42" y="106" font-size="18" font-weight="700" fill="#102027">多进程多卡(标准分布式训练)</text>
+  <text x="42" y="126" font-size="12.5" fill="#607d8b">PyTorch DDP / 多机训练 —— 每进程只管一块 GPU</text>
+
+  <g>
+    <rect x="55"  y="155" width="140" height="110" rx="10" fill="#e8f1fd" stroke="#6fa8e6" stroke-width="1.6"/>
+    <text x="125" y="179" font-size="13" font-weight="700" text-anchor="middle" fill="#1d4e8f">Process 0</text>
+    <text x="125" y="198" font-size="11" text-anchor="middle" fill="#37474f">GPU 0 · rank 0</text>
+    <text x="125" y="217" font-size="11" text-anchor="middle" fill="#37474f">ncclCommInitRank(…)</text>
+    <text x="125" y="236" font-size="11" font-weight="700" text-anchor="middle" fill="#1d4e8f">stream 0(本进程唯一)</text>
+
+    <rect x="220" y="155" width="140" height="110" rx="10" fill="#e8f1fd" stroke="#6fa8e6" stroke-width="1.6"/>
+    <text x="290" y="179" font-size="13" font-weight="700" text-anchor="middle" fill="#1d4e8f">Process 1</text>
+    <text x="290" y="198" font-size="11" text-anchor="middle" fill="#37474f">GPU 1 · rank 1</text>
+    <text x="290" y="217" font-size="11" text-anchor="middle" fill="#37474f">ncclCommInitRank(…)</text>
+    <text x="290" y="236" font-size="11" font-weight="700" text-anchor="middle" fill="#1d4e8f">stream 1(本进程唯一)</text>
+
+    <rect x="385" y="155" width="140" height="110" rx="10" fill="#e8f1fd" stroke="#6fa8e6" stroke-width="1.6"/>
+    <text x="455" y="179" font-size="13" font-weight="700" text-anchor="middle" fill="#1d4e8f">Process 2</text>
+    <text x="455" y="198" font-size="11" text-anchor="middle" fill="#37474f">GPU 2 · rank 2</text>
+    <text x="455" y="217" font-size="11" text-anchor="middle" fill="#37474f">ncclCommInitRank(…)</text>
+    <text x="455" y="236" font-size="11" font-weight="700" text-anchor="middle" fill="#1d4e8f">stream 2(本进程唯一)</text>
+  </g>
+
+  <!-- uniqueId 外部广播总线(纯连接关系,无方向箭头) -->
+  <line x1="125" y1="265" x2="125" y2="292" stroke="#b08b2e" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="290" y1="265" x2="290" y2="292" stroke="#b08b2e" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="455" y1="265" x2="455" y2="292" stroke="#b08b2e" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="125" y1="292" x2="455" y2="292" stroke="#b08b2e" stroke-width="2" stroke-dasharray="4 4"/>
+  <text x="290" y="314" font-size="12" text-anchor="middle" fill="#8a5a25">uniqueId 靠 NCCL 之外的手段广播</text>
+  <text x="290" y="330" font-size="11" text-anchor="middle" fill="#8a5a25">(rank0 生成 → MPI Bcast / torch.distributed store / 文件)</text>
+
+  <text x="42" y="366" font-size="12.5" fill="#37474f">天然并发(各进程独立执行流),不强制需要 group;</text>
+  <text x="42" y="384" font-size="12.5" fill="#37474f">仍可选择性用 group 融合多个 collective 调用以减少 launch 次数</text>
+  <text x="42" y="414" font-size="11.5" fill="#90a4ae">详见 01 章第 1 节(三种建 comm 姿势)、03 章第 2 节(uniqueId)</text>
+
+  <!-- ============ Panel B: 单进程多卡 ============ -->
+  <rect x="605" y="78" width="545" height="400" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="617" y="106" font-size="18" font-weight="700" fill="#102027">单进程多卡(单机脚本 / 测试)</text>
+  <text x="617" y="126" font-size="12.5" fill="#607d8b">一个进程,for 循环管 N 块 GPU</text>
+
+  <rect x="625" y="155" width="510" height="232" rx="12" fill="#faf7ee" stroke="#c89f30" stroke-width="1.8" stroke-dasharray="6 5"/>
+  <text x="640" y="177" font-size="13" font-weight="700" fill="#8a5a25">Process(唯一 1 个)</text>
+
+  <g>
+    <rect x="645" y="188" width="140" height="95" rx="10" fill="#f0ecfb" stroke="#a98fe0" stroke-width="1.6"/>
+    <text x="715" y="212" font-size="13" font-weight="700" text-anchor="middle" fill="#5b3fa0">GPU 0</text>
+    <text x="715" y="232" font-size="11" text-anchor="middle" fill="#37474f">comms[0] · streams[0]</text>
+
+    <rect x="810" y="188" width="140" height="95" rx="10" fill="#f0ecfb" stroke="#a98fe0" stroke-width="1.6"/>
+    <text x="880" y="212" font-size="13" font-weight="700" text-anchor="middle" fill="#5b3fa0">GPU 1</text>
+    <text x="880" y="232" font-size="11" text-anchor="middle" fill="#37474f">comms[1] · streams[1]</text>
+
+    <rect x="975" y="188" width="140" height="95" rx="10" fill="#f0ecfb" stroke="#a98fe0" stroke-width="1.6"/>
+    <text x="1045" y="212" font-size="13" font-weight="700" text-anchor="middle" fill="#5b3fa0">GPU 2</text>
+    <text x="1045" y="232" font-size="11" text-anchor="middle" fill="#37474f">comms[2] · streams[2]</text>
+  </g>
+
+  <text x="880" y="318" font-size="12.5" text-anchor="middle" fill="#37474f">for i in 0..N−1: ncclAllReduce(comms[i], streams[i])</text>
+  <text x="880" y="340" font-size="12.5" font-weight="700" text-anchor="middle" fill="#8a5a25">⟵ 全部包在 ncclGroupStart() … ncclGroupEnd() 内 ⟶</text>
+  <text x="880" y="360" font-size="11" text-anchor="middle" fill="#90a4ae">(不包 group 会死锁:第 1 块卡在等其它 rank,其它 GPU 调用还没发出)</text>
+
+  <text x="617" y="414" font-size="12.5" fill="#37474f">uniqueId 本来就在同一进程内存里,ncclCommInitAll 内部自己</text>
+  <text x="617" y="432" font-size="12.5" fill="#37474f">ncclGetUniqueId() 生成好直接用,不需要任何跨进程传输</text>
+  <text x="617" y="462" font-size="11.5" fill="#90a4ae">详见 03 章第 6 节(四种 init API 对照表)、01 章第 3.2 节(group call)</text>
+
+  <!-- bottom summary -->
+  <text x="40" y="507" font-size="14.5" font-weight="700" fill="#102027">一句话:多进程多卡 = 人各一份,靠外部通讯录认亲;单进程多卡 = 一人管全家,靠 group 打包避免打起来</text>
+  <text x="40" y="528" font-size="11.5" fill="#90a4ae">配套 qa-log.md Q3</text>
+</svg>

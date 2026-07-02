@@ -678,3 +678,8 @@ status: active
 - 2026-06-26: 修订 C2C interconnect 全目录图片讲解质量，新增 PktComb 深拆图和 MACPHY 三路径图，去除 MACPHY 重复模块表，补充 Adapter/帧格式/clock/loopback 等页面的图内拆解。
 - 2026-06-29: Re-verified C2C image-decomposition update; fixed MACPHY three-path SVG connector-label overlap, re-rendered PNG, and passed SVG overlap, image-link, and UTF-8 marker checks.
 - 2026-06-29: saxpy-kernel-end-to-end 2.2 节补 host→device ISA 装载说明（`copyTextSeg` 经 SDMA/blit 或 host-map memcpy 把 `.text` 搬进显存，`assert_equal_random` 抽样校验，显存地址再成为命令包 `init_pc`/`icache_base` 来源）。
+
+## [2026-07-01] add | NCCL 教程学习问答记录
+
+- Added [NCCL 教程学习问答记录](<nccl/qa-log.md>)：记录用户在读 [NCCL 学习教程](<nccl/index.md>) 时提出的真实问题（区别于各章末尾预设的"面试官会追问"），按时间追加。首批 2 条：① 02-collective-primitives.svg 里哪些原语需要多步图解（结论：仅 AllReduce/AllToAll，依据 `NCCL_NUM_FUNCTIONS=5` 专属 kernel 事实）；② 为什么 `ncclAllReduce` 只需要一个 `stream` 参数（结论：API 调用粒度是"每 rank 一次"，stream 只管本地 GPU 队列排序，跨 rank 同步靠 P2P 显存直写/proxy 线程，不经 CUDA stream）。
+- Updated the nccl index and Hot Cache for navigation.

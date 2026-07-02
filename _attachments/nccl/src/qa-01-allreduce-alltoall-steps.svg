@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 620" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>AllReduce 与 AllToAll:唯二需要展开成多步/多操作的原语</title>
+  <desc>左列 AllReduce 面板:前(a/b/c/d 分色)→箭头"Reduce-Scatter"→中间态(Σ0/Σ1/Σ2/Σ3 分散,每 rank 只 1/4)→箭头"All-Gather"→后(每 rank 都有全部,Σ)。
+  右列 AllToAll 面板:前(每 rank 4 段按目的地分色)→R1 的 4 条示例发送箭头分别指向 R0/R1/R2/R3→后(每 rank 收齐,按来源分色)。
+  底部横向图例条:a/b/c/d/Σ 色块含义。全部箭头方向均为从"前"指向"后"、从中间态指向后续阶段。</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8da2ad"/>
+    </marker>
+    <marker id="arg" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#b08b2e"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="620" rx="28" fill="#f6f8fa"/>
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#102027">AllReduce 与 AllToAll:唯二需要展开成多步 / 多操作的原语</text>
+  <text x="40" y="60" font-size="12.5" fill="#607d8b">依据 NCCL_NUM_FUNCTIONS=5(nccl_common.h:72):其余 5 个原语各有专属 kernel,一次调用即完成,不必展开</text>
+
+  <!-- panel frames -->
+  <rect x="30"  y="72" width="545" height="480" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <rect x="605" y="72" width="545" height="480" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+
+  <!-- ============ Panel 1: AllReduce ============ -->
+  <text x="42" y="100" font-size="18" font-weight="700" fill="#102027">AllReduce = Reduce-Scatter + All-Gather</text>
+  <text x="42" y="120" font-size="12.5" fill="#607d8b">恒等式见 01 章;Ring 真实分两阶段实现,详见 05 章</text>
+
+  <text x="52" y="146" font-size="12" fill="#90a4ae">前</text>
+  <g>
+    <rect x="52"  y="150" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/><text x="73" y="175" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">a</text>
+    <rect x="104" y="150" width="42" height="40" rx="6" fill="#6fa8e6" stroke="#3d7fc4"/><text x="125" y="175" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">b</text>
+    <rect x="156" y="150" width="42" height="40" rx="6" fill="#edc870" stroke="#c89f30"/><text x="177" y="175" font-size="14" font-weight="700" text-anchor="middle" fill="#5a4500">c</text>
+    <rect x="208" y="150" width="42" height="40" rx="6" fill="#a98fe0" stroke="#7d5fc0"/><text x="229" y="175" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">d</text>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="73" y="204">R0</text><text x="125" y="204">R1</text><text x="177" y="204">R2</text><text x="229" y="204">R3</text>
+  </g>
+
+  <line x1="130" y1="216" x2="130" y2="256" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="250" y="234" font-size="14" font-weight="700" fill="#102027">Reduce-Scatter</text>
+  <text x="250" y="252" font-size="11.5" fill="#90a4ae">(N−1 步,数据在环上边转边加)</text>
+
+  <text x="52" y="278" font-size="12" fill="#b08b2e" font-weight="700">中间态:reduce-scatter 完成</text>
+  <g>
+    <rect x="52"  y="282" width="42" height="40" rx="6" fill="#102027"/><text x="73" y="307" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Σ₀</text>
+    <rect x="104" y="282" width="42" height="40" rx="6" fill="#102027"/><text x="125" y="307" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Σ₁</text>
+    <rect x="156" y="282" width="42" height="40" rx="6" fill="#102027"/><text x="177" y="307" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Σ₂</text>
+    <rect x="208" y="282" width="42" height="40" rx="6" fill="#102027"/><text x="229" y="307" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Σ₃</text>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="73" y="336">R0</text><text x="125" y="336">R1</text><text x="177" y="336">R2</text><text x="229" y="336">R3</text>
+  </g>
+  <text x="270" y="300" font-size="11.5" fill="#90a4ae">每 rank 只攒出 1/4,没人拥有全部结果</text>
+
+  <line x1="130" y1="348" x2="130" y2="388" stroke="#8da2ad" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="250" y="366" font-size="14" font-weight="700" fill="#102027">All-Gather</text>
+  <text x="250" y="384" font-size="11.5" fill="#90a4ae">(N−1 步,完整块再转一圈)</text>
+
+  <text x="52" y="410" font-size="12" fill="#607d8b">后:all-gather 完成,人人都有全部结果</text>
+  <g>
+    <rect x="52"  y="414" width="42" height="40" rx="6" fill="#102027"/><text x="73" y="439" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+    <rect x="104" y="414" width="42" height="40" rx="6" fill="#102027"/><text x="125" y="439" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+    <rect x="156" y="414" width="42" height="40" rx="6" fill="#102027"/><text x="177" y="439" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+    <rect x="208" y="414" width="42" height="40" rx="6" fill="#102027"/><text x="229" y="439" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">Σ</text>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="73" y="468">R0</text><text x="125" y="468">R1</text><text x="177" y="468">R2</text><text x="229" y="468">R3</text>
+  </g>
+
+  <text x="42" y="500" font-size="12" fill="#37474f">完整 2(N−1)=6 步(N=4)的分步过程,见 05 章:</text>
+  <text x="42" y="518" font-size="12" fill="#37474f">[`09-ring-allreduce.svg`]</text>
+  <text x="42" y="536" font-size="11.5" fill="#90a4ae">(本图只展示两阶段的边界,不重复第 05 章已画过的逐步细节)</text>
+
+  <!-- ============ Panel 2: AllToAll ============ -->
+  <text x="617" y="100" font-size="18" font-weight="700" fill="#102027">AllToAll = 拆成 N×N 个 Send/Recv</text>
+  <text x="617" y="120" font-size="12.5" fill="#607d8b">没有专属 kernel(NCCL_NUM_FUNCTIONS=5 不含它),host 侧拼出</text>
+
+  <text x="627" y="146" font-size="12" fill="#90a4ae">前:rank i 按目的 j 切好 4 段</text>
+  <g>
+    <g><rect x="627" y="150" width="42" height="10" fill="#74c98a"/><rect x="627" y="160" width="42" height="10" fill="#6fa8e6"/><rect x="627" y="170" width="42" height="10" fill="#edc870"/><rect x="627" y="180" width="42" height="10" fill="#a98fe0"/><rect x="627" y="150" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="679" y="150" width="42" height="10" fill="#74c98a"/><rect x="679" y="160" width="42" height="10" fill="#6fa8e6"/><rect x="679" y="170" width="42" height="10" fill="#edc870"/><rect x="679" y="180" width="42" height="10" fill="#a98fe0"/><rect x="679" y="150" width="42" height="40" rx="6" fill="none" stroke="#b08b2e" stroke-width="2"/></g>
+    <g><rect x="731" y="150" width="42" height="10" fill="#74c98a"/><rect x="731" y="160" width="42" height="10" fill="#6fa8e6"/><rect x="731" y="170" width="42" height="10" fill="#edc870"/><rect x="731" y="180" width="42" height="10" fill="#a98fe0"/><rect x="731" y="150" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+    <g><rect x="783" y="150" width="42" height="10" fill="#74c98a"/><rect x="783" y="160" width="42" height="10" fill="#6fa8e6"/><rect x="783" y="170" width="42" height="10" fill="#edc870"/><rect x="783" y="180" width="42" height="10" fill="#a98fe0"/><rect x="783" y="150" width="42" height="40" rx="6" fill="none" stroke="#90a4ae"/></g>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="648" y="204">R0</text><text x="700" y="204" fill="#b08b2e" font-weight="700">R1</text><text x="752" y="204">R2</text><text x="804" y="204">R3</text>
+  </g>
+
+  <!-- fan-out example arrows from R1's 4 bands to the 4 destination ranks after (start below the R0..R3 label row at y=204 to clear it) -->
+  <line x1="683" y1="222" x2="648" y2="286" stroke="#74c98a" stroke-width="2.2" marker-end="url(#ar)"/>
+  <line x1="691" y1="222" x2="700" y2="286" stroke="#6fa8e6" stroke-width="2.2" marker-end="url(#ar)"/>
+  <line x1="699" y1="222" x2="752" y2="286" stroke="#edc870" stroke-width="2.2" marker-end="url(#ar)"/>
+  <line x1="707" y1="222" x2="804" y2="286" stroke="#a98fe0" stroke-width="2.2" marker-end="url(#ar)"/>
+  <text x="870" y="232" font-size="11.5" fill="#37474f">示例:R1 的 4 段分别</text>
+  <text x="870" y="248" font-size="11.5" fill="#37474f">发给 R0/R1/R2/R3</text>
+  <text x="870" y="264" font-size="11.5" fill="#90a4ae">(4 条 Send 并发,配对 Recv)</text>
+
+  <g>
+    <rect x="627" y="282" width="42" height="40" rx="6" fill="#74c98a" stroke="#4a9e63"/>
+    <rect x="679" y="282" width="42" height="40" rx="6" fill="#6fa8e6" stroke="#3d7fc4"/>
+    <rect x="731" y="282" width="42" height="40" rx="6" fill="#edc870" stroke="#c89f30"/>
+    <rect x="783" y="282" width="42" height="40" rx="6" fill="#a98fe0" stroke="#7d5fc0"/>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#607d8b">
+    <text x="648" y="336">R0</text><text x="700" y="336">R1</text><text x="752" y="336">R2</text><text x="804" y="336">R3</text>
+  </g>
+  <text x="627" y="356" font-size="12" fill="#90a4ae">↑ 后:rank j 收齐来自各 i 的段</text>
+
+  <text x="627" y="380" font-size="12.5" fill="#37474f">对角线(i→i,自己发给自己)可跳过实际拷贝</text>
+  <text x="627" y="398" font-size="12.5" fill="#37474f">(enqueue.cc:1174:"Skip send to self in-place")</text>
+  <text x="627" y="424" font-size="12.5" fill="#37474f">全部 N² 条 Send/Recv 靠 ncclGroupStart/End</text>
+  <text x="627" y="442" font-size="12.5" fill="#37474f">一次性发起、并发执行——不是排队等待的</text>
+  <text x="627" y="460" font-size="12.5" fill="#37474f">"多步",这点和 AllReduce 的"必须按顺序</text>
+  <text x="627" y="478" font-size="12.5" fill="#37474f">走完两阶段"正好相反</text>
+
+  <!-- bottom shared legend -->
+  <g font-size="13">
+    <rect x="40"  y="566" width="22" height="18" rx="4" fill="#74c98a"/><text x="68"  y="580" fill="#37474f">a / rank0</text>
+    <rect x="180" y="566" width="22" height="18" rx="4" fill="#6fa8e6"/><text x="208" y="580" fill="#37474f">b / rank1</text>
+    <rect x="320" y="566" width="22" height="18" rx="4" fill="#edc870"/><text x="348" y="580" fill="#37474f">c / rank2</text>
+    <rect x="460" y="566" width="22" height="18" rx="4" fill="#a98fe0"/><text x="488" y="580" fill="#37474f">d / rank3</text>
+    <rect x="600" y="566" width="22" height="18" rx="4" fill="#102027"/><text x="628" y="580" fill="#37474f">Σ = 归约结果(求和)</text>
+  </g>
+  <text x="850" y="580" font-size="12" fill="#90a4ae">02-collective-primitives.svg 的姐妹图,补充"多步展开"细节</text>
+</svg>

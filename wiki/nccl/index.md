@@ -86,3 +86,4 @@ src/proxy.cc         # ⑨ 网络收发的后台推进线程
 
 - 芯片栈端到端类比:[[saxpy-kernel-end-to-end|一个 Kernel 从 .cu 到硬件执行]] —— NCCL 的 kernel launch 思路与之同源(用户态把命令送上 GPU)
 - 多卡互联背景:见 `wiki/grace` 专区的互联相关讨论
+- [NCCL 教程学习问答记录](<./qa-log.md>) —— 用户在读本教程过程中提出的真实问题(区别于各章末尾预设的"面试官会追问"),按时间追加

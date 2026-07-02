@@ -119,6 +119,21 @@ comm.channels[c]            ← 第 c 条 channel(comm.h:150 struct ncclChannel)
 
 > 🎯 记住这条链:**comm → channel → peer → connector → transport**。"算法"(Ring/Tree)决定 channel 里的 ring/tree 怎么填(第 04–06 章),"传输"(P2P/NET)决定 connector 怎么实现(第 07 章),"协议"(LL/Simple)决定开几条 connector、kernel 怎么搬(第 09 章)。三件事正交。
 
+**为什么要分四层(channel → peer → connector → conninfo),不拍平成一层?** 因为这四层对应四个**独立变化的维度**,拍平了任何一个维度扩展都会牵连其它维度:
+
+- **channel** 维度对应"有多少条并行物理链路"(04 章图搜索出的 `nChannels`),这个数字随拓扑/带宽变化。
+- **peer** 维度对应"这条链路上我要跟哪些 rank 通信"——Ring 下一条 channel 上每个 rank 通常只有 prev/next 两个非空 peer,但 Tree/NVLS 结构下同一条 channel 可能要连更多 peer,`peers[]` 数组下标是 rank 号(命名沿用历史,容易误读成"以 channel 为下标",实际语义是"这条 channel 上到某个 peer rank 的连接")。
+- **connector** 维度对应"同一对 (channel, peer) 之间可能同时存在的多种连接实现"——比如同时有走 NVLink 的常规连接和 NVLS 用的额外连接,`NCCL_MAX_CONNS` 就是这个"连接变体"的上限。
+- **conninfo**(`ncclConnInfo`,device.h:133)才是最底层真正的数据面状态:`buffs[]`(数据 buffer)、`head`/`tail`(FIFO 指针,第 09 章详解)、`mhandles[]`(内存注册 handle)。
+
+四层分开后,"channel 数怎么变"、"一条 channel 上连几个 peer"、"一对 peer 之间用几种连接实现"这三个问题可以互不干扰地独立演化——这正是下图要立住的结构,后面 03/06/08/09 章多次引用它:
+
+![图17:channel/peer/connector 四层嵌套结构 — 从 ncclComm.channels[] 展开到 peers[]/send·recv connector/ncclConnInfo 图解](../../_attachments/nccl/17-channel-peer-connector-layers.png)
+
+> 图解源文件:[`17-channel-peer-connector-layers.svg`](../../_attachments/nccl/src/17-channel-peer-connector-layers.svg)
+
+这三层是**逻辑数据结构**,第 03 章会讲它们的字段是怎么从环/树的排列(`graph.intra[]`)一步步填出来的(参见 [03 章 §5.4](<./03-init-and-bootstrap.md>))。
+
 ---
 
 ## 4. 代码地图:src/ 下每个目录管什么

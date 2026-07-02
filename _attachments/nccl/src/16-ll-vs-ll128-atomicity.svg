@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 706" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>LL vs LL128:原子写粒度与硬件依赖</title>
+  <desc>左上面板:LL 协议每次 8B 原子写(4B数据+4B flag),通用硬件(PCIe/Socket/IB)都能担保,flag可见即数据可见。右上面板:LL128 协议每次 128B 原子写(120B数据+8B flag),仅 NVLink 能担保这个粒度的原子性。下方面板:同样的 128B 写如果发生在 PCIe 上,硬件会按 64B cacheline 粒度拆成两个独立事务乱序到达,含 flag 的后半段可能先到、含数据的前半段还未到,导致"flag 可见但数据未到"的错误读取——这就是 LL128 只能限定在 NVLink 上使用的根本原因。</desc>
+
+  <defs>
+    <marker id="ah-g" markerWidth="8" markerHeight="8" refX="3.6" refY="3.4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,3.4 L0,6.8 Z" fill="#2e9e5b"/>
+    </marker>
+    <marker id="ah-r" markerWidth="8" markerHeight="8" refX="3.6" refY="3.4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,3.4 L0,6.8 Z" fill="#c0392b"/>
+    </marker>
+    <marker id="ah-gray" markerWidth="7" markerHeight="7" refX="3.3" refY="3.2" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L7,3.2 L0,6.4 Z" fill="#78909c"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="706" rx="26" fill="#f6f8fa"/>
+  <text x="40" y="34" font-size="21" font-weight="700" fill="#102027">LL vs LL128:原子写粒度与硬件依赖</text>
+  <text x="40" y="55" font-size="13" fill="#607d8b">LL128 的低延迟收益建立在"128B 整体原子写"这个假设上,PCIe 无法担保,因此 LL128 只用于 NVLink 互联</text>
+
+  <!-- ============ Panel 1: LL on generic hardware ============ -->
+  <rect x="30" y="76" width="555" height="250" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="46" y="104" font-size="15.5" font-weight="700" fill="#1e7a3d">✓ LL on PCIe / Socket / IB</text>
+  <text x="46" y="123" font-size="11.5" fill="#607d8b">8B 原子写,通用硬件都能担保</text>
+
+  <rect x="70" y="140" width="180" height="46" rx="6" fill="#3f78c9"/>
+  <text x="160" y="168" font-size="13" font-weight="700" text-anchor="middle" fill="#ffffff">4B data</text>
+  <rect x="250" y="140" width="180" height="46" rx="6" fill="#e08a2b"/>
+  <text x="340" y="168" font-size="13" font-weight="700" text-anchor="middle" fill="#ffffff">4B flag</text>
+  <rect x="66" y="136" width="368" height="54" rx="9" fill="none" stroke="#1e7a3d" stroke-width="2.2"/>
+  <text x="250" y="210" font-size="11" text-anchor="middle" fill="#37474f">同一次 8B store,硬件保证不可分割地整体落地</text>
+
+  <text x="70" y="230" font-size="11" fill="#78909c">GPU A(发送方)</text>
+  <text x="430" y="230" font-size="11" text-anchor="end" fill="#78909c">GPU B(接收方)</text>
+  <line x1="66" y1="256" x2="434" y2="256" stroke="#2e9e5b" stroke-width="3" marker-end="url(#ah-g)"/>
+
+  <text x="46" y="286" font-size="11.5" fill="#37474f">✓ flag 翻转 ⇒ data 一定已到:轮询 flag 即可判断,不需要 fence</text>
+  <text x="46" y="308" font-size="11" fill="#90a4ae">依据:"8-byte atomicity (IB/RDMA)" 或 "contiguous chunks (sockets)"</text>
+
+  <!-- ============ Panel 2: LL128 on NVLink ============ -->
+  <rect x="615" y="76" width="555" height="250" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="631" y="104" font-size="15.5" font-weight="700" fill="#1e7a3d">✓ LL128 on NVLink</text>
+  <text x="631" y="123" font-size="11.5" fill="#607d8b">128B 原子写,仅 NVLink 能担保这个粒度</text>
+
+  <g>
+    <rect x="655" y="140" width="21" height="46" fill="#3f78c9"/>
+    <rect x="676" y="140" width="21" height="46" fill="#5487d1"/>
+    <rect x="697" y="140" width="21" height="46" fill="#3f78c9"/>
+    <rect x="718" y="140" width="21" height="46" fill="#5487d1"/>
+    <rect x="739" y="140" width="21" height="46" fill="#3f78c9"/>
+    <rect x="760" y="140" width="21" height="46" fill="#5487d1"/>
+    <rect x="781" y="140" width="21" height="46" fill="#3f78c9"/>
+    <rect x="802" y="140" width="21" height="46" fill="#5487d1"/>
+    <rect x="823" y="140" width="21" height="46" fill="#3f78c9"/>
+    <rect x="844" y="140" width="21" height="46" fill="#5487d1"/>
+    <rect x="865" y="140" width="21" height="46" fill="#3f78c9"/>
+    <rect x="886" y="140" width="21" height="46" fill="#5487d1"/>
+    <rect x="907" y="140" width="21" height="46" fill="#3f78c9"/>
+    <rect x="928" y="140" width="21" height="46" fill="#5487d1"/>
+    <rect x="949" y="140" width="21" height="46" fill="#3f78c9"/>
+  </g>
+  <text x="812" y="168" font-size="10.5" font-weight="700" text-anchor="middle" fill="#ffffff">120B data(15×uint64)</text>
+  <rect x="975" y="140" width="40" height="46" rx="4" fill="#e08a2b"/>
+  <text x="995" y="160" font-size="9" font-weight="700" text-anchor="middle" fill="#ffffff">8B</text>
+  <text x="995" y="174" font-size="9" font-weight="700" text-anchor="middle" fill="#ffffff">flag</text>
+  <rect x="651" y="136" width="368" height="54" rx="9" fill="none" stroke="#1e7a3d" stroke-width="2.2"/>
+  <text x="835" y="210" font-size="11" text-anchor="middle" fill="#37474f">同一次 128B store,NVLink 硬件保证整体不可分割地落地</text>
+
+  <text x="655" y="230" font-size="11" fill="#78909c">GPU A(发送方)</text>
+  <text x="1015" y="230" font-size="11" text-anchor="end" fill="#78909c">GPU B(接收方)</text>
+  <line x1="651" y1="256" x2="1019" y2="256" stroke="#2e9e5b" stroke-width="3" marker-end="url(#ah-g)"/>
+
+  <text x="631" y="286" font-size="11.5" fill="#37474f">✓ 15/16=94% 有效带宽,128B 是 NVLink 原子写粒度上限</text>
+  <text x="631" y="308" font-size="11" fill="#90a4ae">依据:NCCL_LL128_LINESIZE=128,15 data + 1 flag(device.h:110-112)</text>
+
+  <!-- ============ Panel 3: LL128 on PCIe — failure ============ -->
+  <rect x="30" y="346" width="1140" height="300" rx="14" fill="#fdecea" stroke="#e0685f" stroke-width="1.8"/>
+  <text x="46" y="374" font-size="15.5" font-weight="700" fill="#b3261e">✗ LL128 on PCIe(失效场景):128B 写被拆成两个独立事务,乱序到达</text>
+  <text x="46" y="394" font-size="11.5" fill="#7c2a22">PCIe 硬件按 cacheline(常见 64B)粒度提交写事务,128B 的写不再是一次不可分割的操作</text>
+
+  <text x="70" y="418" font-size="11" fill="#78909c">GPU A(发送方,逻辑上仍是一次 128B store)</text>
+  <text x="1140" y="418" font-size="11" text-anchor="end" fill="#78909c">GPU B(接收方)</text>
+
+  <rect x="70" y="428" width="320" height="40" rx="6" fill="#3f78c9"/>
+  <text x="230" y="452" font-size="11.5" font-weight="700" text-anchor="middle" fill="#ffffff">前 64B(部分 data)</text>
+  <rect x="70" y="480" width="320" height="40" rx="6" fill="#e08a2b"/>
+  <text x="230" y="504" font-size="11.5" font-weight="700" text-anchor="middle" fill="#ffffff">后 64B(剩余 data + flag)</text>
+
+  <line x1="390" y1="448" x2="1010" y2="448" stroke="#78909c" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah-gray)"/>
+  <line x1="390" y1="500" x2="1010" y2="500" stroke="#c0392b" stroke-width="3" marker-end="url(#ah-r)"/>
+
+  <rect x="1010" y="428" width="130" height="40" rx="6" fill="#eceff1" stroke="#90a4ae" stroke-width="1.4" stroke-dasharray="4 4"/>
+  <text x="1075" y="452" font-size="11.5" font-weight="700" text-anchor="middle" fill="#607d8b">data 未到</text>
+  <rect x="1010" y="480" width="130" height="40" rx="6" fill="#e08a2b"/>
+  <text x="1075" y="504" font-size="11.5" font-weight="700" text-anchor="middle" fill="#ffffff">flag 已到 ✔</text>
+
+  <text x="46" y="548" font-size="11.5" fill="#7c2a22">图例: <tspan fill="#c0392b" font-weight="700">━ 红色实线</tspan> = 后64B(含flag)独立提交、先行到达　　<tspan fill="#78909c" font-weight="700">┅ 灰色虚线</tspan> = 前64B(数据)独立提交、延迟到达</text>
+
+  <text x="600" y="582" font-size="14" font-weight="700" text-anchor="middle" fill="#b3261e">✗ flag 可见 ≠ 数据可见 —— LL128 的核心假设在 PCIe 上不成立</text>
+
+  <text x="46" y="610" font-size="10.5" fill="#90a4ae">依据:flag 位于 NCCL_LL128_FLAGTHREAD(第15个uint64,prims_ll128.h:10)——本设计假设整块128B同时落地</text>
+  <text x="46" y="627" font-size="10.5" fill="#90a4ae">PCIe 拆分为独立事务、乱序到达的具体机制为<tspan font-weight="700">推断</tspan>(基于 PCIe 事务提交粒度的一般硬件常识,非源码直接陈述)</text>
+
+  <!-- bottom banner -->
+  <rect x="30" y="660" width="1140" height="34" rx="9" fill="#eef2f5" stroke="#cfd8dc" stroke-width="1"/>
+  <text x="46" y="681" font-size="11" fill="#455a64">源码依据(上两面板):device.h:76-79(ncclLLFifoLine 注释)、device.h:110-112(NCCL_LL128_LINESIZE)、prims_ll128.h:10(NCCL_LL128_FLAGTHREAD)</text>
+</svg>

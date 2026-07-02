@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 664" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>单进程多卡下 group call 的必要性:顺序阻塞调用会死锁,用 ncclGroupStart/End 延迟登记再统一发起才能成功</title>
+  <desc>左面板"没有 group":单线程 CPU 时间轴向下,第 1 次 ncclAllReduce 阻塞等待其它 rank 到齐,但其它 rank 的调用排在 for 循环后几轮永远发不出,导致死锁。右面板"用 group":GroupStart 之间的调用只登记不执行、立即返回,CPU 顺畅推进到 GroupEnd 时一次性并发发起、握手配对成功。</desc>
+  <defs>
+    <marker id="ah-d" markerWidth="7" markerHeight="7" refX="3.3" refY="3.2" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L7,3.2 L0,6.4 Z" fill="#455a64"/>
+    </marker>
+    <marker id="ah-r" markerWidth="8" markerHeight="8" refX="3.6" refY="3.4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,3.4 L0,6.8 Z" fill="#c0392b"/>
+    </marker>
+    <marker id="ah-g" markerWidth="8" markerHeight="8" refX="3.6" refY="3.4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,3.4 L0,6.8 Z" fill="#2e9e5b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="664" rx="26" fill="#f6f8fa"/>
+  <text x="40" y="34" font-size="21" font-weight="700" fill="#102027">为什么单进程多卡必须用 group call</text>
+  <text x="40" y="55" font-size="13" fill="#607d8b">根因:NCCL 集合调用要在 CPU 侧和其它 rank 握手(inter-CPU sync)才能返回——一次调用只代表"我这一方就位"</text>
+
+  <!-- ============ Panel A: 没有 group ============ -->
+  <rect x="30" y="76" width="558" height="510" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="46" y="104" font-size="17" font-weight="700" fill="#b3261e">✗ 没有 group:逐个阻塞调用</text>
+  <text x="46" y="124" font-size="12" fill="#607d8b">单进程单线程,for 循环里顺序调 N 次(每次带自己的 comms[i])</text>
+
+  <!-- 时间轴 左 -->
+  <text x="82" y="150" font-size="10.5" text-anchor="end" fill="#90a4ae">CPU</text>
+  <line x1="88" y1="158" x2="88" y2="292" stroke="#6fa8e6" stroke-width="3" marker-end="url(#ah-d)"/>
+  <line x1="88" y1="300" x2="88" y2="470" stroke="#cfd8dc" stroke-width="3" stroke-dasharray="5 5"/>
+  <rect x="76" y="292" width="24" height="7" rx="2" fill="#c0392b"/>
+
+  <!-- Step1 卡 -->
+  <rect x="112" y="156" width="458" height="66" rx="10" fill="#e8f1fd" stroke="#6fa8e6" stroke-width="1.6"/>
+  <text x="128" y="180" font-size="12.5" font-weight="700" fill="#1d4e8f">① 主线程调 ncclAllReduce(comms[0], streams[0])</text>
+  <text x="128" y="200" font-size="11.5" fill="#37474f">内部需与 rank 1/2/3 做 CPU 侧握手(建连接/交换 buffer 信息)</text>
+  <text x="128" y="216" font-size="11.5" fill="#37474f">才能返回 —— 于是当前调用<tspan font-weight="700" fill="#b3261e">阻塞,等其它 rank 到齐</tspan></text>
+
+  <!-- 阻塞红卡 -->
+  <rect x="112" y="238" width="458" height="60" rx="10" fill="#fdecea" stroke="#e0685f" stroke-width="1.6"/>
+  <text x="128" y="262" font-size="12.5" font-weight="700" fill="#b3261e">✋ CPU 停在这里,进不到 for 循环下一轮</text>
+  <text x="128" y="284" font-size="11.5" fill="#7c2a22">它等 comms[1]/[2]/[3] 也各自发起调用,可这些调用还没被执行</text>
+
+  <!-- 灰卡:未发出的调用 -->
+  <rect x="112" y="314" width="458" height="30" rx="8" fill="#eceff1" stroke="#b0bec5" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="128" y="333" font-size="11.5" fill="#78909c">comms[1] 的 ncclAllReduce —— 排在下一轮,CPU 永远走不到</text>
+  <rect x="112" y="348" width="458" height="30" rx="8" fill="#eceff1" stroke="#b0bec5" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="128" y="367" font-size="11.5" fill="#78909c">comms[2] 的 ncclAllReduce —— 同上,一直没机会发出</text>
+  <rect x="112" y="382" width="458" height="30" rx="8" fill="#eceff1" stroke="#b0bec5" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="128" y="401" font-size="11.5" fill="#78909c">comms[3] 的 ncclAllReduce —— 同上</text>
+
+  <!-- 死锁结论 -->
+  <text x="309" y="452" font-size="17" font-weight="700" text-anchor="middle" fill="#b3261e">💀 死锁</text>
+  <text x="309" y="474" font-size="11.5" text-anchor="middle" fill="#7c2a22">阻塞调用要对端到齐,但单线程发不出对端调用 → 互相等待</text>
+  <text x="46" y="512" font-size="11.5" fill="#37474f">对比:<tspan font-weight="700">多进程</tspan>每进程各一条执行流,天然并发,第 1 个阻塞时</text>
+  <text x="46" y="530" font-size="11.5" fill="#37474f">别的进程照样发起自己的调用 —— 所以多进程<tspan font-weight="700">不强制</tspan>用 group</text>
+  <text x="46" y="558" font-size="11" fill="#90a4ae">阻塞的是 CPU 主机线程,不是 GPU;根源是"集体行动"要各方 CPU 都发起</text>
+
+  <!-- ============ Panel B: 用 group ============ -->
+  <rect x="612" y="76" width="558" height="510" rx="14" fill="#ffffff" stroke="#d6dde2" stroke-width="1.5"/>
+  <text x="628" y="104" font-size="17" font-weight="700" fill="#1e7a3d">✓ 用 group:先登记,后统一发起</text>
+  <text x="628" y="124" font-size="12" fill="#607d8b">GroupStart…GroupEnd 之间的调用只"登记"不执行,立即返回</text>
+
+  <!-- 时间轴 右 顺畅 -->
+  <text x="664" y="150" font-size="10.5" text-anchor="end" fill="#90a4ae">CPU</text>
+  <line x1="670" y1="158" x2="670" y2="486" stroke="#2e9e5b" stroke-width="3" marker-end="url(#ah-g)"/>
+
+  <!-- GroupStart 黄卡 -->
+  <rect x="694" y="156" width="458" height="38" rx="9" fill="#faf7ee" stroke="#c89f30" stroke-width="1.6"/>
+  <text x="710" y="180" font-size="12.5" font-weight="700" fill="#8a5a25">ncclGroupStart()  →  ncclGroupDepth++ ( = 1 )</text>
+
+  <!-- 4 张登记绿卡 -->
+  <rect x="694" y="202" width="458" height="30" rx="8" fill="#e9f7ef" stroke="#6cba7d" stroke-width="1.4"/>
+  <text x="710" y="221" font-size="11.5" fill="#1e7a3d">ncclAllReduce(comms[0]) → 登记进 ncclAsyncJobs 队列,<tspan font-weight="700">立即返回</tspan></text>
+  <rect x="694" y="236" width="458" height="30" rx="8" fill="#e9f7ef" stroke="#6cba7d" stroke-width="1.4"/>
+  <text x="710" y="255" font-size="11.5" fill="#1e7a3d">ncclAllReduce(comms[1]) → 登记,立即返回(不阻塞)</text>
+  <rect x="694" y="270" width="458" height="30" rx="8" fill="#e9f7ef" stroke="#6cba7d" stroke-width="1.4"/>
+  <text x="710" y="289" font-size="11.5" fill="#1e7a3d">ncclAllReduce(comms[2]) → 登记,立即返回</text>
+  <rect x="694" y="304" width="458" height="30" rx="8" fill="#e9f7ef" stroke="#6cba7d" stroke-width="1.4"/>
+  <text x="710" y="323" font-size="11.5" fill="#1e7a3d">ncclAllReduce(comms[3]) → 登记,立即返回</text>
+
+  <!-- GroupEnd 黄卡 -->
+  <rect x="694" y="346" width="458" height="44" rx="9" fill="#faf7ee" stroke="#c89f30" stroke-width="1.6"/>
+  <text x="710" y="368" font-size="12.5" font-weight="700" fill="#8a5a25">ncclGroupEnd()  →  depth 归 0,才真正发起</text>
+  <text x="710" y="384" font-size="11" fill="#8a5a25">把攒下的 4 个调用一次性并发推进</text>
+
+  <!-- 握手成功绿卡 -->
+  <rect x="694" y="402" width="458" height="66" rx="10" fill="#e9f7ef" stroke="#2e9e5b" stroke-width="1.8"/>
+  <text x="710" y="425" font-size="12.5" font-weight="700" fill="#1e7a3d">4 个调用此刻同时"在场"</text>
+  <text x="710" y="445" font-size="11.5" fill="#276b42">CPU 侧握手全部配对成功 → 各自的通信 kernel 入队对应 stream</text>
+  <text x="710" y="461" font-size="11.5" fill="#276b42">GroupEnd 返回(只保证已入队,不保证通信已完成)</text>
+
+  <!-- 成功结论 -->
+  <text x="891" y="504" font-size="16" font-weight="700" text-anchor="middle" fill="#1e7a3d">✓ 成功:收齐后统一并发,不再互等</text>
+  <text x="628" y="532" font-size="11.5" fill="#37474f">要点:GroupEnd 只保证"入队 stream",拿结果仍需 cudaStreamSynchronize</text>
+  <text x="628" y="558" font-size="11" fill="#90a4ae">附带收益:同设备多个 op 会被融合进同一次 kernel launch,减少启动开销</text>
+
+  <!-- 底部通栏 源码机制 -->
+  <rect x="30" y="600" width="1140" height="48" rx="10" fill="#eef2f5" stroke="#cfd8dc" stroke-width="1"/>
+  <text x="46" y="620" font-size="11.5" font-weight="700" fill="#37474f">源码机制(src/group.cc):</text>
+  <text x="170" y="620" font-size="11.5" fill="#455a64">group 内 depth&gt;0 → job 入队 ncclAsyncJobs 暂不执行(:65);最外层 ncclGroupEnd 里 (--depth)==0 才 launch(:788)。</text>
+  <text x="46" y="639" font-size="11.5" fill="#455a64">而<tspan font-weight="700">单次裸调用</tspan> depth==0 时 ncclAsyncLaunch 立即执行(:40)——所以"一次普通调用 = 被隐式包了一层 group";GroupStart 就是 depth++ (group.h:88)。</text>
+</svg>
