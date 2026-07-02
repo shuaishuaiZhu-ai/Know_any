@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1410 664" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>channel → peer → connector → conninfo:数据管道的四层嵌套结构</title>
+  <desc>从左到右逐层展开:ncclComm 的 channels[] 数组(第①层)→ 展开其中一条 channel 的 peers[] 数组(第②层,大多数是 NULL,只有 prev/next 非空)→ 展开一个非空 peer 的 send[]/recv[] connector 数组(第③层)→ 展开一个 connector 内部的 ncclConnInfo 字段(第④层,buffs/head/tail/mhandles)。四层对应四个独立变化的维度:channel 数由拓扑决定,peer 数由算法决定连几个对端,connector 数是同一对 peer 可能的多种连接实现,conninfo 才是真正的数据面状态。</desc>
+
+  <defs>
+    <marker id="ah" markerWidth="8" markerHeight="8" refX="3.6" refY="3.4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,3.4 L0,6.8 Z" fill="#455a64"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1410" height="664" rx="26" fill="#f6f8fa"/>
+  <text x="30" y="34" font-size="20" font-weight="700" fill="#102027">channel → peer → connector → conninfo:数据管道的四层嵌套结构</text>
+  <text x="30" y="58" font-size="12.5" fill="#607d8b">四个维度独立变化:channel 数(拓扑决定)、peer 数(算法决定连几个对端)、connector 数(同一对 peer 的多种连接实现)、conninfo(真正的数据面状态)</text>
+
+  <!-- connectors between columns (drawn first, under boxes) -->
+  <line x1="314" y1="171" x2="380" y2="90" stroke="#455a64" stroke-width="2.4" marker-end="url(#ah)"/>
+  <line x1="664" y1="375" x2="730" y2="90" stroke="#455a64" stroke-width="2.4" marker-end="url(#ah)"/>
+  <line x1="1014" y1="181" x2="1080" y2="90" stroke="#455a64" stroke-width="2.4" marker-end="url(#ah)"/>
+
+  <!-- ============ Column 1: channel ============ -->
+  <rect x="30" y="84" width="300" height="520" rx="14" fill="#eaf2fc" stroke="#3f78c9" stroke-width="1.6"/>
+  <text x="46" y="110" font-size="15.5" font-weight="700" fill="#1d4e8f">① channel</text>
+  <text x="46" y="128" font-size="10.5" fill="#5c7ba8">ncclChannel · comm.h:150</text>
+
+  <rect x="46" y="148" width="268" height="46" rx="7" fill="#3f78c9"/>
+  <text x="180" y="176" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff">channel 0(本例展开)</text>
+  <rect x="46" y="204" width="268" height="46" rx="7" fill="#dbe8f7" stroke="#9fb8dd" stroke-width="1.2"/>
+  <text x="180" y="232" font-size="12" text-anchor="middle" fill="#37474f">channel 1</text>
+  <rect x="46" y="260" width="268" height="46" rx="7" fill="#dbe8f7" stroke="#9fb8dd" stroke-width="1.2"/>
+  <text x="180" y="288" font-size="12" text-anchor="middle" fill="#37474f">channel 2</text>
+  <rect x="46" y="316" width="268" height="46" rx="7" fill="#dbe8f7" stroke="#9fb8dd" stroke-width="1.2"/>
+  <text x="180" y="344" font-size="12" text-anchor="middle" fill="#37474f">channel 3</text>
+  <rect x="46" y="372" width="268" height="46" rx="7" fill="#dbe8f7" stroke="#9fb8dd" stroke-width="1.2"/>
+  <text x="180" y="400" font-size="12" text-anchor="middle" fill="#37474f">channel …(nChannels−1)</text>
+
+  <text x="46" y="440" font-size="11" fill="#37474f">channel 数 = 04 章拓扑搜索得出的 nChannels,</text>
+  <text x="46" y="460" font-size="11" fill="#37474f">由硬件带宽/拓扑决定,和下面三层独立变化</text>
+
+  <!-- ============ Column 2: peer ============ -->
+  <rect x="380" y="84" width="300" height="520" rx="14" fill="#f2eefb" stroke="#7c5cbf" stroke-width="1.6"/>
+  <text x="396" y="110" font-size="15.5" font-weight="700" fill="#5a3ea8">② peer</text>
+  <text x="396" y="128" font-size="10.5" fill="#8672b8">ncclChannelPeer · device.h:232</text>
+
+  <rect x="396" y="148" width="268" height="34" rx="6" fill="#f0edf6" stroke="#c9bfe3" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="530" y="170" font-size="11" text-anchor="middle" fill="#9686b8">peers[0] = NULL</text>
+  <rect x="396" y="190" width="268" height="34" rx="6" fill="#f0edf6" stroke="#c9bfe3" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="530" y="212" font-size="11" text-anchor="middle" fill="#9686b8">peers[1] = NULL</text>
+  <rect x="396" y="232" width="268" height="34" rx="6" fill="#7c5cbf"/>
+  <text x="530" y="254" font-size="11.5" font-weight="700" text-anchor="middle" fill="#ffffff">peers[2] = prev(rank 2)</text>
+  <rect x="396" y="274" width="268" height="34" rx="6" fill="#f0edf6" stroke="#c9bfe3" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="530" y="296" font-size="11" text-anchor="middle" fill="#9686b8">peers[3] = NULL</text>
+  <rect x="396" y="316" width="268" height="34" rx="6" fill="#f0edf6" stroke="#c9bfe3" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="530" y="338" font-size="11" text-anchor="middle" fill="#9686b8">peers[4] = NULL</text>
+  <rect x="396" y="358" width="268" height="34" rx="6" fill="#7c5cbf"/>
+  <text x="530" y="380" font-size="11.5" font-weight="700" text-anchor="middle" fill="#ffffff">peers[5] = next(rank 5,本例展开)</text>
+  <rect x="396" y="400" width="268" height="34" rx="6" fill="#f0edf6" stroke="#c9bfe3" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="530" y="422" font-size="11" text-anchor="middle" fill="#9686b8">peers[6] = NULL</text>
+
+  <text x="396" y="456" font-size="11" fill="#37474f">peer 数组下标是 rank 号;Ring 下同一 channel 上</text>
+  <text x="396" y="476" font-size="11" fill="#37474f">多数 peer 是 NULL,只有 prev/next 两个非空</text>
+
+  <!-- ============ Column 3: connector ============ -->
+  <rect x="730" y="84" width="300" height="520" rx="14" fill="#eaf7ee" stroke="#2e9e5b" stroke-width="1.6"/>
+  <text x="746" y="110" font-size="15.5" font-weight="700" fill="#1e7a3d">③ connector</text>
+  <text x="746" y="128" font-size="10.5" fill="#5fa77a">ncclConnector · device.h:165</text>
+
+  <text x="746" y="146" font-size="11" font-weight="700" fill="#276b42">send[] 发送方向(NCCL_MAX_CONNS=2)</text>
+  <rect x="746" y="156" width="268" height="50" rx="7" fill="#2e9e5b"/>
+  <text x="880" y="185" font-size="12" font-weight="700" text-anchor="middle" fill="#ffffff">send[0](本例展开)</text>
+  <rect x="746" y="212" width="268" height="50" rx="7" fill="#dbf0e2" stroke="#8fcda6" stroke-width="1.2"/>
+  <text x="880" y="241" font-size="12" text-anchor="middle" fill="#276b42">send[1]</text>
+
+  <text x="746" y="282" font-size="11" font-weight="700" fill="#276b42">recv[] 接收方向(NCCL_MAX_CONNS=2)</text>
+  <rect x="746" y="292" width="268" height="50" rx="7" fill="#dbf0e2" stroke="#8fcda6" stroke-width="1.2"/>
+  <text x="880" y="321" font-size="12" text-anchor="middle" fill="#276b42">recv[0]</text>
+  <rect x="746" y="348" width="268" height="50" rx="7" fill="#dbf0e2" stroke="#8fcda6" stroke-width="1.2"/>
+  <text x="880" y="377" font-size="12" text-anchor="middle" fill="#276b42">recv[1]</text>
+
+  <text x="746" y="424" font-size="11" fill="#37474f">connector 数 = 同一对(channel,peer)间可能同时</text>
+  <text x="746" y="444" font-size="11" fill="#37474f">存在多种连接实现,如 NVLink 常规连接 + NVLS 额外连接</text>
+
+  <!-- ============ Column 4: conninfo ============ -->
+  <rect x="1080" y="84" width="300" height="520" rx="14" fill="#fdf1e6" stroke="#e08a2b" stroke-width="1.6"/>
+  <text x="1096" y="110" font-size="15.5" font-weight="700" fill="#a8611c">④ conninfo</text>
+  <text x="1096" y="128" font-size="10.5" fill="#c08a4f">ncclConnInfo · device.h:133</text>
+
+  <rect x="1096" y="148" width="268" height="50" rx="7" fill="#e08a2b"/>
+  <text x="1230" y="177" font-size="12" font-weight="700" text-anchor="middle" fill="#ffffff">buffs[] — 数据 buffer</text>
+  <rect x="1096" y="210" width="268" height="50" rx="7" fill="#fbe4c4" stroke="#eec18a" stroke-width="1.2"/>
+  <text x="1230" y="234" font-size="11" text-anchor="middle" fill="#8a5a25">head</text>
+  <text x="1230" y="250" font-size="9.5" text-anchor="middle" fill="#a8763f">消费者水位(读远端)</text>
+  <rect x="1096" y="272" width="268" height="50" rx="7" fill="#fbe4c4" stroke="#eec18a" stroke-width="1.2"/>
+  <text x="1230" y="296" font-size="11" text-anchor="middle" fill="#8a5a25">tail</text>
+  <text x="1230" y="312" font-size="9.5" text-anchor="middle" fill="#a8763f">生产者水位(写本地)</text>
+  <rect x="1096" y="334" width="268" height="50" rx="7" fill="#fbe4c4" stroke="#eec18a" stroke-width="1.2"/>
+  <text x="1230" y="363" font-size="12" text-anchor="middle" fill="#8a5a25">mhandles[] — 内存注册 handle</text>
+
+  <text x="1096" y="404" font-size="11" fill="#37474f">真正的数据面状态:09 章 head/tail</text>
+  <text x="1096" y="424" font-size="11" fill="#37474f">FIFO 生产者-消费者同步就发生在这里</text>
+
+  <!-- bottom banner -->
+  <rect x="30" y="616" width="1350" height="34" rx="9" fill="#eef2f5" stroke="#cfd8dc" stroke-width="1"/>
+  <text x="46" y="637" font-size="11" fill="#455a64">源码依据:comm.h:150(ncclChannel)、device.h:232(ncclChannelPeer)、device.h:165(ncclConnector)、device.h:133(ncclConnInfo)</text>
+</svg>
