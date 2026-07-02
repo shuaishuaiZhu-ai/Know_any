@@ -1,0 +1,5 @@
+flowchart LR
+    X["输入 X<br/>广播到所有卡"] --> CP["列并行 Linear<br/>W 按 列 切<br/>每卡算一部分输出"]
+    CP --> A["Attention / 激活<br/>每卡独立算自己的 head"]
+    A --> RP["行并行 Linear<br/>W 按 行 切<br/>每卡算一部分"]
+    RP --> AR["AllReduce 求和<br/>合成完整输出"]

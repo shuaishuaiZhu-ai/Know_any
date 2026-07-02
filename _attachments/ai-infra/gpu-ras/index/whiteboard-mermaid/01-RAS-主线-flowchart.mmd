@@ -1,0 +1,6 @@
+flowchart LR
+    H["硬件防护<br/>ECC/冗余/传感器"] --> D["检测<br/>CE/UE/Poison/Fatal"]
+    D --> C["分类分级<br/>轻/中/重/致命"]
+    C --> R["处置恢复<br/>退休/迁移/复位/换件"]
+    R --> O["可观测<br/>DCGM+Prometheus+Grafana"]
+    R -.触发.-> RES["韧性闭环<br/>NVSentinel自动隔离+恢复"]

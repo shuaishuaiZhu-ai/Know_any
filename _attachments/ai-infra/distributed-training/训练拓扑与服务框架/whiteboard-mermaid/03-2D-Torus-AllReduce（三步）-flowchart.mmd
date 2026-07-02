@@ -1,0 +1,3 @@
+flowchart TB
+    A["① 横向：主机内 Ring ReduceScatter<br/>8 卡拆分+规约，每卡得一块完整同维梯度"] --> B["② 纵向：主机间 N 个 Ring AllReduce<br/>每台服务器 XPU0-7 各自纵向全局规约"]
+    B --> C["③ 横向：主机内 AllGather<br/>把规约结果复制回所有卡"]

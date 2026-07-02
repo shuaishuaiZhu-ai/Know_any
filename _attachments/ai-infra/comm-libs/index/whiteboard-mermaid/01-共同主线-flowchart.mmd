@@ -1,0 +1,16 @@
+flowchart LR
+    subgraph 传输层["传输抽象"]
+      UCX["[[UCX]]<br/>IB/TCP/SM 统一"]
+      GLOO["[[Gloo]]<br/>TCP/IB transport"]
+    end
+    subgraph 集合通信["集合通信库"]
+      NCCL["NCCL<br/>GPU 同构标准"]
+      NCCLX["[[TorchComms]]<br/>NCCLX 增强版"]
+      FLAGCX["[[FlagCX与FlagScale]]<br/>FlagCX 异构扩展"]
+      NVS["[[NVSHMEM]]<br/>PGAS 细粒点对点"]
+    end
+    UCX --> NCCL
+    UCX --> NVS
+    GLOO -. CPU fallback .-> NCCL
+    NCCL --> NCCLX
+    NCCL -. 同构直调 .-> FLAGCX

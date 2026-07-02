@@ -1,0 +1,4 @@
+flowchart LR
+    HWY["Highway 前端<br/>统一 SIMD 编程接口<br/>写算子的向量化逻辑"] --> MLIR["MLIR 中间层<br/>VectorDialect/LinalgDialect<br/>算子级优化:分块/融合/布局"]
+    MLIR --> LLVM["LLVM 后端<br/>LLVM IR → 指令选择"]
+    LLVM --> ASM["AI 芯片原生 SIMD 指令<br/>如 vfmadd.vv / VFMA"]

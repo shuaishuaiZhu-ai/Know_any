@@ -1,0 +1,11 @@
+flowchart LR
+    subgraph NV["NVIDIA"]
+        N1["NCCL RAS 子系统<br/>进程间TCP心跳<br/>localhost:28028 查状态"]
+        N2["BMC SEL + BERT<br/>UEFI配置HEST"]
+        N3["Blackwell 专用RAS引擎<br/>+ NVLink故障隔离"]
+    end
+    subgraph AMD["AMD"]
+        A1["sysfs/debugfs<br/>/sys/.../ras/features<br/>err_count 节点"]
+        A2["ras_ctrl 命令行<br/>echo 注入错误"]
+        A3["多IP块独立配置<br/>UMC/SDMA/GFX 各自策略"]
+    end

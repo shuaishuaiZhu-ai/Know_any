@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph 输入["输入 tokens（每 token 有路由目标）"]
+        T1["token 1 → 专家 A, D"]
+        T2["token 2 → 专家 B, E"]
+        T3["token 3 → 专家 A, C"]
+        T4["token 4 → 专家 C, F"]
+    end
+
+    subgraph 专家分布["专家分布在不同 GPU"]
+        G0["GPU 0<br/>专家 A, B"]
+        G1["GPU 1<br/>专家 C, D"]
+        G2["GPU 2<br/>专家 E, F"]
+    end
+
+    T1 -->|dispatch| G0 & G1
+    T2 -->|dispatch| G0 & G2
+    T3 -->|dispatch| G0 & G1
+    T4 -->|dispatch| G1 & G2
+
+    G0 -->|combine| O["加权求和<br/>各 token 拿回专家输出"]
+    G1 -->|combine| O
+    G2 -->|combine| O

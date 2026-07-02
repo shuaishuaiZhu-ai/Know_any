@@ -1,0 +1,7 @@
+flowchart TD
+    R["NCCL_DEBUG=INFO 看日志<br/>选了什么 algo/proto/channel"] --> N["NVTX/nsys 抓 timeline<br/>通信与计算是否重叠"]
+    N --> B{瓶颈在哪}
+    B -->|"busBw << 理论"| HW["硬件层：拓扑/GDR/NIC 路径"]
+    B -->|"通信阻塞计算"| OV["应用层：分桶/通信隐藏/分层 AllReduce"]
+    B -->|"延迟高 小消息"| LAT["协议层：锁 LL / 调线程数"]
+    B -->|"CPU 100%"| CPU["传输层：开 GDR / Proxy 异步"]

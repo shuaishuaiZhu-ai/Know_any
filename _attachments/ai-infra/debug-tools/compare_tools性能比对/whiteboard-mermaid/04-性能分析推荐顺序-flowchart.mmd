@@ -1,0 +1,6 @@
+flowchart TD
+    S1["① 整体性能比对<br/>看 E2E/计算/通信时间<br/>判断瓶颈在计算还是通信"] --> S2
+    S2["② 算子比对<br/>Module 级定位哪个模块慢<br/>Operator 级定位具体算子"] --> S3
+    S3["③ Kernel 比对<br/>NPU vs GPU Kernel 粒度差异<br/>--use_kernel_type 按类型聚合"] --> S4
+    S4["④ 通信比对<br/>RDMA/SDMA 带宽利用率<br/>通信未被计算覆盖的 Wait Time"] --> S5
+    S5["⑤ 内存比对<br/>找内存占用差异大的算子"]

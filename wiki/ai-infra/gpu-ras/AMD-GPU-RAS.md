@@ -20,12 +20,9 @@ source:
 
 AMD GPU RAS 存在两套实现，由 `adev->debug_enable_ras_aca` 开关切换：
 
-```mermaid
-flowchart TB
-    A["amdgpu_device_init"] --> Q{debug_enable_ras_aca?}
-    Q -->|未设置| L["Legacy RAS<br/>amdgpu_ras.c + PSP RAS TA<br/>按 IP Block 注册"]
-    Q -->|已设置| U["UniRAS<br/>ras_mgr + rascore<br/>统一框架(面向MI300等新架构)"]
-```
+![双路径架构：Legacy RAS vs UniRAS lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/01-双路径架构-Legacy-RAS-vs-UniRAS-flowchart.png)
+
+> 图解源文件：[`01-双路径架构-Legacy-RAS-vs-UniRAS-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/01-双路径架构-Legacy-RAS-vs-UniRAS-flowchart.mmd)。
 
 | 路径 | 触发 | 主要组件 | 用途 |
 |---|---|---|---|
@@ -36,37 +33,15 @@ flowchart TB
 
 ## 分层：管理层 ras_mgr + 核心层 rascore
 
-```mermaid
-flowchart TB
-    subgraph M["ras_mgr 管理层（与 amdgpu 对接）"]
-        M1["amdgpu_ras_mgr.c<br/>IP Block 生命周期"]
-        M2["amdgpu_ras_sys.c<br/>系统回调实现"]
-        M3["amdgpu_ras_process.c<br/>进程/线程调度"]
-        M4["amdgpu_ras_eeprom_i2c.c<br/>I2C EEPROM 传输"]
-    end
-    subgraph C["rascore 核心层（硬件无关）"]
-        C1["ras_core.c 核心上下文"]
-        C2["ras_process.c 事件处理线程"]
-        C3["ras_umc.c UMC坏页/MCA转换"]
-        C4["ras_aca.c 聚合CE/UE计数"]
-        C5["ras_eeprom.c EEPROM抽象"]
-        C6["ras_psp.c TA通信"]
-        C7["ras_nbio.c NBIO中断"]
-        C8["ras_mp1.c MP1固件"]
-        C9["ras_gfx.c GFX RAS"]
-    end
-    M --> C
-```
+![分层：管理层 ras_mgr + 核心层 rascore lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/02-分层-管理层-ras_mgr-+-核心层-rascore-flowchart.png)
+
+> 图解源文件：[`02-分层-管理层-ras_mgr-+-核心层-rascore-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/02-分层-管理层-ras_mgr-+-核心层-rascore-flowchart.mmd)。
 
 ## 主线：检测→中断→分发→处理→恢复
 
-```mermaid
-flowchart LR
-    D["① 检测<br/>UMC/ACA/NBIO/ATHUB"] --> I["② 中断 IH"]
-    I --> P["③ 分发<br/>ras_mgr_handle_*"]
-    P --> R["④ 处理<br/>ras_process_thread"]
-    R --> V["⑤ 恢复<br/>amdgpu_ras_do_recovery"]
-```
+![主线：检测→中断→分发→处理→恢复 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/03-主线-检测→中断→分发→处理→恢复-flowchart.png)
+
+> 图解源文件：[`03-主线-检测→中断→分发→处理→恢复-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/03-主线-检测→中断→分发→处理→恢复-flowchart.mmd)。
 
 ### 中断三类来源
 
@@ -87,25 +62,17 @@ flowchart LR
 
 Poison 是 AMD RAS 的灵魂——UMC 检测到不可纠正错误（UE）后，把该页**标记成"毒"**，谁访问谁中断。
 
-```mermaid
-flowchart TD
-    P1["Poison 创建 DE<br/>UMC检测到UE → 硬件创建毒化<br/>RAS_IH_FROM_BLOCK_CONTROLLER<br/>→ de_seqno_fifo"] --> P2["Poison 消费<br/>消费者(GFX/SDMA等)访问毒化页<br/>RAS_IH_FROM_CONSUMER_CLIENT<br/>→ consumption_seqno_fifo"]
-    P2 --> P3["处理<br/>ras_process_thread<br/>通知用户态 pasid_fn<br/>可选GPU复位"]
-```
+![Poison 机制（核心） lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/04-Poison-机制（核心）-flowchart.png)
+
+> 图解源文件：[`04-Poison-机制（核心）-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/04-Poison-机制（核心）-flowchart.mmd)。
 
 **给应届生**：Poison = "立个危险标记牌"。显存某页坏了（UE），硬件不立刻处理，而是给它贴个"毒"标签继续用——等到哪个计算单元真的要读这页数据时（消费），才触发中断处理。这样把"发现坏页"和"处理坏页"解耦，避免一坏就停。坏页最终被"退休"（retire）——记录到 EEPROM 持久化，下次启动跳过该页。
 
 ## 坏页退休与 EEPROM 持久化
 
-```mermaid
-flowchart LR
-    E1["BAD_PAGE_DETECTED 事件"] --> E2["retire_page_dwork 延迟工作"]
-    E2 --> E3["ras_umc_handle_bad_pages<br/>MCA→物理地址转换"]
-    E3 --> E4["ras_eeprom_append<br/>写入EEPROM持久化"]
-    E4 --> E5{超阈值?}
-    E5 -->|是| RMA["RMA 置位<br/>坏页过多→建议返厂换卡"]
-    E5 -->|否| RET["保留坏页 reserve_page"]
-```
+![坏页退休与 EEPROM 持久化 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/05-坏页退休与-EEPROM-持久化-flowchart.png)
+
+> 图解源文件：[`05-坏页退休与-EEPROM-持久化-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/AMD-GPU-RAS/whiteboard-mermaid/05-坏页退休与-EEPROM-持久化-flowchart.mmd)。
 
 **给应届生**：坏页退休 = "把坏页地址永久记到 EEPROM 小本本上"。EEPROM 是 GPU 板上的非易失存储，断电不丢。每次开机 RAS 从 EEPROM 加载坏页列表，提前避开这些页。坏页累积超阈值就触发 **RMA**（Return Material Authorization，返厂授权）——说明这卡坏页太多该换了。
 

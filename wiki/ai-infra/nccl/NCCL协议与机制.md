@@ -42,13 +42,9 @@ source:
 
 设备端 kernel 内部按消息大小在三种协议间取舍，是 [[NCCL性能优化]] 延迟-带宽模型的落地：
 
-```mermaid
-flowchart LR
-    Q{"消息大小?"}
-    Q -->|"< 256KB 拼延迟"| LL["LL: 16B行(8B数据+8B标志)<br/>标志位轮询同步<br/>有效带宽 50%<br/>≤512 线程"]
-    Q -->|"256KB-4MB 平衡"| LL128["LL128: 128B行(120B数据+8B标志)<br/>标志线程机制<br/>有效带宽 93.75%<br/>≤640 线程"]
-    Q -->|"> 4MB 拼带宽"| S["Simple: 无标志<br/>Step计数器同步<br/>有效带宽 100%<br/>支持 Direct/NVLS/网络卸载"]
-```
+![通信协议：LL / LL128 / Simple（第95篇） lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL协议与机制/whiteboard-mermaid/01-通信协议-LL-LL128-Simple（第95篇）-flowchart.png)
+
+> 图解源文件：[`01-通信协议-LL-LL128-Simple（第95篇）-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL协议与机制/whiteboard-mermaid/01-通信协议-LL-LL128-Simple（第95篇）-flowchart.mmd)。
 
 - 都跑在 `NCCL_STEPS=8` 流水线上（8 步循环缓冲）。
 - Simple 用 `loadStepValue` 轮询 `connStepCache + NCCL_STEPS < step + StepPerSlice`；NVLS 模式用 `multimem.ld_reduce.acquire.sys.global.min.u64` 原子归约读。

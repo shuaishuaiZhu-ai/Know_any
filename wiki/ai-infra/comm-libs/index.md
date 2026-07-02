@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, comm-libs, index, 入门]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》第23-25、49-51、70-73、117-119、121、131篇｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # 其他集合通信库 索引
@@ -32,24 +34,9 @@ status: active
 
 ## 共同主线
 
-```mermaid
-flowchart LR
-    subgraph 传输层["传输抽象"]
-      UCX["[[UCX]]<br/>IB/TCP/SM 统一"]
-      GLOO["[[Gloo]]<br/>TCP/IB transport"]
-    end
-    subgraph 集合通信["集合通信库"]
-      NCCL["NCCL<br/>GPU 同构标准"]
-      NCCLX["[[TorchComms]]<br/>NCCLX 增强版"]
-      FLAGCX["[[FlagCX与FlagScale]]<br/>FlagCX 异构扩展"]
-      NVS["[[NVSHMEM]]<br/>PGAS 细粒点对点"]
-    end
-    UCX --> NCCL
-    UCX --> NVS
-    GLOO -. CPU fallback .-> NCCL
-    NCCL --> NCCLX
-    NCCL -. 同构直调 .-> FLAGCX
-```
+![共同主线 lark-whiteboard 图解](../../../_attachments/ai-infra/comm-libs/index/whiteboard-mermaid/01-共同主线-flowchart.png)
+
+> 图解源文件：[`01-共同主线-flowchart.mmd`](../../../_attachments/ai-infra/comm-libs/index/whiteboard-mermaid/01-共同主线-flowchart.mmd)。
 
 所有库最终服务于 [[AllReduce]]、[[Ring-AllReduce]] 等集合原语，支撑 [[什么是分布式训练|分布式训练]] 第⑤步梯度归约。
 

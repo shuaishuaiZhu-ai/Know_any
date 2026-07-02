@@ -1,0 +1,7 @@
+flowchart TB
+    U["用户接口层<br/>PrecisionDebugger (线程安全单例)<br/>start/stop/step/save/monitor"] --> S
+    S["Service 层（框架适配）<br/>BaseService → PytorchService/MindSporeService"] --> H & D
+    H["HookManager 层<br/>劫持 torch.* / Module<br/>forward/backward/grad hook<br/>+ 防重入"]
+    D["DataCollector 层<br/>DataProcessorFactory<br/>+ DataWriter(JSON缓存) + Scope过滤"]
+    H --> D
+    D --> E["各引擎<br/>Compare / Overflow / GradProbe / NanAnalyze / Visualization"]

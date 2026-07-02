@@ -1,0 +1,7 @@
+flowchart TD
+    A["应用层<br/>MPI / PGAS / NCCL / vLLM"] --> B["UCP 协议层<br/>标签匹配·RMA·AMO·会合·多轨道·Wireup"]
+    B --> C["UCT 传输层<br/>IB RC/UD · TCP · 共享内存 · CUDA · RoCE · EFA"]
+    C --> D["UCS 服务层<br/>内存注册缓存·异步引擎·数据结构·配置"]
+    C --> E["UCM 内存层<br/>拦截 malloc/mmap/cudaMalloc 做注册缓存"]
+    D --> F["硬件<br/>IB HCA · NIC · GPU · 共享内存"]
+    E --> F

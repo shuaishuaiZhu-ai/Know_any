@@ -1,0 +1,5 @@
+flowchart TD
+    Q{故障范围?}
+    Q -->|单 GPU| S1["终止 GPU 任务<br/>nvidia-smi -r -i id 重置<br/>验证后重新提交"]
+    Q -->|NVSwitch 端口| S2["SXid 定位端口<br/>重置关联 GPU<br/>观察日志"]
+    Q -->|跨基板 NVLink| S3["停 FM → 杀 CUDA →<br/>nvidia-smi -r 全局重置 →<br/>启 FM 验证"]

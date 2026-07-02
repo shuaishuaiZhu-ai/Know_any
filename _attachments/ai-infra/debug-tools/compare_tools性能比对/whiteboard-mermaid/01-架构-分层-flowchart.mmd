@@ -1,0 +1,8 @@
+flowchart TB
+    E["入口层<br/>CLI / ComparisonInterface API"] --> G
+    G["主控层 ComparisonGenerator<br/>加载双路数据 + 并发生成"] --> P
+    P["解析层<br/>GPU/NPU Profiling Parser"] --> DP
+    DP["预处理层<br/>Module/Operator DataPrepare<br/>+ SequencePreMatching(LCS)"] --> C
+    C["比对层 Comparator 策略模式<br/>各维度 Comparator"] --> B
+    B["数据层 Bean<br/>表头/列定义"] --> V
+    V["视图层<br/>ScreenView / ExcelView"]

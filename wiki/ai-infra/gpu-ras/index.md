@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, gpu-ras, index]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》第21、108-109、112-116、127-130篇｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # GPU RAS 与故障管理
@@ -21,14 +23,9 @@ status: active
 
 ## RAS 主线
 
-```mermaid
-flowchart LR
-    H["硬件防护<br/>ECC/冗余/传感器"] --> D["检测<br/>CE/UE/Poison/Fatal"]
-    D --> C["分类分级<br/>轻/中/重/致命"]
-    C --> R["处置恢复<br/>退休/迁移/复位/换件"]
-    R --> O["可观测<br/>DCGM+Prometheus+Grafana"]
-    R -.触发.-> RES["韧性闭环<br/>NVSentinel自动隔离+恢复"]
-```
+![RAS 主线 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/index/whiteboard-mermaid/01-RAS-主线-flowchart.png)
+
+> 图解源文件：[`01-RAS-主线-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/index/whiteboard-mermaid/01-RAS-主线-flowchart.mmd)。
 
 **给应届生**：RAS 五步——防护→检测→分类→恢复→可观测。核心是"故障不可避免，但要可控"：坏页能退休就退休（不影响业务），实在不行就隔离换件，全程有监控告警。这是大集群能稳定运行的底层。
 

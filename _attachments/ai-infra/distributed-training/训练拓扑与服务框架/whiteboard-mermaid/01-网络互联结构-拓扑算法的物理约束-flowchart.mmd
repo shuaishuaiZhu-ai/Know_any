@@ -1,0 +1,19 @@
+flowchart TB
+    subgraph 主机内["主机内（8 卡）"]
+        direction TB
+        G1["GPU0"] --- G2["GPU1"]
+        G2 --- G3["GPU2"]
+        G3 --- G4["GPU3"]
+        G5["GPU4"] --- G6["GPU5"]
+        G6 --- G7["GPU6"]
+        G7 --- G8["GPU7"]
+        G4 -.- G5
+    end
+    subgraph 网卡["RDMA 网卡（可虚拟化）"]
+        N0["NIC0 ↔ GPU0<br/>同 PCIe Switch"]
+        N1["NIC1 ↔ GPU4<br/>同 PCIe Switch"]
+    end
+    G1 --- N0
+    G5 --- N1
+    N0 <==>|主机间 RDMA| SW["CLOS 交换机<br/>(Spine+Leaf)"]
+    N1 <==>|主机间 RDMA| SW

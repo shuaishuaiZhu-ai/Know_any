@@ -1,0 +1,6 @@
+flowchart TD
+    A["某 API 输入输出"] --> Q{检测 NaN/Inf}
+    Q -->|输入正常 输出异常| S1["① InputNormalOutputAnomaly<br/>Critical: 该API是根因"]
+    Q -->|输入异常 输出异常| S2["② InputAnomalyOutputAnomaly<br/>High: 上游溢出,这里是传播"]
+    Q -->|输入异常 输出正常| S3["③ InputAnomalyOutputNormal<br/>Medium: 该API处理了异常(如relu截断)"]
+    Q -->|数值突变 非NaN| S4["④ NumericalMutation<br/>Medium: 数值稳定性问题"]

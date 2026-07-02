@@ -1,0 +1,5 @@
+flowchart TD
+    A["应用层<br/>CUDA Kernel + NVSHMEM API"] --> B["API 层<br/>RMA / AMO / 集合操作"]
+    B --> C["运行时核心<br/>对称堆 · Team · 拓扑发现 · 代理"]
+    C --> D["传输层<br/>P2P / IBRC / UCX"]
+    D --> E["硬件<br/>NVLink · PCIe IPC · InfiniBand · GPUDirect RDMA"]

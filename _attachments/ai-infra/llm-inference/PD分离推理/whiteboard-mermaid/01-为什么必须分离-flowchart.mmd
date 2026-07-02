@@ -1,0 +1,18 @@
+flowchart LR
+    subgraph 一体化["传统一体化（混跑）"]
+        direction TB
+        P1["Prefill 任务<br/>（compute-bound）"] -->|"抢占算力"| D1["Decode 任务<br/>（memory-bound）"]
+        D1 -->|"拖慢响应"| P1
+    end
+
+    subgraph PD分离["PD 分离架构"]
+        direction LR
+        Client["客户端请求"] --> Proxy["Proxy/Router<br/>改 max_tokens=1<br/>转发到两路"]
+        Proxy -->|"1. Prefill 请求"| Prefill["Prefill 实例群<br/>高 TP · 计算优化"]
+        Prefill -->|"2. 生成 KV Cache<br/>通过高速网络传输"| KV["KV Cache 流转层<br/>LMCache + NIXL/Mooncake"]
+        KV -->|"3. Decode 拉取 KV"| Decode["Decode 实例群<br/>大并发 · 访存优化"]
+        Decode -->|"4. 逐 token 输出"| Client
+    end
+
+    style 一体化 fill:#2a1a1a,stroke:#d4a574,stroke-width:1px
+    style PD分离 fill:#1a2a1a,stroke:#d4a574,stroke-width:1px

@@ -24,13 +24,9 @@ NVSHMEM 扩展 OpenSHMEM 标准，给 GPU 提供 **PGAS**（Partitioned Global A
 
 ## 核心架构（4+1 视图精简）
 
-```mermaid
-flowchart TD
-    A["应用层<br/>CUDA Kernel + NVSHMEM API"] --> B["API 层<br/>RMA / AMO / 集合操作"]
-    B --> C["运行时核心<br/>对称堆 · Team · 拓扑发现 · 代理"]
-    C --> D["传输层<br/>P2P / IBRC / UCX"]
-    D --> E["硬件<br/>NVLink · PCIe IPC · InfiniBand · GPUDirect RDMA"]
-```
+![核心架构（4+1 视图精简） lark-whiteboard 图解](../../../_attachments/ai-infra/comm-libs/NVSHMEM/whiteboard-mermaid/01-核心架构（4+1-视图精简）-flowchart.png)
+
+> 图解源文件：[`01-核心架构（4+1-视图精简）-flowchart.mmd`](../../../_attachments/ai-infra/comm-libs/NVSHMEM/whiteboard-mermaid/01-核心架构（4+1-视图精简）-flowchart.mmd)。
 
 - **对称堆**：所有 PE 分配等大 heap，相同偏移 → 全局地址空间；通过 Bootstrap（PMI/MPI/SHMEM）交换内存句柄建立映射。
 - **传输层三选一**：P2P（同节点 NVLink/PCIe，`cudaIpcGetMemHandle`，<1μs）、IBRC（跨节点 InfiniBand RDMA，~1-2μs）、UCX（异构 fallback，自动选路）。
@@ -50,14 +46,9 @@ flowchart TD
 
 ## 两种执行路径
 
-```mermaid
-flowchart LR
-    K["GPU Kernel 调 put"] --> Q{"P2P 可达?<br/>同节点"}
-    Q -- "是" --> P["直接 memcpy 到映射的<br/>远端显存（NVLink <1μs）"]
-    Q -- "否" --> X["打包请求→channel<br/>atomicAdd(issue)"]
-    X --> T["CPU 代理线程代发<br/>IB Verbs RDMA"]
-    T --> F["更新 complete<br/>kernel 轮询完成"]
-```
+![两种执行路径 lark-whiteboard 图解](../../../_attachments/ai-infra/comm-libs/NVSHMEM/whiteboard-mermaid/02-两种执行路径-flowchart.png)
+
+> 图解源文件：[`02-两种执行路径-flowchart.mmd`](../../../_attachments/ai-infra/comm-libs/NVSHMEM/whiteboard-mermaid/02-两种执行路径-flowchart.mmd)。
 
 ## 典型场景
 

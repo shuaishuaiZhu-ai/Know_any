@@ -1,0 +1,7 @@
+flowchart LR
+    subgraph 未优化["未优化: N 次 AllReduce"]
+        N1["Grad N → AllReduce"] & N2["Grad N-1 → AllReduce"] & N3["... 共 N 次<br/>开销 N·α"]
+    end
+    subgraph 融合["Bucket 融合: 2 次"]
+        B1["Grad N..N/2 → Bucket1 AllReduce"] & B2["Grad N/2-1..1 → Bucket2 AllReduce"]
+    end

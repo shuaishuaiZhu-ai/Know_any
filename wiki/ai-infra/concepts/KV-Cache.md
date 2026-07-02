@@ -1,12 +1,12 @@
 ---
-type: entity
+type: concept
 title: "KV Cache"
 created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, llm-inference, concept]
 status: active
 source:
-  - "知乎专栏第29-30篇｜https://zhuanlan.zhihu.com/p/1973174452696134562"
+  - "知乎专栏《大模型训练、推理与AI云平台》第29-30篇｜作者常平｜https://zhuanlan.zhihu.com/p/1973174452696134562"
 ---
 
 # KV Cache

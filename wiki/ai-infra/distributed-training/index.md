@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, distributed-training, index]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》第1-5、106-107篇｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # 分布式训练基础

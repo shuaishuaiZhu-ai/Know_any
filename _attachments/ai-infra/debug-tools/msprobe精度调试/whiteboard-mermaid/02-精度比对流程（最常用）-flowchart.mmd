@@ -1,0 +1,7 @@
+flowchart LR
+    P["ParseData<br/>加载两路 dump.json"] --> M["Match<br/>精确/模糊双路匹配"]
+    M --> T["CreateTable<br/>构建比对 DataFrame"]
+    T --> C["CalcStatsDiff<br/>余弦相似度 + 最大绝对误差"]
+    C --> H["HighLight<br/>Excel 着色(红/黄)"]
+    H --> A["Advisor<br/>首差分析+建议"]
+    A --> X["compare_result.xlsx"]

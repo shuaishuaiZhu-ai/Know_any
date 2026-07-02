@@ -1,0 +1,5 @@
+flowchart TD
+    R["Roofline 分析"] --> Q{算子在哪?}
+    Q -->|斜线左侧 访存受限| A1["算子融合/向量化<br/>减少访存"]
+    Q -->|水平线下 计算受限| A2["提升并行度/GEMM tiling"]
+    Q -->|接近 Ridge Point| OK["✓ 计算密集充分利用"]

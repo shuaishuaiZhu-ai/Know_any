@@ -1,0 +1,33 @@
+flowchart TB
+    subgraph 客户端层["客户端请求"]
+        C["用户请求<br/>prompt + 参数"]
+    end
+
+    subgraph Proxy层["Proxy / Router（端口 8192）"]
+        PR["请求路由与调度<br/>- Prefill 请求改 max_tokens=1<br/>- 转发原始请求至 Decoder<br/>- 关联 request_id"]
+    end
+
+    subgraph Prefill集群["Prefill 实例群（kv_producer）"]
+        P1["vLLM Prefill<br/>GPU 0 · 端口 8100"]
+        P2["vLLM Prefill<br/>GPU 1 · 端口 8101"]
+        P3["vLLM Prefill<br/>..."]
+    end
+
+    subgraph Decode集群["Decode 实例群（kv_consumer）"]
+        D1["vLLM Decode<br/>GPU 2 · 端口 8200"]
+        D2["vLLM Decode<br/>GPU 3 · 端口 8201"]
+        D3["vLLM Decode<br/>..."]
+    end
+
+    subgraph KV传输层["KV Cache 传输层"]
+        LM["LMCache 引擎<br/>序列化 / 元数据 / 路由"]
+        TR["传输层（二选一）<br/>① NIXL + UCX（RDMA 点对点）<br/>② Mooncake Transfer Engine（多协议分布式）"]
+    end
+
+    C --> PR
+    PR -->|"Prefill 请求"| Prefill集群
+    PR -->|"Decode 请求"| Decode集群
+    Prefill集群 -->|"send_kv_caches()"| LM
+    LM --> TR
+    TR -->|"RDMA / TCP / NVMe-oF"| LM
+    LM -->|"recv_kv_caches()"| Decode集群

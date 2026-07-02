@@ -1,0 +1,6 @@
+flowchart LR
+    Mesh["DeviceMesh<br/>pp×dp_rep×dp_shard×cp×tp"] --> TP["TP 子mesh<br/>节点内 NVLink<br/>Colwise/Rowwise"]
+    Mesh --> PP["PP 子mesh<br/>节点间 IB<br/>P2P Send/Recv"]
+    Mesh --> DP["FSDP2 子mesh<br/>AG 参数/RS 梯度"]
+    Mesh --> CP["CP 子mesh<br/>Ring K/V 轮转"]
+    TP & PP & DP & CP --> TE["TransformerEngine<br/>FP8 fused kernel"]

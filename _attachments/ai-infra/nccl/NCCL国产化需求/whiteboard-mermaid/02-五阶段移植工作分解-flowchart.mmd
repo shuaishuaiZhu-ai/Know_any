@@ -1,0 +1,5 @@
+flowchart LR
+    P1["① HAL 硬件抽象层<br/>CUDA Runtime API 替换<br/>kernel 移植/内存模型"] --> P2["② 传输层适配<br/>P2P/SHM/NET"]
+    P2 --> P3["③ 拓扑发现调度<br/>NVML→自研 API"]
+    P3 --> P4["④ 内核优化<br/>集合算法/Reduction/协议"]
+    P4 --> P5["⑤ 测试验证<br/>功能+性能基准"]

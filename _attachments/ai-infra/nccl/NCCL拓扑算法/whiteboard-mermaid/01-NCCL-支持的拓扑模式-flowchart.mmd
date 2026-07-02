@@ -1,0 +1,7 @@
+flowchart LR
+    Q{"选哪个算法?"}
+    Q -->|"节点内全互联<br/>ring 小"| R["Ring<br/>NCCL_TOPO_PATTERN_RING"]
+    Q -->|"大规模/低延迟"| T["Tree<br/>BALANCED/SPLIT/TREE"]
+    Q -->|"NVSwitch 全连"| N["NVLS<br/>NVLink SHARP"]
+    Q -->|"InfiniBand SHARP"| C["CollNet<br/>直连集合网络"]
+    Q -->|"2D 网格多网卡"| M["2D Mesh/Torus<br/>层次化"]

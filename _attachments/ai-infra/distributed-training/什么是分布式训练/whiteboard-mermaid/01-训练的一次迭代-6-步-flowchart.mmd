@@ -1,0 +1,7 @@
+flowchart LR
+    B["① Broadcast<br/>参数同步到所有卡"] --> D["② 数据切片分发<br/>每卡一份 mini-batch"]
+    D --> F["③ 前向传播<br/>各卡算损失 LOSSi"]
+    F --> G["④ 反向传播<br/>各卡算梯度 GRADi"]
+    G --> A["⑤ AllReduce 梯度归约<br/>合成全局梯度"]
+    A --> U["⑥ 参数更新<br/>所有卡用全局梯度更新"]
+    U -->|下一轮| D

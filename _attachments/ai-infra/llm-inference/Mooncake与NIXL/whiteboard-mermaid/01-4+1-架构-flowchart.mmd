@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph User["用户层"]
+        PF["Prefill 实例<br/>（计算 KV Cache）"]
+        DC["Decode 实例<br/>（消费 KV Cache）"]
+    end
+
+    subgraph Plugin["Plugin 层（模型适配）"]
+        PL["Plugin API<br/>get_kv / set_kv / load / unload"]
+    end
+
+    subgraph Core["核心层"]
+        TE["Transfer Engine<br/>传输调度引擎<br/>TCP / RDMA / NVMe-oF"]
+        CT["Controller<br/>元数据管理 + 路由"]
+    end
+
+    subgraph Pool["KVPool 分布式存储池"]
+        M1["内存池 Node 1<br/>（GPU HBM / CPU DRAM）"]
+        M2["内存池 Node 2"]
+        M3["内存池 Node 3<br/>（NVMe SSD）"]
+    end
+
+    PF -->|"set_kv 写入"| PL
+    PL --> TE
+    TE -->|"RDMA Write"| M1
+    TE -->|"NVMe-oF"| M3
+    CT -.->|"元数据：key → 存储位置"| M1
+    CT -.->|"路由表"| M2
+    DC -->|"get_kv 读取"| PL
+    PL --> TE
+    TE -->|"RDMA Read"| M1
+    TE -->|"RDMA Read"| M2

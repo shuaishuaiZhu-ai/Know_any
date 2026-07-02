@@ -37,23 +37,9 @@ NCCL 的核心能力体现在三个维度，每个维度多种选择：
 
 ## 分层架构：Host 管理 + Device 执行
 
-```mermaid
-flowchart TB
-    subgraph Host["Host 端（CPU 管理）"]
-        A["用户 API 层<br/>collectives.cc<br/>AllReduce/AllGather/Broadcast..."]
-        E["调度入队层<br/>enqueue.cc<br/>批处理 + 内核启动 + 资源规划 + Proxy"]
-        C["通信器层<br/>ncclComm<br/>生命周期/拓扑/通道/网络"]
-        T["拓扑层<br/>graph/topo.cc<br/>节点/链路/路径 + 算法搜索"]
-    end
-    subgraph Device["Device 端（GPU 执行）"]
-        K["通信 Kernel<br/>按算法+协议执行<br/>实际搬数据"]
-        P["Proxy 机制<br/>跨 rank 异步网络通信"]
-    end
-    A --> E --> C --> T
-    E --> K
-    C --> P
-    P -.网络.-> K
-```
+![分层架构：Host 管理 + Device 执行 lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL架构总览/whiteboard-mermaid/01-分层架构-Host-管理-+-Device-执行-flowchart.png)
+
+> 图解源文件：[`01-分层架构-Host-管理-+-Device-执行-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL架构总览/whiteboard-mermaid/01-分层架构-Host-管理-+-Device-执行-flowchart.mmd)。
 
 ### Host 端四层
 
@@ -85,16 +71,11 @@ struct ncclComm {
 
 ## 初始化流程（简化）
 
-```mermaid
-flowchart LR
-    I["ncclCommInitRank<br/>建立 communicator"] --> B["Bootstrap<br/>各 rank 建初始连接"]
-    B --> T["拓扑探测<br/>graph/topo 搜索最优图"]
-    T --> P["选传输+算法<br/>P2P/NET + Ring/Tree"]
-    P --> C["建 Channel<br/>分配缓冲区/连接"]
-    C --> K["生成 Kernel Plan<br/>enqueue.cc 调度"]
-```
+![初始化流程（简化） lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL架构总览/whiteboard-mermaid/02-初始化流程（简化）-flowchart.png)
 
-**给应届生**：NCCL 第一次初始化很慢（要探测拓扑、建连接、选算法），但之后每次 AllReuse 很快——因为通信器建好后，kernel 计划都缓存了。所以分布式训练启动时第一个 step 慢，后面就稳了。这也是为什么 NCCL 初始化阶段要打很多日志（拓扑发现过程）。
+> 图解源文件：[`02-初始化流程（简化）-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL架构总览/whiteboard-mermaid/02-初始化流程（简化）-flowchart.mmd)。
+
+**给应届生**：NCCL 第一次初始化很慢（要探测拓扑、建连接、选算法），但之后每次 AllReduce 很快——因为通信器建好后，kernel 计划都缓存了。所以分布式训练启动时第一个 step 慢，后面就稳了。这也是为什么 NCCL 初始化阶段要打很多日志（拓扑发现过程）。
 
 ## 与其他通信库的关系
 
@@ -102,7 +83,7 @@ NCCL 是 NVIDIA 生态的标准库。其他通信库与它互补：
 - [[wiki/ai-infra/comm-libs/NVSHMEM|NVSHMEM]] — 细粒度点对点 + kernel 内发起（NCCL 管集合通信）
 - [[wiki/ai-infra/comm-libs/UCX|UCX]] — 通用通信框架（NCCL 的 NET 传输可对接）
 - [[wiki/ai-infra/comm-libs/Gloo|Gloo]] — Meta 的 CPU 侧集合通信库
-- [[wiki/ai-infra/comm-libs/FlagCX与FlagScale|FlagCX]] — 异构跨芯片通信库
+- [[wiki/ai-infra/comm-libs/FlagCX与FlagScale|FlagCX]] — 适配器层：统一封装 NCCL/HCCL/CNCL 等异构 CCL（智源 BAAI 出品）
 
 ## 延伸
 

@@ -45,29 +45,17 @@ TorchTitan 的核心抽象是 **DTensor + DeviceMesh**：一个多维 `DeviceMes
 | PP | P2P Send/Recv 激活（按 micro-batch id 标记）|
 | CP | Ring Attention，K/V 块在 CP 组内环形轮转 |
 
-```mermaid
-flowchart LR
-    Mesh["DeviceMesh<br/>pp×dp_rep×dp_shard×cp×tp"] --> TP["TP 子mesh<br/>节点内 NVLink<br/>Colwise/Rowwise"]
-    Mesh --> PP["PP 子mesh<br/>节点间 IB<br/>P2P Send/Recv"]
-    Mesh --> DP["FSDP2 子mesh<br/>AG 参数/RS 梯度"]
-    Mesh --> CP["CP 子mesh<br/>Ring K/V 轮转"]
-    TP & PP & DP & CP --> TE["TransformerEngine<br/>FP8 fused kernel"]
-```
+![并行策略与架构 lark-whiteboard 图解](../../../_attachments/ai-infra/training-framework/TransformerEngine与TorchTitan/whiteboard-mermaid/01-并行策略与架构-flowchart.png)
+
+> 图解源文件：[`01-并行策略与架构-flowchart.mmd`](../../../_attachments/ai-infra/training-framework/TransformerEngine与TorchTitan/whiteboard-mermaid/01-并行策略与架构-flowchart.mmd)。
 
 **关键内存技巧**：Meta 设备初始化 → 转换 → PP 切分 → 应用 TP → 应用 FSDP → 物化。这个 apply 顺序避免大模型在显存适中的卡上重复分配。
 
 ## 一个训练步的数据流
 
-```mermaid
-flowchart TB
-    D["DataLoader<br/>取 micro-batch"] --> F["前向：穿 TP/CP<br/>FSDP AllGather 参数"]
-    F --> P2P["P2P 发到下一 PP stage<br/>多个 micro-batch 填满流水"]
-    P2P --> L["最后 stage 算 loss"]
-    L --> B["反向：P2P 收梯度<br/>FSDP ReduceScatter"]
-    B --> GC["梯度裁剪 AllReduce"]
-    GC --> OPT["AllGather 参数<br/>optimizer.step()"]
-    OPT --> M["指标 AllReduce + 日志"]
-```
+![一个训练步的数据流 lark-whiteboard 图解](../../../_attachments/ai-infra/training-framework/TransformerEngine与TorchTitan/whiteboard-mermaid/02-一个训练步的数据流-flowchart.png)
+
+> 图解源文件：[`02-一个训练步的数据流-flowchart.mmd`](../../../_attachments/ai-infra/training-framework/TransformerEngine与TorchTitan/whiteboard-mermaid/02-一个训练步的数据流-flowchart.mmd)。
 
 Llama-3 70B / 64 GPU 上一步约 1s，吞吐约 500K tokens/s，MFU ~45%。
 

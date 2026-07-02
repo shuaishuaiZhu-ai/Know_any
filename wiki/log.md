@@ -1,4 +1,4 @@
----
+﻿---
 type: meta
 title: "Wiki Log"
 created: 2026-05-09
@@ -52,6 +52,10 @@ status: active
 
 - 新增 [飞书 Wiki 发布中的 profile / identity 误判复盘](<./ai/reflections/codex/evolution/2026-06-30-feishu-wiki-publish-profile-identity.md>)：记录一次把 `image_tool AddDefault_value 分支设计` 发布到飞书 Wiki 时的流程偏差。核心规则：先核对本地流程和显式 profile `cli_aa9d4e8d9eb91cc4`，再分开判断 user/bot identity；user token 过期不等于 profile 不可用，bot ready 且目标可读写时可继续发布；发布后必须回读验证 title、revision、SVG、placeholder、raster image 与 replacement char。
 - 沉淀 `.cmd` wrapper 传含 `&` OAuth URL 的风险：必要时绕过 wrapper 直接调用 Node entrypoint，且不要在未验证 bot 可用性前要求用户重新授权。
+
+## [2026-06-30] update | image_tool `convert_str()` 改动原因补充
+
+- 更新 [image_tool AddDefault_value 分支设计](<./tools/image_tool AddDefault_value 分支设计.md>)：补充 `grace/table/excel2csv.py` 中 `convert_str()` 右侧改动原因。核心结论：`xlrd` 2.x 不再支持 `.xlsx`，迁移到 `openpyxl` 后传入 `convert_str()` 的对象从 `xlrd` cell 变为 Python 原生值，因此需要改用 `None/bool/int/float/datetime/str` 类型判断；同时说明 `bool` 必须先于 `int`、`1.0` 转 `"1"`、日期格式与 CSV 字符串化兜底。
 
 ## [2026-06-29] add | image_tool AddDefault_value 分支设计文档（+ 5 张图解）
 

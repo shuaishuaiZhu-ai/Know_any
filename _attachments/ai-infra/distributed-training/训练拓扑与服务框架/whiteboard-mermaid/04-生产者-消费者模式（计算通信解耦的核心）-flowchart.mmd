@@ -1,0 +1,9 @@
+flowchart LR
+    subgraph 生产者["Execution Thread（计算）"]
+        ET["训练框架算梯度"] --> P1["梯度信息 push<br/>message_queue"]
+        ET --> P2["梯度数据 push<br/>tensor_table"]
+    end
+    subgraph 消费者["Background Thread（通信）"]
+        BT["周期轮询 message_queue"] --> NR["拿到一批就<br/>全局 AllReduce"]
+    end
+    P1 --> BT

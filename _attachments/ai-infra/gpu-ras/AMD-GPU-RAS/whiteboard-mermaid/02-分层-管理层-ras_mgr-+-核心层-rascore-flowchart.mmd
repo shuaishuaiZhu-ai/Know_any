@@ -1,0 +1,19 @@
+flowchart TB
+    subgraph M["ras_mgr 管理层（与 amdgpu 对接）"]
+        M1["amdgpu_ras_mgr.c<br/>IP Block 生命周期"]
+        M2["amdgpu_ras_sys.c<br/>系统回调实现"]
+        M3["amdgpu_ras_process.c<br/>进程/线程调度"]
+        M4["amdgpu_ras_eeprom_i2c.c<br/>I2C EEPROM 传输"]
+    end
+    subgraph C["rascore 核心层（硬件无关）"]
+        C1["ras_core.c 核心上下文"]
+        C2["ras_process.c 事件处理线程"]
+        C3["ras_umc.c UMC坏页/MCA转换"]
+        C4["ras_aca.c 聚合CE/UE计数"]
+        C5["ras_eeprom.c EEPROM抽象"]
+        C6["ras_psp.c TA通信"]
+        C7["ras_nbio.c NBIO中断"]
+        C8["ras_mp1.c MP1固件"]
+        C9["ras_gfx.c GFX RAS"]
+    end
+    M --> C

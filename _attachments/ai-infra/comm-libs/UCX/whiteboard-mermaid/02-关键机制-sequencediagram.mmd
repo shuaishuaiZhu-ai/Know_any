@@ -1,0 +1,7 @@
+sequenceDiagram
+    participant S as 发送端
+    participant R as 接收端
+    S->>R: RTS（请求发送：tag/size/rkey/addr）
+    R->>S: RTR（就绪：接收缓冲区地址）
+    S->>R: RDMA Put 数据（多轨道并行）
+    R->>S: ATP（完成确认）

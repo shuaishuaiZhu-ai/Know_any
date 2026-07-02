@@ -1,0 +1,11 @@
+flowchart TB
+    REQ["用户请求"] --> PD
+    PD["[[PD分离推理]]<br/>Prefill / Decode 拆到不同实例"]
+    PD --> V["[[vLLM]]<br/>推理引擎·PagedAttention·Continuous Batching"]
+    V -->|"生成 / 复用 KV Cache"| LM["[[LMCache]]<br/>KV Cache 冷热分级 + 跨请求复用"]
+    LM -->|"跨实例搬 KV Cache"| MN1["[[Mooncake与NIXL]]<br/>Mooncake：中央池化"]
+    LM -->|"跨实例搬 KV Cache"| MN2["[[Mooncake与NIXL]]<br/>NIXL：点对点零拷贝"]
+    V -.->|"MoE 专家路由通信"| DE["[[DeepEP]]<br/>MoE all-to-all<br/>（高吞吐 / 低延迟双模式）"]
+    UC["[[UCM]]<br/>统一缓存管理（跨引擎池化）"] -.->|"上层统一抽象"| LM
+    UC -.-> MN1
+    UC -.-> MN2

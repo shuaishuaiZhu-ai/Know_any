@@ -1,0 +1,6 @@
+flowchart LR
+    K["GPU Kernel 调 put"] --> Q{"P2P 可达?<br/>同节点"}
+    Q -- "是" --> P["直接 memcpy 到映射的<br/>远端显存（NVLink <1μs）"]
+    Q -- "否" --> X["打包请求→channel<br/>atomicAdd(issue)"]
+    X --> T["CPU 代理线程代发<br/>IB Verbs RDMA"]
+    T --> F["更新 complete<br/>kernel 轮询完成"]

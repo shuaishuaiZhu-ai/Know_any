@@ -39,15 +39,9 @@ msprobe 把这些"大海捞针"变成"Excel 报告 + 可视化图"。
 
 ## 架构：4 层
 
-```mermaid
-flowchart TB
-    U["用户接口层<br/>PrecisionDebugger (线程安全单例)<br/>start/stop/step/save/monitor"] --> S
-    S["Service 层（框架适配）<br/>BaseService → PytorchService/MindSporeService"] --> H & D
-    H["HookManager 层<br/>劫持 torch.* / Module<br/>forward/backward/grad hook<br/>+ 防重入"]
-    D["DataCollector 层<br/>DataProcessorFactory<br/>+ DataWriter(JSON缓存) + Scope过滤"]
-    H --> D
-    D --> E["各引擎<br/>Compare / Overflow / GradProbe / NanAnalyze / Visualization"]
-```
+![架构：4 层 lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/msprobe精度调试/whiteboard-mermaid/01-架构-4-层-flowchart.png)
+
+> 图解源文件：[`01-架构-4-层-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/msprobe精度调试/whiteboard-mermaid/01-架构-4-层-flowchart.mmd)。
 
 **给应届生**：核心思路是 **hook 劫持**——在 PyTorch 每个 `torch.*` 函数和 `nn.Module` 上挂钩子，每次调用前后偷偷记录输入输出。这样不改训练代码就能"看到"每一步的数据。Hook 是精度/性能调试类工具的通用手法（PyTorch 自己的 `register_forward_hook` 就是）。
 
@@ -65,15 +59,9 @@ flowchart TB
 
 ## 精度比对流程（最常用）
 
-```mermaid
-flowchart LR
-    P["ParseData<br/>加载两路 dump.json"] --> M["Match<br/>精确/模糊双路匹配"]
-    M --> T["CreateTable<br/>构建比对 DataFrame"]
-    T --> C["CalcStatsDiff<br/>余弦相似度 + 最大绝对误差"]
-    C --> H["HighLight<br/>Excel 着色(红/黄)"]
-    H --> A["Advisor<br/>首差分析+建议"]
-    A --> X["compare_result.xlsx"]
-```
+![精度比对流程（最常用） lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/msprobe精度调试/whiteboard-mermaid/02-精度比对流程（最常用）-flowchart.png)
+
+> 图解源文件：[`02-精度比对流程（最常用）-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/msprobe精度调试/whiteboard-mermaid/02-精度比对流程（最常用）-flowchart.mmd)。
 
 - **余弦相似度**阈值 0.9999，**最大绝对误差**阈值 0.001，低于阈值标红/黄。
 - **模糊匹配**（`--fuzzy_match`）：NPU 和 GPU 算子名可能不同，用双指针队列按名称前缀配对。
@@ -81,14 +69,9 @@ flowchart LR
 
 ## 溢出检测：4 类场景（就高原则）
 
-```mermaid
-flowchart TD
-    A["某 API 输入输出"] --> Q{检测 NaN/Inf}
-    Q -->|输入正常 输出异常| S1["① InputNormalOutputAnomaly<br/>Critical: 该API是根因"]
-    Q -->|输入异常 输出异常| S2["② InputAnomalyOutputAnomaly<br/>High: 上游溢出,这里是传播"]
-    Q -->|输入异常 输出正常| S3["③ InputAnomalyOutputNormal<br/>Medium: 该API处理了异常(如relu截断)"]
-    Q -->|数值突变 非NaN| S4["④ NumericalMutation<br/>Medium: 数值稳定性问题"]
-```
+![溢出检测：4 类场景（就高原则） lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/msprobe精度调试/whiteboard-mermaid/03-溢出检测-4-类场景（就高原则）-flowchart.png)
+
+> 图解源文件：[`03-溢出检测-4-类场景（就高原则）-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/msprobe精度调试/whiteboard-mermaid/03-溢出检测-4-类场景（就高原则）-flowchart.mmd)。
 
 **给应届生**：溢出定位口诀——**"输入正常输出坏"的 API 才是真凶**（场景①Critical）。输入已经坏了说明问题在更上游，这个 API 只是"受害者"。按优先级就高保留，命中第一个即停。
 
@@ -105,17 +88,9 @@ flowchart TD
 
 ## 任务选择决策树
 
-```mermaid
-flowchart TD
-    Q{问题类型}
-    Q -->|精度不一致 NPU vs CPU/GPU| A1["statistics L1 → compare Excel"]
-    Q -->|想看具体 tensor 值| A2["tensor L1 → npy"]
-    Q -->|NaN/Inf 溢出| A3["overflow_check → run_overflow_check<br/>找 critical_apis"]
-    Q -->|分布式 NaN 溯源| A4["statistics 先dump → nan_analyze"]
-    Q -->|loss不收敛/梯度异常| A5["grad_probe → compare → 相似度曲线"]
-    Q -->|想可视化计算图| A6["graph → vis.db → MindStudio"]
-    Q -->|精确控制观察点| A7["debug → save(variable, name)"]
-```
+![任务选择决策树 lark-whiteboard 图解](../../../_attachments/ai-infra/debug-tools/msprobe精度调试/whiteboard-mermaid/04-任务选择决策树-flowchart.png)
+
+> 图解源文件：[`04-任务选择决策树-flowchart.mmd`](../../../_attachments/ai-infra/debug-tools/msprobe精度调试/whiteboard-mermaid/04-任务选择决策树-flowchart.mmd)。
 
 ## 关键工程机制
 

@@ -1,0 +1,7 @@
+flowchart TB
+    A["应用层<br/>分桶/bucket、通信隐藏、分层 AllReduce<br/>目标：带宽利用率 80-95%"]
+    B["算法层<br/>Ring / Tree / NVLS / CollNet<br/>拓扑与规模决定"]
+    C["协议层<br/>LL / LL128 / Simple<br/>消息大小决定"]
+    D["传输层<br/>P2P / SHM / NET + GDR 零拷贝<br/>物理位置决定"]
+    E["内核层<br/>线程数、屏障、轮询、合并访问<br/>GPU 利用率"]
+    A --> B --> C --> D --> E

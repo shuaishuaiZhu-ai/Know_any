@@ -19,30 +19,9 @@ source:
 
 MoE 模型的核心机制是**每个 token 只激活少数专家**（如 256 个专家里挑 8 个），但专家分布在多张 GPU 上。这带来一个传统集合通信库（如 [[wiki/ai-infra/nccl/index|NCCL]]）没有充分优化的场景：
 
-```mermaid
-flowchart LR
-    subgraph 输入["输入 tokens（每 token 有路由目标）"]
-        T1["token 1 → 专家 A, D"]
-        T2["token 2 → 专家 B, E"]
-        T3["token 3 → 专家 A, C"]
-        T4["token 4 → 专家 C, F"]
-    end
+![为什么 MoE 需要专门的通信库 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/DeepEP/whiteboard-mermaid/01-为什么-MoE-需要专门的通信库-flowchart.png)
 
-    subgraph 专家分布["专家分布在不同 GPU"]
-        G0["GPU 0<br/>专家 A, B"]
-        G1["GPU 1<br/>专家 C, D"]
-        G2["GPU 2<br/>专家 E, F"]
-    end
-
-    T1 -->|dispatch| G0 & G1
-    T2 -->|dispatch| G0 & G2
-    T3 -->|dispatch| G0 & G1
-    T4 -->|dispatch| G1 & G2
-
-    G0 -->|combine| O["加权求和<br/>各 token 拿回专家输出"]
-    G1 -->|combine| O
-    G2 -->|combine| O
-```
+> 图解源文件：[`01-为什么-MoE-需要专门的通信库-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/DeepEP/whiteboard-mermaid/01-为什么-MoE-需要专门的通信库-flowchart.mmd)。
 
 **给应届生**：传统 [[AllReduce]] 或 [[Ring-AllReduce]] 是"全员同步"，所有 GPU 做同样的操作。而 MoE 的 all-to-all 像"每个 token 按需挂号找对应科室医生"——每个 token 只去它被路由的那几个专家所在的 GPU，通信模式**不规则、稀疏、动态变化**。用通用通信库（NCCL 的 `all_to_all`）也能跑，但 DeepEP 专门为这种"不规整 all-to-all"做了极致优化，延迟和带宽都好得多。
 
@@ -65,41 +44,9 @@ DeepEP 针对训练和推理的不同需求，提供了两套通信 kernel：
 
 DeepEP 代码库采用"4 核心模块 + 1 接口层"的架构：
 
-```mermaid
-flowchart TB
-    subgraph 接口层["+1 接口层（Python API）"]
-        BUF["Buffer 类<br/>dispatch / combine / low_latency_dispatch / low_latency_combine"]
-        EVT["EventOverlap<br/>CUDA 事件 + 流重叠管理"]
-    end
+![4+1 架构 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/DeepEP/whiteboard-mermaid/02-4+1-架构-flowchart.png)
 
-    subgraph 核心1["核心 1：Layout 计算"]
-        LAY["layout.cu<br/>根据 topk_idx 计算<br/>token → expert → rank 路由<br/>生成 is_token_in_rank 稀疏矩阵"]
-    end
-
-    subgraph 核心2["核心 2：Dispatch Kernel"]
-        DISP_INTRA["intranode.cu<br/>节点内 NVLink 分发"]
-        DISP_INTER["internode.cu<br/>跨节点 NVLink + RDMA 分发"]
-        DISP_LL["internode_ll.cu<br/>低延迟 IBGDA 纯 RDMA"]
-    end
-
-    subgraph 核心3["核心 3：Combine Kernel"]
-        COMB_INTRA["节点内 NVLink 归约"]
-        COMB_INTER["跨节点 RDMA 归约"]
-        COMB_LL["低延迟 IBGDA + LogFMT 量化"]
-    end
-
-    subgraph 核心4["核心 4：Buffer 与同步管理"]
-        BUF_MGR["C++ Buffer 管理器<br/>IPC 共享 / NVSHMEM 初始化<br/>NVLink 栅栏 / 双缓冲"]
-    end
-
-    BUF --> LAY
-    BUF --> DISP_INTRA & DISP_INTER & DISP_LL
-    BUF --> COMB_INTRA & COMB_INTER & COMB_LL
-    BUF --> BUF_MGR
-    LAY --> DISP_INTRA & DISP_INTER & DISP_LL
-    BUF_MGR --> DISP_INTRA & DISP_INTER & DISP_LL
-    BUF_MGR --> COMB_INTRA & COMB_INTER & COMB_LL
-```
+> 图解源文件：[`02-4+1-架构-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/DeepEP/whiteboard-mermaid/02-4+1-架构-flowchart.mmd)。
 
 四个核心模块职责清晰：
 - **Layout 计算**：把路由索引 `topk_idx` 翻译为"哪个 token 去哪个 rank 的哪个 expert"，输出稀疏矩阵，是后续通信的"地图"。
@@ -109,26 +56,9 @@ flowchart TB
 
 ## Dispatch/Combine 数据流
 
-```mermaid
-sequenceDiagram
-    participant 用户 as 用户代码
-    participant Layout as Layout Kernel
-    participant Notify as Notify Kernel
-    participant Dispatch as Dispatch Kernel
-    participant Expert as MoE 专家计算
-    participant Combine as Combine Kernel
+![Dispatch/Combine 数据流 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/DeepEP/whiteboard-mermaid/03-Dispatch-Combine-数据流-sequencediagram.png)
 
-    用户->>Layout: get_dispatch_layout(topk_idx)
-    Layout-->>用户: num_tokens_per_rank, is_token_in_rank
-    用户->>Notify: notify_dispatch（通知各 rank 预期收多少 token）
-    Notify-->>Dispatch: atomic_add 计数
-    用户->>Dispatch: dispatch(x, layout)
-    Dispatch-->>用户: recv_x（各 rank 收到归属于自己的 token）
-    用户->>Expert: 本地 MoE FFN 计算
-    Expert-->>用户: expert_out
-    用户->>Combine: combine(expert_out, topk_weights)
-    Combine-->>用户: combined_x（加权求和结果）
-```
+> 图解源文件：[`03-Dispatch-Combine-数据流-sequencediagram.mmd`](../../../_attachments/ai-infra/llm-inference/DeepEP/whiteboard-mermaid/03-Dispatch-Combine-数据流-sequencediagram.mmd)。
 
 ## 性能优化要点
 

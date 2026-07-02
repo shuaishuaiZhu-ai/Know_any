@@ -71,8 +71,10 @@ status: active
 ### 集群8 GPU内存与互联（106,107）→ 并入 `distributed-training/`
 - NVLink-C2C与GPU统一内存.md（106,107）
 
-## concepts/ 概念锚点页（跨集群共享）
-AllReduce.md · Ring-AllReduce.md · Collective-Communications.md · RAS.md · PD-分离.md · Prefill-Decode.md · NVLink.md · GPUDirect-RDMA.md
+## concepts/ 概念锚点页（跨集群共享，共 9 项）
+AllReduce.md · Ring-AllReduce.md · 通信隐藏.md · NVLink.md · GPUDirect-RDMA.md · PD-分离.md · Prefill-Decode.md · KV-Cache.md · OCP-GPU-RAS标准.md
+
+> 注：[[集合通信原语]] 作为概念锚点高频引用，但内容页物理放在 `distributed-training/`（与分布式训练主线更紧密），concepts/ 不重复建 stub。
 
 ## 风格约定（应届生重写标准）
 - frontmatter: type/title/created/updated/tags/status/source(知乎出处+篇号)

@@ -1,0 +1,4 @@
+flowchart TB
+    A["amdgpu_device_init"] --> Q{debug_enable_ras_aca?}
+    Q -->|未设置| L["Legacy RAS<br/>amdgpu_ras.c + PSP RAS TA<br/>按 IP Block 注册"]
+    Q -->|已设置| U["UniRAS<br/>ras_mgr + rascore<br/>统一框架(面向MI300等新架构)"]

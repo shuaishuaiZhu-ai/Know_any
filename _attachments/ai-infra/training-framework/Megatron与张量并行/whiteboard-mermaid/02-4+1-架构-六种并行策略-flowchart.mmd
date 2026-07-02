@@ -1,0 +1,11 @@
+flowchart TB
+    subgraph 节点内["节点内 NVLink（高频通信）"]
+        TP["TP 张量并行<br/>切单层权重"]
+        SP["SP 序列并行<br/>切激活省显存"]
+        CP["CP 上下文并行<br/>切长序列"]
+    end
+    subgraph 节点间["节点间 InfiniBand（大吞吐）"]
+        PP["PP 流水并行<br/>按层切"]
+        DP["DP/FSDP<br/>切梯度/参数"]
+    end
+    EP["EP 专家并行<br/>All-to-All<br/>MoE 专用"]

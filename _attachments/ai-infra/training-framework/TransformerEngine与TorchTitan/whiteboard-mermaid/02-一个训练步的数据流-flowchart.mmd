@@ -1,0 +1,8 @@
+flowchart TB
+    D["DataLoader<br/>取 micro-batch"] --> F["前向：穿 TP/CP<br/>FSDP AllGather 参数"]
+    F --> P2P["P2P 发到下一 PP stage<br/>多个 micro-batch 填满流水"]
+    P2P --> L["最后 stage 算 loss"]
+    L --> B["反向：P2P 收梯度<br/>FSDP ReduceScatter"]
+    B --> GC["梯度裁剪 AllReduce"]
+    GC --> OPT["AllGather 参数<br/>optimizer.step()"]
+    OPT --> M["指标 AllReduce + 日志"]

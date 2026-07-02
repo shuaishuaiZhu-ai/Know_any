@@ -1,0 +1,5 @@
+flowchart LR
+    D["① 检测<br/>UMC/ACA/NBIO/ATHUB"] --> I["② 中断 IH"]
+    I --> P["③ 分发<br/>ras_mgr_handle_*"]
+    P --> R["④ 处理<br/>ras_process_thread"]
+    R --> V["⑤ 恢复<br/>amdgpu_ras_do_recovery"]

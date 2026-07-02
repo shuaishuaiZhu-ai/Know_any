@@ -1,0 +1,5 @@
+flowchart TD
+    Q{问题类型}
+    Q -->|"训得不对 精度问题<br/>NPU vs CPU/GPU 数值不一致"| M["msprobe<br/>精度比对/溢出检测/NaN溯源"]
+    Q -->|"训得不快 性能问题<br/>NPU 比 GPU 慢"| C["compare_tools<br/>性能维度比对"]
+    Q -->|"又慢又不对<br/>大规模集群综合调优"| K["千卡训练性能优化<br/>系统级方法论"]

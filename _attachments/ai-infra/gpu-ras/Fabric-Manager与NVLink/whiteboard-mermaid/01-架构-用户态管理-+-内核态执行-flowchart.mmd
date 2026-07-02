@@ -1,0 +1,14 @@
+flowchart TB
+    subgraph U["用户态"]
+        F["FM 服务 nvidia-fabricmanager<br/>配置解析/分区/状态监控/故障决策"]
+        L["NVLSM 四代专属<br/>拓扑发现/路由表编程/PKEY"]
+    end
+    subgraph K["内核态"]
+        D["NVSwitch 驱动 nvidia-nvswitch.ko<br/>端口启停/链路训练/寄存器读写"]
+        G["GPU 驱动 nvidia.ko<br/>GPU 侧 NVLink 配置"]
+    end
+    H["设备节点<br/>/dev/nvidia-nvlink<br/>/dev/nvidia-nvswitchctl"]
+    F --> D
+    L --> D
+    D --> H
+    G --> H

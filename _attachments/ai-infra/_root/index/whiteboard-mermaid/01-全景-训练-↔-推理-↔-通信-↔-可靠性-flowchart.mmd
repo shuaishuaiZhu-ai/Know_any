@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph 训练["训练侧"]
+        DT["分布式训练基础<br/>系统=要素×连接+目的+边界"]
+        TF["训练框架/算子<br/>Megatron/FlashAttn"]
+    end
+    subgraph 通信["通信底座"]
+        CC["集合通信原语"]
+        NCCL["NCCL 通信库<br/>Ring/2D拓扑/传输层"]
+        CL["其他通信库<br/>NVSHMEM/UCX/Gloo"]
+    end
+    subgraph 推理["推理侧"]
+        LL["LLM 推理/缓存<br/>vLLM/Mooncake/DeepEP/PD分离"]
+    end
+    subgraph 可靠["可靠性"]
+        RAS["GPU RAS<br/>故障检测/恢复"]
+        AC["AI 云/K8s 运维<br/>Device Plugin/DCGM"]
+    end
+    subgraph 工具["调试工具"]
+        DT2["msprobe 精度<br/>compare_tools 性能"]
+        P["千卡性能优化"]
+    end
+    DT --> CC & TF
+    CC --> NCCL & CL
+    NCCL --> LL & P
+    TF --> P
+    LL --> RAS
+    RAS --> AC
+    AC --> P

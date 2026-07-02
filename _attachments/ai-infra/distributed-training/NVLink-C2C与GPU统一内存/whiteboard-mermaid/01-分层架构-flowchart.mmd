@@ -1,0 +1,10 @@
+flowchart TB
+    subgraph GH["Grace Hopper 超级芯片（同一封装内）"]
+        CPU["Grace CPU die"] <-->|"NVLink-C2C<br/>900GB/s 双向 · 亚纳秒 · 缓存一致"| GPU["Hopper GPU die"]
+    end
+    subgraph L["分层架构（自上而下）"]
+        T["③ 协议层<br/>AMBA CHI · Snoop+Directory 一致性"]
+        D["② 数据链路层 DLL<br/>Flit 帧 · 信用流控 · CRC+FEC+ARQ"]
+        P["① 物理层 PHY<br/>PAM4 · 嵌入式时钟 · 短距低功耗"]
+    end
+    T --> D --> P

@@ -1,0 +1,6 @@
+flowchart LR
+    HW["GPU 硬件<br/>A100/H100"] -->|"libdcgm.so / NVML"| DCGM["DCGM<br/>nv-hostengine + libdcgm.so<br/>字段订阅/采集"]
+    DCGM -->|"GetLatestValues"| EXP["DCGM-Exporter<br/>:9400 /metrics<br/>翻译成 Prom 格式<br/>+Pod 标签"]
+    EXP -->|"Pull 每 30s"| PROM["Prometheus<br/>时序存储"]
+    PROM --> GRAF["Grafana<br/>仪表盘/告警"]
+    KUBE["Kubelet Pod Resources API"] -.->|"GPU→Pod 映射"| EXP

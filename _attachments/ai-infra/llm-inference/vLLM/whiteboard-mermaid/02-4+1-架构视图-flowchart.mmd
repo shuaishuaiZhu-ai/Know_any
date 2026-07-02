@@ -1,0 +1,10 @@
+flowchart TB
+    API["API Server / LLM入口<br/>OpenAI兼容 REST + 离线 generate()"] --> Engine
+    subgraph Core["4 核心模块"]
+        Engine["LLMEngine<br/>请求生命周期 + detokenization + 统计"] --> Scheduler
+        Scheduler["Scheduler<br/>调度策略(fcfs/priority) + token budget<br/>+ KV Cache 分配 + preemption"] --> Worker
+        Worker["Worker + ModelRunner<br/>模型加载/执行/采样<br/>+ Attention Backend(FlashAttn/PagedAttn)"] --> BM
+        BM["BlockManager / KVCacheManager<br/>Block Pool 管理 + 前缀缓存<br/>+ 分配/回收/引用计数"]
+    end
+    Scheduler -.->|"调度输出"| BM
+    BM -.->|"Block Table"| Worker

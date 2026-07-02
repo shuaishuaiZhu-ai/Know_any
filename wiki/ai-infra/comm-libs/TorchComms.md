@@ -23,13 +23,9 @@ source:
 
 ## 四层架构
 
-```mermaid
-flowchart TD
-    A["应用层<br/>PyTorch DDP / FSDP / Megatron"] --> B["API 抽象层<br/>TorchComm / TorchCommBackend / TorchWork / TorchCommFactory"]
-    B --> C["后端实现层<br/>NCCLX | NCCL | GLOO | RCCL | RCCLX<br/>（NCCLX 内含 meta/ 扩展）"]
-    C --> D["CTran 传输层<br/>Bootstrap / MemCache / Mapper / Profiler"]
-    D --> E["硬件<br/>IPC / RDMA / Socket / GPUDirect"]
-```
+![四层架构 lark-whiteboard 图解](../../../_attachments/ai-infra/comm-libs/TorchComms/whiteboard-mermaid/01-四层架构-flowchart.png)
+
+> 图解源文件：[`01-四层架构-flowchart.mmd`](../../../_attachments/ai-infra/comm-libs/TorchComms/whiteboard-mermaid/01-四层架构-flowchart.mmd)。
 
 NCCLX 的 `meta/` 增强：`ctran`（CTran 通信框架集成）、`colltrace`（全链路追踪）、`algoconf`（运行时算法配置）、`hints`（GlobalHints）、`transport`（传输扩展）。
 

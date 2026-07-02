@@ -1,0 +1,4 @@
+flowchart LR
+    P["Prefill 节点<br/>高算力 GPU"] -->|"NIXL RDMA<br/>KV Cache 传输"| D["Decode 节点<br/>低延迟 GPU"]
+    P -->|"store()"| L["LMCache<br/>PDBackend"]
+    L -->|"retrieve()"| D

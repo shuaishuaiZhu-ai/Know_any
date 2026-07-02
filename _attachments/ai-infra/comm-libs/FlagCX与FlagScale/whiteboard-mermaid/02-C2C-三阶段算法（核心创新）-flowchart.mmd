@@ -1,0 +1,3 @@
+flowchart LR
+    S1["① 集群内 Reduce<br/>各厂商用自己原生 CCL<br/>先内部归约"] --> S2["② 跨集群交换<br/>RDMA Send/Recv<br/>代表互传"]
+    S2 --> S3["③ 集群内 Broadcast<br/>各厂商原生 CCL<br/>结果广播回所有卡"]

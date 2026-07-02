@@ -1,0 +1,17 @@
+flowchart LR
+    subgraph ENGINES["推理引擎"]
+        V1["vLLM 实例 A<br/>KV Producer"]
+        V2["vLLM 实例 B<br/>KV Consumer"]
+        SG["SGLang 实例"]
+    end
+    subgraph UCM["UCM 统一缓存池"]
+        ABS["UcmKVStoreBase 统一接口"]
+        L1["L1: GPU HBM<br/>热 KV，40-80GB<br/>~100ns"]
+        L2["L2: DRAM（DramStore）<br/>温 KV，512GB-2TB<br/>~100μs"]
+        L3["L3: SSD / NFS<br/>冷 KV，1-10TB<br/>~100μs-5ms"]
+        L4["L4: Mooncake 分布式<br/>共享池，10-100TB<br/>~1-10ms（RDMA）"]
+    end
+    V1 -->|"dump KV"| ABS
+    V2 -->|"load KV"| ABS
+    SG -->|"lookup / prefetch"| ABS
+    ABS --> L1 --> L2 --> L3 --> L4

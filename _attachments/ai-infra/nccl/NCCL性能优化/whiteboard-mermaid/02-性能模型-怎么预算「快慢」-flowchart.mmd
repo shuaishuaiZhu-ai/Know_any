@@ -1,0 +1,5 @@
+flowchart LR
+    Q{"消息大小?"}
+    Q -->|"< 128KB 拼延迟"| S1["Tree / Ring<br/>LL 协议<br/>128-256 线程"]
+    Q -->|"128KB-1MB 平衡"| S2["Tree / Ring<br/>LL128 协议<br/>256-384 线程"]
+    Q -->|"> 1MB 拼带宽"| S3["Ring / NVLS<br/>Simple 协议<br/>384-640 线程"]

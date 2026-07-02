@@ -1,0 +1,19 @@
+flowchart TB
+    subgraph PLUS["+1 PD 解耦层"]
+        PD["PD 解耦<br/>Prefill / Decode 分离<br/>异构 GPU 混部（A100+L40）"]
+    end
+    subgraph L1["① vLLM 集成层"]
+        INT["UnifiedCacheConnectorV1<br/>实现 KVConnectorBase_V1<br/>管理 RequestBlockInfo"]
+    end
+    subgraph L2["② 稀疏注意力层"]
+        SA["UcmSparseBase（策略模式）<br/>ESA | KvComp | GSA | KVStar<br/>Scheduler / Worker 双角色"]
+    end
+    subgraph L3["③ 存储抽象层"]
+        STORE["UcmKVStoreBase（适配器模式）<br/>create / lookup / load / dump / commit<br/>DramStore | NfsStore | MooncakeStore | LocalStore"]
+    end
+    subgraph L4["④ 基础设施层"]
+        INFRA["Device 抽象<br/>CUDA / Ascend NPU<br/>Thread | Memory | File"]
+    end
+    INT --> SA --> STORE --> INFRA
+    PD -.-> INT
+    PD -.-> STORE

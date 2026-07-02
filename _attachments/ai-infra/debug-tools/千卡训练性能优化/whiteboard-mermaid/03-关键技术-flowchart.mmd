@@ -1,0 +1,5 @@
+flowchart LR
+    R["RDMA 零拷贝<br/>XPU内存 直达 对端XPU内存<br/>绕过 CPU/OS内核"] --> P
+    P["Pinned Memory 锁页<br/>GPUDirect RDMA<br/>QP 数量调优"] --> C
+    C["拥塞控制<br/>PFC背压 + ECN标记 + DCQCN降速"] --> M
+    M["消息分片+流水线<br/>大消息分片 Overlap<br/>小消息梯度桶融合"]

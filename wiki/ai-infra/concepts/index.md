@@ -5,6 +5,8 @@ created: 2026-06-30
 updated: 2026-06-30
 tags: [ai-infra, concepts, index]
 status: active
+source:
+  - "知乎专栏《大模型训练、推理与AI云平台》跨集群共享概念（散见各篇）｜作者常平｜https://www.zhihu.com/column/c_1491039346714746880"
 ---
 
 # 概念锚点

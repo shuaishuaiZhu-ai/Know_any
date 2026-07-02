@@ -44,20 +44,9 @@ vLLM 的两大杀手锏精确打在这两个痛点上。
 
 **给应届生**：传统 static batching 像「一辆大巴等人齐了才发车，车上最慢的乘客决定了到达时间」。Continuous Batching 像「流水线传送带——工人做完手上的活立刻从队列取下一个，传送带永远不停」。在 vLLM 中，每个 step 都可能：老请求生成完最后一个 token 就退出 batch，新请求从 waiting 队列补进来。
 
-```mermaid
-flowchart LR
-    subgraph Step1["Step 1"]
-        R1["Req1"] --> R2["Req2"] --> R3["Req3"] --> R4["Req4"]
-    end
-    Step1 -->|"Req2 完成, 加入 Req5"| Step2
-    subgraph Step2["Step 2"]
-        R1b["Req1"] --> R3b["Req3"] --> R4b["Req4"] --> R5["Req5"]
-    end
-    Step2 -->|"Req1+Req4 完成, 加入 Req6+Req7"| Step3
-    subgraph Step3["Step 3"]
-        R3c["Req3"] --> R5c["Req5"] --> R6["Req6"] --> R7["Req7"]
-    end
-```
+![Continuous Batching：流水线不停，做完就换 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/vLLM/whiteboard-mermaid/01-Continuous-Batching-流水线不停-做完就换-flowchart.png)
+
+> 图解源文件：[`01-Continuous-Batching-流水线不停-做完就换-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/vLLM/whiteboard-mermaid/01-Continuous-Batching-流水线不停-做完就换-flowchart.mmd)。
 
 效果：GPU 利用率接近 100%，吞吐量比 static batching 提升 2-3 倍。
 
@@ -65,18 +54,9 @@ flowchart LR
 
 vLLM V1 的"4"是四个核心模块，"1"是对外接口层（API Server / LLM 入口）。
 
-```mermaid
-flowchart TB
-    API["API Server / LLM入口<br/>OpenAI兼容 REST + 离线 generate()"] --> Engine
-    subgraph Core["4 核心模块"]
-        Engine["LLMEngine<br/>请求生命周期 + detokenization + 统计"] --> Scheduler
-        Scheduler["Scheduler<br/>调度策略(fcfs/priority) + token budget<br/>+ KV Cache 分配 + preemption"] --> Worker
-        Worker["Worker + ModelRunner<br/>模型加载/执行/采样<br/>+ Attention Backend(FlashAttn/PagedAttn)"] --> BM
-        BM["BlockManager / KVCacheManager<br/>Block Pool 管理 + 前缀缓存<br/>+ 分配/回收/引用计数"]
-    end
-    Scheduler -.->|"调度输出"| BM
-    BM -.->|"Block Table"| Worker
-```
+![4+1 架构视图 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/vLLM/whiteboard-mermaid/02-4+1-架构视图-flowchart.png)
+
+> 图解源文件：[`02-4+1-架构视图-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/vLLM/whiteboard-mermaid/02-4+1-架构视图-flowchart.mmd)。
 
 - **LLMEngine**：用户入口，管理请求的添加/中止/追踪，负责 detokenization 和输出后处理。在线服务对应 `AsyncLLMEngine`。
 - **Scheduler**：核心大脑。每个 step 从 waiting 队列选请求、分配 token budget、调用 KVCacheManager 分配 Block。内存不足时触发 preemption（抢占低优先级请求的 Block）。
@@ -112,18 +92,9 @@ V1 架构（vllm >= 0.11.1）相对 V0 做了系统性重构，关键优化：
 
 ### PagedAttention + Continuous Batching 的 KV Cache 块流转
 
-```mermaid
-flowchart TD
-    W["waiting 队列<br/>新请求排队"] -->|"Scheduler 挑选"| A["分配 Block"]
-    A -->|"Block Pool 有空闲"| B["写入 Block Table<br/>req.block_ids = [3,7,12]"]
-    A -->|"Block Pool 不足"| P["Preemption<br/>抢占低优先级请求的 Block<br/>被抢占请求回 waiting 队列"]
-    P --> A
-    B --> C["Prefill: 计算 KV, 写入 Block"]
-    C --> D["Decode: 每步读 Block Table<br/>PagedAttention kernel 按映射访问 KV"]
-    D -->|"生成结束"| F["释放 Block<br/>block_pool.free_blocks.append(block_id)"]
-    D -->|"未结束"| D
-    F -->|"前缀缓存命中"| H["引用计数 +1<br/>共享物理 Block, 不拷贝"]
-```
+![PagedAttention + Continuous Batching 的 KV Cache 块流转 lark-whiteboard 图解](../../../_attachments/ai-infra/llm-inference/vLLM/whiteboard-mermaid/03-PagedAttention-+-Continuous-Batching-的-KV-Cache-块流转-flowchart.png)
+
+> 图解源文件：[`03-PagedAttention-+-Continuous-Batching-的-KV-Cache-块流转-flowchart.mmd`](../../../_attachments/ai-infra/llm-inference/vLLM/whiteboard-mermaid/03-PagedAttention-+-Continuous-Batching-的-KV-Cache-块流转-flowchart.mmd)。
 
 ## 国产芯片启示
 

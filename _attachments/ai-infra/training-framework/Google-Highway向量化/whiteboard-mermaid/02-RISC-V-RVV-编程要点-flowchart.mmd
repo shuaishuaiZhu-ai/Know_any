@@ -1,0 +1,6 @@
+flowchart TB
+    Loop["for i += Lanes d 到 n"] --> Load["Load 加载向量"]
+    Load --> Calc["MulAdd 等向量运算"]
+    Calc --> Store["Store 写回"]
+    Store -->|"未到结尾"| Loop
+    Loop -->|"剩余 < Lanes"| Tail["尾部: 标量循环<br/>或 MaskedLoad 掩码"]

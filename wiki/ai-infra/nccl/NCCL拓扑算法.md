@@ -17,15 +17,9 @@ source:
 
 ## NCCL 支持的拓扑模式
 
-```mermaid
-flowchart LR
-    Q{"选哪个算法?"}
-    Q -->|"节点内全互联<br/>ring 小"| R["Ring<br/>NCCL_TOPO_PATTERN_RING"]
-    Q -->|"大规模/低延迟"| T["Tree<br/>BALANCED/SPLIT/TREE"]
-    Q -->|"NVSwitch 全连"| N["NVLS<br/>NVLink SHARP"]
-    Q -->|"InfiniBand SHARP"| C["CollNet<br/>直连集合网络"]
-    Q -->|"2D 网格多网卡"| M["2D Mesh/Torus<br/>层次化"]
-```
+![NCCL 支持的拓扑模式 lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL拓扑算法/whiteboard-mermaid/01-NCCL-支持的拓扑模式-flowchart.png)
+
+> 图解源文件：[`01-NCCL-支持的拓扑模式-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL拓扑算法/whiteboard-mermaid/01-NCCL-支持的拓扑模式-flowchart.mmd)。
 
 | 算法 | 模式常量 | 适用 |
 |---|---|---|
@@ -42,16 +36,9 @@ flowchart LR
 
 详见 [[Ring-AllReduce]] 和 [[训练拓扑与服务框架]]。NCCL 的 Ring = ScatterReduce + AllGather，每个 GPU 只向右发、从左收，无中心瓶颈。
 
-```mermaid
-flowchart LR
-    subgraph ScatterReduce["阶段1 ScatterReduce N-1次"]
-        SR["大梯度拆N块 → 每卡收前向发后向累加 → 每卡得一块完整同维梯度"]
-    end
-    subgraph AllGather["阶段2 AllGather N-1次"]
-        AG["每卡把自己块复制给其他卡 → 每卡得完整大梯度"]
-    end
-    ScatterReduce --> AllGather
-```
+![Ring AllReduce（最基础） lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL拓扑算法/whiteboard-mermaid/02-Ring-AllReduce（最基础）-flowchart.png)
+
+> 图解源文件：[`02-Ring-AllReduce（最基础）-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL拓扑算法/whiteboard-mermaid/02-Ring-AllReduce（最基础）-flowchart.mmd)。
 
 **局限**：ring 大时跳数高（N 卡跳 N-1 次），时延增加。
 
@@ -65,17 +52,9 @@ flowchart LR
 
 把 GPU 组织成二维网格，行内+列内分层通信。适合多网卡异构网络（主机内 NVLink + 主机间多 RDMA 网卡）。
 
-```mermaid
-flowchart TB
-    subgraph 行["行内（主机内 NVLink）"]
-        R1["GPU0-GPU1-GPU2-GPU3 组 ring"]
-    end
-    subgraph 列["列内（主机间 RDMA）"]
-        C1["跨节点同列 GPU 组 ring"]
-    end
-    行 --> 列
-    列 --> 行
-```
+![2D-Mesh / 2D-Torus（层次化） lark-whiteboard 图解](../../../_attachments/ai-infra/nccl/NCCL拓扑算法/whiteboard-mermaid/03-2D-Mesh-2D-Torus（层次化）-flowchart.png)
+
+> 图解源文件：[`03-2D-Mesh-2D-Torus（层次化）-flowchart.mmd`](../../../_attachments/ai-infra/nccl/NCCL拓扑算法/whiteboard-mermaid/03-2D-Mesh-2D-Torus（层次化）-flowchart.mmd)。
 
 - **2D Mesh**：行列网格，边界不回环。
 - **2D Torus**：网格边界回环（wrap-around），每维度都是 ring。
@@ -84,11 +63,30 @@ flowchart TB
 
 ### Halving-Doubling（减半加倍）
 
-基于递归二叉树的 AllReduce：Reduce-Scatter（减半）+ AllGather（加倍）两阶段，类似 Ring 的 ScatterReduce+AllGather 但用树形分治，适合大消息。
+基于递归二叉树的 AllReduce：Reduce-Scatter（减半）+ AllGather（加倍）两阶段，类似 Ring 的 ScatterReduce+AllGather 但用**树形分治**而非环形流水。
+
+- **减半阶段（Reduce-Scatter）**：每步把数据对半切，相邻进程配对交换并归约，log₂N 步后每进程持有一块聚合结果。
+- **加倍阶段（AllGather）**：反过来，每步把持有的块对半翻倍交换，log₂N 步后每进程拿到完整结果。
+- **总步数**：2·log₂N（远少于 Ring 的 N-1 步），适合**大集群 + 大消息**。
+
+**给应届生**：Ring 像" N 个人围圈传包裹，每人传 N-1 次才凑齐"；Halving-Doubling 像"折纸式配对——第一轮两人一组交换、第二轮四人一组、第三轮八人一组……每轮范围翻倍，log N 轮就全网凑齐"。步数少但每步全员同时收发，对网络瞬时带宽要求高。
 
 ### Butterfly（蝶形）
 
-分阶段对等交换，每阶段每个进程与唯一"伙伴"交换。广泛用于 FFT、递归倍增的 AllReduce/AllGather。通信步数少（log N）但每步全员参与。
+分阶段对等交换，每阶段每个进程与唯一"伙伴"交换固定跨距的数据。广泛用于 FFT、递归倍增的 AllReduce/AllGather。
+
+- **跨距序列**：第 k 阶段伙伴距离 = 2^k（1, 2, 4, …），log N 阶段覆盖全网。
+- **特点**：通信步数少（log N）、每步全员参与且负载均衡，但每对伙伴独占一条链路，对网络拓扑对称性敏感。
+
+**给应届生**：Butterfly 像"锦标赛排位赛"——第 1 轮相邻两人交换，第 2 轮隔 2 人交换，第 3 轮隔 4 人……每轮交换对象距离翻倍，log N 轮后所有人都拿到全局信息。名字来自其连接图样子像蝴蝶翅膀。
+
+### 三种算法对比
+
+| 算法 | 步数 | 每步参与 | 适合场景 | 局限 |
+|---|---|---|---|---|
+| Ring | N-1 | 2 端（环形邻居） | 中小集群、任意消息 | 大集群步数线性增长 |
+| Halving-Doubling | 2·log₂N | 全员配对 | 大集群、大消息 | 每步瞬时带宽压力大 |
+| Butterfly | log₂N | 全员配对 | 大集群、需最少步数 | 拓扑对称性敏感 |
 
 ## 拓扑自动检测与选择
 

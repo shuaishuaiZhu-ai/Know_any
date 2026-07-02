@@ -21,15 +21,9 @@ source:
 
 ## 4+1 架构：五层逻辑
 
-```mermaid
-flowchart TB
-    M["① 监控检测层 Health Monitors<br/>GPU/Syslog/CSP/K8s Object"] -->|gRPC HealthEvent| P
-    P["② 接入与存储层 Platform Connectors<br/>校验→写 MongoDB/PG→更新 Node Condition"] -->|Change Stream| R
-    R["③ 故障响应层 Core Modules<br/>Quarantine/Drainer/Remediation/Janitor"] --> SUP
-    SUP["④ 辅助服务层<br/>Labeler/MetadataCollector/LogCollector/StateManager"]
-    EXT["⑤ 外部集成层<br/>K8s API/调度器/监控/云厂商API"]
-    R --> EXT
-```
+![4+1 架构：五层逻辑 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/NVSentinel韧性系统/whiteboard-mermaid/01-4+1-架构-五层逻辑-flowchart.png)
+
+> 图解源文件：[`01-4+1-架构-五层逻辑-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/NVSentinel韧性系统/whiteboard-mermaid/01-4+1-架构-五层逻辑-flowchart.mmd)。
 
 ### ① 监控检测层（Health Monitors）
 
@@ -65,13 +59,9 @@ Labeler 给节点打能力标签；Metadata Collector 收 GPU/NVSwitch 拓扑上
 
 ## 韧性闭环：检测→隔离→排空→修复→恢复
 
-```mermaid
-flowchart LR
-    D["① 检测<br/>GPU/Syslog Monitor 生成 HealthEvent"] --> Q["② 隔离<br/>Fault Quarantine cordon+taint"]
-    Q --> DR["③ 排空<br/>Node Drainer 驱逐 Pod"]
-    DR --> RM["④ 修复<br/>Remediation 创建 CR/Janitor reset/reboot"]
-    RM --> RC["⑤ 恢复<br/>健康事件解除隔离 uncordon"]
-```
+![韧性闭环：检测→隔离→排空→修复→恢复 lark-whiteboard 图解](../../../_attachments/ai-infra/gpu-ras/NVSentinel韧性系统/whiteboard-mermaid/02-韧性闭环-检测→隔离→排空→修复→恢复-flowchart.png)
+
+> 图解源文件：[`02-韧性闭环-检测→隔离→排空→修复→恢复-flowchart.mmd`](../../../_attachments/ai-infra/gpu-ras/NVSentinel韧性系统/whiteboard-mermaid/02-韧性闭环-检测→隔离→排空→修复→恢复-flowchart.mmd)。
 
 **给应届生**：这五步就是 K8s 故障节点的标准动作。cordon = "挂停业牌"（不再调度新任务到这节点）；drain = "请客走人"（把已有 Pod 优雅迁走）；reset/reboot = "治病"；uncordon = "重新开业"。NVSentinel 把这套手动 `kubectl cordon/drain` 自动化了。
 
