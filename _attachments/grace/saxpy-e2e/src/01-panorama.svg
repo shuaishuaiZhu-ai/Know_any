@@ -28,16 +28,16 @@
     <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#6f8a99"/></marker>
   </defs>
   <rect width="1340" height="980" rx="22" fill="#f6f8fa"/>
-  <text x="40" y="44" class="title">一个 Kernel 的全景：从 .cu 到硬件执行的六个阶段</text>
+  <text x="40" y="44" class="title">一个 Kernel 的全景：从 .cu 到硬件执行的六个阶段（框内 0–8 为细步骤）</text>
   <text x="40" y="72" class="sub">主角例子 add1&lt;&lt;&lt;1,1&gt;&gt;&gt;(deviceA)（文件名 test_saxpy_op.cu，实际算 *dst=6+4=10）。蓝色路径=每个 kernel 都走；琥珀=只在初始化建场一次。</text>
 
   <!-- lane tabs -->
   <rect x="24" y="96"  width="138" height="100" rx="10" fill="#5a6b76"/>
-  <text x="93" y="138" text-anchor="middle" class="lane">① 开发机</text>
+  <text x="93" y="138" text-anchor="middle" class="lane">开发机</text>
   <text x="93" y="160" text-anchor="middle" class="lanesub">编译期 · host</text>
 
   <rect x="24" y="216" width="138" height="128" rx="10" fill="#3f78c4"/>
-  <text x="93" y="262" text-anchor="middle" class="lane">② UMD</text>
+  <text x="93" y="262" text-anchor="middle" class="lane">UMD</text>
   <text x="93" y="284" text-anchor="middle" class="lanesub">用户态运行时</text>
   <text x="93" y="302" text-anchor="middle" class="lanesub">aigc-driver</text>
 
@@ -47,11 +47,11 @@
   <text x="93" y="464" text-anchor="middle" class="lanesub">仅一次性建场</text>
 
   <rect x="24" y="532" width="138" height="128" rx="10" fill="#36936c"/>
-  <text x="93" y="582" text-anchor="middle" class="lane">③ CP 固件</text>
+  <text x="93" y="582" text-anchor="middle" class="lane">CP 固件</text>
   <text x="93" y="604" text-anchor="middle" class="lanesub">芯片上 · 分拣</text>
 
   <rect x="24" y="696" width="138" height="110" rx="10" fill="#7a5cc0"/>
-  <text x="93" y="744" text-anchor="middle" class="lane">④ GPU</text>
+  <text x="93" y="744" text-anchor="middle" class="lane">GPU</text>
   <text x="93" y="766" text-anchor="middle" class="lanesub">计算阵列执行</text>
 
   <!-- L1 开发机 -->
@@ -193,7 +193,7 @@
 
   <!-- completion return: up the right gutter back to UMD main() -->
   <path d="M1290 700 H1320 V211 H300 V222" class="ret" marker-end="url(#ar)"/>
-  <text x="810" y="205" text-anchor="middle" class="small" fill="#5b7383">⑧ CP 抬 MSI-X 向量40 → KMD 中断下半部 os_wake_up → 唤醒 host 上等待的 main()</text>
+  <text x="810" y="205" text-anchor="middle" class="small" fill="#5b7383">⑧ CP 抬 MSI-X 向量40 → KMD 中断下半部 record_irq_event → 唤醒 host 上等待的 main()</text>
 
   <!-- legend -->
   <rect x="40" y="828" width="1260" height="116" rx="14" fill="#ffffff" stroke="#e0e6ea" stroke-width="1.2"/>

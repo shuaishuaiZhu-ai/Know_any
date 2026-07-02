@@ -31,7 +31,7 @@
     <rect x="194" y="250" width="60" height="74" rx="8" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.4"/><text x="224" y="289" text-anchor="middle" class="cell">2 包</text>
     <rect x="260" y="250" width="60" height="74" rx="8" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.4"/><text x="290" y="289" text-anchor="middle" class="cell">3 包</text>
     <rect x="326" y="250" width="60" height="74" rx="8" fill="#e6f6ef" stroke="#56bf93" stroke-width="1.4"/><text x="356" y="289" text-anchor="middle" class="cell">4 包</text>
-    <rect x="392" y="250" width="60" height="74" rx="8" fill="#fdeeee" stroke="#e6a9a6" stroke-dasharray="4 3"/><text x="422" y="285" text-anchor="middle" class="s" fill="#a83b38">间隙</text><text x="422" y="301" text-anchor="middle" class="s" fill="#a83b38">留空</text>
+    <rect x="392" y="250" width="60" height="74" rx="8" fill="#ffffff" stroke="#cfd6dd"/><text x="422" y="293" text-anchor="middle" class="cell">5</text>
     <rect x="458" y="250" width="60" height="74" rx="8" fill="#ffffff" stroke="#cfd6dd"/><text x="488" y="293" text-anchor="middle" class="cell">6</text>
     <rect x="524" y="250" width="60" height="74" rx="8" fill="#ffffff" stroke="#cfd6dd"/><text x="554" y="293" text-anchor="middle" class="cell">7</text>
   </g>
@@ -39,8 +39,8 @@
   <path d="M584 230 C 620 210, 620 200, 540 200 L 110 200 C 50 200, 50 230, 70 244" fill="none" stroke="#b6c0c8" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#a)"/>
   <text x="300" y="194" text-anchor="middle" class="s">环形：写到尾（7）绕回头（0）</text>
   <!-- wptr (producer, UMD) above cell6 -->
-  <path d="M488 366 V330" stroke="#3f78c4" stroke-width="2.4" fill="none" marker-end="url(#ab)"/>
-  <text x="488" y="386" text-anchor="middle" class="s" fill="#3f78c4">wptr（UMD 下一个写）</text>
+  <path d="M422 366 V330" stroke="#3f78c4" stroke-width="2.4" fill="none" marker-end="url(#ab)"/>
+  <text x="422" y="386" text-anchor="middle" class="s" fill="#3f78c4">wptr（UMD 下一个写）</text>
   <!-- rptr (consumer, CP) below cell2 -->
   <path d="M224 210 V244" stroke="#36936c" stroke-width="2.4" fill="none" marker-end="url(#ag)"/>
   <text x="224" y="204" text-anchor="middle" class="s" fill="#36936c">rptr（CP 下一个读）</text>

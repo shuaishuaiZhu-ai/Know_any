@@ -50,12 +50,12 @@
   <text x="637" y="252" class="s">其它向量：111=CP 固件命令 ack（建/销队列）、109=IMC ack —— 都不是 kernel 计算完成。</text>
   <rect x="637" y="268" width="480" height="68" rx="10" fill="#ffffff" stroke="#9cc3ee"/>
   <text x="653" y="292" class="b">上半部（硬中断，必须极快）</text>
-  <text x="653" y="313" class="mono">aigc_lib_irq_cp_tcu()：读 + 清中断状态</text>
+  <text x="653" y="313" class="mono">aigc_lib_irq_*（每向量）：读 + 清中断状态</text>
   <text x="653" y="330" class="s">标记 need_bh，立刻返回（不在硬中断里干重活）</text>
   <rect x="637" y="350" width="480" height="86" rx="10" fill="#ffffff" stroke="#9cc3ee"/>
   <text x="653" y="374" class="b">下半部（workqueue / 线程，可以慢慢干）</text>
-  <text x="653" y="395" class="mono">aigc_intr_ring_read_one() → enqueue_event()</text>
-  <text x="653" y="414" class="mono">→ os_wake_up()</text>
+  <text x="653" y="395" class="mono">EngineMapEvent → record_irq_event()</text>
+  <text x="653" y="414" class="mono">→ tracker_record_irq_event()</text>
   <text x="653" y="431" class="s">把“哪个引擎完成”翻成事件、推给注册的客户端、唤醒线程</text>
   <path d="M877 226 V268" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
   <path d="M877 336 V350" stroke="#8da2ad" stroke-width="2" marker-end="url(#a)"/>
