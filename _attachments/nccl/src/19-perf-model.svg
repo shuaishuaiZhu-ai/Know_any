@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1460 700" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>NCCL 性能模型:time = 延迟 + 字节数/带宽 的自动换挡,与 busbw 随消息大小的曲线</title>
+  <desc>左面板:预估时间随消息大小变化的两条曲线——Tree+LL 延迟低但带宽差(起点低、涨得快),Ring+Simple 延迟高但带宽好(起点高、涨得慢),两线交叉处是调优模型自动换挡点,小消息区 Tree+LL 赢,大消息区 Ring+Simple 赢。右面板:busbw 随消息大小上升,小消息区被固定延迟拖低,大消息区逼近硬件峰值带宽(虚线)。底部横条给出公式 time = lat×latCount + nBytes/(1000×bw) 与源码锚点。</desc>
+
+  <defs>
+    <marker id="ax" markerWidth="8" markerHeight="8" refX="3.6" refY="3.4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,3.4 L0,6.8 Z" fill="#78909c"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1460" height="700" rx="26" fill="#f6f8fa"/>
+  <text x="30" y="34" font-size="20" font-weight="700" fill="#102027">NCCL 怎么自动选算法/协议:time = 延迟 + 字节数/带宽</text>
+  <text x="30" y="58" font-size="12.5" fill="#607d8b">init 时把每个 (集合, 算法, 协议) 的延迟/带宽填成成本表,enqueue 时按消息大小查表,选预估 time 最小的组合</text>
+
+  <!-- ============ Left panel: time curves & crossover ============ -->
+  <rect x="30" y="84" width="690" height="490" rx="14" fill="#eaf2fc" stroke="#3f78c9" stroke-width="1.6"/>
+  <text x="50" y="112" font-size="14.5" font-weight="700" fill="#1d4e8f">① 换挡逻辑:两条 time 曲线的交叉</text>
+
+  <rect x="60" y="130" width="630" height="380" rx="10" fill="#ffffff" stroke="#cfd8dc" stroke-width="1"/>
+
+  <!-- axes -->
+  <line x1="110" y1="470" x2="660" y2="470" stroke="#78909c" stroke-width="1.8" marker-end="url(#ax)"/>
+  <line x1="110" y1="470" x2="110" y2="170" stroke="#78909c" stroke-width="1.8" marker-end="url(#ax)"/>
+  <text x="655" y="492" font-size="11" text-anchor="end" fill="#607d8b">消息大小(log)</text>
+  <text x="98" y="164" font-size="11" text-anchor="start" fill="#607d8b">预估 time</text>
+
+  <!-- crossover dashed line -->
+  <line x1="428" y1="216" x2="428" y2="470" stroke="#9e9e9e" stroke-width="1.4" stroke-dasharray="6 5"/>
+
+  <!-- Tree+LL curve: low latency, low bw -->
+  <polyline points="120,428 260,402 428,318 560,220 640,150" fill="none" stroke="#2e9e5b" stroke-width="3"/>
+  <!-- Ring+Simple curve: high latency, high bw -->
+  <polyline points="120,342 260,336 428,318 560,300 640,288" fill="none" stroke="#e08a2b" stroke-width="3"/>
+  <circle cx="428" cy="318" r="6" fill="#455a64"/>
+
+  <!-- region labels -->
+  <text x="150" y="222" font-size="12" font-weight="700" fill="#1e7a3d">小消息:延迟主导</text>
+  <text x="150" y="244" font-size="11.5" fill="#2e7d4f">Tree + LL 的低起点赢</text>
+  <text x="480" y="418" font-size="12" font-weight="700" fill="#a8611c">大消息:带宽主导</text>
+  <text x="480" y="440" font-size="11.5" fill="#a8611c">Ring + Simple 的小斜率赢</text>
+  <text x="428" y="198" font-size="11" text-anchor="middle" fill="#455a64">交叉点:自动换挡</text>
+
+  <!-- legend -->
+  <line x1="130" y1="530" x2="170" y2="530" stroke="#2e9e5b" stroke-width="3"/>
+  <text x="180" y="535" font-size="11.5" fill="#37474f">Tree + LL:起点低(延迟小),斜率大(带宽差)</text>
+  <line x1="440" y1="530" x2="480" y2="530" stroke="#e08a2b" stroke-width="3"/>
+  <text x="490" y="535" font-size="11.5" fill="#37474f">Ring + Simple:起点高,斜率小</text>
+
+  <text x="50" y="562" font-size="11" fill="#37474f">曲线为示意;真实斜率/截距来自 init 时对硬件的测算,不同集群交叉点位置不同</text>
+
+  <!-- ============ Right panel: busbw curve ============ -->
+  <rect x="740" y="84" width="690" height="490" rx="14" fill="#eaf7ee" stroke="#2e9e5b" stroke-width="1.6"/>
+  <text x="760" y="112" font-size="14.5" font-weight="700" fill="#1e7a3d">② 验收指标:busbw 随消息大小的曲线</text>
+
+  <rect x="770" y="130" width="630" height="380" rx="10" fill="#ffffff" stroke="#cfd8dc" stroke-width="1"/>
+
+  <!-- axes -->
+  <line x1="820" y1="470" x2="1370" y2="470" stroke="#78909c" stroke-width="1.8" marker-end="url(#ax)"/>
+  <line x1="820" y1="470" x2="820" y2="170" stroke="#78909c" stroke-width="1.8" marker-end="url(#ax)"/>
+  <text x="1365" y="492" font-size="11" text-anchor="end" fill="#607d8b">消息大小(log)</text>
+  <text x="808" y="164" font-size="11" text-anchor="start" fill="#607d8b">busbw</text>
+
+  <!-- hardware peak dashed -->
+  <line x1="820" y1="212" x2="1370" y2="212" stroke="#c62828" stroke-width="1.6" stroke-dasharray="7 5"/>
+  <text x="1360" y="200" font-size="11" text-anchor="end" fill="#c62828">硬件峰值带宽(如 NVLink 标称值)</text>
+
+  <!-- busbw curve -->
+  <polyline points="830,452 950,424 1080,330 1200,248 1300,226 1360,220" fill="none" stroke="#2e9e5b" stroke-width="3"/>
+
+  <text x="850" y="300" font-size="11.5" font-weight="700" fill="#37474f">小消息:每次调用的固定开销</text>
+  <text x="850" y="320" font-size="11.5" fill="#37474f">(延迟)摊不薄,busbw 被拖低</text>
+  <text x="1150" y="340" font-size="11.5" font-weight="700" fill="#1e7a3d">大消息:流水线打满,</text>
+  <text x="1150" y="360" font-size="11.5" fill="#1e7a3d">busbw 逼近硬件峰值</text>
+
+  <text x="760" y="535" font-size="11.5" fill="#37474f">这条曲线就是 nccl-tests 输出的"性能体检表":大消息段离峰值差多远,就是还有多少可调空间;</text>
+  <text x="760" y="555" font-size="11.5" fill="#37474f">小消息段天然低,不是故障 —— 该看的是它换挡(Tree/LL 接手)后有没有变好</text>
+
+  <!-- bottom banner -->
+  <rect x="30" y="600" width="1400" height="72" rx="9" fill="#eef2f5" stroke="#cfd8dc" stroke-width="1"/>
+  <text x="46" y="626" font-size="11.5" font-weight="700" fill="#455a64">源码依据:time = lat × latCount + nBytes / (1000 × bw) —— ncclTopoGetAlgoTime(graph/tuning.cc:653)</text>
+  <text x="46" y="648" font-size="11" fill="#455a64">成本表 comm-&gt;latencies / bandwidths[集合][算法][协议](include/comm.h:641)由 ncclTopoTuneModel(tuning.cc:243)在 init 时填好;</text>
+  <text x="46" y="666" font-size="11" fill="#455a64">每次 enqueue 由 topoGetAlgoInfo(enqueue.cc:2028)对全部 (算法×协议) 查表,选 time 最小者</text>
+</svg>

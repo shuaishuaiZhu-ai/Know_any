@@ -26,6 +26,7 @@
     <g><rect x="880" y="266" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="892" y="288" font-weight="700" fill="#102027">include/</text><text x="892" y="310" fill="#37474f">comm.h·device.h·transport.h…</text></g>
     <g><rect x="40" y="332" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="52" y="354" font-weight="700" fill="#102027">misc/</text><text x="52" y="376" fill="#37474f">socket·param·cudawrap·nvmlwrap</text></g>
     <g><rect x="320" y="332" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="332" y="354" font-weight="700" fill="#102027">register/</text><text x="332" y="376" fill="#37474f">用户 buffer 注册(GDRCopy/零拷贝)</text></g>
+    <g><rect x="600" y="332" width="260" height="58" rx="9" fill="#e8f7ec" stroke="#74c98a"/><text x="612" y="354" font-weight="700" fill="#102027">plugin/</text><text x="612" y="376" fill="#37474f">net/tuner/profiler 插件加载胶水</text></g>
   </g>
 
   <!-- Section C -->
