@@ -32,7 +32,7 @@ wiki/
 │   └── tiny-kmd/     # tiny-kmd 最小骨架驱动
 ├── ai-infra/         # AI 基础设施（跨生态，非 GraceC 专属）
 │   └── index.md      # 专区首页（知乎专栏134篇重写）
-├── nccl/             # NVIDIA NCCL 集合通信库学习教程（00–12 + 14 图）
+├── nccl/             # NVIDIA NCCL 集合通信库学习教程（00–12 + 19 图 + 问答记录）
 ├── synthesis/        # 跨源综合、面试、工作笔记
 ├── sources/          # 原始/镜像材料索引和证据（查证层，非首读）
 ├── tools/            # non-AI tool notes
@@ -51,7 +51,7 @@ wiki/
 1. [tiny-kmd 架构知识库](<./grace/tiny-kmd/index.md>)：最小骨架驱动（ringbuffer IPC + DMA + misc ioctl），以及把 ajthunk 核心移植进来的缺口对照。
 2. [AI 基础设施专区 ai-infra](<./ai-infra/index.md>)：**跨生态 AI 基础设施**（非 GraceC 专属）。知乎专栏「大模型训练、推理与AI云平台」（作者常平，134 篇）重写的应届生知识库——分布式训练、[[集合通信原语]]、[[NCCL架构总览]]、LLM 推理（[[PD分离推理]]/[[vLLM]]/[[DeepEP]]）、GPU [[GPU-RAS体系|RAS]]、AI 云/K8s 运维、msprobe/compare_tools 调试工具、[[千卡训练性能优化]]。**想理解分布式训练/NCCL/推理/RAS 全栈的从这里进。** 原始材料见 `.raw/zhihu/`。
 3. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
-1. [NCCL 学习教程](<./nccl/index.md>)：从 0 开始、基于 NVIDIA/nccl v2.30.7 源码的多卡集合通信库深度教程——13 篇编号章（概念→架构→初始化→拓扑/图搜索→Ring/Tree 算法→Transport→enqueue→device kernel→proxy→调优）+ 14 张源码核实图解、面试盒子。**想搞懂多卡训练里 AllReduce 怎么工作的，从这里进。**
+1. [NCCL 学习教程](<./nccl/index.md>)：从 0 开始、基于 NVIDIA/nccl v2.30.7 源码的多卡集合通信库深度教程——13 篇编号章（概念→架构→初始化→拓扑/图搜索→Ring/Tree 算法→Transport→enqueue→device kernel→proxy→调优）+ 19 张源码核实图解（另有问答记录配图）、面试盒子。**想搞懂多卡训练里 AllReduce 怎么工作的，从这里进。**
 2. [面试用工作笔记总结](<./synthesis/面试用工作笔记总结.md>)：面试复盘和项目表达。
 3. [语雀工作笔记知识图谱](<./synthesis/语雀工作笔记知识图谱.md>)：工作笔记主线。
 4. [本地 Markdown 知识图谱](<./synthesis/C-home-shuaishuai-zhu Markdown 知识图谱.md>)：历史本地材料总览。
